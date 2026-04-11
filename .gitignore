@@ -1,0 +1,9 @@
+xcuserdata/
+.env
+build/
+DerivedData/
+.DS_Store
+.AppleDouble
+.LSOverride
+.swiftpm
+.build
