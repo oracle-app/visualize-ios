@@ -7,3 +7,4 @@ DerivedData/
 .LSOverride
 .swiftpm
 .build
+visualize/GoogleService-Info.plist
