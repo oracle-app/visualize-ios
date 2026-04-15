@@ -92,7 +92,7 @@ struct FeedCard: View {
             HStack(spacing: 25) {
                 Text("by \(author)")
                 Text("•")
-                Text("10 apr 2026")
+                Text("\(date)")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .font(.system(size: 13, weight: .regular))
