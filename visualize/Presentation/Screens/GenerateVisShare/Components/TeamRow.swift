@@ -20,19 +20,19 @@ struct TeamRow: View {
                             Circle()
                                 .fill(Color.red.opacity(1))
                                 .frame(width: 33, height: 33)
-                                .overlay(Circle().stroke(Color.bg, lineWidth: 2))
+                                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
                                 .zIndex(3)
                             
                             Circle()
                                 .fill(Color.blue.opacity(1))
                                 .frame(width: 33, height: 33)
-                                .overlay(Circle().stroke(Color.bg, lineWidth: 2))
+                                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
                                 .zIndex(2)
                             
                             Circle()
                                 .fill(Color.green.opacity(1))
                                 .frame(width: 33, height: 33)
-                                .overlay(Circle().stroke(Color.bg, lineWidth: 2))
+                                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
                                 .zIndex(1)
                             ZStack {
                                     Circle()
@@ -43,7 +43,7 @@ struct TeamRow: View {
                                         .foregroundStyle(Color(red: 68/255, green: 68/255, blue: 68/255, opacity: 1))
                                 }
                                 .frame(width: 33, height: 33)
-                                .overlay(Circle().stroke(Color.bg, lineWidth: 2))
+                                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
                                 .padding(.leading, 10)
                                 .zIndex(0)
                         }
