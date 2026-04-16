@@ -22,11 +22,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct visualizeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
-//        WindowGroup {
-//            ContentView()
-//        }
-        WindowGroup{
-            CreateVisualization()
+        WindowGroup {
+            ContentView()
         }
     }
 }
