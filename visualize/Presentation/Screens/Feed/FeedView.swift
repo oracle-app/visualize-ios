@@ -27,7 +27,7 @@ struct FeedView: View {
         
         ScrollView(.vertical, showsIndicators: false){
             
-            LazyVStack(spacing: 15, pinnedViews:[.sectionHeaders]) {
+            LazyVStack(spacing: 10, pinnedViews:[.sectionHeaders]) {
                 
                 Section {
                     contentView()
@@ -38,7 +38,7 @@ struct FeedView: View {
                 }
                 
             }
-        }
+        }.scrollEdgeEffectStyle(.hard, for: .top)
         .onAppear{
             viewModel.loadData()
         }
@@ -47,7 +47,7 @@ struct FeedView: View {
     
     func headerView() -> some View {
         
-        HStack(spacing:10) {
+        HStack(spacing: 10) {
             
             Text(selectedFeed.rawValue).font(.title.bold())
             
@@ -127,15 +127,15 @@ struct FeedView: View {
 
 struct LoadedListView: View {
     
-    let cards: [CardModel]
+    let cards: [FeedCard]
     
     var body: some View {
         LazyVStack(spacing: 12) {
-            ForEach(cards) { card in
-                Text(card.title)
-                
-                Text(card.description)
-            }.background(Color.blue.opacity(0.5))
+            LazyVStack {
+                ForEach(0..<cards.count, id: \.self) { index in
+                    cards[index]
+                }
+            }
                 
         }
     }
