@@ -38,7 +38,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E49761652F9058E2005459AF /* Exceptions for "visualize" folder in "visualize" target */ = {
+		268954092F905E4700DFD9E0 /* Exceptions for "visualize" folder in "visualize" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Data/Datasources/.gitkeep,
@@ -57,7 +57,7 @@
 		053BEF1D2F8AEC41008A3D6B /* visualize */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				E49761652F9058E2005459AF /* Exceptions for "visualize" folder in "visualize" target */,
+				268954092F905E4700DFD9E0 /* Exceptions for "visualize" folder in "visualize" target */,
 			);
 			path = visualize;
 			sourceTree = "<group>";
