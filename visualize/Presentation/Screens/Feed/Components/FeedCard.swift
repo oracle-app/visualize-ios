@@ -53,7 +53,6 @@ struct FeedCard: View {
                         .frame(width: 37, height: 37)
                         .glassEffect()
                 }
-                .glassEffect()
                 
                 .alert(
                     "Delete visualization?",

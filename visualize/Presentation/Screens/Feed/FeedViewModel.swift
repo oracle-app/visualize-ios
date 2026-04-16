@@ -14,7 +14,7 @@ class FeedViewModel: ObservableObject {
     
     enum FeedState {
         case loading
-        case loaded([CardModel])
+        case loaded([FeedCard])
         case empty
         case error
     }
@@ -27,7 +27,7 @@ class FeedViewModel: ObservableObject {
         
         
         // simulacion del loading
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             
             //Temporal, false devolvera la view de error, true devolvera la view de empty o loaded (dependiendo del prop data)
             let success = true
@@ -36,11 +36,12 @@ class FeedViewModel: ObservableObject {
             if success {
                 
                 // prop data
-                let cards: [CardModel] = []
-                /*let cards = [
-                    CardModel(title: "Tarjeta 1", description: "Esta es la Descripcion de la tarjeta 1"),
-                    CardModel(title: "Tarjeta 2", description: "Esta es la Descripcion de la tarjeta 2")
-                    ]*/
+                //let cards: [FeedCard] = []
+                let cards = [
+                 FeedCard(title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time", author: "Mariana Islas", date: "10 apr 2026"),
+                 FeedCard(title: "Total Transactions by Category", author: "Mariana Islas", date: "10 apr 2026"),
+                 FeedCard(title: "Detailed analysis of the relative performance of major global currencies compared to the US dollar over time, considering their historical evolution, volatility, and the economic factors that influence their behavior in international markets.", author: "Mariana Islas", date: "10 apr 2026")
+                    ]
                  
                 
                 self.state = cards.isEmpty ? .empty : .loaded(cards)
