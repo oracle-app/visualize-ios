@@ -121,7 +121,7 @@ struct CreateVisualization: View {
 
         }
         .background(
-            Color(red: 245/255, green: 244/255, blue: 242/255)
+            Color(Color.appBackground)
                 .ignoresSafeArea()
         )
         .fileImporter(
