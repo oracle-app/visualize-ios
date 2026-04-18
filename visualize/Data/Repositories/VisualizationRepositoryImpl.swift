@@ -6,16 +6,40 @@
 //
 
 import Foundation
+internal import FirebaseFirestoreInternal
 
 class VisualizationRepositoryImpl: VisualizationRepository {
-    internal let userDataSource: UserDataSource
+    let userDatasource: UserDatasource
+    let visualizationDatasource: VisualizationDatasource
     
-    init(userDataSource: UserDataSource) {
-        self.userDataSource = userDataSource
+    init(userDatasource: UserDatasource, visualizationDatasource: VisualizationDatasource) {
+        self.userDatasource = userDatasource
+        self.visualizationDatasource = visualizationDatasource
     }
-    
+
     func getVisualizationsWithFilter(userID: UUID, visualizationFilter: VisualizationFilter) async throws -> [VisualizationCard] {
+        let dtos: [VisualizationDTO]
+        switch visualizationFilter {
+        case .all:
+            let sharedVisualizations = try await visualizationDatasource.getAllSharedVisualizations(userID: userID)
+            let personalVisualizations = try await visualizationDatasource.getAllPersonalVisualizations(userID: userID)
+            dtos = sharedVisualizations + personalVisualizations
+        case .shared:
+            dtos = try await visualizationDatasource.getAllSharedVisualizations(userID: userID)
+        case .personal:
+            dtos = try await visualizationDatasource.getAllPersonalVisualizations(userID: userID)
+        }
         
+        var visualizationCards: [VisualizationCard] = []
+        
+        for dto in dtos {
+            let author = try await userDatasource.getUser(id: dto.authorID.documentID)
+            let users = try await visualizationDatasource.getAllUsersVisualizationIsSharedWith(visualizationID: dto.id ?? "")
+            let sharedUsers: [AppUser] = users.map {$0.toAppUser()}
+            let card = dto.toVisualizationCard(authorName: author.username, sharedUsers: sharedUsers)
+            visualizationCards.append(card)
+        }
+        return visualizationCards
     }
 }
 

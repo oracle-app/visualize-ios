@@ -5,7 +5,9 @@
 //  Created by Carlos Amador on 15/04/26.
 //
 
-struct User {
+import Foundation
+
+struct AppUser {
     let id: UUID
     let email: String
     let profilePictureURL: String?

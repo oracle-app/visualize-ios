@@ -7,20 +7,15 @@
 import SwiftUI
 internal import Combine
 
-
+enum FeedState {
+    case loading
+    case loaded([FeedCard])
+    case empty
+    case error
+}
 
 class FeedViewModel: ObservableObject {
     @Published var state: FeedState = .loading
-    
-    enum FeedState {
-        case loading
-        case loaded([FeedCard])
-        case empty
-        case error
-    }
-
-
-    
     
     func loadData(){
         state = .loading

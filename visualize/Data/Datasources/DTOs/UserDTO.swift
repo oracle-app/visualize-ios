@@ -9,7 +9,7 @@ import Foundation
 import FirebaseFirestore
 
 struct UserDTO: Codable {
-    @DocumentID let id: UUID
+    @DocumentID var id: String?
     let chartTheme: String
     let email: String
     let notificationsEnabled: Bool

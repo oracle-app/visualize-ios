@@ -4,11 +4,13 @@
 //
 //  Created by Carlos Amador on 15/04/26.
 //
+import Foundation
+internal import FirebaseFirestoreInternal
 
 extension VisualizationDTO{
-    func toVisualizationCard(authorName: String, sharedUsers:[User]) -> VisualizationCard {
+    func toVisualizationCard(authorName: String, sharedUsers:[AppUser]) -> VisualizationCard {
         return VisualizationCard(
-            id: self.id,
+            id: self.id.flatMap {UUID(uuidString: $0)} ?? UUID (),
             title: self.title,
             author: authorName,
             createdAt: self.createdAt,

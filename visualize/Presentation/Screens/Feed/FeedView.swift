@@ -5,20 +5,16 @@
 //  Created by Jorge Flores on 11/04/26.
 //
 import SwiftUI
+import Foundation
 
+enum FeedOption: String {
+    case allFeed = "All Feed"
+    case personalFeed = "Personal Feed"
+    case sharedFeed = "Shared Feed"
+    var id: Self { self }
+}
 
 struct FeedView: View {
-    
-    
-    enum FeedOption: String {
-        case allFeed = "All Feed"
-        case personalFeed = "Personal Feed"
-        case sharedFeed = "Shared Feed"
-        var id: Self { self }
-    }
-    
-    
-    
     
     @State var selectedFeed: FeedOption = .allFeed
     @StateObject var viewModel: FeedViewModel
@@ -80,9 +76,6 @@ struct FeedView: View {
     
     @ViewBuilder
     func contentView() -> some View {
-        
-        
-        
         switch viewModel.state {
             case .loading:
                 if let screen = UIApplication.shared.connectedScenes
