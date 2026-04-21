@@ -19,13 +19,6 @@ struct RecommendedChartCard: View {
     var onTap: (() -> Void)? = nil
     var onTitleChange: ((String) -> Void)? = nil
 
-    // MARK: - Private palette
-    private let orange     = Color(red: 255/255, green: 122/255, blue: 0/255)
-    private let teal       = Color(red: 52/255,  green: 121/255, blue: 124/255)
-    private let titleColor = Color(red: 26/255,  green: 47/255,  blue: 63/255)
-    private let bg         = Color(red: 230/255, green: 237/255, blue: 236/255)
-    private let btnBg      = Color(red: 235/255, green: 235/255, blue: 240/255)
-
     // MARK: - Edit state
     @State private var isEditAlertPresented = false
     @State private var draft = ""
@@ -38,17 +31,17 @@ struct RecommendedChartCard: View {
             chartPlaceholder
         }
         .padding(16)
-        .background(isSelected ? teal : bg)
+        .background(isSelected ? Color.appTeal : Color.appMint)
         .cornerRadius(10)
         .overlay(selectionBorder)
         .shadow(
-            color: isSelected ? orange.opacity(0.20) : Color.black.opacity(0.12),
+            color: isSelected ? Color.appOrange.opacity(0.20) : Color.black.opacity(0.12),
             radius: isSelected ? 5 : 6,
             x: 0,
             y: isSelected ? 0 : 3
         )
         .shadow(
-            color: isSelected ? orange.opacity(0.08) : .clear,
+            color: isSelected ? Color.appOrange.opacity(0.08) : .clear,
             radius: 10,
             x: 0, y: 0
         )
@@ -64,7 +57,7 @@ struct RecommendedChartCard: View {
         HStack(alignment: .top, spacing: 12) {
             Text(title)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(isSelected ? .white : titleColor)
+                .foregroundStyle(isSelected ? .white : Color.appCardTitle)
                 .minimumScaleFactor(0.5)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -79,12 +72,12 @@ struct RecommendedChartCard: View {
             isEditAlertPresented = true
         } label: {
             Circle()
-                .fill(btnBg)
+                .fill(Color.appButtonBackground)
                 .frame(width: 44, height: 44)
                 .overlay(
                     Image(systemName: "square.and.pencil")
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(teal)
+                        .foregroundStyle(Color.appTeal)
                 )
                 .shadow(color: .black.opacity(0.08), radius: 3, x: 0, y: 1)
         }
@@ -118,6 +111,7 @@ struct RecommendedChartCard: View {
 }
 
 // MARK: - Preview
+#if DEBUG
 #Preview {
     ScrollView {
         VStack(spacing: 16) {
@@ -128,3 +122,4 @@ struct RecommendedChartCard: View {
     }
     .background(Color.appBackground)
 }
+#endif

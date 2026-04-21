@@ -12,23 +12,28 @@ import SwiftUI
 final class VizReadyViewModel {
 
     // MARK: - Constants
+
+    /// Maximum number of characters allowed in a chart title.
     static let titleCharLimit = 50
 
     // MARK: - State
+
+    /// The list of chart recommendations displayed to the user.
     var charts: [ChartOption] = [
-        ChartOption(title: "Commerce Activity: Units Sold", author: "Mariana Islas", date: "13 apr 2026"),
-        ChartOption(title: "Units Sold Growth Trend",       author: "Mariana Islas", date: "13 apr 2026"),
-        ChartOption(title: "Monthly Performance Overview",  author: "Mariana Islas", date: "13 apr 2026")
+        ChartOption(title: "Commerce Activity: Units Sold", author: "Mariana Islas"),
+        ChartOption(title: "Units Sold Growth Trend",       author: "Mariana Islas"),
+        ChartOption(title: "Monthly Performance Overview",  author: "Mariana Islas")
     ]
 
+    /// The ID of the currently selected chart, or `nil` if none is selected.
     private(set) var selectedChartID: UUID?
 
     // MARK: - Computed
 
-    /// True when the user has selected a chart.
+    /// `true` when the user has selected at least one chart.
     var isSelectionValid: Bool { selectedChartID != nil }
 
-    /// Returns true if the given ID matches the current selection.
+    /// Returns `true` if the given ID matches the current selection.
     func isSelected(_ id: UUID) -> Bool {
         selectedChartID == id
     }
@@ -40,11 +45,12 @@ final class VizReadyViewModel {
         selectedChartID = (selectedChartID == id) ? nil : id
     }
 
-    /// Updates the title of the chart at the specified index.
-    /// Silently ignores empty or out-of-bounds input.
-    func updateTitle(_ newTitle: String, forChartAt index: Int) {
+    /// Updates the title of the chart identified by `id`.
+    ///
+    /// Silently ignores empty, blank, or unrecognised input.
+    func updateTitle(_ newTitle: String, forID id: UUID) {
         let trimmed = newTitle.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty, charts.indices.contains(index) else { return }
+        guard !trimmed.isEmpty, let index = charts.firstIndex(where: { $0.id == id }) else { return }
         charts[index].title = trimmed
     }
 }
