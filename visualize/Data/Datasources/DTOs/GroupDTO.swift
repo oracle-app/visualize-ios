@@ -9,7 +9,7 @@ import FirebaseFirestore
 
 struct TeamDTO: Codable {
     @DocumentID var id: String?
-    let membersID: [String]
+    let membersIDs: [String]
     let name: String
     let ownerID: String
 }
