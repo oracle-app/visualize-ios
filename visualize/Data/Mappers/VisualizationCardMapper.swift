@@ -10,7 +10,7 @@ internal import FirebaseFirestoreInternal
 extension VisualizationDTO{
     func toVisualizationCard(authorName: String, sharedUsers:[AppUser]) -> VisualizationCard {
         return VisualizationCard(
-            id: self.id.flatMap {UUID(uuidString: $0)} ?? UUID (),
+            id: self.id ?? nil,
             title: self.title,
             author: authorName,
             createdAt: self.createdAt,

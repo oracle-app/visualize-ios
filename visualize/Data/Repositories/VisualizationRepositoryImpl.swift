@@ -17,7 +17,7 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         self.visualizationDatasource = visualizationDatasource
     }
 
-    func getVisualizationsWithFilter(userID: UUID, visualizationFilter: VisualizationFilter) async throws -> [VisualizationCard] {
+    func getVisualizationsWithFilter(userID: String, visualizationFilter: VisualizationFilter) async throws -> [VisualizationCard] {
         let dtos: [VisualizationDTO]
         switch visualizationFilter {
         case .all:

@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct AppUser {
-    let id: UUID
+struct AppUser: Identifiable {
+    let id: String
     let email: String
     let profilePictureURL: String?
     let username: String

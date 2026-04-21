@@ -15,24 +15,25 @@ class VisualizationDatasource {
         self.userDatasource = userDatasource
     }
     
-    private func getVisualizationsSharedWithUser(userID: UUID) async throws -> [VisualizationDTO] {
-        let userRef = userDatasource.getUserReference(userID: userID)
+    private func getVisualizationsSharedWithUser(userID: String) async throws -> [VisualizationDTO] {
         let sharedWithUser = try await database.collection("visualizations")
-            .whereField("sharedWithUsers", arrayContains: userRef)
+            .whereField("sharedWithUsers", arrayContains: userID)
             .getDocuments()
         return sharedWithUser.documents.compactMap {try? $0.data(as: VisualizationDTO.self)}
     }
     
-    private func getVisualizationsSharedWithGroupsUserIsIn(userID: UUID) async throws -> [VisualizationDTO] {
+    private func getVisualizationsSharedWithGroupsUserIsIn(userID: String) async throws -> [VisualizationDTO] {
         let userGroups = try await userDatasource.groupsUserIsIn(userID: userID)
-        guard !userGroups.isEmpty else {return []}
+        let groupIDs = userGroups.compactMap {$0.id}
+        guard !groupIDs.isEmpty else {return []}
+        
         let sharedWithGroups = try await database.collection("visualizations")
-            .whereField("sharedWithGroups", arrayContainsAny: userGroups)
+            .whereField("sharedWithGroups", arrayContainsAny: groupIDs)
             .getDocuments()
         return sharedWithGroups.documents.compactMap {try? $0.data(as: VisualizationDTO.self)}
     }
     
-    func getAllSharedVisualizations(userID:UUID) async throws -> [VisualizationDTO] {
+    func getAllSharedVisualizations(userID:String) async throws -> [VisualizationDTO] {
         let sharedWithUser = try await getVisualizationsSharedWithUser(userID: userID)
         let sharedWithGroupsUserIsIn = try await getVisualizationsSharedWithGroupsUserIsIn(userID: userID)
         let sharedVisualizations = sharedWithUser + sharedWithGroupsUserIsIn

@@ -7,7 +7,7 @@
 
 import FirebaseFirestore
 
-struct GroupDTO {
+struct GroupDTO: Codable {
     @DocumentID var id: String?
     let membersID: [DocumentReference]
     let name: String

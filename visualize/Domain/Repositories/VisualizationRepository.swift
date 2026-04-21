@@ -9,5 +9,5 @@ import Foundation
 
 protocol VisualizationRepository {
     
-    func getVisualizationsWithFilter(userID:UUID, visualizationFilter: VisualizationFilter) async throws -> [VisualizationCard]
+    func getVisualizationsWithFilter(userID:String, visualizationFilter: VisualizationFilter) async throws -> [VisualizationCard]
 }

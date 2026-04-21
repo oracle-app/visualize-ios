@@ -26,17 +26,16 @@ class UserDatasource{
         }
     }
     
-    func getUserReference(userID: UUID) -> DocumentReference {
-        let userRef = firebase.collection("users").document(userID.uuidString)
-        return userRef
-    }
-    
-    func groupsUserIsIn(userID: UUID) async throws -> [DocumentReference] {
-        let userRef = getUserReference(userID: userID)
-        let groupsReference = try await firebase.collection("groups")
-            .whereField("membersID", arrayContains: userRef)
-            .getDocuments()
-        return groupsReference.documents.map {$0.reference}
+    func groupsUserIsIn(userID: String) async throws -> [GroupDTO] {
+        let snapshot = try await firebase.collection("groups")
+                .whereField("membersID", arrayContains: userID)
+                .getDocuments()
+            
+        let groups = snapshot.documents.compactMap { document -> GroupDTO? in
+            try? document.data(as: GroupDTO.self)
+        }
+        
+        return groups
     }
     
 }

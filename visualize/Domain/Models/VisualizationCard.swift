@@ -8,7 +8,7 @@
 import Foundation
 
 struct VisualizationCard {
-    let id: UUID
+    let id: String
     let title: String
     let author: String
     let createdAt: Date
