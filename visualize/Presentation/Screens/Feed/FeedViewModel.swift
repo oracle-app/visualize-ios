@@ -5,12 +5,17 @@
 //  Created by Jorge Flores on 13/04/26.
 //
 import SwiftUI
-internal import Combine
+import Observation
 
+@Observable
+class FeedViewModel {
+    var state: FeedState = .loading
+    
+    private let service: FeedServiceProtocol
 
-
-class FeedViewModel: ObservableObject {
-    @Published var state: FeedState = .loading
+    init(service: FeedServiceProtocol = FeedService()) {
+        self.service = service
+    }
     
     enum FeedState {
         case loading
@@ -19,37 +24,21 @@ class FeedViewModel: ObservableObject {
         case error
     }
 
-
     
+ 
     
-    func loadData(){
+    func loadData() {
         state = .loading
-        
-        
-        // simulacion del loading
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            
-            //Temporal, false devolvera la view de error, true devolvera la view de empty o loaded (dependiendo del prop data)
-            let success = true
-            
-            
-            if success {
-                
-                // prop data
-                //let cards: [FeedCard] = []
-                let cards = [
-                 FeedCard(title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time", author: "Mariana Islas", date: "10 apr 2026"),
-                 FeedCard(title: "Total Transactions by Category", author: "Mariana Islas", date: "10 apr 2026"),
-                 FeedCard(title: "Detailed analysis of the relative performance of major global currencies compared to the US dollar over time, considering their historical evolution, volatility, and the economic factors that influence their behavior in international markets.", author: "Mariana Islas", date: "10 apr 2026")
-                    ]
-                 
-                
-                self.state = cards.isEmpty ? .empty : .loaded(cards)
-                
-            } else{
-                self.state = .error
+       
+        Task {
+            do {
+                // simulate loading delay
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+                let cards = try await service.fetchFeed()
+                state = cards.isEmpty ? .empty : .loaded(cards)
+            } catch {
+                state = .error
             }
-            
         }
     }
 }
