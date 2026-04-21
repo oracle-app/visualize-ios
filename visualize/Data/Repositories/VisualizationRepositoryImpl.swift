@@ -33,7 +33,7 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         var visualizationCards: [VisualizationCard] = []
         
         for dto in dtos {
-            let author = try await userDatasource.getUser(id: dto.authorID.documentID)
+            let author = try await userDatasource.getUser(id: dto.authorID)
             let users = try await visualizationDatasource.getAllUsersVisualizationIsSharedWith(visualizationID: dto.id ?? "")
             let sharedUsers: [AppUser] = users.map {$0.toAppUser()}
             let card = dto.toVisualizationCard(authorName: author.username, sharedUsers: sharedUsers)

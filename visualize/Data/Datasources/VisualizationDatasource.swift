@@ -22,21 +22,21 @@ class VisualizationDatasource {
         return sharedWithUser.documents.compactMap {try? $0.data(as: VisualizationDTO.self)}
     }
     
-    private func getVisualizationsSharedWithGroupsUserIsIn(userID: String) async throws -> [VisualizationDTO] {
-        let userGroups = try await userDatasource.groupsUserIsIn(userID: userID)
-        let groupIDs = userGroups.compactMap {$0.id}
-        guard !groupIDs.isEmpty else {return []}
+    private func getVisualizationsSharedWithTeamsUserIsIn(userID: String) async throws -> [VisualizationDTO] {
+        let userTeams = try await userDatasource.teamsUserIsIn(userID: userID)
+        let teamIDs = userTeams.compactMap {$0.id}
+        guard !teamIDs.isEmpty else {return []}
         
-        let sharedWithGroups = try await database.collection("visualizations")
-            .whereField("sharedWithGroups", arrayContainsAny: groupIDs)
+        let sharedWithTeams = try await database.collection("visualizations")
+            .whereField("sharedWithTeams", arrayContainsAny: teamIDs)
             .getDocuments()
-        return sharedWithGroups.documents.compactMap {try? $0.data(as: VisualizationDTO.self)}
+        return sharedWithTeams.documents.compactMap {try? $0.data(as: VisualizationDTO.self)}
     }
     
     func getAllSharedVisualizations(userID:String) async throws -> [VisualizationDTO] {
         let sharedWithUser = try await getVisualizationsSharedWithUser(userID: userID)
-        let sharedWithGroupsUserIsIn = try await getVisualizationsSharedWithGroupsUserIsIn(userID: userID)
-        let sharedVisualizations = sharedWithUser + sharedWithGroupsUserIsIn
+        let sharedWithTeamsUserIsIn = try await getVisualizationsSharedWithTeamsUserIsIn(userID: userID)
+        let sharedVisualizations = sharedWithUser + sharedWithTeamsUserIsIn
         
         var uniqueDict = [String: VisualizationDTO]()
         
@@ -49,7 +49,7 @@ class VisualizationDatasource {
         return Array(uniqueDict.values)
     }
     
-    func getAllPersonalVisualizations(userID: UUID) async throws -> [VisualizationDTO] {
+    func getAllPersonalVisualizations(userID: String) async throws -> [VisualizationDTO] {
         let snapshot = try await database.collection("visualizations")
                 .whereField("ownerID", isEqualTo: "/users/\(userID)")
                 .getDocuments()

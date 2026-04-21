@@ -26,16 +26,16 @@ class UserDatasource{
         }
     }
     
-    func groupsUserIsIn(userID: String) async throws -> [GroupDTO] {
-        let snapshot = try await firebase.collection("groups")
+    func teamsUserIsIn(userID: String) async throws -> [TeamDTO] {
+        let snapshot = try await firebase.collection("teams")
                 .whereField("membersID", arrayContains: userID)
                 .getDocuments()
             
-        let groups = snapshot.documents.compactMap { document -> GroupDTO? in
-            try? document.data(as: GroupDTO.self)
+        let teams = snapshot.documents.compactMap { document -> TeamDTO? in
+            try? document.data(as: TeamDTO.self)
         }
         
-        return groups
+        return teams
     }
     
 }

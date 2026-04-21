@@ -11,10 +11,10 @@ import FirebaseFirestore
 struct VisualizationDTO: Codable {
     @DocumentID var id: String?
     let title: String
-    let sharedWithGroups: [DocumentReference]
-    let sharedWithUsers: [DocumentReference]
+    let sharedWithTeams: [String]
+    let sharedWithUsers: [String]
     let createdAt: Date
-    let authorID: DocumentReference
-    let ownerID: DocumentReference
+    let authorID: String
+    let ownerID: String
     let configJSON: String
 }

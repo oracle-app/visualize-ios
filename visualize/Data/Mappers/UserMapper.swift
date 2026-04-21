@@ -10,8 +10,9 @@ internal import FirebaseFirestoreInternal
 
 extension UserDTO {
     func toAppUser() -> AppUser {
+        guard let id = self.id else { fatalError("UserDTO must have an id") }
         return AppUser(
-            id: self.id.flatMap {UUID(uuidString: $0)} ?? UUID (),
+            id: id,
             email: self.email,
             profilePictureURL: self.profilePictureURL,
             username: self.username

@@ -1,5 +1,5 @@
 //
-//  GroupDTO.swift
+//  TeamDTO.swift
 //  visualize
 //
 //  Created by Carlos Amador on 18/04/26.
@@ -7,9 +7,9 @@
 
 import FirebaseFirestore
 
-struct GroupDTO: Codable {
+struct TeamDTO: Codable {
     @DocumentID var id: String?
-    let membersID: [DocumentReference]
+    let membersID: [String]
     let name: String
-    let ownerID: DocumentReference
+    let ownerID: String
 }
