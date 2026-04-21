@@ -4,13 +4,21 @@
 //
 //  Created by Libia Fv on 12/04/26.
 //
+// Description:
+// Main view for creating data visualizations.
+// Allows the user to upload files in CSV or Excel format.
+// Displays the upload process state (uploading, completed, or idle).
+// Once the dataset is uploaded, it enables visualization generation.
+// Handles file selection using fileImporter.
+// Integrates a ViewModel to manage state logic.
+// Shows error messages when file selection or upload fails.
 
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct CreateVisualization: View {
 
-    @StateObject
+    @State
     private var viewModel =
         CreateVisualizationViewModel()
 
@@ -49,7 +57,7 @@ struct CreateVisualization: View {
                         }
                     }
                     .font(.system(size: 15))
-                    .foregroundColor(Color(red: 89/255, green: 114/255, blue: 113/255))
+                    .foregroundColor(Color.appSubtitle)
                     .lineSpacing(3)
                     .padding(.bottom, 20)
 
@@ -129,7 +137,7 @@ struct CreateVisualization: View {
 
 
 #Preview {
-    NavBar()
+    CreateVisualization()
 }
 
 

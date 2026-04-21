@@ -11,7 +11,7 @@ struct TeamRow: View {
                 
                 Text("2 members")
                     .font(.system(size: 13))
-                    .foregroundColor(Color.primaryAzul)
+                    .foregroundColor(Color.primaryBlue)
             }
             
             Spacer()
