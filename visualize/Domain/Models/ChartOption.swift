@@ -11,10 +11,17 @@ import Foundation
 struct ChartOption: Identifiable {
     let id: UUID
     var title: String
+    /// Display name of the team member who triggered the generation.
     let author: String
-    let date: String
+    /// Date on which the chart was generated.
+    let date: Date
 
-    init(title: String, author: String, date: String) {
+    /// Creates a new `ChartOption`.
+    /// - Parameters:
+    ///   - title: Chart title shown to the user (editable).
+    ///   - author: Name of the generating user.
+    ///   - date: Generation date; defaults to the current date and time.
+    init(title: String, author: String, date: Date = .now) {
         id = UUID()
         self.title = title
         self.author = author
