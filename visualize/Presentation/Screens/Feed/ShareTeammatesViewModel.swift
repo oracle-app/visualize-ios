@@ -7,50 +7,86 @@
 import SwiftUI
 import Observation
 
+struct User: Identifiable, Equatable {
+    let id = UUID()
+    let name: String
+    let email: String
+}
+
 @Observable
 class ShareTeammatesViewModel {
-    
+    var state: State = .loading
     var email: String = ""
-    
-    var users: [User] = [
-        User(name: "Diana Escalante", email: "dianaescalante@email.com"),
-        User(name: "Jocelyn Duarte", email: "jocelynduarte@email.com"),
-        User(name: "Eduardo Salazar", email: "eduardosalazar@email.com"),
-    ]
-    
-    private let allUsers: [User] = [
-        User(name: "Ana Torres", email: "ana@email.com"),
-        User(name: "Ana Lucia", email: "analucia@email.com"),
-        User(name: "Carlos Ruiz", email: "carlos@email.com"),
-        User(name: "María López", email: "maria@email.com"),
-        User(name: "Luis García", email: "luis@email.com"),
-    ]
-    
-    var filteredUsers: [User] {
-        guard !email.isEmpty else { return [] }
         
-        return allUsers.filter { candidate in
+    private let service: ShareTeammatesServiceProtocol
+        
+    init(service: ShareTeammatesServiceProtocol = ShareTeammatesService()) {
+        self.service = service
+    }
+        
+    enum State {
+        case loading
+        case loaded(users: [User], selected: [User])
+        case error
+    }
+        
+        
+    var filteredUsers: [User] {
+        guard case let .loaded(users, selected) = state,
+                !email.isEmpty else { return [] }
             
-            let matchesSearch = candidate.email
+        return users.filter { candidate in
+                
+            let matches = candidate.email
                 .localizedCaseInsensitiveContains(email)
-            
-            let alreadyAdded = users.contains {
+                
+            let alreadyAdded = selected.contains {
                 $0.email == candidate.email
             }
-            
-            return matchesSearch && !alreadyAdded
+                
+            return matches && !alreadyAdded
         }
     }
-    
+        
+        
+    func loadData() {
+        state = .loading
+            
+        Task {
+            do {
+                try await Task.sleep(nanoseconds: 500_000_000)
+                let users = try await service.fetchUsers()
+                    
+                let initialSelected = Array(users.prefix(3))
+                    
+                state = .loaded(users: users, selected: initialSelected)
+                    
+            } catch {
+                state = .error
+            }
+        }
+    }
+        
     func addUser(_ user: User) {
-        users.append(user)
+        guard case let .loaded(users, selected) = state else { return }
+            
+        state = .loaded(
+            users: users,
+            selected: selected + [user]
+        )
+            
         email = ""
     }
-    
+        
     func removeUser(_ user: User) {
-        users.removeAll { $0.email == user.email }
+        guard case let .loaded(users, selected) = state else { return }
+            
+        state = .loaded(
+            users: users,
+            selected: selected.filter { $0.email != user.email }
+        )
     }
-    
+        
     func clearEmail() {
         email = ""
     }
