@@ -35,8 +35,10 @@ struct ErrorListView: View {
             .background(Color.appTeal)
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 32))
-            .padding(.bottom, 100)
+            .padding(.bottom, 90)
+            .padding(.top, 130)
         }
         .hCenter()
+        .padding(.top, 200)
     }
 }

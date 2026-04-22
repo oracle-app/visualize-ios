@@ -5,6 +5,19 @@
 //  Created by Jorge Flores on 13/04/26.
 //
 
+//  This file defines the main FeedView of the application, responsible for displaying
+//  a scrollable feed of content and managing its different UI states through a
+//  FeedViewModel.
+//
+//  It supports multiple feed filters (All, Personal, Shared), dynamic header behavior,
+//  and a custom toolbar configuration with primary and trailing actions. The view
+//  reacts to changes in the ViewModel state to display loading, empty, error, or
+//  loaded content accordingly.
+//
+//  It also manages UI interactions such as presenting a share sheet, updating the
+//  navigation title based on scroll position, and adapting layout based on safe area
+//  insets using geometry tracking.
+
 import SwiftUI
 
 struct FeedView: View {
@@ -17,91 +30,146 @@ struct FeedView: View {
 
     @State var selectedFeed: FeedOption = .allFeed
     @State var viewModel: FeedViewModel
+    @State var isPrimaryActionVisible: Bool = true
+    @State var title: String?
+    @State var safeArea: EdgeInsets = .init()
+    
     @State private var showShareSheet = false
+    
 
     var body: some View {
-        VStack(spacing: 0) {
-            headerView()
-            contentView()
-        }
-        .onAppear {
-            viewModel.loadData()
-        }
-        .sheet(isPresented: $showShareSheet) {
-            NavigationStack {
-                ShareTeammatesScreen()
-                    .presentationDetents([.medium, .large])
+        
+        NavigationStack{
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 10) {
+                    headerView()
+                    contentView()
+                }
+                .padding(0)
+                
+                
             }
+            .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
+                
+                
+            } trailing: {
+                HStack(spacing: 15) {
+                    Button("Notifications", systemImage: "bell") {
+                        
+                    }
+                }
+            } principal: {
+                if let title {
+                        Text(title)
+                        .fontWeight(.semibold)
+                        .transition(.offset(y: 10).combined(with: AnyTransition(.blurReplace)))
+                    }
+
+                        
+            } primaryAction: {
+                
+            }
+            .onAppear(){
+                viewModel.loadData()
+            }
+            .sheet(isPresented: $showShareSheet) {
+                        NavigationStack {
+                            ShareTeammatesScreen()
+                                .presentationDetents([.medium, .large])
+                        }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        
+        
+
+        .onGeometryChange(for: EdgeInsets.self) {
+            $0.safeAreaInsets
+        } action: { newValue in
+            safeArea = newValue
         }
     }
 
 
 
     func headerView() -> some View {
+        
+
         HStack(spacing: 10) {
-
-            HStack() {
-                Text(selectedFeed.rawValue)
-                    .font(.title.bold())
-                    .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
-                Image(systemName: "control")
-                    .font(.body.bold())
-                    .foregroundColor(.black)
-                    .rotationEffect(.degrees(180))
-                    .padding(.trailing, 10)
-                
-                
-            }
-            .overlay {
-                Menu {
-                    Button("All Feed") {
-                        selectedFeed = .allFeed
-                    }
-
-                    Button("Personal Feed") {
-                        selectedFeed = .personalFeed
-                    }
-
-                    Button("Shared Feed") {
-                        selectedFeed = .sharedFeed
-                    }
-
-                } label: {
-                    Color.clear
-                    
+            Text(selectedFeed.rawValue)
+                .font(.title.bold())
+                .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
+                .onGeometryChange(for: Bool.self) {
+                    let height = $0.size.height
+                    let offset = $0.frame(in: .global).minY
+                    return -offset > height
+                } action: { newValue in
+        
+                    withAnimation(.smooth(duration: 0.10)) {
+                            title = newValue ? selectedFeed.rawValue : nil
+                        }
                 }
                 
+            
+            Image(systemName: "control")
+                .font(.body.bold())
+                .foregroundColor(.black)
+                .rotationEffect(.degrees(180))
+                .padding(.trailing, 10)
+            
+            
+        }
+        .overlay {
+            Menu {
+                Button("All Feed") {
+                    selectedFeed = .allFeed
+                }
+
+                Button("Personal Feed") {
+                    selectedFeed = .personalFeed
+                }
+
+                Button("Shared Feed") {
+                    selectedFeed = .sharedFeed
+                }
+
+            } label: {
+                Color.clear
                 
             }
             
+            
         }
         .hLeading()
-        .padding(.top, 40)
+        .padding(.top, 0)
         .padding(.leading, 40)
-        .padding(.bottom, 10)
+        .padding(.bottom, 0)
     }
 
 
     @ViewBuilder
     func contentView() -> some View {
+        
         switch viewModel.state {
-            
+
         case .loading:
-            LoadingListView()
-                .hCenter()
             
+            LoadingListView()
+                
+                
+
         case .empty:
             EmptyListView {
                 viewModel.loadData()
             }
-            .hCenter()
             
+
         case .error:
             ErrorListView {
                 viewModel.loadData()
             }
-            .hCenter()
             
+
         case .loaded(let items):
             LoadedListView(
                 items: items,
@@ -129,3 +197,4 @@ extension View {
 #Preview {
     FeedView(viewModel: .init())
 }
+

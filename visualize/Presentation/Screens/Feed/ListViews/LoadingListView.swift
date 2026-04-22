@@ -22,5 +22,6 @@ struct LoadingListView: View {
                 .multilineTextAlignment(.center)
         }
         .hCenter()
+        .padding(.top, 200)
     }
 }
