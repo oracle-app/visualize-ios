@@ -9,11 +9,7 @@ import FirebaseFirestore
 
 class VisualizationDatasource {
     private let database = Firestore.firestore()
-    private let userDatasource: UserDatasource
-    
-    init(userDatasource: UserDatasource) {
-        self.userDatasource = userDatasource
-    }
+    private let userDatasource = UserDatasource()
     
     private func getVisualizationsSharedWithUser(userID: String) async throws -> [VisualizationDTO] {
         let sharedWithUser = try await database.collection("visualizations")
