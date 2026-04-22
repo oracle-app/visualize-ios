@@ -17,6 +17,6 @@ final class GeneratingVisualizationsViewModel {
     var isLoading = true
 
     func onCancelTapped() {
-        // TODO: Connect cancel action to navigation flow.
+        dismissToUpload = true
     }
 }

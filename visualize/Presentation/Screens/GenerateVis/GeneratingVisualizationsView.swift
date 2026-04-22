@@ -26,6 +26,12 @@ struct GeneratingVisualizationsView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 36)
         }
+        .fullScreenCover(isPresented: $viewModel.navigateToVizReady) {
+            VizReadyView(onClose: { viewModel.dismissToUpload = true })
+        }
+        .onChange(of: viewModel.dismissToUpload) { _, shouldDismiss in
+            if shouldDismiss { dismiss() }
+        }
     }
 
     private var backgroundView: some View {

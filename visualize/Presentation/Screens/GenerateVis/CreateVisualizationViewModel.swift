@@ -4,21 +4,30 @@
 //
 //  Created by Libia Fv on 14/04/26.
 //
+// Description:
+// ViewModel responsible for managing the file upload logic for creating visualizations.
+// Validates that the file is of an allowed type (.xlsx or .csv) and does not exceed the defined size limit.
+// Manages the upload state, including progress, completion, and cancellation.
+// Calculates and formats the file size for display in the UI.
+// Uses use cases for file validation and size checking.
+// Controls the simulated upload progress using a timer.
+// Allows the upload process to be reset or cancelled based on user interaction.
 
 import Foundation
 import SwiftUI
-internal import Combine
 
-class CreateVisualizationViewModel: ObservableObject {
+@Observable
+class CreateVisualizationViewModel{
 
-    @Published var selectedFileName: String? = nil
-    @Published var errorMessage: String? = nil
+    var selectedFileName: String? = nil
+    var errorMessage: String? = nil
 
-    @Published var isUploading: Bool = false
-    @Published var uploadProgress: Double = 0.0
-    @Published var isUploadComplete: Bool = false
+    var isUploading: Bool = false
+    var uploadProgress: Double = 0.0
+    var isUploadComplete: Bool = false
+    var navigateToGenerating: Bool = false
 
-    @Published var fileSize: String = "0 MB"
+    var fileSize: String = "0 MB"
 
     private var timer: Timer?
 

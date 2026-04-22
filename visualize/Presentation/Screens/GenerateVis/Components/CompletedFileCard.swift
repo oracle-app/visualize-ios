@@ -4,6 +4,13 @@
 //
 //  Created by Libia Fv on 14/04/26.
 //
+// Description:
+// Card view that represents a successfully uploaded file.
+// Displays the file name and its size in the interface.
+// Includes a representative icon for the uploaded document.
+// Allows the file to be deleted through an action button (onDelete).
+// Presents a card-style design with rounded corners and a highlighted visual style.
+// Uses colors and typography to distinguish the completed upload state from other states.
 
 import SwiftUI
 
@@ -16,7 +23,7 @@ struct CompletedFileCard: View {
         HStack(spacing: 12) {
             ZStack {
                 Image(systemName: "document.badge.arrow.up")
-                    .foregroundColor(Color(red: 52/255, green: 121/255, blue: 124/255))
+                    .foregroundColor(Color.primaryBlue)
                     .font(.system(size: 28))
             }
 
@@ -52,7 +59,7 @@ struct CompletedFileCard: View {
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(Color(red: 52/255, green: 121/255, blue: 124/255).opacity(0.4), lineWidth: 1)
+                .strokeBorder(Color.primaryBlue.opacity(0.4), lineWidth: 1)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color(.systemBackground))
@@ -62,8 +69,5 @@ struct CompletedFileCard: View {
     }
     
 }
-//#Preview {
-//    CompletedFileCardView()
-//}
 
 
