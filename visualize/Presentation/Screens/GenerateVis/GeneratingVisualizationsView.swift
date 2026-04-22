@@ -7,16 +7,8 @@
 
 import SwiftUI
 
-private enum GeneratingVisualizationsStyle {
-    static let backgroundColor = Color(red: 245 / 255, green: 244 / 255, blue: 242 / 255)
-    static let titleColor = Color(red: 19 / 255, green: 33 / 255, blue: 44 / 255)
-    static let secondaryTextColor = Color(red: 89 / 255, green: 114 / 255, blue: 113 / 255)
-    static let accentColor = Color(red: 52 / 255, green: 121 / 255, blue: 124 / 255)
-    static let buttonBackgroundColor = Color.white
-}
-
 struct GeneratingVisualizationsView: View {
-    @StateObject private var viewModel = GeneratingVisualizationsViewModel()
+    @State private var viewModel = GeneratingVisualizationsViewModel()
 
     var body: some View {
         ZStack {
@@ -37,7 +29,7 @@ struct GeneratingVisualizationsView: View {
     }
 
     private var backgroundView: some View {
-        Color(Color.appBackground)
+        Color.appBackground
             .ignoresSafeArea()
     }
 
@@ -45,12 +37,12 @@ struct GeneratingVisualizationsView: View {
         VStack(spacing: 0) {
             Text(viewModel.title)
                 .font(.title.weight(.bold))
-                .foregroundStyle(Color(red: 19 / 255, green: 33 / 255, blue: 44 / 255))
+                .foregroundColor(.appNavy)
                 .multilineTextAlignment(.center)
 
             Text(viewModel.message)
                 .font(.body.weight(.regular))
-                .foregroundStyle(Color(red: 89 / 255, green: 114 / 255, blue: 113 / 255))
+                .foregroundColor(.appSubtitle)
                 .multilineTextAlignment(.center)
                 .padding(.top, 20)
                 .padding(.horizontal, 10)
@@ -65,7 +57,7 @@ struct GeneratingVisualizationsView: View {
 
             Text(viewModel.footerMessage)
                 .font(.body.weight(.regular))
-                .foregroundStyle(Color(red: 89 / 255, green: 114 / 255, blue: 113 / 255))
+                .foregroundColor(.appSubtitle)
                 .multilineTextAlignment(.center)
                 .padding(.top, 26)
         }
@@ -78,7 +70,7 @@ struct GeneratingVisualizationsView: View {
         } label: {
             Text("Cancel")
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(Color(red: 52 / 255, green: 121 / 255, blue: 124 / 255))
+                .foregroundColor(.appTeal)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
                 .background(
@@ -94,7 +86,7 @@ struct GeneratingVisualizationsView: View {
                 )
                 .overlay(
                     Capsule()
-                        .stroke(Color(red: 52 / 255, green: 121 / 255, blue: 124 / 255), lineWidth: 1)
+                        .stroke(Color.appTeal, lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)
