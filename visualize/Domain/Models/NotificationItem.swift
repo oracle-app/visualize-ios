@@ -1,28 +1,16 @@
-
-//  NotificationItem.swift
+//
+//  Notification.swift
 //  visualize
 //
-//  Created by Miguel Degollado Ramirez on 22/04/26.
-//
+//  Created by Miguel Degollado on 15/04/26.
 
 
 import Foundation
 
-struct NotificationItem: Identifiable, Equatable {
-    let id: UUID
-    let message: String
-    let timestamp: String
+struct Notification: Identifiable, Equatable {
+    let id: String
+    let userID: String
     var isRead: Bool
-
-    init(
-        id: UUID = UUID(),
-        message: String,
-        timestamp: String,
-        isRead: Bool = false
-    ) {
-        self.id = id
-        self.message = message
-        self.timestamp = timestamp
-        self.isRead = isRead
-    }
+    let type: String
+    let createdAt: Date
 }
