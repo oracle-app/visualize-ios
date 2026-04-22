@@ -79,6 +79,7 @@ struct FeedView: View {
                         }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .coordinateSpace(name: "scroll")
         }
         
         
@@ -101,7 +102,7 @@ struct FeedView: View {
                 .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
                 .onGeometryChange(for: Bool.self) {
                     let height = $0.size.height
-                    let offset = $0.frame(in: .global).minY
+                    let offset = $0.frame(in: .named("scroll")).minY
                     return -offset > height
                 } action: { newValue in
         
