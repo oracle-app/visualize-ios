@@ -34,7 +34,7 @@ struct NavBar: View {
                 }
                 .tag(Tabs.profile)
             
-        }.tint(Color.appTeal)
+        }
     }
 }
 
