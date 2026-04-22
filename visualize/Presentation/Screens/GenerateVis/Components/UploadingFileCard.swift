@@ -4,6 +4,13 @@
 //
 //  Created by Libia Fv on 14/04/26.
 //
+// Description:
+// Card view that shows the upload status of a file in progress.
+// Displays the file name, total file size, and current upload progress.
+// Dynamically calculates the uploaded MB based on progress.
+// Includes an animated progress bar that updates in real time.
+// Allows the user to cancel the upload through an action button.
+// Designed to provide clear feedback during the file upload process.
 
 import SwiftUI
 
@@ -36,7 +43,7 @@ struct UploadingFileCard: View {
         HStack(spacing: 12) {
             ZStack {
                 Image(systemName: "document.badge.arrow.up")
-                    .foregroundColor(Color(red: 52/255, green: 121/255, blue: 124/255))
+                    .foregroundColor(Color.appTeal)
                     .font(.system(size: 28))
             }
 
@@ -82,8 +89,7 @@ struct UploadingFileCard: View {
                 .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 2)
         )
     }}
-//#Preview {
-//    UploadingFileCardView()
-//}
+
+
 
 

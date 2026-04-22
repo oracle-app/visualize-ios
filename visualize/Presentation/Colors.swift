@@ -7,7 +7,7 @@ extension Color {
         blue: 44/255
     )
 
-    static let primaryAzul = Color(
+    static let primaryBlue = Color(
         red: 52/255,
         green: 121/255,
         blue: 124/255

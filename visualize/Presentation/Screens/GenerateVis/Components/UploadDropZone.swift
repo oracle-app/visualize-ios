@@ -4,6 +4,13 @@
 //
 //  Created by Libia Fv on 14/04/26.
 //
+// Description:
+// View that represents a file upload drop zone for datasets.
+// Displays an interactive area with a dashed border indicating file selection capability.
+// Indicates supported formats (.xlsx and .csv) for data upload.
+// Includes information about constraints such as maximum file size and single-file uploads.
+// Presents a descriptive icon to reinforce the upload action.
+// Serves as the main entry point for the data import workflow.
 
 import SwiftUI
 
@@ -31,11 +38,7 @@ struct UploadDropZone: View {
                 Image(systemName: "document.badge.arrow.up")
                     .font(.system(size: 48))
                     .foregroundColor(
-                        Color(
-                            red: 52/255,
-                            green: 121/255,
-                            blue: 124/255
-                        )
+                        Color.appTeal
                     )
                     .padding(.bottom, 4)
 
@@ -56,11 +59,7 @@ struct UploadDropZone: View {
                 }
                 .font(.system(size: 13))
                 .foregroundColor(
-                    Color(
-                        red: 52/255,
-                        green: 121/255,
-                        blue: 124/255
-                    )
+                    Color.appTeal
                 )
             }
             .padding(.vertical, 36)
