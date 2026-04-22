@@ -3,35 +3,18 @@
 //  visualize
 //
 //  Created by Miguel Degollado Ramirez on 22/04/26.
-//
-
-//
-//  NotificationsViewModel.swift
-//  visualize
-//
-//  ViewModel for the Notifications screen.
-//  Follows the project's MVVM pattern: calls Use Cases, exposes state
-//  that the View observes. Never contains View types.
-//  Updated to use the Notification domain model.
-//
 
 import Foundation
 
-/// Drives the Notifications screen. Manages loading, grouping, and
-/// empty/error states without importing SwiftUI.
+
 final class NotificationsViewModel: ObservableObject {
 
     // MARK: - State
 
-    /// All possible UI states the notifications screen can be in.
     enum NotificationsState: Equatable {
-        /// Fetching data from the data layer.
         case loading
-        /// Data loaded; groups contain at least one notification.
         case loaded([NotificationsGroup])
-        /// Request completed but there are no notifications at all.
         case empty
-        /// A network or persistence error occurred.
         case error(String)
 
         static func == (lhs: NotificationsState, rhs: NotificationsState) -> Bool {
@@ -54,7 +37,6 @@ final class NotificationsViewModel: ObservableObject {
 
     // MARK: - Public API
 
-    /// Loads notification groups. Replace the stub below with a real Use Case call.
     func loadNotifications() {
         state = .loading
 
@@ -62,7 +44,6 @@ final class NotificationsViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
             guard let self else { return }
 
-            // --- Stub data — remove once API layer is wired ---
             let now = Date()
 
             let todayItems: [Notification] = [
@@ -102,7 +83,6 @@ final class NotificationsViewModel: ObservableObject {
         }
     }
 
-    /// Marks a notification as read by its string identifier.
     func markAsRead(id: String) {
         guard case .loaded(let groups) = state else { return }
 
