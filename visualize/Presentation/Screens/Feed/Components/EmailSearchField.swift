@@ -4,6 +4,14 @@
 //
 //  Created by Diana Escalante on 14/04/26.
 //
+
+//
+// A reusable search input field for entering email addresses.
+// It manages focus state, displays a search icon with dynamic styling,
+// and shows a clear (reset) button when text is present.
+// Designed with a modern UI using blur, border, and shadow effects.
+//
+
 import SwiftUI
 
 struct EmailSearchField: View {

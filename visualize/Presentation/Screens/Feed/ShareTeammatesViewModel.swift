@@ -4,6 +4,13 @@
 //
 //  Created by Diana Escalante on 13/04/26.
 //
+
+//
+// ViewModel that manages the business logic for sharing teammates.
+// Handles data loading, search filtering, and user selection/removal.
+// Maintains UI state and communicates with the service layer to fetch users.
+//
+
 import SwiftUI
 import Observation
 

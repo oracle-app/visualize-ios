@@ -5,6 +5,11 @@
 //  Created by DianaEscalante on 22/04/26.
 //
 
+//
+// Service responsible for providing user data.
+// Simulates an asynchronous data fetch, representing a database call.
+//
+
 class ShareTeammatesService: ShareTeammatesServiceProtocol {
     
     func fetchUsers() async throws -> [User] {
