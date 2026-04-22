@@ -176,7 +176,8 @@ struct FeedView: View {
                 items: items,
                 onShare: {
                     showShareSheet = true
-                }
+                },
+                
             )
         }
     }

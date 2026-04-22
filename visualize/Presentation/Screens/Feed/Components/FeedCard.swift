@@ -146,7 +146,8 @@ struct FeedCard: View {
        .cornerRadius(10)
        .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 2)
        .padding(.horizontal, 20)
-       .frame(height: 390) 
+       .frame(height: 390)
+       .padding(.bottom, 16)
    }
 }
 
