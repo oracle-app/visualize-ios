@@ -1,3 +1,9 @@
+//
+//  EmailSearchField.swift
+//  Visualize
+//
+//  Created by Diana Escalante on 14/04/26.
+//
 import SwiftUI
 
 struct EmailSearchField: View {
@@ -11,7 +17,7 @@ struct EmailSearchField: View {
         HStack(spacing: 10) {
             
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(isFocused ? Color.primaryOrange : Color.primaryAzul)
+                .foregroundStyle(isFocused ? Color.primaryOrange : Color.appTeal)
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
             
             TextField("Enter email", text: $email)

@@ -1,3 +1,9 @@
+//
+//  ShareTeammatesViewModel.swift
+//  Visualize
+//
+//  Created by Jorge Flores on 13/04/26.
+//
 import SwiftUI
 internal import Combine
 

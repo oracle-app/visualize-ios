@@ -7,6 +7,13 @@
 import SwiftUI
 import Observation
 
+struct FeedItem: Identifiable {
+    let id = UUID()
+    let title: String
+    let author: String
+    let date: String
+}
+
 @Observable
 class FeedViewModel {
     var state: FeedState = .loading
@@ -19,7 +26,7 @@ class FeedViewModel {
     
     enum FeedState {
         case loading
-        case loaded([FeedCard])
+        case loaded([FeedItem])
         case empty
         case error
     }
@@ -34,8 +41,8 @@ class FeedViewModel {
             do {
                 // simulate loading delay
                 try await Task.sleep(nanoseconds: 1_000_000_000)
-                let cards = try await service.fetchFeed()
-                state = cards.isEmpty ? .empty : .loaded(cards)
+                let items = try await service.fetchFeed()
+                state = items.isEmpty ? .empty : .loaded(items)
             } catch {
                 state = .error
             }

@@ -17,6 +17,7 @@ struct FeedView: View {
 
     @State var selectedFeed: FeedOption = .allFeed
     @State var viewModel: FeedViewModel
+    @State private var showShareSheet = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -25,6 +26,12 @@ struct FeedView: View {
         }
         .onAppear {
             viewModel.loadData()
+        }
+        .sheet(isPresented: $showShareSheet) {
+            NavigationStack {
+                ShareTeammatesScreen()
+                    .presentationDetents([.medium, .large])
+            }
         }
     }
 
@@ -78,25 +85,30 @@ struct FeedView: View {
     @ViewBuilder
     func contentView() -> some View {
         switch viewModel.state {
-
+            
         case .loading:
             LoadingListView()
                 .hCenter()
-
+            
         case .empty:
             EmptyListView {
                 viewModel.loadData()
             }
             .hCenter()
-
+            
         case .error:
             ErrorListView {
                 viewModel.loadData()
             }
             .hCenter()
-
-        case .loaded(let cards):
-            LoadedListView(cards: cards)
+            
+        case .loaded(let items):
+            LoadedListView(
+                items: items,
+                onShare: {
+                    showShareSheet = true
+                }
+            )
         }
     }
 }

@@ -13,7 +13,7 @@ struct LoadingListView: View {
         VStack(spacing: 15) {
             ProgressView("Loading Visualizations...")
                 .font(.body.bold())
-                .foregroundStyle(Color.primaryAzul)
+                .foregroundStyle(Color.appTeal)
 
             Text("Fetching the latest visualizations for you.")
                 .foregroundStyle(.gray)

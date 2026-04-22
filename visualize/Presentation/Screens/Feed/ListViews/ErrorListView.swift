@@ -17,7 +17,7 @@ struct ErrorListView: View {
             VStack {
                 Text("Error")
                     .font(.body.bold())
-                    .foregroundStyle(Color.primaryAzul)
+                    .foregroundStyle(Color.appTeal)
 
                 Text("An error has happened")
                     .foregroundStyle(.gray)
@@ -32,7 +32,7 @@ struct ErrorListView: View {
             .buttonStyle(.bordered)
             .frame(width: 300, height: 50)
             .controlSize(.large)
-            .background(Color.primaryAzul)
+            .background(Color.appTeal)
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 32))
             .padding(.bottom, 100)

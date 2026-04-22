@@ -17,7 +17,7 @@ struct EmptyListView: View {
             VStack {
                 Text("No Visualizations Yet")
                     .font(.body.bold())
-                    .foregroundStyle(Color.primaryAzul)
+                    .foregroundStyle(Color.appTeal)
 
                 Text("Your visualizations will appear here once you create or receive them")
                     .padding(.horizontal, 80)
@@ -33,7 +33,7 @@ struct EmptyListView: View {
             .buttonStyle(.bordered)
             .frame(width: 300, height: 50)
             .controlSize(.large)
-            .background(Color.primaryAzul)
+            .background(Color.appTeal)
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 32))
             .padding(.bottom, 100)

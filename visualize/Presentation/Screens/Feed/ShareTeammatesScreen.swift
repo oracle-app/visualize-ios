@@ -1,3 +1,9 @@
+//
+//  ShareTeammatesScreen.swift
+//  Visualize
+//
+//  Created by Diana Escalante on 13/04/26.
+//
 import SwiftUI
 
 struct User: Identifiable {

@@ -10,13 +10,19 @@ import SwiftUI
 
 struct LoadedListView: View {
 
-    let cards: [FeedCard]
+    let items: [FeedItem]
+    let onShare: () -> Void
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(spacing: 12) {
-                ForEach(cards.indices, id: \.self) { index in
-                    cards[index]
+                ForEach(items) { item in
+                    FeedCard(
+                        title: item.title,
+                        author: item.author,
+                        date: item.date,
+                        onShare: onShare
+                    )
                 }
             }
         }

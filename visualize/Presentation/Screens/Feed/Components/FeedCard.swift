@@ -15,6 +15,8 @@ struct FeedCard: View {
     var author: String
     var date: String
     
+    var onShare: () -> Void
+    
     let letters = Color(red: 52/255, green: 121/255, blue: 124/255, opacity: 1)
     let titleColor =  Color(red: 26/255, green: 47/255, blue: 63/255, opacity: 1)
     let bg = Color(red: 230/255, green: 237/255, blue: 236/255, opacity: 1)
@@ -30,6 +32,7 @@ struct FeedCard: View {
                 Spacer()
                 Menu {
                     Button {
+                        onShare()
                     } label: {
                         Label("Share", systemImage: "person.badge.plus")
                     }
@@ -148,7 +151,12 @@ struct FeedCard: View {
 }
 
 #Preview {
-    FeedCard(title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time", author: "Mariana Islas", date: "10 apr 2026")
+    FeedCard(
+        title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time",
+        author: "Mariana Islas",
+        date: "10 apr 2026",
+        onShare: {}
+    )
     
     //FeedCard(title: "Total Transactions by Category", author: "Mariana Islas", date: "10 apr 2026")
     
