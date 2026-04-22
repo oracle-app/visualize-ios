@@ -2,16 +2,17 @@
 //  ShareTeammatesViewModel.swift
 //  Visualize
 //
-//  Created by Jorge Flores on 13/04/26.
+//  Created by Diana Escalante on 13/04/26.
 //
 import SwiftUI
-internal import Combine
+import Observation
 
-class ShareTeammatesViewModel: ObservableObject {
+@Observable
+class ShareTeammatesViewModel {
     
-    @Published var email: String = ""
+    var email: String = ""
     
-    @Published var users: [User] = [
+    var users: [User] = [
         User(name: "Diana Escalante", email: "dianaescalante@email.com"),
         User(name: "Jocelyn Duarte", email: "jocelynduarte@email.com"),
         User(name: "Eduardo Salazar", email: "eduardosalazar@email.com"),
