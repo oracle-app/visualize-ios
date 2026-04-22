@@ -15,8 +15,19 @@ final class GeneratingVisualizationsViewModel: ObservableObject {
     let footerMessage = "This may take a moment..."
 
     @Published var isLoading = true
+    @Published var navigateToVizReady = false
+    @Published var dismissToUpload = false
+
+    init() {
+        // TODO: Remove this mock delay — replace with real generation completion callback when microservice is connected
+        Task {
+            try? await Task.sleep(for: .seconds(3))
+            isLoading = false
+            navigateToVizReady = true
+        }
+    }
 
     func onCancelTapped() {
-        // TODO: Connect cancel action to navigation flow.
+        dismissToUpload = true
     }
 }

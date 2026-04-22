@@ -98,8 +98,11 @@ struct CreateVisualization: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 if viewModel.isUploadComplete {
-                    GenerateVisButton {}
-                        .padding(.bottom, 43)
+                    GenerateVisButton {
+                        // TODO: Remove this mock trigger — replace with real generation call when microservice is connected
+                        viewModel.navigateToGenerating = true
+                    }
+                    .padding(.bottom, 43)
                 } else {
                     ExampleTable()
                         .padding(.bottom, 32)
@@ -114,6 +117,9 @@ struct CreateVisualization: View {
         .background(
             Color(Color.appBackground).ignoresSafeArea()
         )
+        .fullScreenCover(isPresented: $viewModel.navigateToGenerating) {
+            GeneratingVisualizationsView()
+        }
         .fileImporter(
             isPresented: $isFilePickerPresented,
             allowedContentTypes: allowedTypes,

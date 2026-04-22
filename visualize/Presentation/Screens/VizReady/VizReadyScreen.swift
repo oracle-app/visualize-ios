@@ -121,7 +121,10 @@ private struct VizHeader: View {
 /// the user pick one before proceeding to the next step.
 struct VizReadyView: View {
 
-    /// Dismisses the sheet when the user taps the close button.
+    /// Called after the close button dismisses this view, so the caller can
+    /// chain further dismissals up the navigation stack.
+    var onClose: (() -> Void)? = nil
+    /// Dismisses this fullScreenCover.
     @Environment(\.dismiss) var dismiss
     /// Backing state machine for chart selection and title editing.
     @State private var viewModel = VizReadyViewModel()
@@ -143,7 +146,7 @@ struct VizReadyView: View {
                 collapseProgress: collapseProgress,
                 isSelectionValid: viewModel.isSelectionValid,
                 height: navBarHeight,
-                onClose:   { dismiss() },
+                onClose:   { dismiss(); onClose?() },
                 onProceed: { /* wire up coordinator / router */ }
             )
         }
@@ -217,7 +220,6 @@ struct VizReadyView: View {
                 )
             }
         }
-        .padding(.horizontal, 24)
         .padding(.bottom, 32)
     }
 }

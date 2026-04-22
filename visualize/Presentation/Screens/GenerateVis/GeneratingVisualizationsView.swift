@@ -16,6 +16,7 @@ private enum GeneratingVisualizationsStyle {
 }
 
 struct GeneratingVisualizationsView: View {
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = GeneratingVisualizationsViewModel()
 
     var body: some View {
@@ -33,6 +34,12 @@ struct GeneratingVisualizationsView: View {
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 36)
+        }
+        .fullScreenCover(isPresented: $viewModel.navigateToVizReady) {
+            VizReadyView(onClose: { viewModel.dismissToUpload = true })
+        }
+        .onChange(of: viewModel.dismissToUpload) { _, shouldDismiss in
+            if shouldDismiss { dismiss() }
         }
     }
 
