@@ -23,6 +23,7 @@ struct FeedItem: Identifiable {
     let title: String
     let author: String
     let date: String
+    let sharedWith: [Color]?
 }
 
 @Observable
