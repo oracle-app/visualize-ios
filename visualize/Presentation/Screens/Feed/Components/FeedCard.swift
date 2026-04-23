@@ -18,17 +18,13 @@ struct FeedCard: View {
     var onShare: () -> Void
     var sharedWith: [Color]? = nil
     
-    let letters = Color(red: 52/255, green: 121/255, blue: 124/255, opacity: 1)
-    let titleColor =  Color(red: 26/255, green: 47/255, blue: 63/255, opacity: 1)
-    let bg = Color(red: 230/255, green: 237/255, blue: 236/255, opacity: 1)
-    
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 5){
                     Text(title)
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(titleColor)
+                        .foregroundStyle(Color.primaryText)
                         .minimumScaleFactor(0.5)
                         //.frame(height: 50, alignment: .center)
                     HStack(spacing: 12) {
@@ -38,7 +34,7 @@ struct FeedCard: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(letters)
+                    .foregroundStyle(Color.appTeal)
                 }
                 Spacer()
                 Menu {
@@ -68,7 +64,7 @@ struct FeedCard: View {
                         
                         Image(systemName: "ellipsis")
                             .font(.system(size: 22))
-                            .foregroundStyle(letters)
+                            .foregroundStyle(Color.appTeal)
                     }
                     .frame(width: 37, height: 37)
                     .contentShape(Circle())
@@ -121,7 +117,7 @@ struct FeedCard: View {
                        Circle()
                            .fill(color)
                            .frame(width: 33, height: 33)
-                           .overlay(Circle().stroke(bg, lineWidth: 2))
+                           .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
                            .zIndex(Double(3 - index))
                    }
                    if colors.count > 3 {
@@ -132,7 +128,7 @@ struct FeedCard: View {
                                .foregroundStyle(Color(red: 68/255, green: 68/255, blue: 68/255, opacity: 1))
                        }
                        .frame(width: 33, height: 33)
-                       .overlay(Circle().stroke(bg, lineWidth: 2))
+                       .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
                        .padding(.leading, 10)
                        .zIndex(0)
                    }
@@ -142,7 +138,7 @@ struct FeedCard: View {
            }
        }
        .padding(16)
-       .background(bg)
+       .background(Color.appMint)
        .cornerRadius(10)
        .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 2)
        .padding(.horizontal, 20)
