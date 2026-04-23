@@ -36,14 +36,14 @@ struct ShareSheet: View {
                     
                     Text("Personal feed")
                         .font(.title3.weight(.semibold))
-                        .foregroundColor(Color.primaryBlue)
+                        .foregroundColor(Color.appTeal)
                         .frame(maxWidth: 360)
                         .frame(height: 45)
                         .background(.white)
                         .clipShape(Capsule())
                         .overlay(
                             Capsule()
-                                .stroke(Color.primaryBlue, lineWidth: 1.5)
+                                .stroke(Color.appTeal, lineWidth: 1.5)
                         )
                         .shadow(color: .black.opacity(0.15), radius: 4)
                     

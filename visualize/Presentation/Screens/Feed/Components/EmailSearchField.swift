@@ -11,7 +11,7 @@ struct EmailSearchField: View {
         HStack(spacing: 10) {
             
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(isFocused ? Color.primaryOrange : Color.primaryBlue)
+                .foregroundStyle(isFocused ? Color.primaryOrange : Color.appTeal)
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
             
             TextField("Enter email", text: $email)
