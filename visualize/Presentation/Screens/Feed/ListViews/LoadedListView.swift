@@ -21,7 +21,8 @@ struct LoadedListView: View {
                         title: item.title,
                         author: item.author,
                         date: item.date,
-                        onShare: onShare
+                        onShare: onShare,
+                        sharedWith: item.sharedWith
                     )
                 }
             }
