@@ -14,7 +14,18 @@ final class GeneratingVisualizationsViewModel {
     let message = "We’re analyzing your dataset and generating charts that best represent your data."
     let footerMessage = "This may take a moment..."
 
-    var isLoading = true
+    var isLoading = false
+    var navigateToVizReady = false
+    var dismissToUpload = false
+
+    func startLoading() {
+        Task {
+            isLoading = true
+            try? await Task.sleep(for: .seconds(3))
+            isLoading = false
+            navigateToVizReady = true
+        }
+    }
 
     func onCancelTapped() {
         dismissToUpload = true

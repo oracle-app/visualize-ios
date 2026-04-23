@@ -9,6 +9,7 @@ import SwiftUI
 
 struct GeneratingVisualizationsView: View {
     @State private var viewModel = GeneratingVisualizationsViewModel()
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ZStack {
@@ -26,6 +27,7 @@ struct GeneratingVisualizationsView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 36)
         }
+        .task { viewModel.startLoading() }
         .fullScreenCover(isPresented: $viewModel.navigateToVizReady) {
             VizReadyView(onClose: { viewModel.dismissToUpload = true })
         }

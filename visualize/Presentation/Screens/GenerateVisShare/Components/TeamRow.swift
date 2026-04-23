@@ -23,12 +23,12 @@ struct TeamRow: View {
             
             ZStack {
                 Circle()
-                    .stroke(isSelected ? Color.primaryBlue : Color.gray.opacity(0.4), lineWidth: 2)
+                    .stroke(isSelected ? Color.appTeal : Color.gray.opacity(0.4), lineWidth: 2)
                     .frame(width: 24, height: 24)
 
                 if isSelected {
                     Circle()
-                        .fill(Color.primaryBlue)
+                        .fill(Color.appTeal)
                         .frame(width: 24, height: 24)
 
                     Image(systemName: "checkmark")
@@ -44,7 +44,7 @@ struct TeamRow: View {
                 
                 Text("\(team.members) members")
                     .font(.system(size: 13))
-                    .foregroundColor(Color.primaryBlue)
+                    .foregroundColor(Color.appTeal)
             }
             .padding(.leading, 6)
             

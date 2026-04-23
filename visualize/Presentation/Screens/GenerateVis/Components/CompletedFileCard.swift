@@ -23,7 +23,7 @@ struct CompletedFileCard: View {
         HStack(spacing: 12) {
             ZStack {
                 Image(systemName: "document.badge.arrow.up")
-                    .foregroundColor(Color.primaryBlue)
+                    .foregroundColor(Color.appTeal)
                     .font(.system(size: 28))
             }
 
@@ -59,7 +59,7 @@ struct CompletedFileCard: View {
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(Color.primaryBlue.opacity(0.4), lineWidth: 1)
+                .strokeBorder(Color.appTeal.opacity(0.4), lineWidth: 1)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color(.systemBackground))

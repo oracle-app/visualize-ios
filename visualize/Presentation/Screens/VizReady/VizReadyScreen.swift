@@ -130,6 +130,8 @@ struct VizReadyView: View {
     @State private var viewModel = VizReadyViewModel()
     /// Current vertical content offset used to animate the navigation bar collapse.
     @State private var scrollOffset: CGFloat = 0
+    /// Controls presentation of the share sheet after the user taps proceed.
+    @State private var showShareSheet = false
 
     /// Fixed height of the sticky navigation bar.
     private let navBarHeight: CGFloat = 60
@@ -147,10 +149,17 @@ struct VizReadyView: View {
                 isSelectionValid: viewModel.isSelectionValid,
                 height: navBarHeight,
                 onClose:   { dismiss(); onClose?() },
-                onProceed: { /* wire up coordinator / router */ }
+                onProceed: { showShareSheet = true }
             )
         }
         .background(Color.appBackground)
+        .sheet(isPresented: $showShareSheet) {
+            NavigationStack {
+                ShareSheet()
+            }
+            .presentationDetents([.medium, .large])
+            .presentationBackground(.clear)
+        }
     }
 
     // MARK: - Scroll content
