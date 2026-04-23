@@ -4,6 +4,10 @@
 //
 //  Created by Maria Regina Orduño Lopez on 13/04/26.
 //
+// Reusable feed card component that displays a visualization entry with title, author, and date information.
+// It manages local UI state for delete confirmation alerts and handles a contextual menu with actions such as sharing and deleting.
+// Integrates interaction callbacks through closures to delegate actions like sharing to parent views.
+//
 
 import SwiftUI
 
