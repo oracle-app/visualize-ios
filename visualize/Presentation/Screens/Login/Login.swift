@@ -35,7 +35,7 @@ struct Login: View {
 
                     Text("Welcome")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color(red: 19/255, green: 33/255, blue: 44/255))
+                        .foregroundColor(Color(Color.appNavy))
                         .multilineTextAlignment(.center)
                         .padding(.top, 58)
                         .padding(.bottom, 58)
@@ -61,7 +61,7 @@ struct Login: View {
                         } label: {
                             Text("Forgot your password?")
                                 .font(.system(size: 13))
-                                .foregroundColor(Color(red: 89/255, green: 114/255, blue: 113/255))
+                                .foregroundColor(Color(Color.appSubtitle))
                                 .underline()
                         }
                     }
@@ -75,7 +75,7 @@ struct Login: View {
                     VStack(spacing: 4) {
                         Text("Don't have an account?")
                             .font(.system(size: 14))
-                            .foregroundColor(Color(red: 89/255, green: 114/255, blue: 113/255))
+                            .foregroundColor(Color(Color.appSubtitle))
                         Button {
                         } label: {
                             Text("Sign up")
@@ -99,7 +99,7 @@ struct Login: View {
             .ignoresSafeArea(edges: .bottom)
             .scrollDismissesKeyboard(.interactively)
         }
-        .background(Color(red: 52/255, green: 121/255, blue: 124/255))
+        .background(Color(Color.appTeal))
     }
 }
 
