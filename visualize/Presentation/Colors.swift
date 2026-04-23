@@ -7,12 +7,6 @@ extension Color {
         blue: 44/255
     )
 
-    static let primaryBlue = Color(
-        red: 52/255,
-        green: 121/255,
-        blue: 124/255
-    )
-
     static let primaryOrange = Color(
         red: 235/255,
         green: 150/255,

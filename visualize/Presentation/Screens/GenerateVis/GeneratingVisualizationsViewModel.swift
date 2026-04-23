@@ -6,26 +6,15 @@
 //
 
 import Foundation
-internal import Combine
+import Observation
 
-@MainActor
-final class GeneratingVisualizationsViewModel: ObservableObject {
+@Observable
+final class GeneratingVisualizationsViewModel {
     let title = "Generating Visualizations"
     let message = "We’re analyzing your dataset and generating charts that best represent your data."
     let footerMessage = "This may take a moment..."
 
-    @Published var isLoading = true
-    @Published var navigateToVizReady = false
-    @Published var dismissToUpload = false
-
-    init() {
-        // TODO: Remove this mock delay — replace with real generation completion callback when microservice is connected
-        Task {
-            try? await Task.sleep(for: .seconds(3))
-            isLoading = false
-            navigateToVizReady = true
-        }
-    }
+    var isLoading = true
 
     func onCancelTapped() {
         dismissToUpload = true
