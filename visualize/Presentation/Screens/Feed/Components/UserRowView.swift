@@ -1,3 +1,16 @@
+//
+//  UserRowView.swift
+//  Visualize
+//
+//  Created by Diana Escalante on 14/04/26.
+//
+
+//
+// A row component that displays basic user information (name and email).
+// Optionally includes a remove button with a tap animation.
+// Designed to be reusable in lists, dropdowns, or selection views.
+//
+
 import SwiftUI
 
 struct UserRowView: View {

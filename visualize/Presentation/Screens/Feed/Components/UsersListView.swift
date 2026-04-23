@@ -1,3 +1,16 @@
+//
+//  UsersListView.swift
+//  Visualize
+//
+//  Created by Diana Escalante on 14/04/26.
+//
+
+//
+// A scrollable list view that displays multiple users.
+// Each user is rendered using UserRowView and supports removal actions.
+// Includes separators between items for better visual organization.
+//
+
 import SwiftUI
 
 struct UsersListView: View {

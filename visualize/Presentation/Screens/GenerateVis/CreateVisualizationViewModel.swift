@@ -25,6 +25,7 @@ class CreateVisualizationViewModel{
     var isUploading: Bool = false
     var uploadProgress: Double = 0.0
     var isUploadComplete: Bool = false
+    var navigateToGenerating: Bool = false
 
     var fileSize: String = "0 MB"
 

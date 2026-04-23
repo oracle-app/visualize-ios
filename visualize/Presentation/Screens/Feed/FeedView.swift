@@ -1,272 +1,202 @@
 //
-//  FeedView.swift
+//  FeedViewModel.swift
 //  Visualize
 //
-//  Created by Jorge Flores on 11/04/26.
+//  Created by Jorge Flores on 13/04/26.
 //
+
+//  This file defines the main FeedView of the application, responsible for displaying
+//  a scrollable feed of content and managing its different UI states through a
+//  FeedViewModel.
+//
+//  It supports multiple feed filters (All, Personal, Shared), dynamic header behavior,
+//  and a custom toolbar configuration with primary and trailing actions. The view
+//  reacts to changes in the ViewModel state to display loading, empty, error, or
+//  loaded content accordingly.
+//
+//  It also manages UI interactions such as presenting a share sheet, updating the
+//  navigation title based on scroll position, and adapting layout based on safe area
+//  insets using geometry tracking.
+
 import SwiftUI
 
-
 struct FeedView: View {
-    
-    
+
     enum FeedOption: String {
         case allFeed = "All Feed"
         case personalFeed = "Personal Feed"
         case sharedFeed = "Shared Feed"
-        var id: Self { self }
     }
-    
-    
-    
-    
+
     @State var selectedFeed: FeedOption = .allFeed
-    @StateObject var viewModel: FeedViewModel
+    @State var viewModel: FeedViewModel
+    @State var isPrimaryActionVisible: Bool = true
+    @State var title: String?
+    @State var safeArea: EdgeInsets = .init()
     
+    @State private var showShareSheet = false
+    
+
     var body: some View {
         
-        ScrollView(.vertical, showsIndicators: false){
-            
-            LazyVStack(spacing: 10, pinnedViews:[.sectionHeaders]) {
-                
-                Section {
-                    contentView()
-                        
-                    
-                } header: {
+        NavigationStack{
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 10) {
                     headerView()
+                    contentView()
                 }
+                .padding(0)
+                
                 
             }
-        }.scrollEdgeEffectStyle(.hard, for: .top)
-        .onAppear{
-            viewModel.loadData()
+            .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
+                
+                
+            } trailing: {
+                HStack(spacing: 15) {
+                    Button("Notifications", systemImage: "bell") {
+                        
+                    }
+                }
+            } principal: {
+                if let title {
+                        Text(title)
+                        .fontWeight(.semibold)
+                        .transition(.offset(y: 10).combined(with: AnyTransition(.blurReplace)))
+                    }
+
+                        
+            } primaryAction: {
+                
+            }
+            .onAppear(){
+                viewModel.loadData()
+            }
+            .sheet(isPresented: $showShareSheet) {
+                        NavigationStack {
+                            ShareTeammatesScreen()
+                                .presentationDetents([.medium, .large])
+                        }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .coordinateSpace(name: "scroll")
+        }
+        
+        
+
+        .onGeometryChange(for: EdgeInsets.self) {
+            $0.safeAreaInsets
+        } action: { newValue in
+            safeArea = newValue
         }
     }
-    
-    
+
+
+
     func headerView() -> some View {
         
+
         HStack(spacing: 10) {
+            Text(selectedFeed.rawValue)
+                .font(.title.bold())
+                .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
+                .onGeometryChange(for: Bool.self) {
+                    let height = $0.size.height
+                    let offset = $0.frame(in: .named("scroll")).minY
+                    return -offset > height
+                } action: { newValue in
+        
+                    withAnimation(.smooth(duration: 0.10)) {
+                            title = newValue ? selectedFeed.rawValue : nil
+                        }
+                }
+                
             
-            Text(selectedFeed.rawValue).font(.title.bold())
+            Image(systemName: "control")
+                .font(.body.bold())
+                .foregroundColor(.black)
+                .rotationEffect(.degrees(180))
+                .padding(.trailing, 10)
             
-            Menu (){
-                Button("All Feed", action: {
+            
+        }
+        .overlay {
+            Menu {
+                Button("All Feed") {
                     selectedFeed = .allFeed
-                })
-                
-                Button("Personal Feed", action: {
+                }
+
+                Button("Personal Feed") {
                     selectedFeed = .personalFeed
-                })
-                
-                Button("Shared Feed", action: {
+                }
+
+                Button("Shared Feed") {
                     selectedFeed = .sharedFeed
-                })
+                }
+
             } label: {
-                Image(systemName: "control")
-                    .font(Font.body.bold())
-                    .foregroundColor(.black)
-                    .rotationEffect(Angle(degrees: 180))
+                Color.clear
+                
             }
+            
+            
         }
         .hLeading()
-        .padding([.top], 40)
-        .padding([.leading], 40)
-        .padding([.bottom], 10)
-        .background(Color.gray.opacity(0.0)) //debug
-        
+        .padding(.top, 0)
+        .padding(.leading, 40)
+        .padding(.bottom, 0)
     }
-    
+
+
     @ViewBuilder
     func contentView() -> some View {
         
-        
-        
         switch viewModel.state {
-            case .loading:
-                if let screen = UIApplication.shared.connectedScenes
-                    .compactMap({ $0 as? UIWindowScene })
-                    .first?.screen {
 
-                    LoadingListView()
-                    .frame(minHeight: screen.bounds.height * 0.60)
-                }
+        case .loading:
             
-            case .loaded(let cards):
-                LoadedListView(cards: cards)
+            LoadingListView()
                 
-            
-            case .empty:
-                if let screen = UIApplication.shared.connectedScenes
-                    .compactMap({ $0 as? UIWindowScene })
-                    .first?.screen {
-
-                    EmptyListView {
-                        viewModel.loadData()
-                    }
-                    .frame(minHeight: screen.bounds.height * 0.70)
-                }
-
-            case .error:
-                if let screen = UIApplication.shared.connectedScenes
-                    .compactMap({ $0 as? UIWindowScene })
-                    .first?.screen {
-                    
-                    ErrorListView{
-                        viewModel.loadData()
-                    }
-                    
-                        .frame(minHeight: screen.bounds.height * 0.70)
-                }
-            
-        }
-    }
-}
-        
-
-struct LoadedListView: View {
-    
-    let cards: [FeedCard]
-    
-    var body: some View {
-        LazyVStack(spacing: 12) {
-            LazyVStack {
-                ForEach(0..<cards.count, id: \.self) { index in
-                    cards[index]
-                }
-            }
                 
-        }
-    }
-}
 
-struct EmptyListView: View {
-    
-    let retryAction: () -> Void
-    
-    var body : some View {
-        
-        VStack(spacing: 10) {
-            Spacer()
-            VStack(){
+        case .empty:
+            EmptyListView {
+                viewModel.loadData()
+            }
+            
+
+        case .error:
+            ErrorListView {
+                viewModel.loadData()
+            }
+            
+
+        case .loaded(let items):
+            LoadedListView(
+                items: items,
+                onShare: {
+                    showShareSheet = true
+                },
                 
-                Text("No Visualizations Yet")
-                    .font(Font.body.bold())
-                    .foregroundStyle(Color(red: 52/255, green: 121/255, blue: 124/255))
-                  
-                Text("Your visualizations will appear here once you create or receive them")
-                    .padding([.leading, .trailing], 80).foregroundStyle(Color.gray)
-                    .multilineTextAlignment(.center)
-            }
-            Spacer()
-            
-            Button("Try Again"){
-                retryAction()
-            }
-            .buttonStyle(.bordered)
-            .frame(width: 300, height: 50)
-            .controlSize(.large)
-            .background(Color(red: 52/255, green: 121/255, blue: 124/255))
-            .foregroundStyle(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 32))
-            .padding(.bottom, 20)
-            
-            
-            
+            )
         }
-        .hCenter()
     }
-    
 }
-
-
-struct ErrorListView: View {
-    let retryAction: () -> Void
-    
-    var body : some View {
-        
-        VStack(spacing: 10) {
-            Spacer()
-            VStack(){
-                
-                Text("Error")
-                    .font(Font.body.bold())
-                    .foregroundStyle(Color(red: 52/255, green: 121/255, blue: 124/255))
-                  
-                Text("An error has happened")
-                    .padding([.leading, .trailing], 80).foregroundStyle(Color.gray)
-                    .multilineTextAlignment(.center)
-            }
-            Spacer()
-            
-            Button("Something Went Wrong"){
-                retryAction()
-            }
-            .buttonStyle(.bordered)
-            .frame(width: 300, height: 50)
-            .controlSize(.large)
-            .background(Color(red: 52/255, green: 121/255, blue: 124/255))
-            .foregroundStyle(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 32))
-            .padding(.bottom, 20)
-            
-            
-            
-        }
-        .hCenter()
-    }
-
-    
-    
-}
-
-struct LoadingListView: View {
-    
-    
-    
-    var body : some View {
-        
-        VStack(spacing: 15) {
-            ProgressView("Loading Visualizations...")
-                .font(Font.body.bold())
-                .foregroundStyle(Color(red: 52/255, green: 121/255, blue: 124/255))
-            Text("Fetching the latest visualizations for you.")
-                .foregroundStyle(Color.gray)
-                .padding([.leading, .trailing], 80)
-                .multilineTextAlignment(.center)
-            
-        }
-        .hCenter()
-    }
-    
-    
-}
-
 
 
 extension View {
-    
-    
+
     func hLeading() -> some View {
-        self
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    
-    func hTrailing() -> some View {
-        self
-            .frame(maxWidth: .infinity, alignment: .trailing)
+        frame(maxWidth: .infinity, alignment: .leading)
     }
 
     func hCenter() -> some View {
-        self
-            .frame(maxWidth: .infinity, maxHeight: .infinity,  alignment: .center)
+        frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
-
 }
+
 
 #Preview {
     FeedView(viewModel: .init())
 }
-    
-    
+
