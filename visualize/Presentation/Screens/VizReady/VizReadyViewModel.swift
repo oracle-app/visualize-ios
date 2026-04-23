@@ -30,7 +30,7 @@ final class VizReadyViewModel {
 
     // MARK: - Computed
 
-    /// `true` when the user has selected at least one chart.
+    /// `true` when the user has selected a single chart.
     var isSelectionValid: Bool { selectedChartID != nil }
 
     /// Returns `true` if the given ID matches the current selection.
@@ -49,8 +49,10 @@ final class VizReadyViewModel {
     ///
     /// Silently ignores empty, blank, or unrecognised input.
     func updateTitle(_ newTitle: String, forID id: UUID) {
-        let trimmed = newTitle.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty, let index = charts.firstIndex(where: { $0.id == id }) else { return }
+        let trimmed = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty,
+              trimmed.count <= Self.titleCharLimit,
+              let index = charts.firstIndex(where: { $0.id == id }) else { return }
         charts[index].title = trimmed
     }
 }
