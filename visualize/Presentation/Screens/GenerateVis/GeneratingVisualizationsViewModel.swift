@@ -6,17 +6,28 @@
 //
 
 import Foundation
-internal import Combine
+import Observation
 
-@MainActor
-final class GeneratingVisualizationsViewModel: ObservableObject {
+@Observable
+final class GeneratingVisualizationsViewModel {
     let title = "Generating Visualizations"
     let message = "We’re analyzing your dataset and generating charts that best represent your data."
     let footerMessage = "This may take a moment..."
 
-    @Published var isLoading = true
+    var isLoading = false
+    var navigateToVizReady = false
+    var dismissToUpload = false
+
+    func startLoading() {
+        Task {
+            isLoading = true
+            try? await Task.sleep(for: .seconds(3))
+            isLoading = false
+            navigateToVizReady = true
+        }
+    }
 
     func onCancelTapped() {
-        // TODO: Connect cancel action to navigation flow.
+        dismissToUpload = true
     }
 }

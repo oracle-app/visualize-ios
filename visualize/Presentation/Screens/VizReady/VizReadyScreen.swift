@@ -15,10 +15,16 @@ import SwiftUI
 /// 1 = scrolled ≥ 80 pt ("Choose visualization" visible).
 private struct VizHeader: View {
 
+    /// Cross-fade progress between the Oracle logo and the screen title.
+    /// 0 = top of scroll, 1 = scrolled ≥ 80 pt.
     let collapseProgress: Double
+    /// Whether at least one chart has been selected by the user.
     let isSelectionValid: Bool
+    /// Fixed height of the navigation bar frame.
     let height: CGFloat
+    /// Called when the user taps the close (✕) button.
     let onClose: () -> Void
+    /// Called when the user taps the proceed (→) button.
     let onProceed: () -> Void
 
     var body: some View {
@@ -37,6 +43,7 @@ private struct VizHeader: View {
 
     // MARK: Subviews
 
+    /// Button that dismisses the current flow.
     private var closeButton: some View {
         Button(action: onClose) {
             Image(systemName: "xmark")
@@ -49,6 +56,7 @@ private struct VizHeader: View {
         .buttonStyle(.plain)
     }
 
+    /// Animated centre area that cross-fades between the Oracle logo and the screen title.
     private var centerLogo: some View {
         ZStack {
             // Oracle logo — falls back to party.popper if asset is absent
@@ -75,6 +83,7 @@ private struct VizHeader: View {
         }
     }
 
+    /// Button that advances to the next step; disabled while no chart is selected.
     private var proceedButton: some View {
         Button(action: onProceed) {
             Image(systemName: "arrow.right")
@@ -88,6 +97,7 @@ private struct VizHeader: View {
         .disabled(!isSelectionValid)
     }
 
+    /// Frosted-glass background that extends under the status bar.
     private var navBackground: some View {
         ZStack {
             Color.white.opacity(0.65)
@@ -96,6 +106,7 @@ private struct VizHeader: View {
         .ignoresSafeArea(edges: .top)
     }
 
+    /// Thin bottom divider that fades in as the user begins scrolling.
     private var separator: some View {
         Rectangle()
             .fill(Color.gray.opacity(0.3))
@@ -106,12 +117,23 @@ private struct VizHeader: View {
 
 // MARK: - VizReadyView
 
+/// Full-screen view that presents AI-generated chart suggestions and lets
+/// the user pick one before proceeding to the next step.
 struct VizReadyView: View {
 
+    /// Called after the close button dismisses this view, so the caller can
+    /// chain further dismissals up the navigation stack.
+    var onClose: (() -> Void)? = nil
+    /// Dismisses this fullScreenCover.
     @Environment(\.dismiss) var dismiss
+    /// Backing state machine for chart selection and title editing.
     @State private var viewModel = VizReadyViewModel()
+    /// Current vertical content offset used to animate the navigation bar collapse.
     @State private var scrollOffset: CGFloat = 0
+    /// Controls presentation of the share sheet after the user taps proceed.
+    @State private var showShareSheet = false
 
+    /// Fixed height of the sticky navigation bar.
     private let navBarHeight: CGFloat = 60
 
     /// Normalized scroll progress: 0 at top, 1 when scrolled ≥ 80 pt.
@@ -126,15 +148,23 @@ struct VizReadyView: View {
                 collapseProgress: collapseProgress,
                 isSelectionValid: viewModel.isSelectionValid,
                 height: navBarHeight,
-                onClose:   { dismiss() },
-                onProceed: { /* conectar al coordinator/router */ }
+                onClose:   { dismiss(); onClose?() },
+                onProceed: { showShareSheet = true }
             )
         }
         .background(Color.appBackground)
+        .sheet(isPresented: $showShareSheet) {
+            NavigationStack {
+                ShareSheet()
+            }
+            .presentationDetents([.medium, .large])
+            .presentationBackground(.clear)
+        }
     }
 
     // MARK: - Scroll content
 
+    /// Scroll view that wraps the expanded header and the card list.
     private var scrollContent: some View {
         ScrollView {
             VStack(spacing: 0) {
@@ -150,6 +180,7 @@ struct VizReadyView: View {
         }
     }
 
+    /// Expanded header shown at the top of the list; fades out as the user scrolls.
     private var expandedHeader: some View {
         VStack(spacing: 8) {
             VStack(spacing: 8) {
@@ -180,29 +211,31 @@ struct VizReadyView: View {
         }
     }
 
+    /// Vertically stacked list of selectable chart recommendation cards.
     private var cards: some View {
         VStack(spacing: 14) {
-            ForEach(viewModel.charts.indices, id: \.self) { idx in
+            ForEach(viewModel.charts) { chart in
                 RecommendedChartCard(
-                    title: viewModel.charts[idx].title,
-                    isSelected: viewModel.isSelected(viewModel.charts[idx].id),
+                    title: chart.title,
+                    isSelected: viewModel.isSelected(chart.id),
                     onTap: {
                         withAnimation(.easeInOut(duration: 0.2)) {
-                            viewModel.toggleSelection(for: viewModel.charts[idx].id)
+                            viewModel.toggleSelection(for: chart.id)
                         }
                     },
                     onTitleChange: { newTitle in
-                        viewModel.updateTitle(newTitle, forChartAt: idx)
+                        viewModel.updateTitle(newTitle, forID: chart.id)
                     }
                 )
             }
         }
-        .padding(.horizontal, 24)
         .padding(.bottom, 32)
     }
 }
 
 // MARK: - Preview
+#if DEBUG
 #Preview {
     VizReadyView()
 }
+#endif

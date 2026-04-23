@@ -1,3 +1,16 @@
+//
+//  SearchResultsDropdown.swift
+//  Visualize
+//
+//  Created by Diana Escalante on 14/04/26.
+//
+
+//
+// A dropdown view that displays a list of user search results.
+// Each result is tappable and triggers a selection callback.
+// Uses UserRowView to render each user in a clean, compact list.
+//
+
 import SwiftUI
 
 struct SearchResultsDropdown: View {
