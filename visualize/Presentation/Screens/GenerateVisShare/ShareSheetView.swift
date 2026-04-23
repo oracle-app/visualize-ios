@@ -1,3 +1,13 @@
+//
+//  ShareSheetView.swift
+//  visualize
+//
+//  Created by Mariana Carrillo Holguin on 11/04/26.
+//
+// Entry view that presents the ShareSheet as a modal.
+// Handles navigation context and sheet presentation.
+//
+
 import SwiftUI
 
 struct ShareSheetView: View {
@@ -25,11 +35,14 @@ struct ShareSheetView: View {
         }
         
         .sheet(isPresented: $showSheet) {
-            ShareSheet()
-                .presentationDetents([.medium, .large])
-                .presentationBackground(.clear)
+            NavigationStack {
+                ShareSheet()
+            }
+            .presentationDetents([.medium, .large])
+            .presentationBackground(.clear)
         }
-    }
+}
+    
 }
 #Preview {
     ShareSheetView()
