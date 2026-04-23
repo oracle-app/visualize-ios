@@ -1,59 +1,91 @@
+//
+//  TeamRow.swift
+//  visualize
+//
+//  Created by Mariana Carrillo Holguin on 11/04/26.
+//
+//
+// A reusable row that displays team information.
+// Includes selection state, team details, and avatar placeholders.
+// Designed for use inside selectable lists.
+//
+
 import SwiftUI
 
 struct TeamRow: View {
     
+    let team: Team
+    let isSelected: Bool
+    let onTap: () -> Void
+    
     var body: some View {
         HStack {
+            
+            ZStack {
+                Circle()
+                    .stroke(isSelected ? Color.primaryBlue : Color.gray.opacity(0.4), lineWidth: 2)
+                    .frame(width: 24, height: 24)
+
+                if isSelected {
+                    Circle()
+                        .fill(Color.primaryBlue)
+                        .frame(width: 24, height: 24)
+
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.white)
+                }
+            }
+            
             VStack(alignment: .leading, spacing: 4) {
-                Text("Data Analyst")
+                Text(team.name)
                     .font(.body)
                     .foregroundColor(Color.primaryText)
                 
-                Text("2 members")
+                Text("\(team.members) members")
                     .font(.system(size: 13))
                     .foregroundColor(Color.primaryBlue)
             }
+            .padding(.leading, 6)
             
             Spacer()
             
             HStack(spacing: -20) {
-                            Circle()
-                                .fill(Color.red.opacity(1))
-                                .frame(width: 33, height: 33)
-                                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
-                                .zIndex(3)
-                            
-                            Circle()
-                                .fill(Color.blue.opacity(1))
-                                .frame(width: 33, height: 33)
-                                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
-                                .zIndex(2)
-                            
-                            Circle()
-                                .fill(Color.green.opacity(1))
-                                .frame(width: 33, height: 33)
-                                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
-                                .zIndex(1)
-                            ZStack {
-                                    Circle()
-                                    .fill(Color.white.opacity(1))
-                                    
-                                    Text("+2")
-                                        .font(.system(size: 13, weight: .regular))
-                                        .foregroundStyle(Color(red: 68/255, green: 68/255, blue: 68/255, opacity: 1))
-                                }
-                                .frame(width: 33, height: 33)
-                                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
-                                .padding(.leading, 10)
-                                .zIndex(0)
-                        }
+                Circle()
+                    .fill(Color.red.opacity(1))
+                    .frame(width: 33, height: 33)
+                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                    .zIndex(3)
                 
+                Circle()
+                    .fill(Color.blue.opacity(1))
+                    .frame(width: 33, height: 33)
+                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                    .zIndex(2)
+                
+                Circle()
+                    .fill(Color.green.opacity(1))
+                    .frame(width: 33, height: 33)
+                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                    .zIndex(1)
+                
+                ZStack {
+                    Circle().fill(Color.white)
+                    
+                    Text("+2")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color(red: 68/255, green: 68/255, blue: 68/255))
+                }
+                .frame(width: 33, height: 33)
+                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
+                .padding(.leading, 10)
             }
-        .listRowBackground(
-            Color(red: 230/255, green: 237/255, blue: 236/255)
-            
-            )
         }
-        
+        .padding(.vertical, 6)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onTap()
+        }
+        .listRowBackground(Color.white)
     }
-
+}
