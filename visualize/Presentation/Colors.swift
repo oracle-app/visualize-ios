@@ -28,4 +28,5 @@ extension Color {
     static let appOrange          = Color(red: 255/255, green: 122/255, blue: 0/255)   // #FF7A00
     static let appCardTitle       = Color(red: 26/255,  green: 47/255,  blue: 63/255)  // #1A2F3F
     static let appButtonBackground = Color(red: 235/255, green: 235/255, blue: 240/255) // #EBEBF0
+    static let appLightTeal = Color(red: 230/255, green: 237/255, blue: 236/255) //34797C
 }
