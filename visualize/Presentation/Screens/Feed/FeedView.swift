@@ -116,52 +116,53 @@ struct FeedView: View {
     }
     // MARK: - Header
     func headerView() -> some View {
-        Menu {
-            Button {
-                selectedFeed = .all
-                viewModel.setVisualizationFilter(selectedFeed)
-            } label: {
-                Label("All Feed", systemImage: selectedFeed == .all ? "checkmark" : "")
-            }
-
-            Button {
-                selectedFeed = .personal
-                viewModel.setVisualizationFilter(selectedFeed)
-            } label: {
-                Label("Personal Feed", systemImage: selectedFeed == .personal ? "checkmark" : "")
-            }
-
-            Button {
-                selectedFeed = .shared
-                viewModel.setVisualizationFilter(selectedFeed)
-            } label: {
-                Label("Shared Feed", systemImage: selectedFeed == .shared ? "checkmark" : "")
-            }
-
-        } label: {
-            HStack(spacing: 10) {
-                Text(selectedFeed.title)
-                    .font(.title.bold())
-                    .foregroundStyle(Color.primary)
-                    .onGeometryChange(for: Bool.self) {
-                        let height = $0.size.height
-                        let offset = $0.frame(in: .named("scroll")).minY
-                        return -offset > height
-                    } action: { newValue in
-            
-                        withAnimation(.smooth(duration: 0.10)) {
-                                title = newValue ? selectedFeed.title : nil
-                            }
+        HStack(spacing: 10) {
+            Text(selectedFeed.title)
+                .font(.title.bold())
+                .foregroundStyle(.primary)
+                .onGeometryChange(for: Bool.self) {
+                    let height = $0.size.height
+                    let offset = $0.frame(in: .named("scroll")).minY
+                    return -offset > height
+                } action: { newValue in
+                    withAnimation(.smooth(duration: 0.10)) {
+                        title = newValue ? selectedFeed.title : nil
                     }
+                }
 
-                Image(systemName: "control")
-                    .font(.body.bold())
-                    .foregroundColor(Color.primary)
-                    .rotationEffect(.degrees(180))
-                    .padding(.trailing, 10)
+            Image(systemName: "control")
+                .font(.body.bold())
+                .foregroundStyle(.primary)
+                .rotationEffect(.degrees(180))
+                .padding(.trailing, 10)
+        }
+        .hLeading()
+        .padding(.leading, 35)
+        .overlay {
+            Menu {
+                Button {
+                    selectedFeed = .all
+                    viewModel.setVisualizationFilter(selectedFeed)
+                } label: {
+                    Label("All Feed", systemImage: selectedFeed == .all ? "checkmark" : "")
+                }
+
+                Button {
+                    selectedFeed = .personal
+                    viewModel.setVisualizationFilter(selectedFeed)
+                } label: {
+                    Label("Personal Feed", systemImage: selectedFeed == .personal ? "checkmark" : "")
+                }
+
+                Button {
+                    selectedFeed = .shared
+                    viewModel.setVisualizationFilter(selectedFeed)
+                } label: {
+                    Label("Shared Feed", systemImage: selectedFeed == .shared ? "checkmark" : "")
+                }
+            } label: {
+                Color.clear
             }
-            .hLeading()
-            .padding(.leading, 35)
         }
     }
     // MARK: - Builder
@@ -195,8 +196,6 @@ struct FeedView: View {
         }
     }
 }
-
-
 extension View {
     func hLeading() -> some View {
         frame(maxWidth: .infinity, alignment: .leading)
