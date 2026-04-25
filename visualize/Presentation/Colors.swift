@@ -13,7 +13,7 @@ extension Color {
         blue: 50/255
     )
 
-    static let appTeal       = Color(red: 52/255,  green: 121/255, blue: 124/255) // #34797C
+    static let appTeal       = AppColors.Text.teriary // #34797C
     static let appNavy       = Color(red: 19/255,  green: 33/255,  blue: 44/255)  // #13212C
     static let appSubtitle   = Color(red: 89/255,  green: 114/255, blue: 113/255) // #597271
     static let appMint       = Color(red: 230/255, green: 237/255, blue: 236/255) // #E6EDEC
@@ -23,4 +23,10 @@ extension Color {
     static let appCardTitle       = Color(red: 26/255,  green: 47/255,  blue: 63/255)  // #1A2F3F
     static let appButtonBackground = Color(red: 235/255, green: 235/255, blue: 240/255) // #EBEBF0
     static let appLightTeal = Color(red: 230/255, green: 237/255, blue: 236/255) //34797C
+}
+
+enum AppColors {
+    enum Text {
+        static let teriary = Color("TextTertiary")
+    }
 }
