@@ -9,8 +9,13 @@ import Foundation
 internal import FirebaseFirestoreInternal
 
 class VisualizationRepositoryImpl: VisualizationRepository {
-    let userDatasource = UserDatasource()
-    let visualizationDatasource = VisualizationDatasource()
+    private let userDatasource: UserDatasource
+    private let visualizationDatasource: VisualizationDatasource
+    
+    init(userDatasource: UserDatasource, visualizationDatasource: VisualizationDatasource) {
+        self.userDatasource = userDatasource
+        self.visualizationDatasource = visualizationDatasource
+    }
 
     func getVisualizationsWithFilter(userID: String, visualizationFilter: VisualizationFilter) async throws -> [VisualizationCard] {
         let dtos: [VisualizationDTO]

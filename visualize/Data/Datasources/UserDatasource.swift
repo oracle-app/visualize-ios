@@ -9,7 +9,11 @@ import FirebaseFirestore
 
 class UserDatasource{
     
-    private let firebase = Firestore.firestore()
+    private let firebase: Firestore
+    
+    init(firebase: Firestore = Firestore.firestore()) {
+        self.firebase = firebase
+    }
     
     func getUser(id: String) async throws -> UserDTO {
         let document = try await firebase.collection("users").document(id).getDocument()

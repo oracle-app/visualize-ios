@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
-struct UserDTO: Codable {
+struct UserDTO: Codable, Sendable {
     @DocumentID var id: String?
     let chartTheme: String
     let email: String

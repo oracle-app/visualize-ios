@@ -8,11 +8,16 @@
 import FirebaseFirestore
 
 class VisualizationDatasource {
-    private let database = Firestore.firestore()
-    private let userDatasource = UserDatasource()
+    private let firebase: Firestore
+    private let userDatasource: UserDatasource
+    
+    init(database: Firestore = Firestore.firestore(), userDatasource: UserDatasource) {
+        self.firebase = database
+        self.userDatasource = userDatasource
+    }
     
     private func getVisualizationsSharedWithUser(userID: String) async throws -> [VisualizationDTO] {
-        let sharedWithUser = try await database.collection("visualizations")
+        let sharedWithUser = try await firebase.collection("visualizations")
             .whereField("sharedWithUsers", arrayContains: userID)
             .getDocuments()
         return sharedWithUser.documents.compactMap {try? $0.data(as: VisualizationDTO.self)}
@@ -23,7 +28,7 @@ class VisualizationDatasource {
         let teamIDs = userTeams.compactMap {$0.id}
         guard !teamIDs.isEmpty else {return []}
         
-        let sharedWithTeams = try await database.collection("visualizations")
+        let sharedWithTeams = try await firebase.collection("visualizations")
             .whereField("sharedWithTeams", arrayContainsAny: teamIDs)
             .getDocuments()
         return sharedWithTeams.documents.compactMap {try? $0.data(as: VisualizationDTO.self)}
@@ -46,7 +51,7 @@ class VisualizationDatasource {
     }
     
     func getAllPersonalVisualizations(userID: String) async throws -> [VisualizationDTO] {
-        let snapshot = try await database.collection("visualizations")
+        let snapshot = try await firebase.collection("visualizations")
                 .whereField("ownerID", isEqualTo: "/users/\(userID)")
                 .getDocuments()
         let dtos = snapshot.documents.compactMap { document in
@@ -56,30 +61,22 @@ class VisualizationDatasource {
     }
     
     func getAllUsersVisualizationIsSharedWith(visualizationID: String) async throws -> [UserDTO] {
-        // 1. Obtener el documento de la visualización
-        let vizRef = database.collection("visualizations").document(visualizationID)
+        let vizRef = firebase.collection("visualizations").document(visualizationID)
         let snapshot = try await vizRef.getDocument()
         
-        // 2. Mapear al DTO para obtener las referencias de los usuarios
         guard let vizDTO = try? snapshot.data(as: VisualizationDTO.self) else {
             throw NSError(domain: "VisualizationDataSource", code: 404, userInfo: [NSLocalizedDescriptionKey: "Visualización no encontrada"])
         }
         
-        // 3. Descargar los datos de cada usuario en paralelo para mayor velocidad
-        return try await withThrowingTaskGroup(of: UserDTO?.self) { group in
-            for userRef in vizDTO.sharedWithUsers {
-                group.addTask {
-                    return try? await userRef.getDocument(as: UserDTO.self)
-                }
+        var users: [UserDTO] = []
+        
+        for userID in vizDTO.sharedWithUsers {
+            let userRef = firebase.collection("users").document(userID)
+            if let user = try? await userRef.getDocument(as: UserDTO.self) {
+                users.append(user)
             }
-            
-            var users: [UserDTO] = []
-            for try await user in group {
-                if let user = user {
-                    users.append(user)
-                }
-            }
-            return users
         }
+        
+        return users
     }
 }
