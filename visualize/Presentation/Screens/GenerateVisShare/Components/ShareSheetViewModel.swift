@@ -14,17 +14,6 @@ import SwiftUI
 import Observation
 import Foundation
 
-struct Team: Identifiable, Hashable {
-    let id: UUID
-    let name: String
-    let members: Int
-    
-    init(id: UUID = UUID(), name: String, members: Int) {
-        self.id = id
-        self.name = name
-        self.members = members
-    }
-}
 
 @Observable
 final class ShareSheetViewModel {
