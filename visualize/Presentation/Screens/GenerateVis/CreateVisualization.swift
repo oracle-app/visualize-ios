@@ -4,13 +4,21 @@
 //
 //  Created by Libia Fv on 12/04/26.
 //
+// Description:
+// Main view for creating data visualizations.
+// Allows the user to upload files in CSV or Excel format.
+// Displays the upload process state (uploading, completed, or idle).
+// Once the dataset is uploaded, it enables visualization generation.
+// Handles file selection using fileImporter.
+// Integrates a ViewModel to manage state logic.
+// Shows error messages when file selection or upload fails.
 
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct CreateVisualization: View {
 
-    @StateObject
+    @State
     private var viewModel =
         CreateVisualizationViewModel()
 
@@ -23,135 +31,110 @@ struct CreateVisualization: View {
     ]
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
 
-        ScrollView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
 
-            VStack(alignment: .leading, spacing: 0) {
+                    Image(systemName: "chart.bar.xaxis")
+                        .font(.system(size: 36))
+                        .foregroundColor(.primary)
+                        .padding(.top, 14)
+                        .padding(.bottom, 16)
 
-                Image(systemName: "chart.bar.xaxis")
-                    .font(.system(size: 36))
-                    .foregroundColor(.primary)
-                    .padding(.top, 14)
-                    .padding(.bottom, 16)
+                    Text("Create data visualizations")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.primary)
+                        .padding(.bottom, 10)
 
-                Text("Create data visualizations")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(.primary)
-                    .padding(.bottom, 10)
-
-                Group {
-                    if viewModel.isUploading {
-
-                        Text("Uploading your dataset...")
-
-                    } else if viewModel.isUploadComplete {
-
-                        Text("Your dataset is ready! Generate visualizations to explore your data.")
-
-                    } else {
-
-                        Text("Upload a dataset and we'll generate the best visualizations to help you understand your data.")
-                    }
-                }
-                .font(.system(size: 15))
-                .foregroundColor(Color(red: 89/255, green: 114/255, blue: 113/255))
-                .lineSpacing(3)
-                .padding(.bottom, 20)
-
-
-                if viewModel.isUploading {
-
-                    UploadingFileCard(
-                        fileName: viewModel.selectedFileName ?? "",
-                        fileSize: viewModel.fileSize,
-                        progress: viewModel.uploadProgress,
-                        onCancel: {
-                            viewModel.cancelUpload()
+                    Group {
+                        if viewModel.isUploading {
+                            Text("Uploading your dataset...")
+                        } else if viewModel.isUploadComplete {
+                            Text("Your dataset is ready! Generate visualizations to explore your data.")
+                        } else {
+                            Text("Upload a dataset and we'll generate the best visualizations to help you understand your data.")
                         }
-                    )
+                    }
+                    .font(.system(size: 15))
+                    .foregroundColor(Color.appSubtitle)
+                    .lineSpacing(3)
                     .padding(.bottom, 20)
 
-                }
-                else if viewModel.isUploadComplete {
-
-                    CompletedFileCard(
-                        fileName: viewModel.selectedFileName ?? "",
-                        fileSize: viewModel.fileSize,
-                        onDelete: {
-                            viewModel.resetFile()
+                    ZStack {
+                        if viewModel.isUploading {
+                            UploadingFileCard(
+                                fileName: viewModel.selectedFileName ?? "",
+                                fileSize: viewModel.fileSize,
+                                progress: viewModel.uploadProgress,
+                                onCancel: { viewModel.cancelUpload() }
+                            )
+                        } else if viewModel.isUploadComplete {
+                            CompletedFileCard(
+                                fileName: viewModel.selectedFileName ?? "",
+                                fileSize: viewModel.fileSize,
+                                onDelete: { viewModel.resetFile() }
+                            )
+                        } else {
+                            Button {
+                                isFilePickerPresented = true
+                            } label: {
+                                UploadDropZone()
+                            }
+                            .buttonStyle(.plain)
                         }
-                    )
-                    .padding(.bottom, 24)
-
-                    GenerateVisButton {}
-                        .padding(.bottom, 40)
-
-                }
-                else {
-
-                    Button {
-
-                        isFilePickerPresented = true
-
-                    } label: {
-
-                        UploadDropZone()
-
                     }
-                    .buttonStyle(.plain)
-                    .padding(.bottom, 4)
+                    .padding(.bottom, 8)
+
+                    if let error = viewModel.errorMessage {
+                        Text(error)
+                            .font(.system(size: 13))
+                            .foregroundColor(.red)
+                            .padding(.bottom, 8)
+                    }
                 }
+                .padding(.horizontal, 20)
+            }
 
-                if let error = viewModel.errorMessage {
-
-                    Text(error)
-                        .font(.system(size: 13))
-                        .foregroundColor(.red)
-                        .padding(.bottom, 8)
-                }
-
-                if !viewModel.isUploadComplete {
-
+            VStack(alignment: .leading, spacing: 0) {
+                if viewModel.isUploadComplete {
+                    GenerateVisButton {
+                        // TODO: Remove this mock trigger — replace with real generation call when microservice is connected
+                        viewModel.navigateToGenerating = true
+                    }
+                    .padding(.bottom, 43)
+                } else {
                     ExampleTable()
-                        .padding(.bottom, 40)
-                }
+                        .padding(.bottom, 32)
 
+                }
             }
             .padding(.horizontal, 20)
-
+            .background(
+                Color(red: 245/255, green: 244/255, blue: 242/255)
+            )
         }
         .background(
-            Color(Color.appBackground)
-                .ignoresSafeArea()
+            Color(Color.appBackground).ignoresSafeArea()
         )
+        .fullScreenCover(isPresented: $viewModel.navigateToGenerating) {
+            GeneratingVisualizationsView()
+        }
         .fileImporter(
             isPresented: $isFilePickerPresented,
             allowedContentTypes: allowedTypes,
             allowsMultipleSelection: false
         ) { result in
-
             switch result {
-
             case .success(let urls):
-
                 guard let url = urls.first else { return }
-
-                let accessed =
-                    url.startAccessingSecurityScopedResource()
-
+                let accessed = url.startAccessingSecurityScopedResource()
                 defer {
-
-                    if accessed {
-                        url.stopAccessingSecurityScopedResource()
-                    }
+                    if accessed { url.stopAccessingSecurityScopedResource() }
                 }
-
                 viewModel.handleFile(url: url)
-
             case .failure(let error):
-
-                viewModel.errorMessage =
-                    "Error selecting file: \(error.localizedDescription)"
+                viewModel.errorMessage = "Error selecting file: \(error.localizedDescription)"
             }
         }
     }
