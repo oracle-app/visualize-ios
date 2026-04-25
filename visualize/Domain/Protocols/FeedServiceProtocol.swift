@@ -6,5 +6,5 @@
 //
 
 protocol FeedServiceProtocol {
-    func fetchFeed() async throws -> [VisualizationCard]
+    func fetchFeed(userID: String) async throws -> [VisualizationCard]
 }

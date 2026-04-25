@@ -52,7 +52,7 @@ class VisualizationDatasource {
     
     func getAllPersonalVisualizations(userID: String) async throws -> [VisualizationDTO] {
         let snapshot = try await firebase.collection("visualizations")
-                .whereField("ownerID", isEqualTo: "/users/\(userID)")
+                .whereField("authorID", isEqualTo: "/users/\(userID)")
                 .getDocuments()
         let dtos = snapshot.documents.compactMap { document in
                     try? document.data(as: VisualizationDTO.self)

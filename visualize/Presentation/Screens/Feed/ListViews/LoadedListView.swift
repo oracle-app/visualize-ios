@@ -23,8 +23,8 @@ struct LoadedListView: View {
                         author: item.author,
                         date: "Temporary MANUAL Value",
                         onShare: onShare,
-                        //sharedWith: item.sharedWith,
-                        sharedWith: [.blue, .red]
+                        sharedWith: item.sharedWith,
+                        //sharedWith: [.blue, .red]
                         //configJSON: item.configJSON
                     )
                 }

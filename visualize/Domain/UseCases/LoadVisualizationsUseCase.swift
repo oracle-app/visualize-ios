@@ -8,7 +8,12 @@
 import Foundation
 
 struct LoadVisualizationsUseCase {
-    private let visualizationRepository: any VisualizationRepository
+    
+    
+    let visualizationRepository: any VisualizationRepository
+    // private let visualizationRepository: any VisualizationRepository
+
+
     
     func execute(userID: String, visualizationFilter: VisualizationFilter) async throws -> [VisualizationCard] {
         return try await visualizationRepository.getVisualizationsWithFilter(userID: userID, visualizationFilter: visualizationFilter)

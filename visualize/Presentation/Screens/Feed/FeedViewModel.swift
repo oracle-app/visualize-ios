@@ -25,8 +25,8 @@ class FeedViewModel {
     
     private let service: FeedServiceProtocol
 
-    init(service: FeedServiceProtocol = FeedService()) {
-        self.service = service
+    init(service: FeedServiceProtocol) {
+            self.service = service
     }
     
     enum FeedState {
@@ -46,7 +46,10 @@ class FeedViewModel {
             do {
                 // simulate loading delay
                 try await Task.sleep(nanoseconds: 1_000_000_000)
-                let items = try await service.fetchFeed()
+                let items = try await service.fetchFeed(userID: "NQ5fdkRdISA8U7DgcII1")
+                for item in items {
+                    print(item.id)
+                }
                 state = items.isEmpty ? .empty : .loaded(items)
             } catch {
                 state = .error

@@ -20,7 +20,19 @@ struct FeedCard: View {
     var date: String
     
     var onShare: () -> Void
-    var sharedWith: [Color]? = nil
+    var sharedWith: [AppUser]? = nil
+    
+    
+    /// TO DO: Image Implementation that uses profilePictureURL
+    
+    // Asigns random color based on ID.
+    private var colors: [Color] {
+        (sharedWith ?? []).map { user in
+            Color.random(from: user.id)
+        }
+    }
+    
+    
     
     var body: some View {
         VStack(spacing: 12) {
@@ -115,7 +127,7 @@ struct FeedCard: View {
                 .background(Color.white)
                 .cornerRadius(10)
 
-            if let colors = sharedWith, !colors.isEmpty {
+            if !colors.isEmpty {
                HStack(spacing: -20) {
                    ForEach(Array(colors.prefix(3).enumerated()), id: \.offset) { index, color in
                        Circle()
@@ -151,21 +163,43 @@ struct FeedCard: View {
    }
 }
 
-#Preview {
-    FeedCard(
-        title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time",
-        author: "Mariana Islas",
-        date: "10 apr 2026",
-        onShare: {},
-        sharedWith: [.red, .blue, .green, .orange, .purple]
-    )
-    
-    FeedCard(
-        title: "Total Transactions by Category",
-        author: "Mariana Islas",
-        date: "10 apr 2026",
-        onShare: {},
-        sharedWith: nil
-    )
+
+
+// Generates a random color based on the string given
+extension Color {
+    static func random(from string: String) -> Color {
+        var hash = 0
+        for char in string {
+            hash = Int(char.asciiValue ?? 0) + ((hash << 5) - hash)
+        }
+
+        let r = Double((hash >> 16) & 0xFF) / 255.0
+        let g = Double((hash >> 8) & 0xFF) / 255.0
+        let b = Double(hash & 0xFF) / 255.0
+
+        return Color(red: r, green: g, blue: b)
+    }
 }
 
+/*
+ 
+ #Preview {
+ FeedCard(
+ title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time",
+ author: "Mariana Islas",
+ date: "10 apr 2026",
+ onShare: {},
+ sharedWith: [.red, .blue, .green, .orange, .purple]
+ )
+ 
+ FeedCard(
+ title: "Total Transactions by Category",
+ author: "Mariana Islas",
+ date: "10 apr 2026",
+ onShare: {},
+ sharedWith: nil
+ )
+ }
+ 
+ 
+ */
