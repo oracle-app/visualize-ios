@@ -110,4 +110,8 @@ final class ShareSheetViewModel {
     func isSelected(_ team: Team) -> Bool {
         selectedTeams.contains(team.id)
     }
+
+    func confirmShare() {
+        // Placeholder: business logic to be implemented
+    }
 }

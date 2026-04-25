@@ -126,8 +126,11 @@ struct ShareSheet: View {
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Confirm", systemImage: "paperplane") { }
-                        .tint(Color.primaryOrange)
+                    Button("Confirm", systemImage: "paperplane") {
+                        vm.confirmShare()
+                        dismiss()
+                    }
+                    .tint(Color.primaryOrange)
                 }
             }
         }

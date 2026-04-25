@@ -8,6 +8,7 @@
 import Foundation
 import Observation
 
+@MainActor
 @Observable
 final class GeneratingVisualizationsViewModel {
     let title = "Generating Visualizations"
@@ -18,13 +19,11 @@ final class GeneratingVisualizationsViewModel {
     var navigateToVizReady = false
     var dismissToUpload = false
 
-    func startLoading() {
-        Task {
-            isLoading = true
-            try? await Task.sleep(for: .seconds(3))
-            isLoading = false
-            navigateToVizReady = true
-        }
+    func startLoading() async {
+        isLoading = true
+        try? await Task.sleep(for: .seconds(3))
+        isLoading = false
+        navigateToVizReady = true
     }
 
     func onCancelTapped() {
