@@ -18,13 +18,6 @@
 import SwiftUI
 import Observation
 
-struct FeedItem: Identifiable {
-    let id = UUID()
-    let title: String
-    let author: String
-    let date: String
-    let sharedWith: [Color]?
-}
 
 @Observable
 class FeedViewModel {
@@ -38,7 +31,7 @@ class FeedViewModel {
     
     enum FeedState {
         case loading
-        case loaded([FeedItem])
+        case loaded([VisualizationCard])
         case empty
         case error
     }

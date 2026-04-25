@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct VisualizationCard {
+struct VisualizationCard: Identifiable {
     let id: String
     let title: String
     let author: String

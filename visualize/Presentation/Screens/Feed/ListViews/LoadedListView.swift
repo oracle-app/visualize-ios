@@ -10,7 +10,7 @@ import SwiftUI
 
 struct LoadedListView: View {
 
-    let items: [FeedItem]
+    let items: [VisualizationCard]
     let onShare: () -> Void
 
     var body: some View {
@@ -18,11 +18,14 @@ struct LoadedListView: View {
             LazyVStack(spacing: 12) {
                 ForEach(items) { item in
                     FeedCard(
+                        //id: item.id,
                         title: item.title,
                         author: item.author,
-                        date: item.date,
+                        date: "Temporary MANUAL Value",
                         onShare: onShare,
-                        sharedWith: item.sharedWith
+                        //sharedWith: item.sharedWith,
+                        sharedWith: [.blue, .red]
+                        //configJSON: item.configJSON
                     )
                 }
             }
