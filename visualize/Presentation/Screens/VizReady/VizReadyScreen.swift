@@ -213,7 +213,7 @@ struct VizReadyView: View {
 
     /// Vertically stacked list of selectable chart recommendation cards.
     private var cards: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             ForEach(viewModel.charts) { chart in
                 RecommendedChartCard(
                     title: chart.title,
@@ -228,8 +228,15 @@ struct VizReadyView: View {
                     }
                 )
             }
+
+            if let error = viewModel.titleValidationError {
+                Text(error)
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(.red)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 24)
+            }
         }
-        .padding(.bottom, 32)
     }
 }
 
