@@ -15,8 +15,8 @@ import SwiftUI
 
 struct UsersListView: View {
     
-    let users: [User]
-    let onRemove: (User) -> Void
+    let users: [AppUser]
+    let onRemove: (AppUser) -> Void
     
     var body: some View {
         ScrollView {

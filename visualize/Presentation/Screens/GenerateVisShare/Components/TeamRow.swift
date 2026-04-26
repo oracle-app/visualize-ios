@@ -42,7 +42,7 @@ struct TeamRow: View {
                     .font(.body)
                     .foregroundColor(Color.primaryText)
                 
-                Text("\(team.members) members")
+                Text("^[\(team.members.count) member](inflect: true)")
                     .font(.system(size: 13))
                     .foregroundColor(Color.appTeal)
             }

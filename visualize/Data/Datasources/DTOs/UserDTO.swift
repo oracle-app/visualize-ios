@@ -12,10 +12,9 @@ struct UserDTO: Codable, Sendable {
     @DocumentID var id: String?
     let chartTheme: String
     let email: String
-    let notificationsEnabled: Bool
     let profilePictureURL: String
     let themePreference: String
-    let tokens: [String]
     let userType: String
     let username: String
+    let hiddenVisualizations: [String ]
 }

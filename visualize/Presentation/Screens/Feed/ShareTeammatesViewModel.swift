@@ -14,12 +14,6 @@
 import SwiftUI
 import Observation
 
-struct User: Identifiable, Equatable {
-    let id = UUID()
-    let name: String
-    let email: String
-}
-
 @Observable
 class ShareTeammatesViewModel {
     var state: State = .loading
@@ -33,12 +27,12 @@ class ShareTeammatesViewModel {
         
     enum State {
         case loading
-        case loaded(users: [User], selected: [User])
+        case loaded(users: [AppUser], selected: [AppUser])
         case error
     }
         
         
-    var filteredUsers: [User] {
+    var filteredUsers: [AppUser] {
         guard case let .loaded(users, selected) = state,
                 !email.isEmpty else { return [] }
             
@@ -74,7 +68,7 @@ class ShareTeammatesViewModel {
         }
     }
         
-    func addUser(_ user: User) {
+    func addUser(_ user: AppUser) {
         guard case let .loaded(users, selected) = state else { return }
             
         state = .loaded(
@@ -85,7 +79,7 @@ class ShareTeammatesViewModel {
         email = ""
     }
         
-    func removeUser(_ user: User) {
+    func removeUser(_ user: AppUser) {
         guard case let .loaded(users, selected) = state else { return }
             
         state = .loaded(

@@ -8,7 +8,7 @@
 import Foundation
 
 extension UserDTO {
-    nonisolated func toAppUser() -> AppUser {
+    func toAppUser() -> AppUser {
         guard let id = self.id else { fatalError("UserDTO must have an id") }
         return AppUser(
             id: id,

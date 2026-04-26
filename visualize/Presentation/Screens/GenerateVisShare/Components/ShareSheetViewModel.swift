@@ -1,106 +1,147 @@
-//
-//  ShareSheetViewModel.swift
-//  visualize
-//
-//  Created by Mariana Carrillo Holguin on 22/04/26.
-//
-//
-// ViewModel that manages the state and logic of the ShareSheet.
-// Handles fetching users and teams, filtering search results,
-// and managing selected users and teams.
-//
-
 import SwiftUI
 import Observation
 import Foundation
 
-
 @Observable
 final class ShareSheetViewModel {
     
-    private let usersService: ShareTeammatesServiceProtocol
-    private let teamsService: TeamsServiceProtocol
+    // MARK: - Dependencies
+    // Usamos protocolos para mantener el desacoplamiento y facilitar el testing
+    private let teamRepository: any TeamRepository
+    private let userRepository: any UserRepository
+    private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
     
-    var email: String = ""
-    var users: [User] = []
-    var allUsers: [User] = []
-    
-    var myTeams: [Team] = []
-    var joinedTeams: [Team] = []
-    
-    var selectedTeams: Set<UUID> = []
-    
-    var isLoading = false
-    var error: String?
-    
-    init(
-        usersService: ShareTeammatesServiceProtocol = ShareTeammatesService(),
-        teamsService: TeamsServiceProtocol = MockTeamsService()
-    ) {
-        self.usersService = usersService
-        self.teamsService = teamsService
-    }
-    
-    var filteredUsers: [User] {
-        guard !email.isEmpty else { return [] }
-        
-        return allUsers.filter { candidate in
-            candidate.email.localizedCaseInsensitiveContains(email)
-            && !users.contains(where: { $0.email == candidate.email })
+    // MARK: - State
+    var email: String = "" {
+        didSet {
+            scheduleSearch() // Cada cambio de texto activa el cronómetro
         }
     }
     
+    // Usuarios actualmente seleccionados para compartir
+    var selectedUsers: [AppUser] = []
+    
+    // Sugerencias que vienen de la base de datos tras la búsqueda
+    var suggestedUsers: [AppUser] = []
+    
+    // Listas de equipos
+    var myTeams: [Team] = []
+    var joinedTeams: [Team] = []
+    
+    // Selección de equipos por ID
+    var selectedTeamIDs: Set<String> = []
+    
+    // Estado de carga y errores
+    var isLoading = false
+    var error: String?
+    
+    // Tarea de búsqueda para el debounce
+    private var searchTask: Task<Void, Never>?
+    
+    // MARK: - Initialization
+    init(teamRepository: any TeamRepository, userRepository: any UserRepository) {
+        self.teamRepository = teamRepository
+        self.userRepository = userRepository
+    }
+    
+    // MARK: - Data Loading
     func loadData() {
+        // Evitamos doble carga si ya está en proceso
+        guard !isLoading else { return }
+        
         Task {
             isLoading = true
             error = nil
             
             do {
-                async let users = usersService.fetchUsers()
-                async let myTeams = teamsService.fetchMyTeams()
-                async let joined = teamsService.fetchJoinedTeams()
+                // Ejecutamos las llamadas en paralelo para máxima velocidad
+                async let myTeamsRequest = teamRepository.getTeamsUserOwns(userID: userID)
+                async let joinedTeamsRequest = teamRepository.getTeamsUserIsIn(userID: userID)
                 
-                let fetchedUsers = try await users
-                
-                self.allUsers = fetchedUsers
-                self.users = Array(fetchedUsers.prefix(2))
-                self.myTeams = try await myTeams
-                self.joinedTeams = try await joined
+                // Esperamos los resultados
+                self.myTeams = try await myTeamsRequest
+                self.joinedTeams = try await joinedTeamsRequest
                 
             } catch {
-                self.error = "Failed to load data"
+                self.error = "Error al cargar equipos: \(error.localizedDescription)"
             }
             
             isLoading = false
         }
     }
-
-    func addUser(_ user: User) {
-        users.append(user)
-        email = ""
+    
+    // MARK: - Search Logic (Debounce)
+    private func scheduleSearch() {
+        searchTask?.cancel() // Cancelamos la búsqueda anterior si el usuario sigue escribiendo
+        
+        guard email.count >= 3 else {
+            self.suggestedUsers = []
+            return
+        }
+        
+        searchTask = Task {
+            // Espera de 500ms antes de disparar la petición a Firebase
+            try? await Task.sleep(for: .milliseconds(500))
+            
+            if !Task.isCancelled {
+                await performSearch()
+            }
+        }
     }
     
-    func removeUser(_ user: User) {
-        users.removeAll { $0.email == user.email }
+    @MainActor
+    private func performSearch() async {
+        do {
+            // Llamamos al repositorio que usa el filtro \u{f8ff} de Firebase
+            let results = try await userRepository.getUserSuggestionsByEmail(email: email)
+            
+            // Filtramos para no sugerir usuarios que ya están en la lista de seleccionados
+            self.suggestedUsers = results.filter { candidate in
+                !selectedUsers.contains(where: { $0.id == candidate.id })
+            }
+        } catch {
+            print("Error en búsqueda: \(error)")
+        }
     }
     
-    func clearEmail() {
-        email = ""
+    // MARK: - Actions
+    func addUser(_ user: AppUser) {
+        if !selectedUsers.contains(where: { $0.id == user.id }) {
+            selectedUsers.append(user)
+        }
+        email = "" // Limpia la búsqueda tras añadir
+        suggestedUsers = []
+    }
+    
+    func removeUser(_ user: AppUser) {
+        selectedUsers.removeAll { $0.id == user.id }
     }
     
     func toggleSelection(_ team: Team) {
-        if selectedTeams.contains(team.id) {
-            selectedTeams.remove(team.id)
+        if selectedTeamIDs.contains(team.id) {
+            selectedTeamIDs.remove(team.id)
         } else {
-            selectedTeams.insert(team.id)
+            selectedTeamIDs.insert(team.id)
         }
     }
     
     func isSelected(_ team: Team) -> Bool {
-        selectedTeams.contains(team.id)
+        selectedTeamIDs.contains(team.id)
     }
-
+    
     func confirmShare() {
-        // Placeholder: business logic to be implemented
+        // Aquí implementarías la lógica final usando selectedUsers y selectedTeamIDs
+        print("Compartiendo con \(selectedUsers.count) usuarios y \(selectedTeamIDs.count) equipos")
+    }
+    
+    func clearEmail() {
+        email = ""
+        suggestedUsers = []
+    }
+    
+    // Helper temporal para el ID del usuario actual
+    private func getCurrentUserID() -> String {
+        // Esto debería venir de un AuthRepository
+        return "current_user_id"
     }
 }

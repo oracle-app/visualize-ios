@@ -15,78 +15,50 @@ class TeamRepositoryImpl: TeamRepository {
     }
     
     func getTeamsUserOwns(userID: String) async throws -> [Team] {
-        let teamsOwnedByUserRaw: [TeamDTO] = try await teamDatasource.getTeamsUserOwns(userID: userID)
-        return try await withThrowingTaskGroup(of: Team.self) { teamGroup in
-                
-                for teamDTO in teamsOwnedByUserRaw {
-                    teamGroup.addTask {
-                        // 3. Dentro de cada equipo, obtenemos sus usuarios en paralelo
-                        let users = try await withThrowingTaskGroup(of: UserDTO.self) { userGroup in
-                            for id in teamDTO.membersIDs {
-                                userGroup.addTask {
-                                    try await self.userDatasource.getUserByID(userID: id)
-                                }
-                            }
-                            
-                            var fetchedUsers: [UserDTO] = []
-                            for try await user in userGroup {
-                                fetchedUsers.append(user)
-                            }
-                            return fetchedUsers.map { $0.toAppUser() }
-                        }
-                        
-                        // 4. Transformamos el DTO al modelo de dominio ShareTeam
-                        return await teamDTO.toTeam(members: users)
-                    }
-                }
-                
-                var finalTeams: [Team] = []
-                for try await team in teamGroup {
-                    finalTeams.append(team)
-                }
-                return finalTeams
+        // 1. Obtener los equipos (una sola petición)
+        let teamsOwnedByUserRaw = try await teamDatasource.getTeamsUserOwns(userID: userID)
+        
+        var finalTeams: [Team] = []
+        
+        // 2. Procesar cada equipo uno por uno
+        for teamDTO in teamsOwnedByUserRaw {
+            var members: [AppUser] = []
+            
+            // 3. Obtener los miembros de este equipo uno por uno
+            for id in teamDTO.membersIDs {
+                let userDTO = try await userDatasource.getUserByID(userID: id)
+                members.append(userDTO.toAppUser())
+            }
+            
+            // 4. Convertir a modelo de dominio y guardar
+            let team = teamDTO.toTeam(members: members)
+            finalTeams.append(team)
         }
+        
+        return finalTeams
     }
-    
+
     func getTeamsUserIsIn(userID: String) async throws -> [Team] {
-    
+        // 1. Obtener los equipos donde está el usuario
         let teamsDTOs = try await teamDatasource.getTeamsUserIsIn(userID: userID)
         
+        var finalTeams: [Team] = []
         
-        return try await withThrowingTaskGroup(of: Team.self) { teamGroup in
+        for teamDTO in teamsDTOs {
+            var members: [AppUser] = []
             
-            for teamDTO in teamsDTOs {
-                teamGroup.addTask {
-                    
-                    let members = try await withThrowingTaskGroup(of: AppUser.self) { userGroup in
-                        for id in teamDTO.membersIDs {
-                            userGroup.addTask {
-                                let userDTO = try await self.userDatasource.getUserByID(userID: userID)
-                                
-                                return userDTO.toAppUser()
-                            }
-                        }
-                        
-                        var fetchedMembers: [AppUser] = []
-                        for try await member in userGroup {
-                            fetchedMembers.append(member)
-                        }
-                        return fetchedMembers
-                    }
-                    
-        
-                    return await teamDTO.toTeam(members: members)
-                }
+            // 2. Obtener miembros secuencialmente
+            for id in teamDTO.membersIDs {
+                let userDTO = try await userDatasource.getUserByID(userID: id)
+                members.append(userDTO.toAppUser())
             }
             
-        
-            var finalTeams: [Team] = []
-            for try await team in teamGroup {
-                finalTeams.append(team)
-            }
-            
-            return finalTeams
+            // 3. Convertir DTO a modelo App
+            let team = teamDTO.toTeam(members: members)
+            finalTeams.append(team)
         }
+        
+        return finalTeams
     }
     
 }

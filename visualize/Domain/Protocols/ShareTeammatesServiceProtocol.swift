@@ -11,5 +11,5 @@
 //
 
 protocol ShareTeammatesServiceProtocol {
-    func fetchUsers() async throws -> [User]
+    func fetchUsers() async throws -> [AppUser]
 }

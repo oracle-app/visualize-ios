@@ -14,7 +14,9 @@ class UserRepositoryImpl: UserRepository {
     }
     
     func getUserSuggestionsByEmail(email: String) async throws -> [AppUser] {
-        <#code#>
+        let usersRaw: [UserDTO] = try await userDatasource.getUserSuggestionsByEmail(email: email)
+        
+        return usersRaw.map { $0.toAppUser() }
     }
     
 }

@@ -13,27 +13,25 @@ import SwiftUI
 
 struct ShareSheet: View {
     
-    @State var vm: ShareSheetViewModel
+    @State private var vm: ShareSheetViewModel
     @FocusState private var isFocused: Bool
     @Environment(\.dismiss) private var dismiss
     
-    init(vm: ShareSheetViewModel = ShareSheetViewModel()) {
-        _vm = State(initialValue: vm)
+    init(viewModel: ShareSheetViewModel) {
+        _vm = State(initialValue: viewModel)
     }
     
     var body: some View {
         ZStack {
-            
             RoundedRectangle(cornerRadius: 32)
                 .fill(.thinMaterial)
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                
                 VStack(spacing: 16) {
-                    
                     Spacer().frame(height: 1)
                     
+                    // Botón de Personal Feed (UI estática)
                     Text("Personal feed")
                         .font(.title3.weight(.semibold))
                         .foregroundColor(Color.appTeal)
@@ -47,12 +45,12 @@ struct ShareSheet: View {
                         )
                         .shadow(color: .black.opacity(0.15), radius: 4)
                     
-                    
                     Text("Share with teammates")
                         .font(.title3.weight(.semibold))
                         .foregroundColor(Color.primaryText)
                         .padding(.top, 15)
                     
+                    // El binding '$vm.email' es correcto para un campo de texto
                     EmailSearchField(
                         email: $vm.email,
                         onClear: { vm.clearEmail() },
@@ -60,12 +58,11 @@ struct ShareSheet: View {
                     )
                     .frame(maxWidth: 360)
                     
-                    
                     List {
-                        
-                        if !vm.users.isEmpty {
+                        // Cambiado 'users' por 'selectedUsers' (la nueva fuente de verdad)
+                        if !vm.selectedUsers.isEmpty {
                             UsersListView(
-                                users: vm.users,
+                                users: vm.selectedUsers,
                                 onRemove: { vm.removeUser($0) }
                             )
                             .listRowInsets(EdgeInsets())
@@ -104,11 +101,11 @@ struct ShareSheet: View {
                     .listSectionSpacing(8)
                     .padding(.top, -12)
                 }
-                
-                .overlay(alignment: .top) {
-                    if isFocused && !vm.filteredUsers.isEmpty {
+                .overlay(alignment: Alignment.top) {
+                    // Cambiado 'filteredUsers' por 'suggestedUsers' (resultados del debounce)
+                    if isFocused && !vm.suggestedUsers.isEmpty {
                         SearchResultsDropdown(
-                            results: vm.filteredUsers,
+                            results: vm.suggestedUsers,
                             onSelect: { vm.addUser($0)}
                         )
                         .frame(maxWidth: 360)
@@ -118,7 +115,7 @@ struct ShareSheet: View {
                     }
                 }
             }
-            .task { vm.loadData() }
+            .task { vm.loadData() } // Dispara la carga paralela
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", systemImage: "xmark") {
@@ -133,12 +130,6 @@ struct ShareSheet: View {
                     .tint(Color.primaryOrange)
                 }
             }
-        }
-    }
-    
-    #Preview {
-        NavigationStack {
-            ShareSheet()
         }
     }
 }
