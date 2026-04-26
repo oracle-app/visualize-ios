@@ -7,7 +7,7 @@
 
 import FirebaseFirestore
 
-final class TeamsDatasource {
+final class TeamDatasource {
     private let firebase: Firestore
     
     init(firebase: Firestore = Firestore.firestore()) {

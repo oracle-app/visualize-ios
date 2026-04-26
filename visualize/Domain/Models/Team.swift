@@ -5,9 +5,9 @@
 //  Created by Carlos Amador on 25/04/26.
 //
 
-struct Team: Identifiable, Hashable {
+struct Team: Identifiable {
     let id: String
     let name: String
-    let members: Int
-
+    let memberCount: Int
+    let members: [AppUser]
 }
