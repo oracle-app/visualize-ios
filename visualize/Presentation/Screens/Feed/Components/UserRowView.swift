@@ -6,9 +6,9 @@
 //
 
 //
-// A row component that displays basic user information (name and email).
-// Optionally includes a remove button with a tap animation.
-// Designed to be reusable in lists, dropdowns, or selection views.
+/// A row component that displays basic user information (name and email).
+/// Optionally includes a remove button with a tap animation.
+/// Designed to be reusable in lists, dropdowns, or selection views.
 //
 
 import SwiftUI

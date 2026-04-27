@@ -6,20 +6,19 @@
 //
 
 //
-// Main screen that allows users to share content with teammates.
-// It handles UI states (loading, error, loaded), integrates search functionality,
-// and displays both suggested users and selected teammates.
-// Coordinates interactions between the ViewModel and reusable UI components.
+/// Main screen that allows users to share content with teammates.
+/// It handles UI states (loading, error, loaded), integrates search functionality,
+/// and displays both suggested users and selected teammates.
+/// Coordinates interactions between the ViewModel and reusable UI components.
 //
 
 import SwiftUI
 
 struct ShareTeammatesScreen: View {
     
-    @Environment(\.dismiss) var dismiss
-    
     @State private var viewModel = ShareTeammatesViewModel()
     @FocusState private var isFocused: Bool
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         VStack(spacing: 16) {

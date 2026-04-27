@@ -6,9 +6,9 @@
 //
 
 //
-// ViewModel that manages the business logic for sharing teammates.
-// Handles data loading, search filtering, and user selection/removal.
-// Maintains UI state and communicates with the service layer to fetch users.
+/// ViewModel that manages the business logic for sharing teammates.
+/// Handles data loading, search filtering, and user selection/removal.
+/// Maintains UI state and communicates with the service layer to fetch users.
 //
 
 import SwiftUI
