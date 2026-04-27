@@ -18,4 +18,5 @@ struct UserDTO: Codable, Sendable {
     let tokens: [String]
     let userType: String
     let username: String
+
 }

@@ -27,7 +27,7 @@ struct GeneratingVisualizationsView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 36)
         }
-        .task { viewModel.startLoading() }
+        .task { await viewModel.startLoading() }
         .fullScreenCover(isPresented: $viewModel.navigateToVizReady) {
             VizReadyView(onClose: { viewModel.dismissToUpload = true })
         }

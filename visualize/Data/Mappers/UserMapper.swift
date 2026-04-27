@@ -6,7 +6,6 @@
 //
 
 import Foundation
-internal import FirebaseFirestoreInternal
 
 extension UserDTO {
     func toAppUser() -> AppUser {

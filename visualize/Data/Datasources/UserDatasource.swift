@@ -15,8 +15,8 @@ class UserDatasource{
         self.firebase = firebase
     }
     
-    func getUser(id: String) async throws -> UserDTO {
-        let document = try await firebase.collection("users").document(id).getDocument()
+    func getUserByID(userID: String) async throws -> UserDTO {
+        let document = try await firebase.collection("users").document(userID).getDocument()
         
         guard document.exists else {
                     throw NSError(domain: "UserDataSource", code: 404, userInfo: [NSLocalizedDescriptionKey: "Usuario no encontrado"])
@@ -40,6 +40,21 @@ class UserDatasource{
         }
         
         return teams
+    }
+    
+    func getUserSuggestionsByEmail(email: String) async throws -> [UserDTO] {
+        do {
+            let snapshot = try await firebase.collection("users")
+                    .whereField("email", isGreaterThanOrEqualTo: email)
+                    .whereField("email", isLessThanOrEqualTo: email + "\u{f8ff}")
+                    .limit(to: 5)
+                    .getDocuments()
+            return snapshot.documents.compactMap {document in
+                    try? document.data(as: UserDTO.self)
+            }
+        } catch {
+            throw error
+        }
     }
     
 }

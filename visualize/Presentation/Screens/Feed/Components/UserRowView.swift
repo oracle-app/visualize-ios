@@ -15,7 +15,7 @@ import SwiftUI
 
 struct UserRowView: View {
     
-    let user: User
+    let user: AppUser
     var onRemove: (() -> Void)? = nil
     
     @State private var isPressed = false
@@ -29,7 +29,7 @@ struct UserRowView: View {
                 .foregroundStyle(.gray)
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(user.name)
+                Text(user.username)
                     .font(.body.weight(.bold))
                     .foregroundStyle(Color.primaryText)
                 

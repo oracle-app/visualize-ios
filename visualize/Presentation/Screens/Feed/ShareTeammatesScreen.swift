@@ -76,7 +76,7 @@ struct ShareTeammatesScreen: View {
     }
         
         
-    private func loadedView(users: [User], selected: [User]) -> some View {
+    private func loadedView(users: [AppUser], selected: [AppUser]) -> some View {
         VStack(spacing: 16) {
                 
             ZStack(alignment: .top) {
