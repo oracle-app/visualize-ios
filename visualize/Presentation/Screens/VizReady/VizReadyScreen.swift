@@ -132,6 +132,9 @@ struct VizReadyView: View {
     @State private var scrollOffset: CGFloat = 0
     /// Controls presentation of the share sheet after the user taps proceed.
     @State private var showShareSheet = false
+    
+    private let userDatasource = UserDatasource()
+    private let teamDatasource = TeamDatasource()
 
     /// Fixed height of the sticky navigation bar.
     private let navBarHeight: CGFloat = 60
@@ -155,7 +158,7 @@ struct VizReadyView: View {
         .background(Color.appBackground)
         .sheet(isPresented: $showShareSheet) {
             NavigationStack {
-                ShareSheet()
+                ShareSheet(viewModel: ShareSheetViewModel(teamRepository: TeamRepositoryImpl(teamDatasource: teamDatasource, userDatasource: userDatasource), userRepository: UserRepositoryImpl(userDatasource: userDatasource)))
             }
             .presentationDetents([.medium, .large])
             .presentationBackground(.clear)
