@@ -21,8 +21,11 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         let dtos: [VisualizationDTO]
         switch visualizationFilter {
         case .all:
+            
             let sharedVisualizations = try await visualizationDatasource.getAllSharedVisualizations(userID: userID)
+            print("Shared Vis Debug: ", sharedVisualizations)
             let personalVisualizations = try await visualizationDatasource.getAllPersonalVisualizations(userID: userID)
+            print("Personal Vis Debug: ", personalVisualizations)
             dtos = sharedVisualizations + personalVisualizations
         case .shared:
             dtos = try await visualizationDatasource.getAllSharedVisualizations(userID: userID)
@@ -31,14 +34,17 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         }
         
         var visualizationCards: [VisualizationCard] = []
+     
         
         for dto in dtos {
-            let author = try await userDatasource.getUser(id: dto.authorID)
+            let author = try await userDatasource.getUserByID(userID: dto.authorID)
             let users = try await visualizationDatasource.getAllUsersVisualizationIsSharedWith(visualizationID: dto.id ?? "")
             let sharedUsers: [AppUser] = users.map {$0.toAppUser()}
             let card = dto.toVisualizationCard(authorName: author.username, sharedUsers: sharedUsers)
             visualizationCards.append(card)
         }
+            
+        
         return visualizationCards
     }
 }

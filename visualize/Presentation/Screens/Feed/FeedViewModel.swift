@@ -44,14 +44,13 @@ class FeedViewModel {
        
         Task {
             do {
+                
                 // simulate loading delay
                 try await Task.sleep(nanoseconds: 1_000_000_000)
-                let items = try await service.fetchFeed(userID: "NQ5fdkRdISA8U7DgcII1")
-                for item in items {
-                    print(item.id)
-                }
+                let items = try await service.fetchFeed(userID: "e9Nk8XrxHJAtwN3Hf2FL")
                 state = items.isEmpty ? .empty : .loaded(items)
             } catch {
+                print(error)
                 state = .error
             }
         }

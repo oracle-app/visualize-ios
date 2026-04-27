@@ -20,7 +20,24 @@ class VisualizationDatasource {
         let sharedWithUser = try await firebase.collection("visualizations")
             .whereField("sharedWithUsers", arrayContains: userID)
             .getDocuments()
-        return sharedWithUser.documents.compactMap {try? $0.data(as: VisualizationDTO.self)}
+        
+        print("Share With User count:", sharedWithUser.documents.count)
+
+        for doc in sharedWithUser.documents {
+            print("Doc ID:", doc.documentID)
+            print("Raw data:", doc.data())
+        }
+        
+       
+        
+         return sharedWithUser.documents.compactMap {
+            do {
+                return try $0.data(as: VisualizationDTO.self)
+            } catch {
+                print("Decoding error:", error)
+                return nil
+            }
+        }
     }
     
     private func getVisualizationsSharedWithTeamsUserIsIn(userID: String) async throws -> [VisualizationDTO] {
@@ -52,7 +69,7 @@ class VisualizationDatasource {
     
     func getAllPersonalVisualizations(userID: String) async throws -> [VisualizationDTO] {
         let snapshot = try await firebase.collection("visualizations")
-                .whereField("authorID", isEqualTo: "/users/\(userID)")
+                .whereField("authorID", isEqualTo: "\(userID)")
                 .getDocuments()
         let dtos = snapshot.documents.compactMap { document in
                     try? document.data(as: VisualizationDTO.self)

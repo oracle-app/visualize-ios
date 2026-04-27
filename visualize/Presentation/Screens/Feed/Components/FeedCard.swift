@@ -26,11 +26,14 @@ struct FeedCard: View {
     /// TO DO: Image Implementation that uses profilePictureURL
     
     // Asigns random color based on ID.
+    /*
     private var colors: [Color] {
         (sharedWith ?? []).map { user in
             Color.random(from: user.id)
         }
-    }
+    }*/
+    
+    var colors: [Color] = []
     
     
     
