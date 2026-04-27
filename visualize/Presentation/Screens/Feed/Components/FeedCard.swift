@@ -68,7 +68,7 @@ struct FeedCard: View {
                         
                         Image(systemName: "ellipsis")
                             .font(.system(size: 22))
-                            .foregroundStyle(Color.appTeal)
+                            .foregroundStyle(AppColors.UI.cardShare)
                     }
                     .frame(width: 37, height: 37)
                     .contentShape(Circle())
@@ -126,10 +126,10 @@ struct FeedCard: View {
                    }
                    if colors.count > 3 {
                        ZStack {
-                           Circle().fill(.white)
+                           Circle().fill(Color(.systemBackground))
                            Text("+\(colors.count - 3)")
                                .font(.system(size: 13, weight: .regular))
-                               .foregroundStyle(Color(red: 68/255, green: 68/255, blue: 68/255, opacity: 1))
+                               .foregroundStyle(Color.primaryText)
                        }
                        .frame(width: 33, height: 33)
                        .overlay(Circle().stroke(Color.appMint, lineWidth: 2))

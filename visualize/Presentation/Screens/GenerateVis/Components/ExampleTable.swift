@@ -63,7 +63,7 @@ struct ExampleTable: View {
                         ForEach(Array(row.enumerated()), id: \.offset) { _, cell in
                             Text(cell)
                                 .font(.system(size: 13))
-                                .foregroundColor(Color.appNavy.opacity(0.6))
+                                .foregroundColor(.secondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.vertical, 9)
                                 .padding(.horizontal, 10)
@@ -78,6 +78,7 @@ struct ExampleTable: View {
                     }
                 }
             }
+            .background(Color(.systemBackground).opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
@@ -92,6 +93,7 @@ struct ExampleTable: View {
             .foregroundColor(Color.appSubtitle)
             .padding(.top, 14)
         }
+        .background(Color(.systemBackground))
     }
 }
 

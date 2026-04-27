@@ -56,7 +56,7 @@ struct UserRowView: View {
                     
                 } label: {
                     Image(systemName: "xmark.circle")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color(.systemRed))
                         .scaleEffect(isPressed ? 0.8 : 1)
                         .opacity(isPressed ? 0.6 : 1)
                 }
