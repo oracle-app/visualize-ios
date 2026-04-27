@@ -35,10 +35,10 @@ struct RecommendedChartCard: View {
         .cornerRadius(10)
         .overlay(selectionBorder)
         .shadow(
-            color: isSelected ? Color.appOrange.opacity(0.20) : Color.black.opacity(0.12),
-            radius: isSelected ? 5 : 6,
+            color: isSelected ? Color.appOrange.opacity(0.20) : Color.black.opacity(0.15),
+            radius: 5,
             x: 0,
-            y: isSelected ? 0 : 3
+            y: isSelected ? 0 : 2
         )
         .shadow(
             color: isSelected ? Color.appOrange.opacity(0.08) : .clear,
@@ -47,6 +47,7 @@ struct RecommendedChartCard: View {
         )
         .animation(.easeInOut(duration: 0.2), value: isSelected)
         .padding(.horizontal, 20)
+        .frame(height: 390)
         .contentShape(Rectangle())
         .onTapGesture { onTap?() }
     }
@@ -73,7 +74,7 @@ struct RecommendedChartCard: View {
         } label: {
             Circle()
                 .fill(Color.appButtonBackground)
-                .frame(width: 44, height: 44)
+                .frame(width: 37, height: 37)
                 .overlay(
                     Image(systemName: "square.and.pencil")
                         .font(.system(size: 15, weight: .medium))
@@ -99,8 +100,7 @@ struct RecommendedChartCard: View {
     private var chartPlaceholder: some View {
         RoundedRectangle(cornerRadius: 10)
             .fill(Color.white)
-            .frame(maxWidth: .infinity)
-            .frame(height: 200)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var selectionBorder: some View {

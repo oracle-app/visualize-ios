@@ -12,6 +12,8 @@ import SwiftUI
 
 struct ShareSheetView: View {
     @State private var showSheet = false
+    private let userDatasource = UserDatasource()
+    private let teamDatasource = TeamDatasource()
     
     var body: some View {
         NavigationStack {
@@ -36,7 +38,8 @@ struct ShareSheetView: View {
         
         .sheet(isPresented: $showSheet) {
             NavigationStack {
-                ShareSheet()
+                
+                ShareSheet(viewModel: ShareSheetViewModel(teamRepository: TeamRepositoryImpl(teamDatasource: teamDatasource, userDatasource: userDatasource), userRepository: UserRepositoryImpl(userDatasource: userDatasource)))
             }
             .presentationDetents([.medium, .large])
             .presentationBackground(.clear)

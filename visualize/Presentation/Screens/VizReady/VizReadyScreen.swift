@@ -132,6 +132,9 @@ struct VizReadyView: View {
     @State private var scrollOffset: CGFloat = 0
     /// Controls presentation of the share sheet after the user taps proceed.
     @State private var showShareSheet = false
+    
+    private let userDatasource = UserDatasource()
+    private let teamDatasource = TeamDatasource()
 
     /// Fixed height of the sticky navigation bar.
     private let navBarHeight: CGFloat = 60
@@ -155,7 +158,7 @@ struct VizReadyView: View {
         .background(Color.appBackground)
         .sheet(isPresented: $showShareSheet) {
             NavigationStack {
-                ShareSheet()
+                ShareSheet(viewModel: ShareSheetViewModel(teamRepository: TeamRepositoryImpl(teamDatasource: teamDatasource, userDatasource: userDatasource), userRepository: UserRepositoryImpl(userDatasource: userDatasource)))
             }
             .presentationDetents([.medium, .large])
             .presentationBackground(.clear)
@@ -213,7 +216,7 @@ struct VizReadyView: View {
 
     /// Vertically stacked list of selectable chart recommendation cards.
     private var cards: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             ForEach(viewModel.charts) { chart in
                 RecommendedChartCard(
                     title: chart.title,
@@ -228,8 +231,15 @@ struct VizReadyView: View {
                     }
                 )
             }
+
+            if let error = viewModel.titleValidationError {
+                Text(error)
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(.red)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 24)
+            }
         }
-        .padding(.bottom, 32)
     }
 }
 

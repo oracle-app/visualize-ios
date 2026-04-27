@@ -15,8 +15,8 @@ import SwiftUI
 
 struct SearchResultsDropdown: View {
     
-    let results: [User]
-    let onSelect: (User) -> Void
+    let results: [AppUser]
+    let onSelect: (AppUser) -> Void
     
     var body: some View {
         VStack() {

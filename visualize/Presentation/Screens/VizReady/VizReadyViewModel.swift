@@ -28,6 +28,9 @@ final class VizReadyViewModel {
     /// The ID of the currently selected chart, or `nil` if none is selected.
     private(set) var selectedChartID: UUID?
 
+    /// Validation error message for the last title update attempt; `nil` when valid.
+    var titleValidationError: String? = nil
+
     // MARK: - Computed
 
     /// `true` when the user has selected a single chart.
@@ -50,9 +53,16 @@ final class VizReadyViewModel {
     /// Silently ignores empty, blank, or unrecognised input.
     func updateTitle(_ newTitle: String, forID id: UUID) {
         let trimmed = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty,
-              trimmed.count <= Self.titleCharLimit,
-              let index = charts.firstIndex(where: { $0.id == id }) else { return }
+        guard !trimmed.isEmpty else {
+            titleValidationError = "Title cannot be empty"
+            return
+        }
+        guard trimmed.count <= Self.titleCharLimit else {
+            titleValidationError = "Title exceeds character limit"
+            return
+        }
+        guard let index = charts.firstIndex(where: { $0.id == id }) else { return }
+        titleValidationError = nil
         charts[index].title = trimmed
     }
 }
