@@ -9,4 +9,17 @@ enum VisualizationFilter {
     case all
     case personal
     case shared
+    
+    var title: String {
+            switch self {
+            case .all:
+                return "All Feed"
+            case .personal:
+                return "Personal Feed"
+            case .shared:
+                return "Shared Feed"
+            }
+        }
+    
+    
 }

@@ -16,10 +16,10 @@ class FeedService: FeedServiceProtocol {
         self.loadVisualizationsUseCase = loadVisualizationsUseCase
     }
     
-    func fetchFeed(userID: String) async throws -> [VisualizationCard] {
+    func fetchFeed(userID: String, visualizationFilter: VisualizationFilter) async throws -> [VisualizationCard] {
         return try await loadVisualizationsUseCase.execute(
             userID: userID,
-            visualizationFilter: .all
+            visualizationFilter: visualizationFilter
         )
     }
 }

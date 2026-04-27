@@ -23,10 +23,19 @@ import Observation
 class FeedViewModel {
     var state: FeedState = .loading
     
+    var visualizationFilter: VisualizationFilter
+    
     private let service: FeedServiceProtocol
 
     init(service: FeedServiceProtocol) {
             self.service = service
+            self.visualizationFilter = .all
+    }
+    
+    
+    func setVisualizationFilter(_ filter: VisualizationFilter) {
+        self.visualizationFilter = filter
+        loadData()
     }
     
     enum FeedState {
@@ -47,7 +56,7 @@ class FeedViewModel {
                 
                 // simulate loading delay
                 try await Task.sleep(nanoseconds: 1_000_000_000)
-                let items = try await service.fetchFeed(userID: "e9Nk8XrxHJAtwN3Hf2FL")
+                let items = try await service.fetchFeed(userID: "e9Nk8XrxHJAtwN3Hf2FL", visualizationFilter: visualizationFilter)
                 state = items.isEmpty ? .empty : .loaded(items)
             } catch {
                 print(error)

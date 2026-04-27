@@ -21,16 +21,10 @@
 import SwiftUI
 import Foundation
 
-enum FeedOption: String {
-    case allFeed = "All Feed"
-    case personalFeed = "Personal Feed"
-    case sharedFeed = "Shared Feed"
-    var id: Self { self }
-}
 
 struct FeedView: View {
     
-    @State var selectedFeed: FeedOption = .allFeed
+    @State var selectedFeed: VisualizationFilter = .all
     @State var viewModel: FeedViewModel
     @State var isPrimaryActionVisible: Bool = true
     @State var title: String?
@@ -99,7 +93,7 @@ struct FeedView: View {
         
 
         HStack(spacing: 10) {
-            Text(selectedFeed.rawValue)
+            Text(selectedFeed.title)
                 .font(.title.bold())
                 .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
                 .onGeometryChange(for: Bool.self) {
@@ -109,7 +103,7 @@ struct FeedView: View {
                 } action: { newValue in
         
                     withAnimation(.smooth(duration: 0.10)) {
-                            title = newValue ? selectedFeed.rawValue : nil
+                            title = newValue ? selectedFeed.title : nil
                         }
                 }
                 
@@ -125,15 +119,19 @@ struct FeedView: View {
         .overlay {
             Menu {
                 Button("All Feed") {
-                    selectedFeed = .allFeed
+                    selectedFeed = .all
+                    viewModel.setVisualizationFilter(selectedFeed)
+                    
                 }
 
                 Button("Personal Feed") {
-                    selectedFeed = .personalFeed
+                    selectedFeed = .personal
+                    viewModel.setVisualizationFilter(selectedFeed)
                 }
 
                 Button("Shared Feed") {
-                    selectedFeed = .sharedFeed
+                    selectedFeed = .shared
+                    viewModel.setVisualizationFilter(selectedFeed)
                 }
 
             } label: {
