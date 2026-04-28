@@ -21,12 +21,7 @@ class VisualizationDatasource {
             .whereField("sharedWithUsers", arrayContains: userID)
             .getDocuments()
         
-        print("Share With User count:", sharedWithUser.documents.count)
 
-        for doc in sharedWithUser.documents {
-            print("Doc ID:", doc.documentID)
-            print("Raw data:", doc.data())
-        }
         
        
         

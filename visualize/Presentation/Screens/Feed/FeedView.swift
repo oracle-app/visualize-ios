@@ -29,9 +29,9 @@ struct FeedView: View {
     @State var isPrimaryActionVisible: Bool = true
     @State var title: String?
     @State var safeArea: EdgeInsets = .init()
-    
     @State private var showShareSheet = false
     
+    var shouldLoad: Bool = true
 
     var body: some View {
         
@@ -65,8 +65,10 @@ struct FeedView: View {
             } primaryAction: {
                 
             }
-            .onAppear(){
-                viewModel.loadData()
+            .onAppear {
+                if shouldLoad {
+                    viewModel.loadData()
+                }
             }
             .sheet(isPresented: $showShareSheet) {
                         NavigationStack {
@@ -194,8 +196,8 @@ extension View {
     }
 }
 
-/*
+
 #Preview {
-    FeedView(viewModel: .init())
+    FeedView(viewModel: .preview, shouldLoad: true)
 }
-*/
+

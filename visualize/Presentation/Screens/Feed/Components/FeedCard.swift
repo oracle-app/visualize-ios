@@ -17,7 +17,7 @@ struct FeedCard: View {
     
     var title: String
     var author: String
-    var date: String
+    var date: Date
     
     var onShare: () -> Void
     var sharedWith: [AppUser]? = nil
@@ -25,15 +25,26 @@ struct FeedCard: View {
     
     /// TO DO: Image Implementation that uses profilePictureURL
     
-    // Asigns random color based on ID.
-    /*
+    /// Asigns random color based on ID.
+   
+    
+    
+    
+    
+    
+    
     private var colors: [Color] {
         (sharedWith ?? []).map { user in
             Color.random(from: user.id)
         }
-    }*/
+    }
     
-    var colors: [Color] = []
+    
+    
+    
+    
+    
+    //var colors: [Color] = [Color.random(from: "oEJtQz0gdbRpTZ8ETPCy")]
     
     
     
@@ -49,7 +60,7 @@ struct FeedCard: View {
                     HStack(spacing: 12) {
                         Text("by \(author)")
                         Text("•")
-                        Text("\(date)")
+                        Text("\(date.formatted(date: .complete, time: .omitted))")
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.system(size: 13, weight: .regular))
@@ -168,13 +179,12 @@ struct FeedCard: View {
 
 
 
-// Generates a random color based on the string given
+/// Generates a random color based on the given string
 extension Color {
     static func random(from string: String) -> Color {
-        var hash = 0
-        for char in string {
-            hash = Int(char.asciiValue ?? 0) + ((hash << 5) - hash)
-        }
+        var hasher = Hasher()
+        hasher.combine(string)
+        let hash = hasher.finalize()
 
         let r = Double((hash >> 16) & 0xFF) / 255.0
         let g = Double((hash >> 8) & 0xFF) / 255.0

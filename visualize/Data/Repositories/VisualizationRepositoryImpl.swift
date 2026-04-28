@@ -23,9 +23,7 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         case .all:
             
             let sharedVisualizations = try await visualizationDatasource.getAllSharedVisualizations(userID: userID)
-            print("Shared Vis Debug: ", sharedVisualizations)
             let personalVisualizations = try await visualizationDatasource.getAllPersonalVisualizations(userID: userID)
-            print("Personal Vis Debug: ", personalVisualizations)
             dtos = sharedVisualizations + personalVisualizations
         case .shared:
             dtos = try await visualizationDatasource.getAllSharedVisualizations(userID: userID)

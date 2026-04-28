@@ -21,10 +21,9 @@ struct LoadedListView: View {
                         //id: item.id,
                         title: item.title,
                         author: item.author,
-                        date: "Temporary MANUAL Value",
+                        date: item.createdAt,
                         onShare: onShare,
                         sharedWith: item.sharedWith,
-                        //sharedWith: [.blue, .red]
                         //configJSON: item.configJSON
                     )
                 }

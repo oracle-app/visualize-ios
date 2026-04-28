@@ -21,6 +21,7 @@ import Observation
 
 @Observable
 class FeedViewModel {
+    
     var state: FeedState = .loading
     
     var visualizationFilter: VisualizationFilter
@@ -63,5 +64,15 @@ class FeedViewModel {
                 state = .error
             }
         }
+    }
+}
+
+
+
+extension FeedViewModel {
+    static var preview: FeedViewModel {
+        // let vm = FeedViewModel(service: MockFeedService())
+        
+        return FeedViewModel(service: MockFeedService())
     }
 }
