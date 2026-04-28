@@ -35,6 +35,7 @@ class FeedViewModel {
     
     
     func setVisualizationFilter(_ filter: VisualizationFilter) {
+        if filter == self.visualizationFilter { return }
         self.visualizationFilter = filter
         loadData()
     }
