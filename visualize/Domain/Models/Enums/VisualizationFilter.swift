@@ -5,7 +5,7 @@
 //  Created by Carlos Amador on 15/04/26.
 //
 
-enum VisualizationFilter {
+enum VisualizationFilter: CaseIterable {
     case all
     case personal
     case shared

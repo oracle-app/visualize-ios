@@ -93,62 +93,59 @@ struct FeedView: View {
 
     func headerView() -> some View {
         
-
-        HStack(spacing: 10) {
-            Text(selectedFeed.title)
-                .font(.title.bold())
-                .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
-                .onGeometryChange(for: Bool.self) {
-                    let height = $0.size.height
-                    let offset = $0.frame(in: .named("scroll")).minY
-                    return -offset > height
-                } action: { newValue in
         
-                    withAnimation(.smooth(duration: 0.10)) {
-                            title = newValue ? selectedFeed.title : nil
-                        }
-                }
-                
-            
-            Image(systemName: "control")
-                .font(.body.bold())
-                .foregroundColor(.black)
-                .rotationEffect(.degrees(180))
-                .padding(.trailing, 10)
-            
-            
-        }
-        .overlay {
-            Menu {
-                Button("All Feed") {
-                    selectedFeed = .all
-                    viewModel.setVisualizationFilter(selectedFeed)
-                    
-                }
-
-                Button("Personal Feed") {
-                    selectedFeed = .personal
-                    viewModel.setVisualizationFilter(selectedFeed)
-                }
-
-                Button("Shared Feed") {
-                    selectedFeed = .shared
-                    viewModel.setVisualizationFilter(selectedFeed)
-                }
-
+        
+        Menu {
+            Button {
+                selectedFeed = .all
+                viewModel.setVisualizationFilter(selectedFeed)
             } label: {
-                Color.clear
-                
+                Label("All Feed", systemImage: selectedFeed == .all ? "checkmark" : "")
             }
-            
-            
-        }
-        .hLeading()
-        .padding(.top, 0)
-        .padding(.leading, 40)
-        .padding(.bottom, 0)
-    }
 
+            Button {
+                selectedFeed = .personal
+                viewModel.setVisualizationFilter(selectedFeed)
+            } label: {
+                Label("Personal Feed", systemImage: selectedFeed == .personal ? "checkmark" : "")
+            }
+
+            Button {
+                selectedFeed = .shared
+                viewModel.setVisualizationFilter(selectedFeed)
+            } label: {
+                Label("Shared Feed", systemImage: selectedFeed == .shared ? "checkmark" : "")
+            }
+
+        } label: {
+            HStack(spacing: 10) {
+                Text(selectedFeed.title)
+                    .font(.title.bold())
+                    .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
+                    .onGeometryChange(for: Bool.self) {
+                        let height = $0.size.height
+                        let offset = $0.frame(in: .named("scroll")).minY
+                        return -offset > height
+                    } action: { newValue in
+            
+                        withAnimation(.smooth(duration: 0.10)) {
+                                title = newValue ? selectedFeed.title : nil
+                            }
+                    }
+
+                Image(systemName: "control")
+                    .font(.body.bold())
+                    .foregroundColor(.black)
+                    .rotationEffect(.degrees(180))
+                    .padding(.trailing, 10)
+            }
+            .hLeading()
+            .padding(.leading, 35)
+        }
+        
+        
+    }
+         
 
     @ViewBuilder
     func contentView() -> some View {
