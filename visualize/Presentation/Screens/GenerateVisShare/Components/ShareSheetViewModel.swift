@@ -6,7 +6,7 @@ import Foundation
 final class ShareSheetViewModel {
     
     // MARK: - Dependencies
-    // Usamos protocolos para mantener el desacoplamiento y facilitar el testing
+    // We use protocols to keep things decoupled and make testing easier
     private let teamRepository: any TeamRepository
     private let userRepository: any UserRepository
     private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
@@ -14,28 +14,28 @@ final class ShareSheetViewModel {
     // MARK: - State
     var email: String = "" {
         didSet {
-            scheduleSearch() // Cada cambio de texto activa el cronómetro
+            scheduleSearch() // Every text change triggers the debounce timer
         }
     }
     
-    // Usuarios actualmente seleccionados para compartir
+    // Users currently selected for sharing
     var selectedUsers: [AppUser] = []
     
-    // Sugerencias que vienen de la base de datos tras la búsqueda
+    // Suggestions fetched from the database after searching
     var suggestedUsers: [AppUser] = []
     
-    // Listas de equipos
+    // Team lists
     var myTeams: [Team] = []
     var joinedTeams: [Team] = []
     
-    // Selección de equipos por ID
+    // Selected team IDs
     var selectedTeamIDs: Set<String> = []
     
-    // Estado de carga y errores
+    // Loading and error state
     var isLoading = false
     var error: String?
     
-    // Tarea de búsqueda para el debounce
+    // Search task used for debounce
     private var searchTask: Task<Void, Never>?
     
     // MARK: - Initialization
@@ -46,7 +46,7 @@ final class ShareSheetViewModel {
     
     // MARK: - Data Loading
     func loadData() {
-        // Evitamos doble carga si ya está en proceso
+        // Prevent duplicate loading if already in progress
         guard !isLoading else { return }
         
         Task {
@@ -54,16 +54,16 @@ final class ShareSheetViewModel {
             error = nil
             
             do {
-                // Ejecutamos las llamadas en paralelo para máxima velocidad
+                // Run requests in parallel for better performance
                 async let myTeamsRequest = teamRepository.getTeamsUserOwns(userID: userID)
                 async let joinedTeamsRequest = teamRepository.getTeamsUserIsIn(userID: userID)
                 
-                // Esperamos los resultados
+                // Await results
                 self.myTeams = try await myTeamsRequest
                 self.joinedTeams = try await joinedTeamsRequest
                 
             } catch {
-                self.error = "Error al cargar equipos: \(error.localizedDescription)"
+                self.error = "Error loading teams: \(error.localizedDescription)"
             }
             
             isLoading = false
@@ -72,7 +72,7 @@ final class ShareSheetViewModel {
     
     // MARK: - Search Logic (Debounce)
     private func scheduleSearch() {
-        searchTask?.cancel() // Cancelamos la búsqueda anterior si el usuario sigue escribiendo
+        searchTask?.cancel() // Cancel previous search if user keeps typing
         
         guard email.count >= 3 else {
             self.suggestedUsers = []
@@ -80,7 +80,7 @@ final class ShareSheetViewModel {
         }
         
         searchTask = Task {
-            // Espera de 500ms antes de disparar la petición a Firebase
+            // Wait 500ms before triggering the Firebase request
             try? await Task.sleep(for: .milliseconds(500))
             
             if !Task.isCancelled {
@@ -92,15 +92,15 @@ final class ShareSheetViewModel {
     @MainActor
     private func performSearch() async {
         do {
-            // Llamamos al repositorio que usa el filtro \u{f8ff} de Firebase
+            // Call repository using Firebase \u{f8ff} prefix filtering
             let results = try await userRepository.getUserSuggestionsByEmail(email: email)
             
-            // Filtramos para no sugerir usuarios que ya están en la lista de seleccionados
+            // Filter out already selected users
             self.suggestedUsers = results.filter { candidate in
                 !selectedUsers.contains(where: { $0.id == candidate.id })
             }
         } catch {
-            print("Error en búsqueda: \(error)")
+            print("Search error: \(error)")
         }
     }
     
@@ -109,7 +109,7 @@ final class ShareSheetViewModel {
         if !selectedUsers.contains(where: { $0.id == user.id }) {
             selectedUsers.append(user)
         }
-        email = "" // Limpia la búsqueda tras añadir
+        email = "" // Clear search after adding
         suggestedUsers = []
     }
     
@@ -130,8 +130,8 @@ final class ShareSheetViewModel {
     }
     
     func confirmShare() {
-        // Aquí implementarías la lógica final usando selectedUsers y selectedTeamIDs
-        print("Compartiendo con \(selectedUsers.count) usuarios y \(selectedTeamIDs.count) equipos")
+        // Final sharing logic using selectedUsers and selectedTeamIDs would go here
+        print("Sharing with \(selectedUsers.count) users and \(selectedTeamIDs.count) teams")
     }
     
     func clearEmail() {
@@ -139,9 +139,9 @@ final class ShareSheetViewModel {
         suggestedUsers = []
     }
     
-    // Helper temporal para el ID del usuario actual
+    // Temporary helper for current user ID
     private func getCurrentUserID() -> String {
-        // Esto debería venir de un AuthRepository
+        // This should come from an AuthRepository
         return "current_user_id"
     }
 }

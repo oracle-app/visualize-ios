@@ -20,11 +20,7 @@ struct UsersListView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 8) {
-                
-                Text("Sharing with")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(Color.primaryText)
+            VStack(spacing: 8) {
                 
                 ForEach(users.indices, id: \.self) { index in
                     UserRowView(

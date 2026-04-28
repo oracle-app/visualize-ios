@@ -36,7 +36,8 @@ struct FeedView: View {
     
     @State private var showShareSheet = false
     
-
+    private let userDatasource = UserDatasource()
+    
     var body: some View {
         
         NavigationStack{
@@ -73,10 +74,10 @@ struct FeedView: View {
                 viewModel.loadData()
             }
             .sheet(isPresented: $showShareSheet) {
-                        NavigationStack {
-                            ShareTeammatesScreen()
-                                .presentationDetents([.medium, .large])
-                        }
+                NavigationStack {
+                    ShareTeammatesScreen(viewModel: .preview)
+                        .presentationDetents([.medium, .large])
+                }
             }
             .navigationBarTitleDisplayMode(.inline)
             .coordinateSpace(name: "scroll")
@@ -199,4 +200,3 @@ extension View {
 #Preview {
     FeedView(viewModel: .init())
 }
-

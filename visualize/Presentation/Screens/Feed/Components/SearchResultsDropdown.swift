@@ -19,16 +19,25 @@ struct SearchResultsDropdown: View {
     let onSelect: (AppUser) -> Void
     
     var body: some View {
-        VStack() {
-            ForEach(results) { user in
+        VStack {
+            
+            if results.isEmpty {
+                Text("No results found")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 12)
                 
-                Button {
-                    onSelect(user)
-                } label: {
-                    UserRowView(user: user)
+            } else {
+                ForEach(results) { user in
+                    
+                    Button {
+                        onSelect(user)
+                    } label: {
+                        UserRowView(user: user)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-                
             }
         }
         .padding(8)
