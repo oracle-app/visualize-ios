@@ -18,27 +18,31 @@
 import SwiftUI
 import Observation
 
-struct FeedItem: Identifiable {
-    let id = UUID()
-    let title: String
-    let author: String
-    let date: String
-    let sharedWith: [Color]?
-}
 
 @Observable
 class FeedViewModel {
+    
     var state: FeedState = .loading
+    
+    var visualizationFilter: VisualizationFilter
     
     private let service: FeedServiceProtocol
 
-    init(service: FeedServiceProtocol = FeedService()) {
-        self.service = service
+    init(service: FeedServiceProtocol) {
+            self.service = service
+            self.visualizationFilter = .all
+    }
+    
+    
+    func setVisualizationFilter(_ filter: VisualizationFilter) {
+        if filter == self.visualizationFilter { return }
+        self.visualizationFilter = filter
+        loadData()
     }
     
     enum FeedState {
         case loading
-        case loaded([FeedItem])
+        case loaded([VisualizationCard])
         case empty
         case error
     }
@@ -51,13 +55,25 @@ class FeedViewModel {
        
         Task {
             do {
+                
                 // simulate loading delay
                 try await Task.sleep(nanoseconds: 1_000_000_000)
-                let items = try await service.fetchFeed()
+                let items = try await service.fetchFeed(userID: "e9Nk8XrxHJAtwN3Hf2FL", visualizationFilter: visualizationFilter)
                 state = items.isEmpty ? .empty : .loaded(items)
             } catch {
+                print(error)
                 state = .error
             }
         }
+    }
+}
+
+
+
+extension FeedViewModel {
+    static var preview: FeedViewModel {
+        // let vm = FeedViewModel(service: MockFeedService())
+        
+        return FeedViewModel(service: MockFeedService())
     }
 }

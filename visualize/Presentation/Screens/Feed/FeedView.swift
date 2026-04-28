@@ -19,25 +19,20 @@
 //  insets using geometry tracking.
 
 import SwiftUI
+import Foundation
+
 
 struct FeedView: View {
-
-    enum FeedOption: String {
-        case allFeed = "All Feed"
-        case personalFeed = "Personal Feed"
-        case sharedFeed = "Shared Feed"
-    }
-
-    @State var selectedFeed: FeedOption = .allFeed
+    
+    @State var selectedFeed: VisualizationFilter = .all
     @State var viewModel: FeedViewModel
     @State var isPrimaryActionVisible: Bool = true
     @State var title: String?
     @State var safeArea: EdgeInsets = .init()
-    
     @State private var showShareSheet = false
     
-    private let userDatasource = UserDatasource()
-    
+    var shouldLoad: Bool = true
+
     var body: some View {
         
         NavigationStack{
@@ -70,8 +65,10 @@ struct FeedView: View {
             } primaryAction: {
                 
             }
-            .onAppear(){
-                viewModel.loadData()
+            .onAppear {
+                if shouldLoad {
+                    viewModel.loadData()
+                }
             }
             .sheet(isPresented: $showShareSheet) {
                 NavigationStack {
@@ -96,62 +93,62 @@ struct FeedView: View {
 
     func headerView() -> some View {
         
-
-        HStack(spacing: 10) {
-            Text(selectedFeed.rawValue)
-                .font(.title.bold())
-                .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
-                .onGeometryChange(for: Bool.self) {
-                    let height = $0.size.height
-                    let offset = $0.frame(in: .named("scroll")).minY
-                    return -offset > height
-                } action: { newValue in
         
-                    withAnimation(.smooth(duration: 0.10)) {
-                            title = newValue ? selectedFeed.rawValue : nil
-                        }
-                }
-                
-            
-            Image(systemName: "control")
-                .font(.body.bold())
-                .foregroundColor(.black)
-                .rotationEffect(.degrees(180))
-                .padding(.trailing, 10)
-            
-            
-        }
-        .overlay {
-            Menu {
-                Button("All Feed") {
-                    selectedFeed = .allFeed
-                }
-
-                Button("Personal Feed") {
-                    selectedFeed = .personalFeed
-                }
-
-                Button("Shared Feed") {
-                    selectedFeed = .sharedFeed
-                }
-
+        
+        Menu {
+            Button {
+                selectedFeed = .all
+                viewModel.setVisualizationFilter(selectedFeed)
             } label: {
-                Color.clear
-                
+                Label("All Feed", systemImage: selectedFeed == .all ? "checkmark" : "")
             }
-            
-            
-        }
-        .hLeading()
-        .padding(.top, 0)
-        .padding(.leading, 40)
-        .padding(.bottom, 0)
-    }
 
+            Button {
+                selectedFeed = .personal
+                viewModel.setVisualizationFilter(selectedFeed)
+            } label: {
+                Label("Personal Feed", systemImage: selectedFeed == .personal ? "checkmark" : "")
+            }
+
+            Button {
+                selectedFeed = .shared
+                viewModel.setVisualizationFilter(selectedFeed)
+            } label: {
+                Label("Shared Feed", systemImage: selectedFeed == .shared ? "checkmark" : "")
+            }
+
+        } label: {
+            HStack(spacing: 10) {
+                Text(selectedFeed.title)
+                    .font(.title.bold())
+                    .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
+                    .onGeometryChange(for: Bool.self) {
+                        let height = $0.size.height
+                        let offset = $0.frame(in: .named("scroll")).minY
+                        return -offset > height
+                    } action: { newValue in
+            
+                        withAnimation(.smooth(duration: 0.10)) {
+                                title = newValue ? selectedFeed.title : nil
+                            }
+                    }
+
+                Image(systemName: "control")
+                    .font(.body.bold())
+                    .foregroundColor(.black)
+                    .rotationEffect(.degrees(180))
+                    .padding(.trailing, 10)
+            }
+            .hLeading()
+            .padding(.leading, 35)
+        }
+        
+        
+    }
+         
 
     @ViewBuilder
     func contentView() -> some View {
-        
         switch viewModel.state {
 
         case .loading:
@@ -198,5 +195,5 @@ extension View {
 
 
 #Preview {
-    FeedView(viewModel: .init())
+    FeedView(viewModel: .preview, shouldLoad: true)
 }
