@@ -44,11 +44,7 @@ struct NavBar: View {
             visualizationRepository: repo
         )
 
-        let feedService = FeedService(
-            loadVisualizationsUseCase: useCase
-        )
-
-        let viewModel = FeedViewModel(service: feedService)
+        let viewModel = FeedViewModel(loadVisualizationsUseCase: useCase)
         
         
         

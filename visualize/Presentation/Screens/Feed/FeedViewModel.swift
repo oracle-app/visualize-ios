@@ -26,11 +26,11 @@ class FeedViewModel {
     
     var visualizationFilter: VisualizationFilter
     
-    private let service: FeedServiceProtocol
-
-    init(service: FeedServiceProtocol) {
-            self.service = service
-            self.visualizationFilter = .all
+    let loadVisualizationsUseCase: LoadVisualizationsUseCase
+    
+    init(loadVisualizationsUseCase: LoadVisualizationsUseCase) {
+        self.loadVisualizationsUseCase = loadVisualizationsUseCase
+        self.visualizationFilter = .all
     }
     
     
@@ -58,7 +58,7 @@ class FeedViewModel {
                 
                 // simulate loading delay
                 try await Task.sleep(nanoseconds: 1_000_000_000)
-                let items = try await service.fetchFeed(userID: "e9Nk8XrxHJAtwN3Hf2FL", visualizationFilter: visualizationFilter)
+                let items = try await loadVisualizationsUseCase.execute(userID: "e9Nk8XrxHJAtwN3Hf2FL", visualizationFilter: visualizationFilter)
                 state = items.isEmpty ? .empty : .loaded(items)
             } catch {
                 print(error)
@@ -72,8 +72,24 @@ class FeedViewModel {
 
 extension FeedViewModel {
     static var preview: FeedViewModel {
-        // let vm = FeedViewModel(service: MockFeedService())
         
-        return FeedViewModel(service: MockFeedService())
+        let userDS = UserDatasource()
+        
+        let visualizationDS = VisualizationDatasource(
+            userDatasource: userDS
+        )
+
+        let repo = VisualizationRepositoryImpl(
+            userDatasource: userDS,
+            visualizationDatasource: visualizationDS
+        )
+
+        let useCase = LoadVisualizationsUseCase(
+            visualizationRepository: repo
+        )
+
+        let viewModel = FeedViewModel(loadVisualizationsUseCase: useCase)
+        
+        return viewModel
     }
 }
