@@ -5,24 +5,31 @@
 //  Created by Jorge Flores on 13/04/26.
 //
 
-//  This file defines the main FeedView of the application, responsible for displaying
-//  a scrollable feed of content and managing its different UI states through a
-//  FeedViewModel.
-//
-//  It supports multiple feed filters (All, Personal, Shared), dynamic header behavior,
-//  and a custom toolbar configuration with primary and trailing actions. The view
-//  reacts to changes in the ViewModel state to display loading, empty, error, or
-//  loaded content accordingly.
-//
-//  It also manages UI interactions such as presenting a share sheet, updating the
-//  navigation title based on scroll position, and adapting layout based on safe area
-//  insets using geometry tracking.
+///  This file defines the main FeedView of the application, responsible for displaying
+///  a scrollable feed of content and managing its different UI states through a
+///  FeedViewModel.
+///
+///  It supports multiple feed filters (All, Personal, Shared), dynamic header behavior,
+///  and a custom toolbar configuration with primary and trailing actions. The view
+///  reacts to changes in the ViewModel state to display loading, empty, error, or
+///  loaded content accordingly.
+///
+///  It also manages UI interactions such as presenting a share sheet, updating the
+///  navigation title based on scroll position, and adapting layout based on safe area
+///  insets using geometry tracking.
+
+
+
+
 
 import SwiftUI
 import Foundation
 
 
 struct FeedView: View {
+    
+    
+    // MARK: - States
     
     @State var selectedFeed: VisualizationFilter = .all
     @State var viewModel: FeedViewModel
@@ -32,7 +39,8 @@ struct FeedView: View {
     @State private var showShareSheet = false
     
     var shouldLoad: Bool = true
-
+    
+    // MARK: - Body
     var body: some View {
         
         NavigationStack{
@@ -90,7 +98,7 @@ struct FeedView: View {
     }
 
 
-
+    // MARK: - Header
     func headerView() -> some View {
         
         
@@ -146,6 +154,8 @@ struct FeedView: View {
         
     }
          
+    
+    // MARK: - Builder
 
     @ViewBuilder
     func contentView() -> some View {
@@ -193,6 +203,8 @@ extension View {
     }
 }
 
+
+// MARK: - Preview
 
 #Preview {
     FeedView(viewModel: .preview, shouldLoad: true)

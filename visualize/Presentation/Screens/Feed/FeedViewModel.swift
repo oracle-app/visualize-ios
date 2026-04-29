@@ -28,10 +28,14 @@ class FeedViewModel {
     
     let loadVisualizationsUseCase: LoadVisualizationsUseCase
     
+    
+    
     init(loadVisualizationsUseCase: LoadVisualizationsUseCase) {
         self.loadVisualizationsUseCase = loadVisualizationsUseCase
         self.visualizationFilter = .all
     }
+    
+    
     
     
     func setVisualizationFilter(_ filter: VisualizationFilter) {
@@ -48,7 +52,7 @@ class FeedViewModel {
     }
 
     
- 
+    // MARK: - Load Data
     
     func loadData() {
         state = .loading
@@ -71,6 +75,8 @@ class FeedViewModel {
 
 
 extension FeedViewModel {
+    
+    // MARK: - Preview
     static var preview: FeedViewModel {
         
         let userDS = UserDatasource()
