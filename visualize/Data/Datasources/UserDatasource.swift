@@ -57,4 +57,22 @@ class UserDatasource{
         }
     }
     
+    /// Creates a new user document in Firestore.
+    ///
+    /// This method:
+    /// - Persists the provided `UserDTO` into the "users" collection
+    /// - Uses the provided `uid` as the document identifier
+    /// - Returns the stored user with the assigned ID
+    ///
+    /// - Parameters:
+    ///   - user: The data transfer object (`UserDTO`) to be stored.
+    ///   - uid: The unique identifier used as the Firestore document ID.
+    /// - Returns: The created `UserDTO` with the assigned ID.
+    /// - Throws: An error if the write operation fails.
+    func createUser(user: UserDTO, uid: String) async throws -> UserDTO {
+        try firebase.collection("users").document(uid).setData(from: user)
+        var newUser = user
+        newUser.id = uid
+        return newUser
+    }
 }
