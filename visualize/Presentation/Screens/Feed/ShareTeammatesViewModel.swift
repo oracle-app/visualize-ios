@@ -45,8 +45,9 @@ class ShareTeammatesViewModel {
     private var searchTask: Task<Void, Never>?
     
     // MARK: - Initialization
-    init(userRepository: any UserRepository) {
+    init(userRepository: any UserRepository, initialUsers: [AppUser] = []) {
         self.userRepository = userRepository
+        self.selectedUsers = initialUsers
     }
     
     // MARK: - Search Logic (Debounce)

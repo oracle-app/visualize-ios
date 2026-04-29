@@ -11,18 +11,18 @@ import SwiftUI
 struct LoadedListView: View {
 
     let items: [VisualizationCard]
-    let onShare: () -> Void
+    let onShare: ([AppUser]) -> Void
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(spacing: 12) {
-                ForEach(items) { item in
+                ForEach(items, id: \.id) { item in
                     FeedCard(
                         //id: item.id,
                         title: item.title,
                         author: item.author,
                         date: item.createdAt,
-                        onShare: onShare,
+                        onShare: { onShare(item.sharedWith) },
                         sharedWith: item.sharedWith,
                         //configJSON: item.configJSON
                     )

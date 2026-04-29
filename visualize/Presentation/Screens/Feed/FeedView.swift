@@ -29,7 +29,8 @@ struct FeedView: View {
     @State var isPrimaryActionVisible: Bool = true
     @State var title: String?
     @State var safeArea: EdgeInsets = .init()
-    @State private var showShareSheet = false
+    @State private var sharePayload: SharePayload?
+    @State private var usersToShare: [AppUser] = []
     
     var shouldLoad: Bool = true
 
@@ -70,10 +71,17 @@ struct FeedView: View {
                     viewModel.loadData()
                 }
             }
-            .sheet(isPresented: $showShareSheet) {
+            .sheet(item: $sharePayload) { payload in
                 NavigationStack {
-                    ShareTeammatesScreen(viewModel: .preview)
-                        .presentationDetents([.medium, .large])
+                    ShareTeammatesScreen(
+                        viewModel: ShareTeammatesViewModel(
+                            userRepository: UserRepositoryImpl(
+                                userDatasource: UserDatasource()
+                            ),
+                            initialUsers: payload.users
+                        )
+                    )
+                    .presentationDetents([.medium, .large])
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -172,10 +180,9 @@ struct FeedView: View {
         case .loaded(let items):
             LoadedListView(
                 items: items,
-                onShare: {
-                    showShareSheet = true
-                },
-                
+                onShare: { users in
+                    sharePayload = SharePayload(users: users)
+                }
             )
         }
     }
@@ -193,7 +200,33 @@ extension View {
     }
 }
 
+struct SharePayload: Identifiable {
+    let id = UUID()
+    let users: [AppUser]
+}
+
 
 #Preview {
-    FeedView(viewModel: .preview, shouldLoad: true)
+    let userDS = UserDatasource()
+    
+    let visualizationDS = VisualizationDatasource(
+        userDatasource: userDS
+    )
+
+    let repo = VisualizationRepositoryImpl(
+        userDatasource: userDS,
+        visualizationDatasource: visualizationDS
+    )
+
+    let useCase = LoadVisualizationsUseCase(
+        visualizationRepository: repo
+    )
+
+    let feedService = FeedService(
+        loadVisualizationsUseCase: useCase
+    )
+
+    let viewModel = FeedViewModel(service: feedService)
+    
+    FeedView(viewModel: viewModel)
 }
