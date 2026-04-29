@@ -31,7 +31,6 @@ struct ShareSheet: View {
                 VStack(spacing: 16) {
                     Spacer().frame(height: 1)
                     
-                    // Botón de Personal Feed (UI estática)
                     Text("Personal feed")
                         .font(.title3.weight(.semibold))
                         .foregroundColor(Color.appTeal)
@@ -50,7 +49,6 @@ struct ShareSheet: View {
                         .foregroundColor(Color.primaryText)
                         .padding(.top, 15)
                     
-                    // El binding '$vm.email' es correcto para un campo de texto
                     EmailSearchField(
                         email: $vm.email,
                         onClear: { vm.clearEmail() },
@@ -59,7 +57,6 @@ struct ShareSheet: View {
                     .frame(maxWidth: 360)
                     
                     List {
-                        // Cambiado 'users' por 'selectedUsers' (la nueva fuente de verdad)
                         if !vm.selectedUsers.isEmpty {
                             UsersListView(
                                 users: vm.selectedUsers,
@@ -102,7 +99,6 @@ struct ShareSheet: View {
                     .padding(.top, -12)
                 }
                 .overlay(alignment: Alignment.top) {
-                    // Cambiado 'filteredUsers' por 'suggestedUsers' (resultados del debounce)
                     if isFocused && !vm.suggestedUsers.isEmpty {
                         SearchResultsDropdown(
                             results: vm.suggestedUsers,
@@ -115,7 +111,7 @@ struct ShareSheet: View {
                     }
                 }
             }
-            .task { vm.loadData() } // Dispara la carga paralela
+            .task { vm.loadData() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", systemImage: "xmark") {

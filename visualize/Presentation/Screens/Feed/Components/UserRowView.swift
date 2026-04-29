@@ -23,10 +23,7 @@ struct UserRowView: View {
     var body: some View {
         HStack(spacing: 12) {
             
-            Image(systemName: "person.crop.circle.fill")
-                .resizable()
-                .frame(width: 40, height: 40)
-                .foregroundStyle(.gray)
+            UserAvatarView (user: user, size: 40, showBorder: false)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.username)
