@@ -4,9 +4,7 @@ import Foundation
 
 @Observable
 final class ShareSheetViewModel {
-    
     // MARK: - Dependencies
-    // Usamos protocolos para mantener el desacoplamiento y facilitar el testing
     private let teamRepository: any TeamRepository
     private let userRepository: any UserRepository
     private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
@@ -14,28 +12,18 @@ final class ShareSheetViewModel {
     // MARK: - State
     var email: String = "" {
         didSet {
-            scheduleSearch() // Cada cambio de texto activa el cronómetro
+            scheduleSearch()
         }
     }
     
-    // Usuarios actualmente seleccionados para compartir
     var selectedUsers: [AppUser] = []
-    
-    // Sugerencias que vienen de la base de datos tras la búsqueda
     var suggestedUsers: [AppUser] = []
-    
-    // Listas de equipos
     var myTeams: [Team] = []
     var joinedTeams: [Team] = []
-    
-    // Selección de equipos por ID
     var selectedTeamIDs: Set<String> = []
-    
-    // Estado de carga y errores
     var isLoading = false
     var error: String?
     
-    // Tarea de búsqueda para el debounce
     private var searchTask: Task<Void, Never>?
     
     // MARK: - Initialization
@@ -46,7 +34,7 @@ final class ShareSheetViewModel {
     
     // MARK: - Data Loading
     func loadData() {
-        // Evitamos doble carga si ya está en proceso
+
         guard !isLoading else { return }
         
         Task {
@@ -54,11 +42,9 @@ final class ShareSheetViewModel {
             error = nil
             
             do {
-                // Ejecutamos las llamadas en paralelo para máxima velocidad
                 async let myTeamsRequest = teamRepository.getTeamsUserOwns(userID: userID)
                 async let joinedTeamsRequest = teamRepository.getTeamsUserIsIn(userID: userID)
                 
-                // Esperamos los resultados
                 self.myTeams = try await myTeamsRequest
                 self.joinedTeams = try await joinedTeamsRequest
                 
@@ -72,7 +58,7 @@ final class ShareSheetViewModel {
     
     // MARK: - Search Logic (Debounce)
     private func scheduleSearch() {
-        searchTask?.cancel() // Cancelamos la búsqueda anterior si el usuario sigue escribiendo
+        searchTask?.cancel()
         
         guard email.count >= 3 else {
             self.suggestedUsers = []
@@ -80,7 +66,6 @@ final class ShareSheetViewModel {
         }
         
         searchTask = Task {
-            // Espera de 500ms antes de disparar la petición a Firebase
             try? await Task.sleep(for: .milliseconds(500))
             
             if !Task.isCancelled {
@@ -92,10 +77,8 @@ final class ShareSheetViewModel {
     @MainActor
     private func performSearch() async {
         do {
-            // Llamamos al repositorio que usa el filtro \u{f8ff} de Firebase
             let results = try await userRepository.getUserSuggestionsByEmail(email: email)
             
-            // Filtramos para no sugerir usuarios que ya están en la lista de seleccionados
             self.suggestedUsers = results.filter { candidate in
                 !selectedUsers.contains(where: { $0.id == candidate.id })
             }
@@ -109,7 +92,7 @@ final class ShareSheetViewModel {
         if !selectedUsers.contains(where: { $0.id == user.id }) {
             selectedUsers.append(user)
         }
-        email = "" // Limpia la búsqueda tras añadir
+        email = ""
         suggestedUsers = []
     }
     
@@ -130,7 +113,6 @@ final class ShareSheetViewModel {
     }
     
     func confirmShare() {
-        // Aquí implementarías la lógica final usando selectedUsers y selectedTeamIDs
         print("Compartiendo con \(selectedUsers.count) usuarios y \(selectedTeamIDs.count) equipos")
     }
     
@@ -139,9 +121,7 @@ final class ShareSheetViewModel {
         suggestedUsers = []
     }
     
-    // Helper temporal para el ID del usuario actual
     private func getCurrentUserID() -> String {
-        // Esto debería venir de un AuthRepository
         return "current_user_id"
     }
 }

@@ -124,6 +124,7 @@ struct FeedCard: View {
                            .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
                            .zIndex(Double(3 - index))
                    }
+                   // Needs to be modified. Just randomly loads colors, disregarding the user's information
                    if colors.count > 3 {
                        ZStack {
                            Circle().fill(.white)

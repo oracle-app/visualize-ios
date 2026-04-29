@@ -18,6 +18,8 @@ struct TeamRow: View {
     let isSelected: Bool
     let onTap: () -> Void
     
+    let maxAvatars = 3
+    
     var body: some View {
         HStack {
             
@@ -51,34 +53,25 @@ struct TeamRow: View {
             Spacer()
             
             HStack(spacing: -20) {
-                Circle()
-                    .fill(Color.red.opacity(1))
-                    .frame(width: 33, height: 33)
-                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                    .zIndex(3)
+                let displayMembers = Array(team.members.prefix(maxAvatars))
+                let remainingCount = team.members.count - displayMembers.count
                 
-                Circle()
-                    .fill(Color.blue.opacity(1))
+                ForEach(Array(displayMembers.enumerated()), id: \.element.id) { index, user in
+                    UserAvatarView(user: user, size: 33, showBorder: true)
+                        .zIndex(Double(maxAvatars - index))
+                } 
+                if remainingCount > 0 {
+                    ZStack {
+                        Circle().fill(Color.white)
+                        
+                        Text("+\(remainingCount)")
+                            .font(.system(size: 13))
+                            .foregroundStyle(Color(red: 68/255, green: 68/255, blue: 68/255))
+                    }
                     .frame(width: 33, height: 33)
-                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                    .zIndex(2)
-                
-                Circle()
-                    .fill(Color.green.opacity(1))
-                    .frame(width: 33, height: 33)
-                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                    .zIndex(1)
-                
-                ZStack {
-                    Circle().fill(Color.white)
-                    
-                    Text("+2")
-                        .font(.system(size: 13))
-                        .foregroundStyle(Color(red: 68/255, green: 68/255, blue: 68/255))
+                    .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
+                    .padding(.leading, 10)
                 }
-                .frame(width: 33, height: 33)
-                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
-                .padding(.leading, 10)
             }
         }
         .padding(.vertical, 6)

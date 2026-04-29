@@ -36,13 +36,8 @@
 		268954092F905E4700DFD9E0 /* Exceptions for "visualize" folder in "visualize" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Data/Datasources/.gitkeep,
-				Data/Repositories/.gitkeep,
 				Domain/Models/.gitkeep,
-				Domain/Repositories/.gitkeep,
-				Domain/UseCases/.gitkeep,
 				Presentation/Components/.gitkeep,
-				Presentation/Screens/.gitkeep,
 			);
 			target = 053BEF1A2F8AEC41008A3D6B /* visualize */;
 		};
