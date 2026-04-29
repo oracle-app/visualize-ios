@@ -111,6 +111,7 @@
 				053BEF182F8AEC41008A3D6B /* Frameworks */,
 				053BEF192F8AEC41008A3D6B /* Resources */,
 				26B2AA8F2FA16BFE000D9D11 /* ShellScript */,
+				053DF8DB2FA2C41400D377EF /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -193,6 +194,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		053DF8DB2FA2C41400D377EF /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport PATH=\"$PATH:/opt/homebrew/bin\"\n\nif command -v swiftlint >/dev/null 2>&1; then\n  swiftlint lint --quiet\n  swiftlint lint --reporter html --output \"${SRCROOT}/swiftlint_report.html\" || true\nelse\n  echo \"warning: SwiftLint not found\"\nfi\n";
+		};
 		26B2AA8F2FA16BFE000D9D11 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
