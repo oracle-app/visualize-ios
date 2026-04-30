@@ -15,6 +15,5 @@ struct VisualizationDTO: Codable {
     let sharedWithUsers: [String]
     let createdAt: Date
     let authorID: String
-    let ownerID: String
     let configJSON: String
 }
