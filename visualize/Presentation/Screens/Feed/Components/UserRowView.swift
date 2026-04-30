@@ -19,6 +19,7 @@ struct UserRowView: View {
     var onRemove: (() -> Void)? = nil
     
     @State private var isPressed = false
+    @State private var showConfirmAlert = false
     
     var body: some View {
         HStack(spacing: 12) {
@@ -35,13 +36,13 @@ struct UserRowView: View {
                 
                 Text(user.email)
                     .font(.subheadline)
-                .foregroundStyle(Color.primaryText)
-                .opacity(0.5)
+                    .foregroundStyle(Color.primaryText)
+                    .opacity(0.5)
             }
             
             Spacer()
             
-            if let onRemove {
+            if onRemove != nil {
                 Button {
                     withAnimation(.easeInOut(duration: 0.15)) {
                         isPressed = true
@@ -51,7 +52,7 @@ struct UserRowView: View {
                         withAnimation(.easeInOut(duration: 0.15)) {
                             isPressed = false
                         }
-                        onRemove()
+                        showConfirmAlert = true
                     }
                     
                 } label: {
@@ -64,5 +65,16 @@ struct UserRowView: View {
             }
         }
         .padding(8)
+        .alert("Remove user?", isPresented: $showConfirmAlert) {
+            
+            Button("Remove", role: .destructive) {
+                onRemove?()
+            }
+            
+            Button("Cancel", role: .cancel) { }
+            
+        } message: {
+            Text("Are you sure you want to remove \(user.username) from the list?")
+        }
     }
 }

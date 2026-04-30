@@ -8,10 +8,14 @@
 
 import SwiftUI
 
+/// Displays the list of visualization cards when the feed has loaded successfully.
 struct LoadedListView: View {
 
     let items: [VisualizationCard]
-    let onShare: ([AppUser]) -> Void
+    
+    /// Called when the user taps Share on a card.
+    /// Provides the visualization ID and its current shared users.
+    let onShare: (String, [AppUser]) -> Void
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -22,7 +26,7 @@ struct LoadedListView: View {
                         title: item.title,
                         author: item.author,
                         date: item.createdAt,
-                        onShare: { onShare(item.sharedWith) },
+                        onShare: { onShare(item.id, item.sharedWith) },
                         sharedWith: item.sharedWith,
                         //configJSON: item.configJSON
                     )

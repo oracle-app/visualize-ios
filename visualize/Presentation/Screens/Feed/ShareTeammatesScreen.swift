@@ -21,8 +21,15 @@ struct ShareTeammatesScreen: View {
     
     @State private var vm: ShareTeammatesViewModel
     
-    init(viewModel: ShareTeammatesViewModel) {
+    /// Called after a successful share confirmation.
+    var onConfirm: () -> Void
+    
+    /// - Parameters:
+    ///   - viewModel: The view model managing search and selection state.
+    ///   - onConfirm: Closure executed after the share is persisted successfully.
+    init(viewModel: ShareTeammatesViewModel, onConfirm: @escaping () -> Void) {
         _vm = State(initialValue: viewModel)
+        self.onConfirm = onConfirm
     }
     
     var body: some View {
@@ -71,8 +78,11 @@ struct ShareTeammatesScreen: View {
             
             ToolbarItem(placement: .confirmationAction) {
                 Button("Confirm", systemImage: "paperplane") {
-                    vm.confirmShare()
-                    dismiss()
+                    Task {
+                        try? await vm.confirmShare()
+                        onConfirm() // Notify before dismissing
+                        dismiss()
+                    }
                 }
                 .tint(Color.primaryOrange)
                 .disabled(vm.selectedUsers.isEmpty)
@@ -131,9 +141,33 @@ struct ShareTeammatesScreen: View {
     }
 }
 
+// MARK: - Preview
+
+extension ShareTeammatesViewModel {
+    static var previewWithUsers: ShareTeammatesViewModel {
+        let userDatasource = UserDatasource()
+        let visualizationDatasource = VisualizationDatasource(userDatasource: userDatasource)
+        
+        return ShareTeammatesViewModel(
+            userRepository: UserRepositoryImpl(
+                userDatasource: userDatasource
+            ),
+            updateSharedUsersUseCase: UpdateSharedUsersUseCase(
+                visualizationRepository: VisualizationRepositoryImpl(
+                    userDatasource: userDatasource,
+                    visualizationDatasource: visualizationDatasource
+                )
+            ),
+            visualizationID: "LnSqGF5VrD73GTjyRZAZ",
+        )
+    }
+}
 
 #Preview {
     NavigationStack {
-        ShareTeammatesScreen(viewModel: .preview)
+        ShareTeammatesScreen(
+            viewModel: ShareTeammatesViewModel.previewWithUsers,
+            onConfirm: {}
+        )
     }
 }

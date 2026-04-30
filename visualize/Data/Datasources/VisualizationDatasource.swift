@@ -91,4 +91,15 @@ class VisualizationDatasource {
         
         return users
     }
+    
+    /// Replaces the `sharedWithUsers` field of a visualization with the provided user IDs.
+    /// - Parameters:
+    ///   - visualizationID: The ID of the visualization to update.
+    ///   - userIDs: The new list of user IDs to set as `sharedWithUsers`.
+    func updateSharedUsers(visualizationID: String, userIDs: [String]) async throws {
+        try await firebase
+            .collection("visualizations")
+            .document(visualizationID)
+            .updateData(["sharedWithUsers": userIDs])
+    }
 }

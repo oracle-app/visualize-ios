@@ -72,14 +72,28 @@ struct FeedView: View {
                 }
             }
             .sheet(item: $sharePayload) { payload in
+                let userDatasource = UserDatasource()
+                let visualizationDatasource = VisualizationDatasource(userDatasource: userDatasource)
+                let visualizationRepository = VisualizationRepositoryImpl(
+                    userDatasource: userDatasource,
+                    visualizationDatasource: visualizationDatasource
+                )
+                
                 NavigationStack {
                     ShareTeammatesScreen(
                         viewModel: ShareTeammatesViewModel(
                             userRepository: UserRepositoryImpl(
-                                userDatasource: UserDatasource()
+                                userDatasource: userDatasource
                             ),
+                            updateSharedUsersUseCase: UpdateSharedUsersUseCase(
+                                visualizationRepository: visualizationRepository
+                            ),
+                            visualizationID: payload.visualizationID,
                             initialUsers: payload.users
-                        )
+                        ),
+                        onConfirm: {
+                            viewModel.loadData()
+                        }
                     )
                     .presentationDetents([.medium, .large])
                 }
@@ -180,8 +194,11 @@ struct FeedView: View {
         case .loaded(let items):
             LoadedListView(
                 items: items,
-                onShare: { users in
-                    sharePayload = SharePayload(users: users)
+                onShare: { visualizationID, users in
+                    sharePayload = SharePayload(
+                        visualizationID: visualizationID,
+                        users: users
+                    )
                 }
             )
         }
@@ -202,6 +219,7 @@ extension View {
 
 struct SharePayload: Identifiable {
     let id = UUID()
+    let visualizationID: String
     let users: [AppUser]
 }
 

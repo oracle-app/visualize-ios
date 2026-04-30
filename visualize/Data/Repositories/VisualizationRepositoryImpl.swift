@@ -45,6 +45,13 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         
         return visualizationCards
     }
+    
+    func updateSharedUsers(visualizationID: String, userIDs: [String]) async throws {
+        try await visualizationDatasource.updateSharedUsers(
+            visualizationID: visualizationID,
+            userIDs: userIDs
+        )
+    }
 }
 
 
