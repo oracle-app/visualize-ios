@@ -49,7 +49,7 @@ final class ShareSheetViewModel {
                 self.joinedTeams = try await joinedTeamsRequest
                 
             } catch {
-                self.error = "Error al cargar equipos: \(error.localizedDescription)"
+                self.error = "Error loading teams: \(error.localizedDescription)"
             }
             
             isLoading = false
@@ -83,7 +83,7 @@ final class ShareSheetViewModel {
                 !selectedUsers.contains(where: { $0.id == candidate.id })
             }
         } catch {
-            print("Error en búsqueda: \(error)")
+            print("Search error: \(error)")
         }
     }
     

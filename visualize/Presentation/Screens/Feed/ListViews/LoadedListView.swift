@@ -8,21 +8,27 @@
 
 import SwiftUI
 
+/// Displays the list of visualization cards when the feed has loaded successfully.
 struct LoadedListView: View {
 
-    let items: [FeedItem]
-    let onShare: () -> Void
+    let items: [VisualizationCard]
+    
+    /// Called when the user taps Share on a card.
+    /// Provides the visualization ID and its current shared users.
+    let onShare: (String, [AppUser]) -> Void
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(spacing: 12) {
-                ForEach(items) { item in
+                ForEach(items, id: \.id) { item in
                     FeedCard(
+                        //id: item.id,
                         title: item.title,
                         author: item.author,
-                        date: item.date,
-                        onShare: onShare,
-                        sharedWith: item.sharedWith
+                        date: item.createdAt,
+                        onShare: { onShare(item.id, item.sharedWith) },
+                        sharedWith: item.sharedWith,
+                        //configJSON: item.configJSON
                     )
                 }
             }

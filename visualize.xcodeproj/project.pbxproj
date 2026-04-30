@@ -45,9 +45,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		053BEF1D2F8AEC41008A3D6B /* visualize */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				268954092F905E4700DFD9E0 /* Exceptions for "visualize" folder in "visualize" target */,
-			);
 			path = visualize;
 			sourceTree = "<group>";
 		};

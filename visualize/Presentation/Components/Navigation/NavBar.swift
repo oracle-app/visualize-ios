@@ -26,8 +26,30 @@ struct NavBar: View {
     }
     
     var body: some View {
+        
+        // TESTING / TEMPORAL
+        
+        let userDS = UserDatasource()
+        
+        let visualizationDS = VisualizationDatasource(
+            userDatasource: userDS
+        )
+
+        let repo = VisualizationRepositoryImpl(
+            userDatasource: userDS,
+            visualizationDatasource: visualizationDS
+        )
+
+        let useCase = LoadVisualizationsUseCase(
+            visualizationRepository: repo
+        )
+
+        let viewModel = FeedViewModel(loadVisualizationsUseCase: useCase)
+        
+        
+        
         TabView(selection: $selectedTab) {
-            FeedView(viewModel: FeedViewModel())
+            FeedView(viewModel: viewModel)
                 .tabItem{
                     Label("", systemImage: "house")
                 }
