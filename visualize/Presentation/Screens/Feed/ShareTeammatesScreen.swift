@@ -15,15 +15,11 @@
 import SwiftUI
 
 struct ShareTeammatesScreen: View {
-    
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isFocused: Bool
-    
     @State private var vm: ShareTeammatesViewModel
-    
     /// Called after a successful share confirmation.
     var onConfirm: () -> Void
-    
     /// - Parameters:
     ///   - viewModel: The view model managing search and selection state.
     ///   - onConfirm: Closure executed after the share is persisted successfully.
@@ -34,26 +30,19 @@ struct ShareTeammatesScreen: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            
             VStack(spacing: 16) {
-                
                 VStack(spacing: 5) {
                     Image(systemName: "person.2")
                         .font(.title2.weight(.semibold))
                         .foregroundStyle(Color.primaryText)
-                    
                     Text("Share to more teammates")
                         .font(.title2.weight(.semibold))
                         .foregroundStyle(Color.primaryText)
                 }
-                
                 contentView
-                
                 Spacer()
             }
             .padding(.horizontal, 16)
-            
-            
             if isFocused && vm.email.count >= 3 {
                 SearchResultsDropdown(
                     results: vm.suggestedUsers
@@ -107,30 +96,21 @@ struct ShareTeammatesScreen: View {
                 )
                 .frame(maxWidth: 360)
             }
-            
-        
             VStack(alignment: .leading, spacing: 8) {
-                
                 Text("Sharing with")
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(Color.primaryText)
-                
                 if vm.isLoading && vm.selectedUsers.isEmpty {
-                    
                     ProgressView()
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 20)
-                    
                 } else if vm.selectedUsers.isEmpty {
-                    
                     Text("Search for teammates you'd like to share with")
                         .font(.subheadline)
                         .foregroundStyle(Color.appSubtitle)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 20)
-                    
                 } else {
-                    
                     UsersListView(
                         users: vm.selectedUsers,
                         onRemove: { vm.removeUser($0) }
@@ -140,14 +120,11 @@ struct ShareTeammatesScreen: View {
         }
     }
 }
-
 // MARK: - Preview
-
 extension ShareTeammatesViewModel {
     static var previewWithUsers: ShareTeammatesViewModel {
         let userDatasource = UserDatasource()
         let visualizationDatasource = VisualizationDatasource(userDatasource: userDatasource)
-        
         return ShareTeammatesViewModel(
             userRepository: UserRepositoryImpl(
                 userDatasource: userDatasource

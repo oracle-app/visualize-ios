@@ -59,9 +59,6 @@ class FeedViewModel {
        
         Task {
             do {
-                
-                // simulate loading delay
-                try await Task.sleep(nanoseconds: 1_000_000_000)
                 let items = try await loadVisualizationsUseCase.execute(userID: "e9Nk8XrxHJAtwN3Hf2FL", visualizationFilter: visualizationFilter)
                 state = items.isEmpty ? .empty : .loaded(items)
             } catch {

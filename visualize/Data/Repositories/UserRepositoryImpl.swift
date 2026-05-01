@@ -38,7 +38,7 @@ class UserRepositoryImpl: UserRepository {
             themePreference: "",
             userType: "ADMIN",
             username: user.username,
-            hiddenVisualizations: [""]
+            hiddenVisualizations: []
         )
         let userRaw: UserDTO = try await userDatasource.createUser(
             user: dto,

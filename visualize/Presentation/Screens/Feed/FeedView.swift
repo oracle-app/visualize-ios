@@ -55,8 +55,6 @@ struct FeedView: View {
                 
             }
             .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
-                
-                
             } trailing: {
                 HStack(spacing: 15) {
                     Button("Notifications", systemImage: "bell") {

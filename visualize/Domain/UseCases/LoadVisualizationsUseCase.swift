@@ -8,11 +8,17 @@
 import Foundation
 
 struct LoadVisualizationsUseCase {
-    
     let visualizationRepository: any VisualizationRepository
-    
     func execute(userID: String, visualizationFilter: VisualizationFilter) async throws -> [VisualizationCard] {
-        return try await visualizationRepository.getVisualizationsWithFilter(userID: userID, visualizationFilter: visualizationFilter)
+        switch visualizationFilter {
+        case .all:
+            async let shared = visualizationRepository.getSharedVisualizations(userID: userID)
+            async let personal = visualizationRepository.getPersonalVisualizations(userID: userID)
+            return try await shared + personal
+        case .shared:
+            return try await visualizationRepository.getSharedVisualizations(userID: userID)
+        case .personal:¥
+            return try await visualizationRepository.getPersonalVisualizations(userID: userID)
+        }
     }
-    
 }
