@@ -34,26 +34,24 @@ struct SignUp: View {
     }
 
     // MARK: - Body
-    
+        
     var body: some View {
-        VStack(spacing: 0) {
-
-            // MARK: - Header Image
-            
-            ZStack {
-                Image("SignUpBackg")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 240)
-                    .clipped()
-            }
-            .frame(height: 110)
-
-            // MARK: - Content
-            
-            ScrollView {
+        ScrollView {
+            VStack(spacing: 0) {
+                
+                // MARK: - Header Image
+                ZStack {
+                    Image("SignUpBackg")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 240)
+                        .clipped()
+                }
+                .frame(height: 110)
+                
+                // MARK: - Content
                 VStack(spacing: 0) {
-
+                    
                     // Title
                     Text("Create your account")
                         .font(.system(size: 28, weight: .bold))
@@ -122,15 +120,18 @@ struct SignUp: View {
                         .foregroundColor(Color(red: 121/255, green: 139/255, blue: 138/255).opacity(0.6))
                         .padding(.bottom, 40)
                 }
-                .scrollTargetLayout()
+                .frame(maxWidth: 360)
                 .padding(.horizontal, 24)
+                .background(
+                    Color(red: 245/255, green: 244/255, blue: 242/255)
+                        .frame(height: 800, alignment: .top)
+                        .clipShape(RoundedRectangle(cornerRadius: 30)),
+                    alignment: .top
+                )
             }
-            .background(Color(red: 245/255, green: 244/255, blue: 242/255))
-            .clipShape(RoundedRectangle(cornerRadius: 28))
-            .ignoresSafeArea(edges: .bottom)
-            .scrollDismissesKeyboard(.interactively)
         }
-        .background(Color(Color.appTeal))
+    .background(Color(Color.appTeal).ignoresSafeArea())
+    .scrollDismissesKeyboard(.interactively)
     }
 }
 
