@@ -45,7 +45,6 @@ struct FeedCard: View {
                     } label: {
                         Label("Share", systemImage: "person.badge.plus")
                     }
-                    
                     Button (role: .destructive) {
                         showAlert2.toggle()
                     } label: {

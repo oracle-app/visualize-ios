@@ -38,12 +38,9 @@ struct FeedView: View {
     @State var safeArea: EdgeInsets = .init()
     @State private var sharePayload: SharePayload?
     @State private var usersToShare: [AppUser] = []
-    
     var shouldLoad: Bool = true
-    
     // MARK: - Body
     var body: some View {
-        
         NavigationStack{
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 10) {
@@ -51,14 +48,11 @@ struct FeedView: View {
                     contentView()
                 }
                 .padding(0)
-                
-                
             }
             .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
             } trailing: {
                 HStack(spacing: 15) {
                     Button("Notifications", systemImage: "bell") {
-                        
                     }
                 }
             } principal: {
@@ -67,8 +61,6 @@ struct FeedView: View {
                         .fontWeight(.semibold)
                         .transition(.offset(y: 10).combined(with: AnyTransition(.blurReplace)))
                     }
-
-                        
             } primaryAction: {
                 
             }
@@ -79,10 +71,12 @@ struct FeedView: View {
             }
             .sheet(item: $sharePayload) { payload in
                 let userDatasource = UserDatasource()
-                let visualizationDatasource = VisualizationDatasource(userDatasource: userDatasource)
+                let teamsDatasource = TeamDatasource()
+                let visualizationDatasource = VisualizationDatasource(userDatasource: userDatasource, teamsDatasource: teamsDatasource)
                 let visualizationRepository = VisualizationRepositoryImpl(
                     userDatasource: userDatasource,
-                    visualizationDatasource: visualizationDatasource
+                    visualizationDatasource: visualizationDatasource,
+                    teamsDatasource: teamsDatasource
                 )
                 
                 NavigationStack {
@@ -95,7 +89,7 @@ struct FeedView: View {
                                 visualizationRepository: visualizationRepository
                             ),
                             visualizationID: payload.visualizationID,
-                            initialUsers: payload.users
+                            initialUsers: payload.editableUsers
                         ),
                         onConfirm: {
                             viewModel.loadData()
@@ -107,22 +101,14 @@ struct FeedView: View {
             .navigationBarTitleDisplayMode(.inline)
             .coordinateSpace(name: "scroll")
         }
-        
-        
-
         .onGeometryChange(for: EdgeInsets.self) {
             $0.safeAreaInsets
         } action: { newValue in
             safeArea = newValue
         }
     }
-
-
     // MARK: - Header
     func headerView() -> some View {
-        
-        
-        
         Menu {
             Button {
                 selectedFeed = .all
@@ -170,42 +156,29 @@ struct FeedView: View {
             .hLeading()
             .padding(.leading, 35)
         }
-        
-        
     }
-         
-    
     // MARK: - Builder
-
     @ViewBuilder
     func contentView() -> some View {
         switch viewModel.state {
-
         case .loading:
-            
             LoadingListView()
-                
-                
-
         case .empty:
             EmptyListView {
                 viewModel.loadData()
             }
-            
-
         case .error:
             ErrorListView {
                 viewModel.loadData()
             }
-            
-
         case .loaded(let items):
             LoadedListView(
                 items: items,
-                onShare: { visualizationID, users in
+                onShare: { visualizationID, allUsers, editableUsers in
                     sharePayload = SharePayload(
                         visualizationID: visualizationID,
-                        users: users
+                        allUsers: allUsers,
+                        editableUsers: editableUsers
                     )
                 }
             )
@@ -215,21 +188,19 @@ struct FeedView: View {
 
 
 extension View {
-
     func hLeading() -> some View {
         frame(maxWidth: .infinity, alignment: .leading)
     }
-
     func hCenter() -> some View {
         frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 }
 
-
 struct SharePayload: Identifiable {
     let id = UUID()
     let visualizationID: String
-    let users: [AppUser]
+    let allUsers: [AppUser]
+    let editableUsers: [AppUser]
 }
 
 // MARK: - Preview

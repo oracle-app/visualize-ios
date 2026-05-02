@@ -124,7 +124,11 @@ struct ShareTeammatesScreen: View {
 extension ShareTeammatesViewModel {
     static var previewWithUsers: ShareTeammatesViewModel {
         let userDatasource = UserDatasource()
-        let visualizationDatasource = VisualizationDatasource(userDatasource: userDatasource)
+        let teamDatasource = TeamDatasource()
+        let visualizationDatasource = VisualizationDatasource(
+            userDatasource: userDatasource,
+            teamsDatasource: teamDatasource
+        )
         return ShareTeammatesViewModel(
             userRepository: UserRepositoryImpl(
                 userDatasource: userDatasource
@@ -132,7 +136,8 @@ extension ShareTeammatesViewModel {
             updateSharedUsersUseCase: UpdateSharedUsersUseCase(
                 visualizationRepository: VisualizationRepositoryImpl(
                     userDatasource: userDatasource,
-                    visualizationDatasource: visualizationDatasource
+                    visualizationDatasource: visualizationDatasource,
+                    teamsDatasource: teamDatasource
                 )
             ),
             visualizationID: "LnSqGF5VrD73GTjyRZAZ",

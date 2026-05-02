@@ -17,7 +17,7 @@ struct LoadVisualizationsUseCase {
             return try await shared + personal
         case .shared:
             return try await visualizationRepository.getSharedVisualizations(userID: userID)
-        case .personal:¥
+        case .personal:
             return try await visualizationRepository.getPersonalVisualizations(userID: userID)
         }
     }
