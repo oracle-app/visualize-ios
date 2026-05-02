@@ -14,40 +14,12 @@ import SwiftUI
 struct FeedCard: View {
     @State private var showAlert1 = false
     @State private var showAlert2 = false
-    
     var title: String
     var author: String
     var date: Date
-    
     var onShare: () -> Void
-    var sharedWith: [AppUser]? = nil
-    
-    
-    /// TO DO: Image Implementation that uses profilePictureURL
-    
-    /// Asigns random color based on ID.
-   
-    
-    
-    
-    
-    
-    
-    private var colors: [Color] {
-        (sharedWith ?? []).map { user in
-            Color.random(from: user.id)
-        }
-    }
-    
-    
-    
-    
-    
-    
-    //var colors: [Color] = [Color.random(from: "oEJtQz0gdbRpTZ8ETPCy")]
-    
-    
-    
+    var sharedWith: [AppUser]
+    let maxAvatars = 3
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top) {
@@ -73,7 +45,6 @@ struct FeedCard: View {
                     } label: {
                         Label("Share", systemImage: "person.badge.plus")
                     }
-                    
                     Button (role: .destructive) {
                         showAlert2.toggle()
                     } label: {
@@ -99,7 +70,6 @@ struct FeedCard: View {
                     .frame(width: 37, height: 37)
                     .contentShape(Circle())
                 }.buttonStyle(.plain).shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
-                
                 .alert(
                     "Delete visualization?",
                     isPresented: $showAlert2
@@ -114,8 +84,6 @@ struct FeedCard: View {
                 } message: {
                     Text("This will remove the visualization from your feed. To see it again, the owner will need to share it with you.")
                 }
-                
-                
                 .alert(
                     "Delete visualization?",
                     isPresented: $showAlert1
@@ -130,43 +98,35 @@ struct FeedCard: View {
                 } message: {
                     Text("This will permanently remove the visualization from the feed for you and everyone you shared it with. This action cannot be undone.")
                 }
-                
-                
             }
-            
-           
-            
             Text("viz")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.white)
                 .cornerRadius(10)
-
-            if !colors.isEmpty {
-               HStack(spacing: -20) {
-                   ForEach(Array(colors.prefix(3).enumerated()), id: \.offset) { index, color in
-                       Circle()
-                           .fill(color)
-                           .frame(width: 33, height: 33)
-                           .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
-                           .zIndex(Double(3 - index))
-                   }
-                   // Needs to be modified. Just randomly loads colors, disregarding the user's information
-                   if colors.count > 3 {
-                       ZStack {
-                           Circle().fill(.white)
-                           Text("+\(colors.count - 3)")
-                               .font(.system(size: 13, weight: .regular))
-                               .foregroundStyle(Color(red: 68/255, green: 68/255, blue: 68/255, opacity: 1))
-                       }
-                       .frame(width: 33, height: 33)
-                       .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
-                       .padding(.leading, 10)
-                       .zIndex(0)
-                   }
-               }
-               .frame(maxWidth: .infinity, alignment: .leading)
-               .padding(.top, 10)
-           }
+            if !sharedWith.isEmpty {
+                HStack(spacing: -20) {
+                    let displayMembers = Array(sharedWith.prefix(maxAvatars))
+                    let remainingCount = sharedWith.count - displayMembers.count
+                    ForEach(Array(displayMembers.enumerated()), id: \.element.id) { index, user in
+                        UserAvatarView(user: user, size: 33, showBorder: true)
+                            .zIndex(Double(maxAvatars - index))
+                    }
+                    if remainingCount > 0 {
+                        ZStack {
+                            Circle().fill(.white)
+                            Text("+\(remainingCount)")
+                                .font(.system(size: 13, weight: .regular))
+                                .foregroundStyle(Color(red: 68/255, green: 68/255, blue: 68/255, opacity: 1))
+                        }
+                        .frame(width: 33, height: 33)
+                        .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
+                        .padding(.leading, 10)
+                        .zIndex(0)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 10)
+            }
        }
        .padding(16)
        .background(Color.appMint)
@@ -176,23 +136,6 @@ struct FeedCard: View {
        .frame(height: 390)
        .padding(.bottom, 16)
    }
-}
-
-
-
-/// Generates a random color based on the given string
-extension Color {
-    static func random(from string: String) -> Color {
-        var hasher = Hasher()
-        hasher.combine(string)
-        let hash = hasher.finalize()
-
-        let r = Double((hash >> 16) & 0xFF) / 255.0
-        let g = Double((hash >> 8) & 0xFF) / 255.0
-        let b = Double(hash & 0xFF) / 255.0
-
-        return Color(red: r, green: g, blue: b)
-    }
 }
 
 /*

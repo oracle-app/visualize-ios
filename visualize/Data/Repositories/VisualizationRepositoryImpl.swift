@@ -11,67 +11,52 @@ internal import FirebaseFirestoreInternal
 class VisualizationRepositoryImpl: VisualizationRepository {
     private let userDatasource: UserDatasource
     private let visualizationDatasource: VisualizationDatasource
-    
-    init(userDatasource: UserDatasource, visualizationDatasource: VisualizationDatasource) {
+    private let teamsDatasource: TeamDatasource
+    init(userDatasource: UserDatasource,
+         visualizationDatasource: VisualizationDatasource,
+         teamsDatasource: TeamDatasource) {
         self.userDatasource = userDatasource
         self.visualizationDatasource = visualizationDatasource
+        self.teamsDatasource = teamsDatasource
     }
-
-    func getVisualizationsWithFilter(userID: String, visualizationFilter: VisualizationFilter) async throws -> [VisualizationCard] {
-        let dtos: [VisualizationDTO]
-        switch visualizationFilter {
-        case .all:
-            
-            let sharedVisualizations = try await visualizationDatasource.getAllSharedVisualizations(userID: userID)
-            let personalVisualizations = try await visualizationDatasource.getAllPersonalVisualizations(userID: userID)
-            dtos = sharedVisualizations + personalVisualizations
-        case .shared:
-            dtos = try await visualizationDatasource.getAllSharedVisualizations(userID: userID)
-        case .personal:
-            dtos = try await visualizationDatasource.getAllPersonalVisualizations(userID: userID)
-        }
-        
-        var visualizationCards: [VisualizationCard] = []
-     
-        
-        for dto in dtos {
-            let author = try await userDatasource.getUserByID(userID: dto.authorID)
-            let users = try await visualizationDatasource.getAllUsersVisualizationIsSharedWith(visualizationID: dto.id ?? "")
-            let sharedUsers: [AppUser] = users.map {$0.toAppUser()}
-            let card = dto.toVisualizationCard(authorName: author.username, sharedUsers: sharedUsers)
-            visualizationCards.append(card)
-        }
-            
-        
-        return visualizationCards
-    }
-    
     func updateSharedUsers(visualizationID: String, userIDs: [String]) async throws {
         try await visualizationDatasource.updateSharedUsers(
             visualizationID: visualizationID,
             userIDs: userIDs
         )
     }
+    func getSharedVisualizations(userID: String) async throws -> [VisualizationCard] {
+        let dtos = try await visualizationDatasource.getAllSharedVisualizations(userID: userID)
+        return try await fetchDetailsAndMap(dtos: dtos)
+    }
+    func getPersonalVisualizations(userID:String) async throws -> [VisualizationCard] {
+        let dtos = try await visualizationDatasource.getAllPersonalVisualizations(userID: userID)
+        return try await fetchDetailsAndMap(dtos: dtos)
+    }
+    private func fetchDetailsAndMap(dtos: [VisualizationDTO]) async throws -> [VisualizationCard] {
+        var cards: [VisualizationCard] = []
+            for dto in dtos {
+                let authorDTO = try await userDatasource.getUserByID(userID: dto.authorID)
+                let authorName = authorDTO.username
+                let usersDTOs = try await userDatasource.getUsers(byIDs: dto.sharedWithUsers)
+                let usersSharedWith: [AppUser] = usersDTOs.map {$0.toAppUser()}
+                let teamsDTOs = try await teamsDatasource.getTeams(byIDs: dto.sharedWithTeams)
+                let uniqueMemberIDs = Array(Set(teamsDTOs.flatMap(\.membersIDs)))
+                let membersDTOs = try await userDatasource.getUsers(byIDs: uniqueMemberIDs)
+                let allMembers = membersDTOs.map { $0.toAppUser() }
+                let teamsSharedWith: [Team] = teamsDTOs.map { teamDTO in
+                    let specificTeamMembers = allMembers.filter { member in
+                        teamDTO.membersIDs.contains(member.id)
+                    }
+                    return teamDTO.toTeam(members: specificTeamMembers)
+                }
+                let card = dto.toVisualizationCard(
+                    authorName: authorName,
+                    teamsSharedWith: teamsSharedWith,
+                    usersSharedWith: usersSharedWith,
+                )
+                cards.append(card)
+            }
+            return cards
+        }
 }
-
-
-// Ubicación: data/repositories/VisualizationRepositoryImpl.swift
-//class VisualizationRepositoryImpl: VisualizationRepository {
-//    let visualizationDataSource: VisualizationDataSource
-//    let userDataSource: UserDataSource // Necesario para obtener nombres y usuarios
-//
-//    func getVisualizationCard(id: UUID) async -> VisualizationCard {
-//        // 1. Obtener el DTO crudo
-//        let dto = await visualizationDataSource.fetchVisualization(id: id) [cite: 31]
-//        
-//        // 2. Resolver la información faltante (IDs -> Nombres/Objetos)
-//        // Buscamos el nombre del autor usando el authorID del DTO
-//        let authorName = await userDataSource.fetchUserName(id: dto.authorID)
-//        
-//        // Buscamos los objetos User para cada ID en sharedWithUsers
-//        let sharedUsers = await userDataSource.fetchUsers(ids: dto.sharedWithUsers)
-//        
-//        // 3. Mapear y devolver la entidad limpia al dominio [cite: 29, 37]
-//        return dto.toDomain(authorName: authorName, sharedUsers: sharedUsers)
-//    }
-//}

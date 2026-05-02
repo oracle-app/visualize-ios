@@ -56,4 +56,12 @@ final class TeamDatasource {
             throw error
         }
     }
+    func getTeams(byIDs ids: [String]) async throws -> [TeamDTO] {
+        guard !ids.isEmpty else { return [] }
+        /// Firebase has a limit of 30. For testing purposes, we will assume no visualization will be shared with over 30 users.
+        let snapshot = try await firebase.collection("teams")
+            .whereField(FieldPath.documentID(), in: ids)
+            .getDocuments()
+        return snapshot.documents.compactMap { try? $0.data(as: TeamDTO.self) }
+    }
 }

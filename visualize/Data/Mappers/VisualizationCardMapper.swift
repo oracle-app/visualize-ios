@@ -7,16 +7,31 @@
 import Foundation
 internal import FirebaseFirestoreInternal
 
-extension VisualizationDTO{
-    func toVisualizationCard(authorName: String, sharedUsers:[AppUser]) -> VisualizationCard {
-        guard let id = self.id else { fatalError("VisualizationDTO must have an id") }
-        return VisualizationCard(
-            id: id,
-            title: self.title,
-            author: authorName,
-            createdAt: self.createdAt,
-            sharedWith: sharedUsers,
-            configJSON: self.configJSON
-        )
-    }
+extension VisualizationDTO {
+    func toVisualizationCard(
+            authorName: String,
+            teamsSharedWith: [Team],
+            usersSharedWith: [AppUser]
+        ) -> VisualizationCard {
+            var allUsersDict: [String: AppUser] = [:]
+            for user in usersSharedWith {
+                allUsersDict[user.id] = user
+            }
+            for team in teamsSharedWith {
+                for member in team.members {
+                    allUsersDict[member.id] = member
+                }
+            }
+            let allUsers = Array(allUsersDict.values)
+            return VisualizationCard(
+                id: self.id ?? "",
+                title: self.title,
+                author: authorName,
+                createdAt: self.createdAt,
+                configJSON: self.configJSON,
+                teamsSharedWith: teamsSharedWith,
+                usersSharedWith: usersSharedWith,
+                allUsersSharedWith: allUsers
+            )
+        }
 }
