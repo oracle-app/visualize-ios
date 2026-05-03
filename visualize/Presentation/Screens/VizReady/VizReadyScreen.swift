@@ -132,6 +132,7 @@ struct VizReadyView: View {
     @State private var scrollOffset: CGFloat = 0
     /// Controls presentation of the share sheet after the user taps proceed.
     @State private var showShareSheet = false
+    @State private var sheetSize: PresentationDetent = .fraction(0.28)
     
     private let userDatasource = UserDatasource()
     private let teamDatasource = TeamDatasource()
@@ -158,9 +159,13 @@ struct VizReadyView: View {
         .background(Color.appBackground)
         .sheet(isPresented: $showShareSheet) {
             NavigationStack {
-                ShareSheet(viewModel: ShareSheetViewModel(teamRepository: TeamRepositoryImpl(teamDatasource: teamDatasource, userDatasource: userDatasource), userRepository: UserRepositoryImpl(userDatasource: userDatasource)))
+                ShareSheet(viewModel: ShareSheetViewModel(teamRepository: TeamRepositoryImpl(teamDatasource: teamDatasource, userDatasource: userDatasource), userRepository: UserRepositoryImpl(userDatasource: userDatasource)),
+                    sheetSize: $sheetSize
+                )
             }
-            .presentationDetents([.medium, .large])
+            .presentationDetents(
+                [.fraction(0.34), .large],
+                selection: $sheetSize)
             .presentationBackground(.clear)
         }
     }
