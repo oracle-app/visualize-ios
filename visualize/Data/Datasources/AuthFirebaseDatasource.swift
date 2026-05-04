@@ -1,0 +1,56 @@
+//
+//  AuthFirebaseDatasource.swift
+//  visualize
+//
+//  Created by Libia Fv on 25/04/26.
+//
+import FirebaseAuth
+
+class AuthFirebaseDatasource {
+    
+    // MARK: - Properties
+    
+    private let auth = Auth.auth()
+    
+    // MARK: - Authentication
+    
+    /// Signs in a user using email and password with Firebase Authentication.
+    ///
+    /// - Parameters:
+    ///   - email: The user's email address.
+    ///   - password: The user's password.
+    /// - Returns: The authenticated Firebase user.
+    /// - Throws: An error if the authentication process fails.
+    func login(email: String, password: String) async throws -> FirebaseAuth.User {
+        let result = try await auth.signIn(withEmail: email, password: password)
+        return result.user
+    }
+    
+    /// Registers a new user using email and password with Firebase Authentication.
+    ///
+    /// - Parameters:
+    ///   - email: The new user's email address.
+    ///   - password: The new user's password.
+    /// - Returns: The newly created Firebase user.
+    /// - Throws: An error if the registration process fails.
+    func register(email: String, password: String) async throws -> FirebaseAuth.User {
+        let result = try await auth.createUser(withEmail: email, password: password)
+        return result.user
+    }
+    
+    /// Signs out the currently authenticated user.
+    ///
+    /// - Throws: An error if the sign-out process fails.
+    func logout() throws {
+        try auth.signOut()
+    }
+    
+    // MARK: - Session
+    
+    /// Retrieves the currently authenticated user, if any.
+    ///
+    /// - Returns: The current Firebase user or `nil` if no user is signed in.
+    func getCurrentUser() -> FirebaseAuth.User? {
+        return auth.currentUser
+    }
+}

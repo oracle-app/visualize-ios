@@ -7,16 +7,22 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseAppCheck
+
 
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-#if DEBUG
+
+    FirebaseApp.configure()
+
+    #if DEBUG
     guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
       return true
     }
-#endif
-    FirebaseApp.configure()
+
+    AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+    #endif
 
     return true
   }
