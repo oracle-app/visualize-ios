@@ -11,6 +11,7 @@ struct VisualizationCard: Identifiable {
     let id: String
     let title: String
     let author: String
+    let authorID: String
     let createdAt: Date
     let configJSON: String
     let teamsSharedWith: [Team]

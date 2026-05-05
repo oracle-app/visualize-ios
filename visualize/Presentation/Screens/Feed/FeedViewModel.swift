@@ -18,12 +18,20 @@
 import SwiftUI
 import Observation
 
+enum FeedState {
+    case loading
+    case loaded([VisualizationCard])
+    case empty
+    case error
+}
 
 @Observable
 class FeedViewModel {
     var state: FeedState = .loading
     var visualizationFilter: VisualizationFilter
     let loadVisualizationsUseCase: LoadVisualizationsUseCase
+    private var allVisualizations: [VisualizationCard] = []
+    private let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL"
     init(loadVisualizationsUseCase: LoadVisualizationsUseCase) {
         self.loadVisualizationsUseCase = loadVisualizationsUseCase
         self.visualizationFilter = .all
@@ -31,26 +39,47 @@ class FeedViewModel {
     func setVisualizationFilter(_ filter: VisualizationFilter) {
         if filter == self.visualizationFilter { return }
         self.visualizationFilter = filter
-        loadData()
+        if !allVisualizations.isEmpty {
+            applyLocalFilter()
+        } else {
+            loadData()
+        }
     }
-    enum FeedState {
-        case loading
-        case loaded([VisualizationCard])
-        case empty
-        case error
+    private func applyLocalFilter() {
+        var filteredItems: [VisualizationCard] = []
+        switch visualizationFilter {
+        case .all:
+            filteredItems = allVisualizations
+        case .personal:
+            filteredItems = allVisualizations.filter { $0.authorID == currentUserID }
+        case .shared:
+            filteredItems = allVisualizations.filter { $0.authorID != currentUserID }
+        }
+        state = filteredItems.isEmpty ? .empty : .loaded(filteredItems)
     }
     // MARK: - Load Data
-    func loadData() {
-        state = .loading
+    func loadData(forceRefresh: Bool = false) {
+        if forceRefresh {
+            allVisualizations.removeAll()
+        }
+        if allVisualizations.isEmpty {
+            state = .loading
+        }
         Task {
             do {
-                let items = try await loadVisualizationsUseCase.execute(userID: "e9Nk8XrxHJAtwN3Hf2FL", visualizationFilter: visualizationFilter)
-                state = items.isEmpty ? .empty : .loaded(items)
+                let items = try await loadVisualizationsUseCase.execute(
+                    userID: currentUserID
+                )
+                self.allVisualizations = items
+                applyLocalFilter()
             } catch {
                 print(error)
                 state = .error
             }
         }
+    }
+    func fetchInitialData() {
+        loadData(forceRefresh: false)
     }
 }
 
