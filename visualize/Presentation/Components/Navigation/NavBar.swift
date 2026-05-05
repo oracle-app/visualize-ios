@@ -43,7 +43,7 @@ struct NavBar: View {
                     Label("", systemImage: "person.2")
                 }
                 .tag(Tabs.teams)
-            //ProfileView()
+            ProfileScreenView()
             Color.blue.ignoresSafeArea()
                     .tabItem{
                     Label("",systemImage: "person.circle")
