@@ -21,15 +21,15 @@ final class VizReadyViewModel {
     /// The list of chart recommendations displayed to the user.
     var charts: [ChartOption] = [
         ChartOption(title: "Commerce Activity: Units Sold", author: "Mariana Islas"),
-        ChartOption(title: "Units Sold Growth Trend",       author: "Mariana Islas"),
-        ChartOption(title: "Monthly Performance Overview",  author: "Mariana Islas")
+        ChartOption(title: "Units Sold Growth Trend", author: "Mariana Islas"),
+        ChartOption(title: "Monthly Performance Overview", author: "Mariana Islas")
     ]
 
     /// The ID of the currently selected chart, or `nil` if none is selected.
     private(set) var selectedChartID: UUID?
 
     /// Validation error message for the last title update attempt; `nil` when valid.
-    var titleValidationError: String? = nil
+    var titleValidationError: String?
 
     // MARK: - Computed
 
