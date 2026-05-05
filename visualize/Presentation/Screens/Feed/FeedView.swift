@@ -38,6 +38,7 @@ struct FeedView: View {
     @State var safeArea: EdgeInsets = .init()
     @State private var sharePayload: SharePayload?
     @State private var usersToShare: [AppUser] = []
+    @State private var selectedCard: VisualizationCard? = nil
     var shouldLoad: Bool = true
     // MARK: - Body
     var body: some View {
@@ -49,6 +50,10 @@ struct FeedView: View {
                 }
                 .padding(0)
             }
+            .navigationDestination(item: $selectedCard) { card in 
+                    FullScreenView(card: card)
+                        .navigationBarBackButtonHidden(true)
+                }
             .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
             } trailing: {
                 HStack(spacing: 15) {
@@ -182,7 +187,10 @@ struct FeedView: View {
                         allUsers: allUsers,
                         editableUsers: editableUsers
                     )
-                }
+                },
+                onTap: { card in
+                            selectedCard = card
+                        }
             )
         }
     }
