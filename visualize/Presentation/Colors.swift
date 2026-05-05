@@ -23,7 +23,7 @@ enum AppColors {
     }
     
     enum UI {
-        static let background = Color("ComponentBackg")
+        static let background = Color("ComponentBackground")
         static let cardShare = Color("CardShare")
     }
 }
