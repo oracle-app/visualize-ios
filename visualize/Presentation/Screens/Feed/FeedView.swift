@@ -132,7 +132,7 @@ struct FeedView: View {
 
             Image(systemName: "control")
                 .font(.body.bold())
-                .foregroundColor(Color.primaryText)
+                .foregroundStyle(Color.primaryText)
                 .rotationEffect(.degrees(180))
                 .padding(.trailing, 10)
         }
@@ -146,14 +146,12 @@ struct FeedView: View {
                 } label: {
                     Label("All Feed", systemImage: selectedFeed == .all ? "checkmark" : "")
                 }
-
                 Button {
                     selectedFeed = .personal
                     viewModel.setVisualizationFilter(selectedFeed)
                 } label: {
                     Label("Personal Feed", systemImage: selectedFeed == .personal ? "checkmark" : "")
                 }
-
                 Button {
                     selectedFeed = .shared
                     viewModel.setVisualizationFilter(selectedFeed)
