@@ -7,7 +7,6 @@
 /// Header component for the Full Screen visualization view.
 /// Displays a back button, the visualization title, and the list
 /// of users the visualization has been shared with.
-
 import SwiftUI
 
 struct FSHeaderView: View {
