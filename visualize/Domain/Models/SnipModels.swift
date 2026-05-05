@@ -70,9 +70,9 @@ struct DrawingStroke: Identifiable {
     ///   - radius: The hit-test radius in points.
     func hits(point: CGPoint, radius: CGFloat) -> Bool {
         points.contains {
-            let dx = $0.x - point.x
-            let dy = $0.y - point.y
-            return dx * dx + dy * dy <= radius * radius
+            let deltaX = $0.x - point.x
+            let deltaY = $0.y - point.y
+            return deltaX * deltaX + deltaY * deltaY <= radius * radius
         }
     }
 }

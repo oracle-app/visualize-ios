@@ -17,7 +17,7 @@ struct VizReadyView: View {
 
     /// Called after the close button dismisses this view, so the caller can
     /// chain further dismissals up the navigation stack.
-    var onClose: (() -> Void)? = nil
+    var onClose: (() -> Void)?
     /// Dismisses this fullScreenCover.
     @Environment(\.dismiss) var dismiss
     /// Backing state machine for chart selection and title editing.
@@ -43,11 +43,14 @@ struct VizReadyView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { dismiss(); onClose?() }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(Color.appNavy)
-                    }
+                    Button(
+                        action: { dismiss(); onClose?() },
+                        label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundStyle(Color.appNavy)
+                        }
+                    )
                 }
                 ToolbarItem(placement: .principal) {
                     Group {
@@ -64,15 +67,18 @@ struct VizReadyView: View {
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showShareSheet = true }) {
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(
-                                viewModel.isSelectionValid
-                                    ? Color.appNavy
-                                    : Color.gray.opacity(0.35)
-                            )
-                    }
+                    Button(
+                        action: { showShareSheet = true },
+                        label: {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundStyle(
+                                    viewModel.isSelectionValid
+                                        ? Color.appNavy
+                                        : Color.gray.opacity(0.35)
+                                )
+                        }
+                    )
                     .disabled(!viewModel.isSelectionValid)
                 }
             }

@@ -28,7 +28,7 @@ struct SnipEditorView: View {
     // MARK: - Body
 
     var body: some View {
-        @Bindable var bm = model
+        @Bindable var bindable = model
 
         NavigationStack {
         ZStack {
@@ -79,7 +79,7 @@ struct SnipEditorView: View {
                     Spacer()
 
                     if openPanel == .strokeWidth {
-                        SnipStrokeWidthPanelView(model: bm)
+                        SnipStrokeWidthPanelView(model: bindable)
                             .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
                     }
 
@@ -97,8 +97,8 @@ struct SnipEditorView: View {
                 .padding(.horizontal, 24)
 
                 SnipFloatingToolbar(
-                    selectedTool: $bm.activeTool,
-                    currentColor: $bm.pencilColor,
+                    selectedTool: $bindable.activeTool,
+                    currentColor: $bindable.pencilColor,
                     openPanel: $openPanel
                 )
                 .padding(.horizontal, 20)
@@ -119,16 +119,16 @@ struct SnipEditorView: View {
         } message: {
             Text("This edited visualization will be shared as a new thread.")
         }
-        .alert("Add text annotation", isPresented: $bm.showTextInput) {
-            TextField("Type something…", text: $bm.draftText)
-                .onChange(of: bm.draftText) { _, new in
-                    if new.count > 100 { bm.draftText = String(new.prefix(100)) }
+        .alert("Add text annotation", isPresented: $bindable.showTextInput) {
+            TextField("Type something…", text: $bindable.draftText)
+                .onChange(of: bindable.draftText) { _, new in
+                    if new.count > 100 { bindable.draftText = String(new.prefix(100)) }
                 }
             Button("Cancel", role: .cancel) {
-                bm.draftText = ""
-                bm.pendingTextPosition = nil
+                bindable.draftText = ""
+                bindable.pendingTextPosition = nil
             }
-            Button("Add") { bm.commitText() }
+            Button("Add") { bindable.commitText() }
         }
         .toolbar {
             if model.activeTool == .crop && model.liveCropRect != nil {
