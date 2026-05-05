@@ -33,12 +33,12 @@ final class SnipViewModel {
 
     // MARK: - Private properties
 
-    private typealias Snapshot = (
-        strokes: [DrawingStroke],
-        annotations: [TextAnnotation],
-        shapes: [ShapeAnnotation],
-        cropRect: CGRect?
-    )
+    private struct Snapshot {
+        var strokes: [DrawingStroke]
+        var annotations: [TextAnnotation]
+        var shapes: [ShapeAnnotation]
+        var cropRect: CGRect?
+    }
 
     private var undoStack: [Snapshot] = []
     private var redoStack: [Snapshot] = []
@@ -47,8 +47,8 @@ final class SnipViewModel {
     // MARK: - Undo / Redo
 
     private func saveSnapshot() {
-        undoStack.append((strokes: strokes, annotations: textAnnotations,
-                          shapes: shapeAnnotations, cropRect: cropRect))
+        undoStack.append(Snapshot(strokes: strokes, annotations: textAnnotations,
+                                  shapes: shapeAnnotations, cropRect: cropRect))
         redoStack.removeAll()
         canUndo = true
         canRedo = false
@@ -60,8 +60,8 @@ final class SnipViewModel {
     /// Has no effect if the undo stack is empty.
     func undo() {
         guard let snap = undoStack.popLast() else { return }
-        redoStack.append((strokes: strokes, annotations: textAnnotations,
-                          shapes: shapeAnnotations, cropRect: cropRect))
+        redoStack.append(Snapshot(strokes: strokes, annotations: textAnnotations,
+                                  shapes: shapeAnnotations, cropRect: cropRect))
         apply(snap)
         canUndo = !undoStack.isEmpty
         canRedo = true
@@ -73,8 +73,8 @@ final class SnipViewModel {
     /// Has no effect if the redo stack is empty.
     func redo() {
         guard let snap = redoStack.popLast() else { return }
-        undoStack.append((strokes: strokes, annotations: textAnnotations,
-                          shapes: shapeAnnotations, cropRect: cropRect))
+        undoStack.append(Snapshot(strokes: strokes, annotations: textAnnotations,
+                                  shapes: shapeAnnotations, cropRect: cropRect))
         apply(snap)
         canUndo = true
         canRedo = !redoStack.isEmpty
@@ -107,9 +107,9 @@ final class SnipViewModel {
     ///
     /// Strokes with fewer than two points are discarded. A snapshot is saved before committing.
     func endStroke() {
-        if let s = liveStroke, s.points.count > 1 {
+        if let stroke = liveStroke, stroke.points.count > 1 {
             saveSnapshot()
-            strokes.append(s)
+            strokes.append(stroke)
         }
         liveStroke = nil
     }
@@ -128,14 +128,14 @@ final class SnipViewModel {
         shapeAnnotations.removeAll {
             let mid = CGPoint(x: ($0.startPoint.x + $0.endPoint.x) / 2,
                               y: ($0.startPoint.y + $0.endPoint.y) / 2)
-            let dx = mid.x - point.x
-            let dy = mid.y - point.y
-            return dx * dx + dy * dy <= eraserRadius * eraserRadius * 4
+            let deltaX = mid.x - point.x
+            let deltaY = mid.y - point.y
+            return deltaX * deltaX + deltaY * deltaY <= eraserRadius * eraserRadius * 4
         }
         textAnnotations.removeAll {
-            let dx = $0.position.x - point.x
-            let dy = $0.position.y - point.y
-            return dx * dx + dy * dy <= eraserRadius * eraserRadius * 4
+            let deltaX = $0.position.x - point.x
+            let deltaY = $0.position.y - point.y
+            return deltaX * deltaX + deltaY * deltaY <= eraserRadius * eraserRadius * 4
         }
     }
 
@@ -161,12 +161,12 @@ final class SnipViewModel {
     /// Shapes smaller than 10 × 10 points (distance² < 100) are discarded.
     /// A snapshot is saved before committing.
     func endShape() {
-        if let s = liveShape {
-            let dx = s.endPoint.x - s.startPoint.x
-            let dy = s.endPoint.y - s.startPoint.y
-            if dx * dx + dy * dy > 100 {
+        if let shape = liveShape {
+            let deltaX = shape.endPoint.x - shape.startPoint.x
+            let deltaY = shape.endPoint.y - shape.startPoint.y
+            if deltaX * deltaX + deltaY * deltaY > 100 {
                 saveSnapshot()
-                shapeAnnotations.append(s)
+                shapeAnnotations.append(shape)
             }
         }
         liveShape = nil

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FullScreenView: View {
+struct SnipEditorView: View {
 
     // MARK: - State properties
 
@@ -8,6 +8,9 @@ struct FullScreenView: View {
     @State private var openPanel: ToolPanel?
     @State private var showDiscardAlert: Bool = false
     @State private var showPostAlert: Bool = false
+    @State private var canvasSize: CGSize = .zero
+
+    @Environment(\.displayScale) private var displayScale
 
     let chartImage: UIImage
     let onPost: (UIImage) -> Void
@@ -29,19 +32,17 @@ struct FullScreenView: View {
 
         NavigationStack {
         ZStack {
-            GeometryReader { geo in
-                ZStack {
-                    Image(uiImage: chartImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: geo.size.width, height: geo.size.height)
-                        .clipped()
+            ZStack {
+                Image(uiImage: chartImage)
+                    .resizable()
+                    .scaledToFill()
+                    .clipped()
 
-                    AnnotationCanvasView(model: model)
-                    SnipGestureOverlayView(model: model)
-                }
-                .frame(width: geo.size.width, height: geo.size.height)
+                AnnotationCanvasView(model: model)
+                SnipGestureOverlayView(model: model)
             }
+            .containerRelativeFrame([.horizontal, .vertical])
+            .onGeometryChange(for: CGSize.self) { $0.size } action: { canvasSize = $1 }
             .ignoresSafeArea()
 
             if openPanel != nil {
@@ -155,10 +156,10 @@ struct FullScreenView: View {
                 .scaledToFill()
             AnnotationCanvasView(model: model)
         }
-        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        .frame(width: canvasSize.width, height: canvasSize.height)
 
         let renderer = ImageRenderer(content: canvas)
-        renderer.scale = UIScreen.main.scale
+        renderer.scale = displayScale
         guard let exported = renderer.uiImage else { return }
         onPost(exported)
         onDismiss()

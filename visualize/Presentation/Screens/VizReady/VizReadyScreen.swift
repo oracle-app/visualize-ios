@@ -159,7 +159,14 @@ struct VizReadyView: View {
         .background(Color.appBackground)
         .sheet(isPresented: $showShareSheet) {
             NavigationStack {
-                ShareSheet(viewModel: ShareSheetViewModel(teamRepository: TeamRepositoryImpl(teamDatasource: teamDatasource, userDatasource: userDatasource), userRepository: UserRepositoryImpl(userDatasource: userDatasource)),
+                ShareSheet(
+                    viewModel: ShareSheetViewModel(
+                        teamRepository: TeamRepositoryImpl(
+                            teamDatasource: teamDatasource,
+                            userDatasource: userDatasource
+                        ),
+                        userRepository: UserRepositoryImpl(userDatasource: userDatasource)
+                    ),
                     sheetSize: $sheetSize
                 )
             }

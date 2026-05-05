@@ -358,27 +358,27 @@ struct AnnotationCanvasView: View {
     }
 
     private func drawShape(_ shape: ShapeAnnotation, in ctx: GraphicsContext) {
-        let s = shape.startPoint
-        let e = shape.endPoint
-        let rect = CGRect(x: min(s.x, e.x), y: min(s.y, e.y),
-                          width: abs(e.x - s.x), height: abs(e.y - s.y))
+        let startPt = shape.startPoint
+        let endPt = shape.endPoint
+        let rect = CGRect(x: min(startPt.x, endPt.x), y: min(startPt.y, endPt.y),
+                          width: abs(endPt.x - startPt.x), height: abs(endPt.y - startPt.y))
         guard rect.width > 0 || rect.height > 0 else { return }
 
         var path = Path()
         switch shape.type {
         case .line:
-            path.move(to: s); path.addLine(to: e)
+            path.move(to: startPt); path.addLine(to: endPt)
         case .arrow:
-            path.move(to: s); path.addLine(to: e)
-            let angle = atan2(e.y - s.y, e.x - s.x)
+            path.move(to: startPt); path.addLine(to: endPt)
+            let angle = atan2(endPt.y - startPt.y, endPt.x - startPt.x)
             let len: CGFloat = max(12, shape.lineWidth * 4)
             let spread: CGFloat = .pi / 6
-            path.move(to: e)
-            path.addLine(to: CGPoint(x: e.x - len * cos(angle - spread),
-                                     y: e.y - len * sin(angle - spread)))
-            path.move(to: e)
-            path.addLine(to: CGPoint(x: e.x - len * cos(angle + spread),
-                                     y: e.y - len * sin(angle + spread)))
+            path.move(to: endPt)
+            path.addLine(to: CGPoint(x: endPt.x - len * cos(angle - spread),
+                                     y: endPt.y - len * sin(angle - spread)))
+            path.move(to: endPt)
+            path.addLine(to: CGPoint(x: endPt.x - len * cos(angle + spread),
+                                     y: endPt.y - len * sin(angle + spread)))
         case .rectangle:
             path.addRect(rect)
         case .circle:
