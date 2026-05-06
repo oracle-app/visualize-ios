@@ -9,7 +9,6 @@ import Foundation
 
 struct ValidateFileUseCase {
     private let allowedExtensions = ["xlsx", "csv"]
-    
     func execute(url: URL) -> Bool {
         let extensionName = url.pathExtension.lowercased()
         return allowedExtensions.contains(extensionName)

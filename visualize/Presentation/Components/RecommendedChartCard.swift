@@ -120,6 +120,5 @@ struct RecommendedChartCard: View {
         }
         .padding(.vertical, 24)
     }
-    .background(Color.appBackground)
 }
 #endif

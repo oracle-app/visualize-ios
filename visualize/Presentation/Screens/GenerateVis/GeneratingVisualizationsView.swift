@@ -13,7 +13,6 @@ struct GeneratingVisualizationsView: View {
 
     var body: some View {
         ZStack {
-            backgroundView
 
             VStack(spacing: 0) {
                 Spacer()
@@ -34,11 +33,6 @@ struct GeneratingVisualizationsView: View {
         .onChange(of: viewModel.dismissToUpload) { _, shouldDismiss in
             if shouldDismiss { dismiss() }
         }
-    }
-
-    private var backgroundView: some View {
-        Color.appBackground
-            .ignoresSafeArea()
     }
 
     private var centerContent: some View {

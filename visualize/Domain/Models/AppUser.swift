@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AppUser: Identifiable, Sendable {
+struct AppUser: Identifiable, Sendable, Hashable {
     let id: String
     let email: String
     let profilePictureURL: String?
