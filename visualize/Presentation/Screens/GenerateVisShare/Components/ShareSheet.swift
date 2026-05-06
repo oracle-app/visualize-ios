@@ -228,6 +228,8 @@ struct ShareSheet: View {
                 }
                 .listStyle(.insetGrouped)
                 .listSectionSpacing(12)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
             }
         }
         .overlay(alignment: .top) {

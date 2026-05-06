@@ -18,6 +18,9 @@ struct ShareTeammatesScreen: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isFocused: Bool
     @State private var vm: ShareTeammatesViewModel
+    @State private var isSharingExpanded = true
+    @State private var isMyTeamsExpanded = true
+    @State private var isJoinedTeamsExpanded = true
     /// Called after a successful share confirmation.
     var onConfirm: () -> Void
     /// - Parameters:
@@ -27,7 +30,6 @@ struct ShareTeammatesScreen: View {
         _vm = State(initialValue: viewModel)
         self.onConfirm = onConfirm
     }
-    
     var body: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 16) {
@@ -57,16 +59,15 @@ struct ShareTeammatesScreen: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .task { await vm.loadTeams() }
         .toolbar {
-            
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel", systemImage: "xmark") {
                     dismiss()
                 }
             }
-            
             ToolbarItem(placement: .confirmationAction) {
-                Button("Confirm", systemImage: "paperplane") {
+                Button("Confirm", systemImage: "checkmark") {
                     Task {
                         try? await vm.confirmShare()
                         onConfirm() // Notify before dismissing
@@ -74,21 +75,17 @@ struct ShareTeammatesScreen: View {
                     }
                 }
                 .tint(Color.primaryOrange)
-                .disabled(vm.selectedUsers.isEmpty)
+                .disabled(vm.selectedUsers.isEmpty && vm.selectedTeamIDs.isEmpty)
             }
         }
     }
-    
-    
     @ViewBuilder
     private var contentView: some View {
         loadedView()
     }
-    
     private func loadedView() -> some View {
         VStack(spacing: 16) {
             ZStack(alignment: .top) {
-                
                 EmailSearchField(
                     email: $vm.email,
                     onClear: { vm.clearEmail() },
@@ -96,30 +93,118 @@ struct ShareTeammatesScreen: View {
                 )
                 .frame(maxWidth: 360)
             }
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Sharing with")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(Color.primaryText)
-                if vm.isLoading && vm.selectedUsers.isEmpty {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 20)
-                } else if vm.selectedUsers.isEmpty {
-                    Text("Search for teammates you'd like to share with")
-                        .font(.subheadline)
-                        .foregroundStyle(Color.appSubtitle)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.vertical, 20)
-                } else {
-                    UsersListView(
-                        users: vm.selectedUsers,
-                        onRemove: { vm.removeUser($0) }
-                    )
+
+            if vm.isLoading && vm.selectedUsers.isEmpty && vm.myTeams.isEmpty {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 20)
+            } else {
+                List {
+                    // MARK: Sharing with
+                    Section {
+                        if isSharingExpanded {
+                            if vm.selectedUsers.isEmpty {
+                                Text("Search for teammates or select a team below.")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
+                                    .listRowBackground(Color.clear)
+                                    .listRowInsets(EdgeInsets())
+                            } else {
+                                UsersListView(
+                                    users: vm.selectedUsers,
+                                    onRemove: { vm.removeUser($0) }
+                                )
+                                .listRowInsets(EdgeInsets())
+                                .listRowBackground(Color.clear)
+                            }
+                        }
+                    } header: {
+                        collapsableHeader("Sharing with", isExpanded: $isSharingExpanded)
+                    }
+
+                    // MARK: My Teams
+                    Section {
+                        if isMyTeamsExpanded {
+                            if vm.isTeamsLoading {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity)
+                                    .listRowBackground(Color.clear)
+                            } else if vm.myTeams.isEmpty {
+                                Text("You don't own any teams yet.")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
+                                    .listRowBackground(Color.clear)
+                                    .listRowInsets(EdgeInsets())
+                            } else {
+                                ForEach(vm.myTeams) { team in
+                                    TeamRow(
+                                        team: team,
+                                        isSelected: vm.isSelected(team),
+                                        onTap: { vm.toggleSelection(team) }
+                                    )
+                                }
+                            }
+                        }
+                    } header: {
+                        collapsableHeader("My teams", isExpanded: $isMyTeamsExpanded)
+                    }
+
+                    // MARK: Teams I'm in
+                    Section {
+                        if isJoinedTeamsExpanded {
+                            if vm.isTeamsLoading {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity)
+                                    .listRowBackground(Color.clear)
+                            } else if vm.joinedTeams.isEmpty {
+                                Text("You haven't joined any teams yet.")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
+                                    .listRowBackground(Color.clear)
+                                    .listRowInsets(EdgeInsets())
+                            } else {
+                                ForEach(vm.joinedTeams) { team in
+                                    TeamRow(
+                                        team: team,
+                                        isSelected: vm.isSelected(team),
+                                        onTap: { vm.toggleSelection(team) }
+                                    )
+                                }
+                            }
+                        }
+                    } header: {
+                        collapsableHeader("Teams I'm in", isExpanded: $isJoinedTeamsExpanded)
+                    }
                 }
+                .listStyle(.insetGrouped)
+                .listSectionSpacing(12)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+            }
+        }
+    }
+    
+    // MARK: - Collapsable Header
+    /// Returns a tappable header row with a chevron that toggles the given expansion binding.
+    private func collapsableHeader(_ title: String, isExpanded: Binding<Bool>) -> some View {
+        Button {
+            withAnimation { isExpanded.wrappedValue.toggle() }
+        } label: {
+            HStack {
+                Text(title).foregroundStyle(.black)
+                Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
+                    .foregroundStyle(.black)
             }
         }
     }
 }
+
 // MARK: - Preview
 extension ShareTeammatesViewModel {
     static var previewWithUsers: ShareTeammatesViewModel {
@@ -131,6 +216,10 @@ extension ShareTeammatesViewModel {
         )
         return ShareTeammatesViewModel(
             userRepository: UserRepositoryImpl(
+                userDatasource: userDatasource
+            ),
+            teamRepository: TeamRepositoryImpl(
+                teamDatasource: teamDatasource,
                 userDatasource: userDatasource
             ),
             updateSharedUsersUseCase: UpdateSharedUsersUseCase(

@@ -78,13 +78,16 @@ struct FeedView: View {
                     visualizationDatasource: visualizationDatasource,
                     teamsDatasource: teamsDatasource
                 )
-                
+                let teamRepository = TeamRepositoryImpl(
+                    teamDatasource: teamsDatasource,
+                    userDatasource: userDatasource
+                )
                 NavigationStack {
                     ShareTeammatesScreen(
                         viewModel: ShareTeammatesViewModel(
                             userRepository: UserRepositoryImpl(
                                 userDatasource: userDatasource
-                            ),
+                            ), teamRepository: teamRepository,
                             updateSharedUsersUseCase: UpdateSharedUsersUseCase(
                                 visualizationRepository: visualizationRepository
                             ),

@@ -19,21 +19,36 @@ import Foundation
 @Observable
 class ShareTeammatesViewModel {
     // MARK: - Dependencies
-    /// We use protocols to keep things decoupled and make testing easier
+    private let teamRepository: any TeamRepository
     private let userRepository: any UserRepository
+    
+    // MARK: - UseCase
     private let updateSharedUsersUseCase: UpdateSharedUsersUseCase
+    // Temporary hardcoded user ID, will be replaced with authenticated session value.
     private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
     private let visualizationID: String
-    // MARK: - State
+    
+    // MARK: - Input State
+
+    /// Current text in the email search field.
+    /// Setting this value automatically schedules a debounced user search.
     var email: String = "" {
         didSet {
             scheduleSearch() /// Every text change triggers the debounce timer
         }
     }
-    /// Users currently selected for sharing
+    
+    // MARK: - UI State
+    /// Users state
     var selectedUsers: [AppUser] = []
-    /// Suggestions fetched from the database after searching
     var suggestedUsers: [AppUser] = []
+    
+    /// Teams state
+    var myTeams: [Team] = []
+    var joinedTeams: [Team] = []
+    var selectedTeamIDs: Set<String> = []
+    var isTeamsLoading = false
+    
     /// Loading and error state
     var isLoading = false
     var error: String?
@@ -42,16 +57,19 @@ class ShareTeammatesViewModel {
     // MARK: - Initialization
     /// - Parameters:
     ///   - userRepository: Repository used to search for users by email.
+    ///   - teamRepository: Handles team-related data, such as fetching teammates.
     ///   - updateSharedUsersUseCase: Use case that persists the shared users list.
     ///   - visualizationID: The ID of the visualization being shared.
     ///   - initialUsers: Users already sharing the visualization, shown on open.
     init(
         userRepository: any UserRepository,
+        teamRepository: any TeamRepository,
         updateSharedUsersUseCase: UpdateSharedUsersUseCase,
         visualizationID: String,
         initialUsers: [AppUser] = []
     ) {
         self.userRepository = userRepository
+        self.teamRepository = teamRepository
         self.updateSharedUsersUseCase = updateSharedUsersUseCase
         self.visualizationID = visualizationID
         self.selectedUsers = initialUsers
@@ -118,6 +136,36 @@ class ShareTeammatesViewModel {
         email = ""
         suggestedUsers = []
     }
+    
+    // Fetches teams owned by and joined by the current user.
+    @MainActor
+    func loadTeams() async {
+        isTeamsLoading = true
+        defer { isTeamsLoading = false }
+        do {
+            async let myTeamsRequest = teamRepository.getTeamsUserOwns(userID: userID)
+            async let joinedTeamsRequest = teamRepository.getTeamsUserIsIn(userID: userID)
+            myTeams = try await myTeamsRequest
+            joinedTeams = try await joinedTeamsRequest
+        } catch {
+            self.error = "Error loading teams"
+        }
+    }
+
+    /// Toggles the selection state of a team.
+    func toggleSelection(_ team: Team) {
+        if selectedTeamIDs.contains(team.id) {
+            selectedTeamIDs.remove(team.id)
+        } else {
+            selectedTeamIDs.insert(team.id)
+        }
+    }
+
+    /// Returns whether the given team is currently selected.
+    func isSelected(_ team: Team) -> Bool {
+        selectedTeamIDs.contains(team.id)
+    }
+    
     /// Temporary helper for current user ID
     private func getCurrentUserID() -> String {
         // This should come from an AuthRepository
