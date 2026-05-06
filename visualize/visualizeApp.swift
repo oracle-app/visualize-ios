@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseAppCheck
+import SciChart
 
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -32,6 +33,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct visualizeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    init() {
+        let key = Bundle.main.infoDictionary?["SCICHART_LICENSE_KEY"] as? String ?? ""
+        SCIChartSurface.setRuntimeLicenseKey(key)
+    }
     var body: some Scene {
         WindowGroup {
             ContentView()
