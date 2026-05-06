@@ -22,22 +22,27 @@ struct ProfilePreferencesSectionView: View {
 
             LazyVGrid(columns: columns, spacing: Metrics.rowSpacing) {
                 ForEach(availableThemes) { theme in
-                    Button(theme.title) {
+                    Button {
                         selectThemeAction(theme)
-                    }
-                    .labelStyle(.iconOnly)
-                    .frame(height: Metrics.themeHeight)
-                    .background {
+                    } label: {
                         ThemePaletteView(colors: colors(for: theme))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: Metrics.paletteHeight)
+                            .clipShape(.rect(cornerRadius: Metrics.themeCornerRadius))
+                            .overlay {
+                                if selectedTheme == theme {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: Metrics.themeCornerRadius)
+                                            .strokeBorder(Color.primaryText, lineWidth: Metrics.selectedBorderWidth)
+                                        RoundedRectangle(cornerRadius: Metrics.themeCornerRadius)
+                                            .inset(by: Metrics.selectedBorderWidth)
+                                            .strokeBorder(Color.appBackground, lineWidth: Metrics.selectionPadding)
+                                    }
+                                }
+                            }
                     }
-                    .clipShape(.rect(cornerRadius: Metrics.themeCornerRadius))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: Metrics.themeCornerRadius)
-                            .strokeBorder(
-                                selectedTheme == theme ? Color.primaryText : Color.clear,
-                                lineWidth: Metrics.selectedBorderWidth
-                            )
-                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(theme.title)
                 }
             }
         }
@@ -82,7 +87,8 @@ private struct ThemePaletteView: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(colors.indices, id: \.self) { index in
-                colors[index]
+                Rectangle()
+                    .fill(colors[index])
                     .frame(maxWidth: .infinity)
             }
         }
@@ -92,12 +98,13 @@ private struct ThemePaletteView: View {
 // MARK: - Metrics
 
 private enum Metrics {
-    static let sectionSpacing: CGFloat = 8
-    static let themeHeight: CGFloat = 22
-    static let themeCornerRadius: CGFloat = 7
+    static let sectionSpacing: CGFloat = 14
+    static let paletteHeight: CGFloat = 27
+    static let themeCornerRadius: CGFloat = 10
     static let selectedBorderWidth: CGFloat = 2
-    static let rowSpacing: CGFloat = 8
-    static let columnSpacing: CGFloat = 8
+    static let selectionPadding: CGFloat = 3
+    static let rowSpacing: CGFloat = 6
+    static let columnSpacing: CGFloat = 6
 }
 
 #Preview {

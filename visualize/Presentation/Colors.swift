@@ -38,7 +38,7 @@ extension Color {
     static let paletteIris5 = Color(red: 66/255, green: 66/255, blue: 66/255) //#42423E
 
     static let paletteAutumn1 = Color(red: 202/255, green: 77/255, blue: 60/255) //#CA4D3C
-    static let paletteAutumn2 = Color(red: 65/255, green: 144/255, blue: 65/255) //#4190AC
+    static let paletteAutumn2 = Color(red: 65/255, green: 144/255, blue: 172/255) //#4190AC
     static let paletteAutumn3 = Color(red: 235/255, green: 150/255, blue: 50/255) //#EB9632
     static let paletteAutumn4 = Color(red: 76/255, green: 130/255, blue: 92/255) //#4C825C
     static let paletteAutumn5 = Color(red: 168/255, green: 144/255, blue: 182/255) //#A890B6

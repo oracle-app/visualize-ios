@@ -42,12 +42,18 @@ final class ProfileScreenViewModel {
     private(set) var email: String = "dianaescalante@gmail.com"
     private(set) var selectedChartTheme: ChartColorTheme = .aqua
 
-    let aboutItems: [String] = [
-        "Teams: 12",
-        "Charts: 18",
-        "Visualize: 4",
-        "Queries and visual searches"
-    ]
+    var aboutItems: [AboutItem] {
+        [
+            .info("Version 1.0.0"),
+            .info("Developed by DreamTeam Corp."),
+            .action("Terms of Service") { [weak self] in
+                self?.openTermsOfService()
+            },
+            .action("Licenses and open source libraries") { [weak self] in
+                self?.openLicenses()
+            }
+        ]
+    }
 
     let availableChartThemes: [ChartColorTheme] = ChartColorTheme.allCases
 
@@ -68,5 +74,14 @@ final class ProfileScreenViewModel {
     func logOut() {
         // TODO: Implement in feature/authentication/logout
     }
-}
 
+    // MARK: - Private methods
+
+    private func openTermsOfService() {
+        // TODO: Implement in feature/profile/terms-of-service
+    }
+
+    private func openLicenses() {
+        // TODO: Implement in feature/profile/licenses
+    }
+}

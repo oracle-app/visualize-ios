@@ -44,21 +44,24 @@ struct ProfileScreenView: View {
                         Divider()
                             .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
 
-                        ProfileAboutSectionView(aboutItems: viewModel.aboutItems)
+                        ProfileAboutSectionView(items: viewModel.aboutItems)
 
                         Button("Log out", action: viewModel.logOut)
-                            .font(.subheadline)
-                            .bold()
+                            .font(.title3.weight(.semibold))
                             .foregroundStyle(.red)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, Metrics.buttonVerticalPadding)
                             .background {
-                                RoundedRectangle(cornerRadius: Metrics.buttonCornerRadius)
-                                    .stroke(.red.opacity(Metrics.borderOpacity), lineWidth: Metrics.borderWidth)
+                                Capsule()
+                                    .fill(Color.appBackground)
+                                    .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
+                            }
+                            .overlay {
+                                Capsule()
+                                    .strokeBorder(.red, lineWidth: Metrics.borderWidth)
                             }
                     }
                     .padding(.horizontal, Metrics.horizontalPadding)
-                    .padding(.bottom, Metrics.bottomPadding)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -72,14 +75,14 @@ struct ProfileScreenView: View {
 
 private enum Metrics {
     static let sectionSpacing: CGFloat = 14
-    static let contentSpacing: CGFloat = 24
-    static let horizontalPadding: CGFloat = 24
-    static let bottomPadding: CGFloat = 24
+    static let contentSpacing: CGFloat = 30
+    static let horizontalPadding: CGFloat = 32
     static let buttonVerticalPadding: CGFloat = 10
-    static let buttonCornerRadius: CGFloat = 12
     static let borderWidth: CGFloat = 1
-    static let borderOpacity: CGFloat = 0.8
     static let dividerOpacity: CGFloat = 0.2
+    static let shadowOpacity: CGFloat = 0.25
+    static let shadowRadius: CGFloat = 5
+    static let shadowY: CGFloat = 2
 }
 
 #Preview {
