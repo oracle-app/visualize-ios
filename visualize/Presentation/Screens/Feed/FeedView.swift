@@ -19,18 +19,15 @@
 ///  insets using geometry tracking.
 
 
-
-
-
 import SwiftUI
 import Foundation
 
 
 struct FeedView: View {
-    
-    
+
+
     // MARK: - States
-    
+
     @State var selectedFeed: VisualizationFilter = .all
     @State var viewModel: FeedViewModel
     @State var isPrimaryActionVisible: Bool = true
@@ -38,18 +35,22 @@ struct FeedView: View {
     @State var safeArea: EdgeInsets = .init()
     @State private var sharePayload: SharePayload?
     @State private var usersToShare: [AppUser] = []
-
-    
+    @State private var selectedCard: VisualizationCard? = nil
     @State var shouldLoad: Bool = true
+
     // MARK: - Body
     var body: some View {
-        NavigationStack{
+        NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 10) {
                     headerView()
                     contentView()
                 }
                 .padding(0)
+            }
+            .navigationDestination(item: $selectedCard) { card in
+                FullScreenView(card: card)
+                    .navigationBarBackButtonHidden(true)
             }
             .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
                 if viewModel.isSearchActive {
@@ -90,12 +91,14 @@ struct FeedView: View {
                 }
             } principal: {
                 if let title {
-                        Text(title)
+                    Text(title)
                         .fontWeight(.semibold)
                         .transition(.offset(y: 10).combined(with: AnyTransition(.blurReplace)))
-                    }
+                }
             } primaryAction: {
-                
+            }
+            .refreshable {
+                viewModel.loadData(forceRefresh: true)
             }
             .onAppear {
                 if case .loaded = viewModel.state { return }
@@ -111,7 +114,7 @@ struct FeedView: View {
                     visualizationDatasource: visualizationDatasource,
                     teamsDatasource: teamsDatasource
                 )
-                
+
                 NavigationStack {
                     ShareTeammatesScreen(
                         viewModel: ShareTeammatesViewModel(
@@ -140,8 +143,10 @@ struct FeedView: View {
             safeArea = newValue
         }
     }
+
     // MARK: - Header
     @ViewBuilder
+   
     func headerView() -> some View {
         
         if !viewModel.isSearchActive {
@@ -195,7 +200,8 @@ struct FeedView: View {
             
         }
     }
-    // MARK: - Builder
+
+    // MARK: - Content
     @ViewBuilder
     func contentView() -> some View {
         if viewModel.isSearchActive {
@@ -212,41 +218,44 @@ struct FeedView: View {
                             allUsers: allUsers,
                             editableUsers: editableUsers
                         )
+                    },
+                    onTap: { card in
+                        selectedCard = card
                     }
                 )
             }
         } else {
-            
             switch viewModel.state {
-                case .loading:
-                    LoadingListView()
-                case .empty:
-                    EmptyListView {
-                        viewModel.loadData()
+            case .loading:
+                LoadingListView()
+            case .empty:
+                EmptyListView {
+                    viewModel.loadData()
+                }
+            case .error:
+                ErrorListView {
+                    viewModel.loadData()
+                }
+            case .loaded(let items):
+                LoadedListView(
+                    items: items,
+                    onShare: { visualizationID, allUsers, editableUsers in
+                        sharePayload = SharePayload(
+                            visualizationID: visualizationID,
+                            allUsers: allUsers,
+                            editableUsers: editableUsers
+                        )
+                    },
+                    onTap: { card in
+                        selectedCard = card
                     }
-                case .error:
-                    ErrorListView {
-                        viewModel.loadData()
-                    }
-                case .loaded(let items):
-                    LoadedListView(
-                        items: items,
-                        onShare: { visualizationID, allUsers, editableUsers in
-                            sharePayload = SharePayload(
-                                visualizationID: visualizationID,
-                                allUsers: allUsers,
-                                editableUsers: editableUsers
-                            )
-                        }
-                    )
+                )
             }
         }
     }
-    
-    
-    
 }
 
+// MARK: - View Extensions
 
 extension View {
     func hLeading() -> some View {
@@ -256,6 +265,8 @@ extension View {
         frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 }
+
+// MARK: - Models
 
 struct SharePayload: Identifiable {
     let id = UUID()

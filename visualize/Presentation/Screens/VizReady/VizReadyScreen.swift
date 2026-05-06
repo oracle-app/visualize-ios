@@ -39,7 +39,6 @@ struct VizReadyView: View {
                     cards
                 }
             }
-            .background(Color.appBackground)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

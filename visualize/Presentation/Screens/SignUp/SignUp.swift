@@ -41,7 +41,7 @@ struct SignUp: View {
                 
                 // MARK: - Header Image
                 ZStack {
-                    Image("SignUpBackg")
+                    Image("SignUpBackground")
                         .resizable()
                         .scaledToFill()
                         .frame(height: 240)

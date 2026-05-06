@@ -12,3 +12,4 @@ swiftlint_report.html
 
 # Claude Code
 .claude/
+Config.xcconfig

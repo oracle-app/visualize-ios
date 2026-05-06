@@ -27,6 +27,7 @@ extension VisualizationDTO {
                 id: self.id ?? "",
                 title: self.title,
                 author: authorName,
+                authorID: self.authorID,
                 createdAt: self.createdAt,
                 configJSON: self.configJSON,
                 teamsSharedWith: teamsSharedWith,
