@@ -60,11 +60,11 @@ class ShareTeammatesViewModel {
     // MARK: - Initialization
     /// - Parameters:
     ///   - userRepository: Repository used to search for users by email.
-    ///   - teamRepository: Handles team-related data, such as fetching teammates.
-    ///   - updateSharedUsersUseCase: Use case that persists the shared users list.
+    ///   - teamRepository: Repository used to fetch teams.
+    ///   - updateSharingUseCase: Use case that persists both shared users and teams.
     ///   - visualizationID: The ID of the visualization being shared.
     ///   - initialUsers: Users already sharing the visualization, shown on open.
-    ///   - initialTeamIDs: Identifiers of teams that already have access to the visualization.
+    ///   - initialTeamIDs: Team IDs that already have access, pre-selected on open.
     init(
         userRepository: any UserRepository,
         teamRepository: any TeamRepository,
@@ -144,7 +144,8 @@ class ShareTeammatesViewModel {
         suggestedUsers = []
     }
     
-    // Fetches teams owned by and joined by the current user.
+    /// Fetches teams owned by and joined by the current user,
+    /// and pre-selects those already sharing this visualization.
     @MainActor
     func loadTeams() async {
         isTeamsLoading = true
@@ -160,7 +161,8 @@ class ShareTeammatesViewModel {
         }
     }
 
-    /// Toggles the selection state of a team.
+    /// Toggles the selection state of a team by its ID.
+    /// - Parameter team: The team to select or deselect.
     func toggleSelection(_ team: Team) {
         if selectedTeamIDs.contains(team.id) {
             selectedTeamIDs.remove(team.id)
@@ -170,6 +172,8 @@ class ShareTeammatesViewModel {
     }
 
     /// Returns whether the given team is currently selected.
+    /// - Parameter team: The team to check.
+    /// - Returns: `true` if the team is selected, otherwise `false`.
     func isSelected(_ team: Team) -> Bool {
         selectedTeamIDs.contains(team.id)
     }

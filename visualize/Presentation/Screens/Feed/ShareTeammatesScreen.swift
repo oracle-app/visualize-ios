@@ -190,7 +190,10 @@ struct ShareTeammatesScreen: View {
     }
     
     // MARK: - Collapsable Header
-    /// Returns a tappable header row with a chevron that toggles the given expansion binding.
+    /// Returns a tappable section header with a chevron that toggles the given expansion binding.
+    /// - Parameters:
+    ///   - title: The header title to display.
+    ///   - isExpanded: Binding that controls the expanded/collapsed state.
     private func collapsableHeader(_ title: String, isExpanded: Binding<Bool>) -> some View {
         Button {
             withAnimation { isExpanded.wrappedValue.toggle() }

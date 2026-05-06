@@ -12,7 +12,7 @@ import SwiftUI
 struct LoadedListView: View {
     let items: [VisualizationCard]
     /// Called when the user taps Share on a card.
-    /// Provides the visualization ID and its current shared users.
+    /// Provides the visualization ID, all shared users, editable users, and current team IDs.
     let onShare: (String, [AppUser], [AppUser], [String]) -> Void
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {

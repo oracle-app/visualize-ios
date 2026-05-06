@@ -75,6 +75,11 @@ class VisualizationDatasource {
         return users
     }
     /// Replaces both `sharedWithUsers` and `sharedWithTeams` in a single Firestore write.
+    ///
+    /// - Parameters:
+    ///   - visualizationID: The ID of the visualization to update.
+    ///   - userIDs: The new list of user IDs to set.
+    ///   - teamIDs: The new list of team IDs to set.
     func updateSharing(visualizationID: String, userIDs: [String], teamIDs: [String]) async throws {
         try await firebase
             .collection("visualizations")

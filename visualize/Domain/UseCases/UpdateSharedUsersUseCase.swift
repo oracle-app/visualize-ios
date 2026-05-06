@@ -15,12 +15,14 @@ class UpdateSharingUseCase {
         self.visualizationRepository = visualizationRepository
     }
 
-    /// Replaces sharedWithUsers and sharedWithTeams in Firestore.
+    /// Replaces `sharedWithUsers` and `sharedWithTeams` in Firestore with the provided
+    /// users and teams, then returns them to apply locally.
+    ///
     /// - Parameters:
     ///   - visualizationID: The ID of the visualization to update.
-    ///   - users: The new list of AppUser to share with.
+    ///   - users: The new list of `AppUser` to share with.
     ///   - teamIDs: The new list of team IDs to share with.
-    /// - Returns: The same users and teamIDs, to apply locally after a successful write.
+    /// - Returns: A tuple with the confirmed users and teamIDs.
     func execute(
         visualizationID: String,
         users: [AppUser],

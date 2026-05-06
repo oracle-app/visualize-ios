@@ -112,6 +112,7 @@ struct FeedView: View {
         }
     }
     // MARK: - Header
+    /// Builds the feed header with a menu to switch between All, Personal, and Shared filters.
     func headerView() -> some View {
         Menu {
             Button {
@@ -162,6 +163,7 @@ struct FeedView: View {
         }
     }
     // MARK: - Builder
+    /// Builds the content area based on the current feed state.
     @ViewBuilder
     func contentView() -> some View {
         switch viewModel.state {
