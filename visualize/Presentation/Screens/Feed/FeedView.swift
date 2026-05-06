@@ -38,7 +38,9 @@ struct FeedView: View {
     @State var safeArea: EdgeInsets = .init()
     @State private var sharePayload: SharePayload?
     @State private var usersToShare: [AppUser] = []
-    var shouldLoad: Bool = true
+
+    
+    @State var shouldLoad: Bool = true
     // MARK: - Body
     var body: some View {
         NavigationStack{
@@ -50,6 +52,37 @@ struct FeedView: View {
                 .padding(0)
             }
             .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
+                if viewModel.isSearchActive {
+                    HStack(spacing: 8) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                            .font(.body)
+                        TextField("Search visualizations...", text: $viewModel.searchQuery)
+                            .textFieldStyle(.plain)
+                            .font(.body)
+                            .frame(width: 180)
+                            .submitLabel(.search)
+                        Button {
+                            withAnimation(.smooth(duration: 0.2)) {
+                                viewModel.isSearchActive = false
+                                viewModel.clearSearch()
+                            }
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+                } else {
+                    Button {
+                        withAnimation(.smooth(duration: 0.2)) {
+                            viewModel.isSearchActive = true
+                        }
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+                }
             } trailing: {
                 HStack(spacing: 15) {
                     Button("Notifications", systemImage: "bell") {
@@ -66,7 +99,8 @@ struct FeedView: View {
             }
             .onAppear {
                 if case .loaded = viewModel.state { return }
-                        viewModel.loadData()
+                if viewModel.isSearchActive { return }
+                viewModel.loadData()
             }
             .sheet(item: $sharePayload) { payload in
                 let userDatasource = UserDatasource()
@@ -107,82 +141,110 @@ struct FeedView: View {
         }
     }
     // MARK: - Header
+    @ViewBuilder
     func headerView() -> some View {
-        Menu {
-            Button {
-                selectedFeed = .all
-                viewModel.setVisualizationFilter(selectedFeed)
+        
+        if !viewModel.isSearchActive {
+            Menu {
+                Button {
+                    selectedFeed = .all
+                    viewModel.setVisualizationFilter(selectedFeed)
+                } label: {
+                    Label("All Feed", systemImage: selectedFeed == .all ? "checkmark" : "")
+                }
+                
+                Button {
+                    selectedFeed = .personal
+                    viewModel.setVisualizationFilter(selectedFeed)
+                } label: {
+                    Label("Personal Feed", systemImage: selectedFeed == .personal ? "checkmark" : "")
+                }
+                
+                Button {
+                    selectedFeed = .shared
+                    viewModel.setVisualizationFilter(selectedFeed)
+                } label: {
+                    Label("Shared Feed", systemImage: selectedFeed == .shared ? "checkmark" : "")
+                }
+                
             } label: {
-                Label("All Feed", systemImage: selectedFeed == .all ? "checkmark" : "")
-            }
-
-            Button {
-                selectedFeed = .personal
-                viewModel.setVisualizationFilter(selectedFeed)
-            } label: {
-                Label("Personal Feed", systemImage: selectedFeed == .personal ? "checkmark" : "")
-            }
-
-            Button {
-                selectedFeed = .shared
-                viewModel.setVisualizationFilter(selectedFeed)
-            } label: {
-                Label("Shared Feed", systemImage: selectedFeed == .shared ? "checkmark" : "")
-            }
-
-        } label: {
-            HStack(spacing: 10) {
-                Text(selectedFeed.title)
-                    .font(.title.bold())
-                    .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
-                    .onGeometryChange(for: Bool.self) {
-                        let height = $0.size.height
-                        let offset = $0.frame(in: .named("scroll")).minY
-                        return -offset > height
-                    } action: { newValue in
-            
-                        withAnimation(.smooth(duration: 0.10)) {
+                HStack(spacing: 10) {
+                    Text(selectedFeed.title)
+                        .font(.title.bold())
+                        .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
+                        .onGeometryChange(for: Bool.self) {
+                            let height = $0.size.height
+                            let offset = $0.frame(in: .named("scroll")).minY
+                            return -offset > height
+                        } action: { newValue in
+                            
+                            withAnimation(.smooth(duration: 0.10)) {
                                 title = newValue ? selectedFeed.title : nil
                             }
-                    }
-
-                Image(systemName: "control")
-                    .font(.body.bold())
-                    .foregroundColor(.black)
-                    .rotationEffect(.degrees(180))
-                    .padding(.trailing, 10)
+                        }
+                    
+                    Image(systemName: "control")
+                        .font(.body.bold())
+                        .foregroundColor(.black)
+                        .rotationEffect(.degrees(180))
+                        .padding(.trailing, 10)
+                }
+                .hLeading()
+                .padding(.leading, 35)
             }
-            .hLeading()
-            .padding(.leading, 35)
+            
         }
     }
     // MARK: - Builder
     @ViewBuilder
     func contentView() -> some View {
-        switch viewModel.state {
-        case .loading:
-            LoadingListView()
-        case .empty:
-            EmptyListView {
-                viewModel.loadData()
+        if viewModel.isSearchActive {
+            if viewModel.isSearching {
+                LoadingListView()
+            } else if viewModel.searchResults.isEmpty && viewModel.searchQuery.count >= 2 && !viewModel.isSearching {
+                EmptyListView { }
+            } else if !viewModel.searchResults.isEmpty {
+                LoadedListView(
+                    items: viewModel.searchResults,
+                    onShare: { visualizationID, allUsers, editableUsers in
+                        sharePayload = SharePayload(
+                            visualizationID: visualizationID,
+                            allUsers: allUsers,
+                            editableUsers: editableUsers
+                        )
+                    }
+                )
             }
-        case .error:
-            ErrorListView {
-                viewModel.loadData()
-            }
-        case .loaded(let items):
-            LoadedListView(
-                items: items,
-                onShare: { visualizationID, allUsers, editableUsers in
-                    sharePayload = SharePayload(
-                        visualizationID: visualizationID,
-                        allUsers: allUsers,
-                        editableUsers: editableUsers
+        } else {
+            
+            switch viewModel.state {
+                case .loading:
+                    LoadingListView()
+                case .empty:
+                    EmptyListView {
+                        viewModel.loadData()
+                    }
+                case .error:
+                    ErrorListView {
+                        viewModel.loadData()
+                    }
+                case .loaded(let items):
+                    LoadedListView(
+                        items: items,
+                        onShare: { visualizationID, allUsers, editableUsers in
+                            sharePayload = SharePayload(
+                                visualizationID: visualizationID,
+                                allUsers: allUsers,
+                                editableUsers: editableUsers
+                            )
+                        }
                     )
-                }
-            )
+            }
         }
     }
+    
+    
+    
 }
 
 

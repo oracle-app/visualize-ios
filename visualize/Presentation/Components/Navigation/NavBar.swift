@@ -12,21 +12,7 @@
 import SwiftUI
 struct NavBar: View {
     @State private var selectedTab: Tabs = .feed
-    
-    init() {
-        let appearance = UITabBarAppearance()
-        appearance.configureWithDefaultBackground()
-        
-        appearance.stackedLayoutAppearance.selected.iconColor = .systemMint
-        appearance.stackedLayoutAppearance.normal.iconColor = .black
-        
-        
-        UITabBar.appearance().standardAppearance =  appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
-    }
-    
-    var body: some View {
-        // TESTING / TEMPORAL
+    @State private var feedViewModel: FeedViewModel = {
         let userDS = UserDatasource()
         let teamsDS = TeamDatasource()
         let visualizationDS = VisualizationDatasource(
@@ -40,15 +26,32 @@ struct NavBar: View {
         )
         let useCase = LoadVisualizationsUseCase(visualizationRepository: repo)
         let searchUseCase = SearchVisualizationsUseCase(visualizationRepository: repo)
-
-
-        let viewModel = FeedViewModel(
+        return FeedViewModel(
             loadVisualizationsUseCase: useCase,
-            searchVisualizationsUseCase: searchUseCase
+            searchVisualizationsUseCase: searchUseCase,
+            
         )
+    }()
+    
+    init() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithDefaultBackground()
+        
+        appearance.stackedLayoutAppearance.selected.iconColor = .systemMint
+        appearance.stackedLayoutAppearance.normal.iconColor = .black
+        
+        
+        UITabBar.appearance().standardAppearance =  appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+    
+    
+    
+    var body: some View {
+
         
         TabView(selection: $selectedTab) {
-            FeedView(viewModel: viewModel)
+            FeedView(viewModel: feedViewModel)
                 .tabItem{
                     Label("", systemImage: "house")
                 }

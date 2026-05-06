@@ -23,6 +23,7 @@ import Observation
 class FeedViewModel {
     // MARK: - Feed State
     var state: FeedState = .loading
+    
 
     // MARK: - Search State
     /// Bound to the search input; triggers a debounced search on every change.
@@ -33,6 +34,9 @@ class FeedViewModel {
     var searchResults: [VisualizationCard] = []
     /// True while a search request is in flight.
     var isSearching: Bool = false
+
+    var isSearchActive: Bool = false
+
 
     // MARK: - Dependencies
     var visualizationFilter: VisualizationFilter
@@ -75,9 +79,12 @@ class FeedViewModel {
             isSearching = false
             return
         }
+        
+        // Don't search again if we already have results for this query
+        guard isSearching == false && searchResults.isEmpty else { return }
+        
         isSearching = true
         searchTask = Task {
-            /// Wait before firing the request to avoid querying on every keystroke.
             try? await Task.sleep(for: .milliseconds(400))
             if !Task.isCancelled {
                 await performSearch()
