@@ -18,8 +18,34 @@ struct FeedCard: View {
     var author: String
     var date: Date
     var onShare: () -> Void
-    var sharedWith: [AppUser]
+    var onTap: () -> Void
+    var sharedWith: [AppUser]? = nil
     let maxAvatars = 3
+    
+    /// TO DO: Image Implementation that uses profilePictureURL
+    
+    /// Asigns random color based on ID.
+   
+    
+    
+    
+    
+    
+    
+    private var colors: [Color] {
+        (sharedWith ?? []).map { user in
+            Color.random(from: user.id)
+        }
+    }
+    
+    
+    
+    
+    
+    
+    //var colors: [Color] = [Color.random(from: "oEJtQz0gdbRpTZ8ETPCy")]
+    
+    
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top) {
@@ -32,7 +58,7 @@ struct FeedCard: View {
                     HStack(spacing: 12) {
                         Text("by \(author)")
                         Text("•")
-                        Text("\(date.formatted(date: .complete, time: .omitted))")
+                        Text(date.formatted(date: .abbreviated, time: .omitted))
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.system(size: 13, weight: .regular))
@@ -103,7 +129,7 @@ struct FeedCard: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.white)
                 .cornerRadius(10)
-            if !sharedWith.isEmpty {
+            if let sharedWith, !sharedWith.isEmpty {
                 HStack(spacing: -20) {
                     let displayMembers = Array(sharedWith.prefix(maxAvatars))
                     let remainingCount = sharedWith.count - displayMembers.count
@@ -113,10 +139,10 @@ struct FeedCard: View {
                     }
                     if remainingCount > 0 {
                         ZStack {
-                            Circle().fill(.white)
+                            Circle().fill(Color(.systemBackground))
                             Text("+\(remainingCount)")
                                 .font(.system(size: 13, weight: .regular))
-                                .foregroundStyle(Color(red: 68/255, green: 68/255, blue: 68/255, opacity: 1))
+                                .foregroundStyle(Color.primaryText)
                         }
                         .frame(width: 33, height: 33)
                         .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
@@ -135,28 +161,55 @@ struct FeedCard: View {
        .padding(.horizontal, 20)
        .frame(height: 390)
        .padding(.bottom, 16)
+       .contentShape(Rectangle())
+               .onTapGesture {
+                   onTap()
+               }
    }
 }
 
+
+
+/// Generates a random color based on the given string
+extension Color {
+    static func random(from string: String) -> Color {
+        var hasher = Hasher()
+        hasher.combine(string)
+        let hash = hasher.finalize()
+
+        let r = Double((hash >> 16) & 0xFF) / 255.0
+        let g = Double((hash >> 8) & 0xFF) / 255.0
+        let b = Double(hash & 0xFF) / 255.0
+
+        return Color(red: r, green: g, blue: b)
+    }
+}
+
 /*
- 
- #Preview {
- FeedCard(
- title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time",
- author: "Mariana Islas",
- date: "10 apr 2026",
- onShare: {},
- sharedWith: [.red, .blue, .green, .orange, .purple]
- )
- 
- FeedCard(
- title: "Total Transactions by Category",
- author: "Mariana Islas",
- date: "10 apr 2026",
- onShare: {},
- sharedWith: nil
- )
+ #Preview("Con usuarios compartidos") {
+     FeedCard(
+         title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time",
+         author: "Mariana Islas",
+         date: Date(),
+         onShare: { print("share tapped") },
+         onTap: { print("card tapped") },
+         sharedWith: [
+             AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
+             AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
+             AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria"),
+             AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos"),
+         ]
+     )
  }
- 
- 
+
+ #Preview("Sin usuarios compartidos") {
+     FeedCard(
+         title: "Total Transactions by Category",
+         author: "Mariana Islas",
+         date: Date(),
+         onShare: { print("share tapped") },
+         onTap: { print("card tapped") },
+         sharedWith: nil
+     )
+ }
  */

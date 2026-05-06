@@ -1,5 +1,5 @@
 {
-  "originHash" : "c63c63846d9c539229e96de38d6af51417e28c0ee9a0bc48bd0f0f19d923c329",
+  "originHash" : "d82eaa50a5b2be1788c1082d7ae41a32b36041740f0cec352a0ca367fc2bbf42",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -116,6 +116,15 @@
       "state" : {
         "revision" : "540318ecedd63d883069ae7f1ed811a2df00b6ac",
         "version" : "2.4.0"
+      }
+    },
+    {
+      "identity" : "scichart-sp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ABTSoftware/SciChart-SP",
+      "state" : {
+        "revision" : "2f45cc0bfae045019eee69dafdb059e1ca866047",
+        "version" : "4.7.1"
       }
     }
   ],
