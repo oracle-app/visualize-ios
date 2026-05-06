@@ -59,4 +59,8 @@ class VisualizationRepositoryImpl: VisualizationRepository {
             }
             return cards
         }
+    func searchVisualizations(userID: String, query: String) async throws -> [VisualizationCard] {
+        let dtos = try await visualizationDatasource.searchVisualizations(userID: userID, query: query)
+        return try await fetchDetailsAndMap(dtos: dtos)
+    }
 }

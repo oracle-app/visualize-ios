@@ -22,12 +22,26 @@ import Observation
 @Observable
 class FeedViewModel {
     var state: FeedState = .loading
+    
+    var searchQuery: String = "" {
+            didSet { scheduleSearch() }
+        }
+    var searchResults: [VisualizationCard] = []
+    var isSearching: Bool = false
+    
     var visualizationFilter: VisualizationFilter
     let loadVisualizationsUseCase: LoadVisualizationsUseCase
-    init(loadVisualizationsUseCase: LoadVisualizationsUseCase) {
+    let searchVisualizationsUseCase: SearchVisualizationsUseCase
+    
+    private var searchTask: Task<Void, Never>?
+    
+    init(loadVisualizationsUseCase: LoadVisualizationsUseCase,
+         searchVisualizationsUseCase: SearchVisualizationsUseCase) {
         self.loadVisualizationsUseCase = loadVisualizationsUseCase
+        self.searchVisualizationsUseCase = searchVisualizationsUseCase
         self.visualizationFilter = .all
     }
+    
     func setVisualizationFilter(_ filter: VisualizationFilter) {
         if filter == self.visualizationFilter { return }
         self.visualizationFilter = filter
@@ -39,6 +53,47 @@ class FeedViewModel {
         case empty
         case error
     }
+    
+    // MARK: - Search
+    private func scheduleSearch() {
+        searchTask?.cancel()
+        guard searchQuery.count >= 2 else {
+            searchResults = []
+            isSearching = false
+            return
+        }
+        isSearching = true
+        searchTask = Task {
+            try? await Task.sleep(for: .milliseconds(400))
+            if !Task.isCancelled {
+                await performSearch()
+            }
+        }
+    }
+
+    @MainActor
+    private func performSearch() async {
+        do {
+            let results = try await searchVisualizationsUseCase.execute(
+                userID: "e9Nk8XrxHJAtwN3Hf2FL",
+                query: searchQuery
+            )
+            searchResults = results
+        } catch {
+            print(error)
+            searchResults = []
+        }
+        isSearching = false
+    }
+
+    func clearSearch() {
+        searchQuery = ""
+        searchResults = []
+        isSearching = false
+        searchTask?.cancel()
+    }
+    
+    
     // MARK: - Load Data
     func loadData() {
         state = .loading
@@ -71,7 +126,13 @@ extension FeedViewModel {
         let useCase = LoadVisualizationsUseCase(
             visualizationRepository: repo
         )
-        let viewModel = FeedViewModel(loadVisualizationsUseCase: useCase)
+        let searchUseCase = SearchVisualizationsUseCase(visualizationRepository: repo)
+
+        let viewModel = FeedViewModel(
+            loadVisualizationsUseCase: useCase,
+            searchVisualizationsUseCase: searchUseCase
+        )
+       
         viewModel.loadData()
         return viewModel
     }

@@ -38,11 +38,15 @@ struct NavBar: View {
             visualizationDatasource: visualizationDS,
             teamsDatasource: teamsDS
         )
-        let useCase = LoadVisualizationsUseCase(
-            visualizationRepository: repo
-        )
+        let useCase = LoadVisualizationsUseCase(visualizationRepository: repo)
+        let searchUseCase = SearchVisualizationsUseCase(visualizationRepository: repo)
 
-        let viewModel = FeedViewModel(loadVisualizationsUseCase: useCase)
+
+        let viewModel = FeedViewModel(
+            loadVisualizationsUseCase: useCase,
+            searchVisualizationsUseCase: searchUseCase
+        )
+        
         TabView(selection: $selectedTab) {
             FeedView(viewModel: viewModel)
                 .tabItem{
