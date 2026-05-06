@@ -23,9 +23,12 @@ class ShareTeammatesViewModel {
     private let userRepository: any UserRepository
     
     // MARK: - UseCase
-    private let updateSharedUsersUseCase: UpdateSharedUsersUseCase
+    private let updateSharingUseCase: UpdateSharingUseCase
+    
+    // MARK: IDs
     // Temporary hardcoded user ID, will be replaced with authenticated session value.
     private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
+    private let initialTeamIDs: [String]
     private let visualizationID: String
     
     // MARK: - Input State
@@ -61,18 +64,21 @@ class ShareTeammatesViewModel {
     ///   - updateSharedUsersUseCase: Use case that persists the shared users list.
     ///   - visualizationID: The ID of the visualization being shared.
     ///   - initialUsers: Users already sharing the visualization, shown on open.
+    ///   - initialTeamIDs: Identifiers of teams that already have access to the visualization.
     init(
         userRepository: any UserRepository,
         teamRepository: any TeamRepository,
-        updateSharedUsersUseCase: UpdateSharedUsersUseCase,
+        updateSharingUseCase: UpdateSharingUseCase,
         visualizationID: String,
-        initialUsers: [AppUser] = []
+        initialUsers: [AppUser] = [],
+        initialTeamIDs: [String] = []
     ) {
         self.userRepository = userRepository
         self.teamRepository = teamRepository
-        self.updateSharedUsersUseCase = updateSharedUsersUseCase
+        self.updateSharingUseCase = updateSharingUseCase
         self.visualizationID = visualizationID
         self.selectedUsers = initialUsers
+        self.initialTeamIDs = initialTeamIDs
     }
     // MARK: - Search Logic (Debounce)
     /// Cancels any pending search and schedules a new one after a debounce delay.
@@ -124,12 +130,13 @@ class ShareTeammatesViewModel {
     }
     /// Persists the current `selectedUsers` list to Firestore, replacing the previous one.
     func confirmShare() async throws {
-        let updatedUsers = try await updateSharedUsersUseCase.execute(
+        let result = try await updateSharingUseCase.execute(
             visualizationID: visualizationID,
-            users: selectedUsers
+            users: selectedUsers,
+            teamIDs: Array(selectedTeamIDs)
         )
-        // Reflect the confirmed state locally
-        self.selectedUsers = updatedUsers
+        self.selectedUsers = result.users
+        self.selectedTeamIDs = Set(result.teamIDs)
     }
     /// Clears the email input and dismisses any suggestions.
     func clearEmail() {
@@ -147,6 +154,7 @@ class ShareTeammatesViewModel {
             async let joinedTeamsRequest = teamRepository.getTeamsUserIsIn(userID: userID)
             myTeams = try await myTeamsRequest
             joinedTeams = try await joinedTeamsRequest
+            selectedTeamIDs = Set(initialTeamIDs)
         } catch {
             self.error = "Error loading teams"
         }

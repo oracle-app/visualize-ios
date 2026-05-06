@@ -198,7 +198,7 @@ struct ShareTeammatesScreen: View {
         } label: {
             HStack {
                 Text(title).foregroundStyle(.black)
-                Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
+                Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
                     .foregroundStyle(.black)
             }
         }
@@ -222,7 +222,7 @@ extension ShareTeammatesViewModel {
                 teamDatasource: teamDatasource,
                 userDatasource: userDatasource
             ),
-            updateSharedUsersUseCase: UpdateSharedUsersUseCase(
+            updateSharingUseCase: UpdateSharingUseCase(
                 visualizationRepository: VisualizationRepositoryImpl(
                     userDatasource: userDatasource,
                     visualizationDatasource: visualizationDatasource,

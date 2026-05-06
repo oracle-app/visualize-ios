@@ -9,11 +9,8 @@
 import Foundation
 
 protocol VisualizationRepository {
-    /// Replaces the shared users list of a visualization in Firestore.
-    /// - Parameters:
-    ///   - visualizationID: The ID of the visualization to update.
-    ///   - userIDs: The new list of user IDs to set.
-    func updateSharedUsers(visualizationID: String, userIDs: [String]) async throws
+    /// Replaces sharedWithUsers and sharedWithTeams in a single write.
+    func updateSharing(visualizationID: String, userIDs: [String], teamIDs: [String]) async throws
     func getSharedVisualizations(userID: String) async throws -> [VisualizationCard]
     func getPersonalVisualizations(userID: String) async throws -> [VisualizationCard]
 }

@@ -13,7 +13,7 @@ struct LoadedListView: View {
     let items: [VisualizationCard]
     /// Called when the user taps Share on a card.
     /// Provides the visualization ID and its current shared users.
-    let onShare: (String, [AppUser], [AppUser]) -> Void
+    let onShare: (String, [AppUser], [AppUser], [String]) -> Void
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(spacing: 12) {
@@ -22,7 +22,7 @@ struct LoadedListView: View {
                         title: item.title,
                         author: item.author,
                         date: item.createdAt,
-                        onShare: { onShare(item.id, item.allUsersSharedWith, item.usersSharedWith) },
+                        onShare: { onShare(item.id, item.allUsersSharedWith, item.usersSharedWith, item.teamsSharedWith.map { $0.id }) },
                         sharedWith: item.allUsersSharedWith,
                     )
                 }

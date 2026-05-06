@@ -19,10 +19,11 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         self.visualizationDatasource = visualizationDatasource
         self.teamsDatasource = teamsDatasource
     }
-    func updateSharedUsers(visualizationID: String, userIDs: [String]) async throws {
-        try await visualizationDatasource.updateSharedUsers(
+    func updateSharing(visualizationID: String, userIDs: [String], teamIDs: [String]) async throws {
+        try await visualizationDatasource.updateSharing(
             visualizationID: visualizationID,
-            userIDs: userIDs
+            userIDs: userIDs,
+            teamIDs: teamIDs
         )
     }
     func getSharedVisualizations(userID: String) async throws -> [VisualizationCard] {

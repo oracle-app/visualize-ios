@@ -282,7 +282,7 @@ struct ShareSheet: View {
                 Text(title)
                     .foregroundStyle(.black)
 
-                Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
+                Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
                     .foregroundStyle(.black)
             }
         }

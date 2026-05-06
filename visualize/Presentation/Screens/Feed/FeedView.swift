@@ -88,11 +88,12 @@ struct FeedView: View {
                             userRepository: UserRepositoryImpl(
                                 userDatasource: userDatasource
                             ), teamRepository: teamRepository,
-                            updateSharedUsersUseCase: UpdateSharedUsersUseCase(
+                            updateSharingUseCase: UpdateSharingUseCase(
                                 visualizationRepository: visualizationRepository
                             ),
                             visualizationID: payload.visualizationID,
-                            initialUsers: payload.editableUsers
+                            initialUsers: payload.editableUsers,
+                            initialTeamIDs: payload.initialTeamIDs
                         ),
                         onConfirm: {
                             viewModel.loadData()
@@ -177,11 +178,12 @@ struct FeedView: View {
         case .loaded(let items):
             LoadedListView(
                 items: items,
-                onShare: { visualizationID, allUsers, editableUsers in
+                onShare: { visualizationID, allUsers, editableUsers, teamIDs in
                     sharePayload = SharePayload(
                         visualizationID: visualizationID,
                         allUsers: allUsers,
-                        editableUsers: editableUsers
+                        editableUsers: editableUsers,
+                        initialTeamIDs: teamIDs
                     )
                 }
             )
@@ -204,6 +206,7 @@ struct SharePayload: Identifiable {
     let visualizationID: String
     let allUsers: [AppUser]
     let editableUsers: [AppUser]
+    let initialTeamIDs: [String]
 }
 
 // MARK: - Preview
