@@ -85,6 +85,11 @@ class VisualizationDatasource {
             .updateData(["sharedWithUsers": userIDs])
     }
     
+    /// Searches visualizations accessible to a user (personal + shared) by title.
+    /// Filters client-side since Firestore does not support native full-text search.
+    /// - Parameters:
+    ///   - userID: The ID of the user performing the search.
+    ///   - query: The search string to match against visualization titles.
     func searchVisualizations(userID: String, query: String) async throws -> [VisualizationDTO] {
         let lowercased = query.lowercased()
         
