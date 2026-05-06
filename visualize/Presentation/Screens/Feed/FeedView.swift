@@ -135,7 +135,7 @@ struct FeedView: View {
             HStack(spacing: 10) {
                 Text(selectedFeed.title)
                     .font(.title.bold())
-                    .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
+                    .foregroundStyle(Color.primary)
                     .onGeometryChange(for: Bool.self) {
                         let height = $0.size.height
                         let offset = $0.frame(in: .named("scroll")).minY
@@ -149,7 +149,7 @@ struct FeedView: View {
 
                 Image(systemName: "control")
                     .font(.body.bold())
-                    .foregroundColor(.black)
+                    .foregroundColor(Color.primary)
                     .rotationEffect(.degrees(180))
                     .padding(.trailing, 10)
             }

@@ -21,7 +21,7 @@ struct SplashScreen: View {
                 Color(Color.appTeal)
                     .ignoresSafeArea(edges: .top)
 
-                Image("SplashBackg")
+                Image("SplashBackground")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea(edges: .top)
