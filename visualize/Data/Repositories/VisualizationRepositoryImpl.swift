@@ -47,7 +47,7 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         let allUserIDsToFetch = Array(authorIDs.union(sharedUserIDs))
         let sharedTeamIDs = Array(Set(visibleDTOs.flatMap { $0.sharedWithTeams }))
         async let usersFetch = fetchUsersInChunks(ids: allUserIDsToFetch)
-        async let teamsFetch = teamsDatasource.getTeams(byIDs: sharedTeamIDs)
+        async let teamsFetch = fetchTeamsInChunks(ids: sharedTeamIDs)
         let (usersDTOs, teamsDTOs) = try await (usersFetch, teamsFetch)
         var usersDict = Dictionary(uniqueKeysWithValues: usersDTOs.map { ($0.id, $0) })
         let teamsDict = Dictionary(uniqueKeysWithValues: teamsDTOs.map { ($0.id, $0) })
@@ -82,5 +82,16 @@ class VisualizationRepositoryImpl: VisualizationRepository {
             allUsers.append(contentsOf: chunkUsers)
         }
         return allUsers
+    }
+    private func fetchTeamsInChunks(ids: [String]) async throws -> [TeamDTO] {
+        var allTeams: [TeamDTO] = []
+        let chunkSize = 30
+        for i in stride(from: 0, to: ids.count, by: chunkSize) {
+            let end = min(i + chunkSize, ids.count)
+            let chunk = Array(ids[i..<end])
+            let chunkTeams = try await teamsDatasource.getTeams(byIDs: chunk)
+            allTeams.append(contentsOf: chunkTeams)
+        }
+        return allTeams
     }
 }
