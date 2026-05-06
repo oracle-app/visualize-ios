@@ -75,7 +75,6 @@ struct ShareTeammatesScreen: View {
                     }
                 }
                 .tint(Color.primaryOrange)
-                .disabled(vm.selectedUsers.isEmpty && vm.selectedTeamIDs.isEmpty)
             }
         }
     }
