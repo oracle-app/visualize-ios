@@ -131,7 +131,7 @@ struct ShareTeammatesScreen: View {
                                     .frame(maxWidth: .infinity)
                                     .listRowBackground(Color.clear)
                             } else if vm.myTeams.isEmpty {
-                                Text("You don't own any teams yet.")
+                                Text("You haven't created any teams yet.")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -160,7 +160,7 @@ struct ShareTeammatesScreen: View {
                                     .frame(maxWidth: .infinity)
                                     .listRowBackground(Color.clear)
                             } else if vm.joinedTeams.isEmpty {
-                                Text("You haven't joined any teams yet.")
+                                Text("You're not part of any teams yet.")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
