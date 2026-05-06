@@ -57,7 +57,7 @@ class VisualizationRepositoryImpl: VisualizationRepository {
             let missingUsers = try await fetchUsersInChunks(ids: missingUserIDs)
             for user in missingUsers { usersDict[user.id] = user }
         }
-        return dtos.map { dto in
+        return visibleDTOs.map { dto in
             let authorName = usersDict[dto.authorID]?.username ?? "Unknown"
             let usersSharedWith = dto.sharedWithUsers.compactMap { usersDict[$0]?.toAppUser() }
             let teamsSharedWith: [Team] = dto.sharedWithTeams.compactMap { teamID in
