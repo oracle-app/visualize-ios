@@ -72,6 +72,7 @@ extension FeedViewModel {
             visualizationRepository: repo
         )
         let viewModel = FeedViewModel(loadVisualizationsUseCase: useCase)
+        viewModel.loadData()
         return viewModel
     }
 }

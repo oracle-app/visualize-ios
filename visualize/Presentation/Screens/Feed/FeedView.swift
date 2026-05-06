@@ -206,5 +206,5 @@ struct SharePayload: Identifiable {
 // MARK: - Preview
 
 #Preview {
-    FeedView(viewModel: .preview, shouldLoad: true)
+    FeedView(viewModel: .preview)
 }
