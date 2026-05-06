@@ -65,9 +65,8 @@ struct FeedView: View {
                 
             }
             .onAppear {
-                if shouldLoad {
-                    viewModel.loadData()
-                }
+                if case .loaded = viewModel.state { return }
+                        viewModel.loadData()
             }
             .sheet(item: $sharePayload) { payload in
                 let userDatasource = UserDatasource()
