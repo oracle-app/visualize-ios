@@ -62,11 +62,13 @@ struct FeedView: View {
                         .transition(.offset(y: 10).combined(with: AnyTransition(.blurReplace)))
                     }
             } primaryAction: {
-                
+            }
+            .refreshable {
+                viewModel.loadData(forceRefresh: true)
             }
             .onAppear {
                 if shouldLoad {
-                    viewModel.loadData()
+                    viewModel.fetchInitialData()
                 }
             }
             .sheet(item: $sharePayload) { payload in
