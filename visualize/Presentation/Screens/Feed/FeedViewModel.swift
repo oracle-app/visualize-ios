@@ -95,25 +95,16 @@ class FeedViewModel {
     // MARK: - Search
     /// Cancels any pending search and schedules a new one after a debounce delay.
     private func scheduleSearch() {
-        searchTask?.cancel()
         guard searchQuery.count >= 2 else {
             searchResults = []
-            isSearching = false
             return
         }
-
-        // Don't search again if we already have results for this query
-        guard isSearching == false && searchResults.isEmpty else { return }
-
-        isSearching = true
-        searchTask = Task {
-            /// Wait before firing the request to avoid querying on every keystroke.
-            try? await Task.sleep(for: .milliseconds(400))
-            if !Task.isCancelled {
-                await performSearch()
-            }
+        let query = searchQuery.lowercased()
+        searchResults = allVisualizations.filter {
+            $0.title.lowercased().contains(query)
         }
     }
+
 
     /// Executes the search and updates `searchResults` with the returned cards.
     @MainActor

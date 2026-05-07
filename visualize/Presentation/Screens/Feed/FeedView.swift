@@ -102,6 +102,8 @@ struct FeedView: View {
             }
             .onAppear {
                 if case .loaded = viewModel.state { return }
+                if case .empty = viewModel.state { return }
+                if case .error = viewModel.state { return }
                 if viewModel.isSearchActive { return }
                 viewModel.loadData()
             }
@@ -205,11 +207,36 @@ struct FeedView: View {
     @ViewBuilder
     func contentView() -> some View {
         if viewModel.isSearchActive {
-            if viewModel.isSearching {
-                LoadingListView()
-            } else if viewModel.searchResults.isEmpty && viewModel.searchQuery.count >= 2 && !viewModel.isSearching {
-                EmptyListView { }
-            } else if !viewModel.searchResults.isEmpty {
+            if viewModel.searchQuery.count < 2 {
+                switch viewModel.state {
+                case .loaded(let items):
+                    LoadedListView(
+                        items: items,
+                        onShare: { visualizationID, allUsers, editableUsers in
+                            sharePayload = SharePayload(
+                                visualizationID: visualizationID,
+                                allUsers: allUsers,
+                                editableUsers: editableUsers
+                            )
+                        },
+                        onTap: { card in
+                            selectedCard = card
+                        }
+                    )
+                default:
+                    EmptyView()
+                }
+            } else if viewModel.searchResults.isEmpty {
+                VStack {
+                    Text("No results for \"\(viewModel.searchQuery)\"")
+                        .font(.body.bold())
+                        .foregroundStyle(Color.appTeal)
+                    Text("Try a different search term")
+                        .foregroundStyle(.gray)
+                }
+                .hCenter()
+                .padding(.top, 300)
+            } else {
                 LoadedListView(
                     items: viewModel.searchResults,
                     onShare: { visualizationID, allUsers, editableUsers in
@@ -229,13 +256,9 @@ struct FeedView: View {
             case .loading:
                 LoadingListView()
             case .empty:
-                EmptyListView {
-                    viewModel.loadData()
-                }
+                EmptyListView(retryAction: { viewModel.loadData(forceRefresh: true) })
             case .error:
-                ErrorListView {
-                    viewModel.loadData()
-                }
+                ErrorListView(retryAction: { viewModel.loadData(forceRefresh: true) })
             case .loaded(let items):
                 LoadedListView(
                     items: items,
