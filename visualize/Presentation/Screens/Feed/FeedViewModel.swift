@@ -18,6 +18,8 @@
 import SwiftUI
 import Observation
 
+// MARK: - Feed State
+
 enum FeedState {
     case loading
     case loaded([VisualizationCard])
@@ -25,17 +27,47 @@ enum FeedState {
     case error
 }
 
+// MARK: - ViewModel
+
 @Observable
 class FeedViewModel {
+
+    // MARK: - Feed State
     var state: FeedState = .loading
+
+    // MARK: - Search State
+    /// Bound to the search input; triggers a debounced search on every change.
+    var searchQuery: String = "" {
+        didSet { scheduleSearch() }
+    }
+    /// Results returned by the last completed search.
+    var searchResults: [VisualizationCard] = []
+    /// True while a search request is in flight.
+    var isSearching: Bool = false
+    var isSearchActive: Bool = false
+
+    // MARK: - Dependencies
     var visualizationFilter: VisualizationFilter
     let loadVisualizationsUseCase: LoadVisualizationsUseCase
+    let searchVisualizationsUseCase: SearchVisualizationsUseCase
+
     private var allVisualizations: [VisualizationCard] = []
     private let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL"
-    init(loadVisualizationsUseCase: LoadVisualizationsUseCase) {
+
+    /// Search task used for debounce — ignored by @Observable to avoid tracking issues.
+    @ObservationIgnored
+    private var searchTask: Task<Void, Never>?
+
+    // MARK: - Initialization
+    init(loadVisualizationsUseCase: LoadVisualizationsUseCase,
+         searchVisualizationsUseCase: SearchVisualizationsUseCase) {
         self.loadVisualizationsUseCase = loadVisualizationsUseCase
+        self.searchVisualizationsUseCase = searchVisualizationsUseCase
         self.visualizationFilter = .all
     }
+
+    // MARK: - Filter
+    /// Updates the active feed filter and reloads data if the filter changed.
     func setVisualizationFilter(_ filter: VisualizationFilter) {
         if filter == self.visualizationFilter { return }
         self.visualizationFilter = filter
@@ -45,6 +77,8 @@ class FeedViewModel {
             loadData()
         }
     }
+
+    /// Filters the cached visualizations locally without a network call.
     private func applyLocalFilter() {
         var filteredItems: [VisualizationCard] = []
         switch visualizationFilter {
@@ -57,7 +91,47 @@ class FeedViewModel {
         }
         state = filteredItems.isEmpty ? .empty : .loaded(filteredItems)
     }
+
+    // MARK: - Search
+    /// Cancels any pending search and schedules a new one after a debounce delay.
+    private func scheduleSearch() {
+        guard searchQuery.count >= 2 else {
+            searchResults = []
+            return
+        }
+        let query = searchQuery.lowercased()
+        searchResults = allVisualizations.filter {
+            $0.title.lowercased().contains(query)
+        }
+    }
+
+
+    /// Executes the search and updates `searchResults` with the returned cards.
+    @MainActor
+    private func performSearch() async {
+        do {
+            let results = try await searchVisualizationsUseCase.execute(
+                userID: currentUserID,
+                query: searchQuery
+            )
+            searchResults = results
+        } catch {
+            print(error)
+            searchResults = []
+        }
+        isSearching = false
+    }
+
+    /// Resets all search state and cancels any in-flight search task.
+    func clearSearch() {
+        searchQuery = ""
+        searchResults = []
+        isSearching = false
+        searchTask?.cancel()
+    }
+
     // MARK: - Load Data
+    /// Fetches all visualizations and applies the active filter. Uses cache unless forceRefresh is true.
     func loadData(forceRefresh: Bool = false) {
         if forceRefresh {
             allVisualizations.removeAll()
@@ -78,13 +152,16 @@ class FeedViewModel {
             }
         }
     }
+
+    /// Loads data on first appear without forcing a refresh.
     func fetchInitialData() {
         loadData(forceRefresh: false)
     }
 }
 
+// MARK: - Preview
+
 extension FeedViewModel {
-    // MARK: - Preview
     static var preview: FeedViewModel {
         let userDS = UserDatasource()
         let teamDS = TeamDatasource()
@@ -97,10 +174,14 @@ extension FeedViewModel {
             visualizationDatasource: visualizationDS,
             teamsDatasource: teamDS
         )
-        let useCase = LoadVisualizationsUseCase(
-            visualizationRepository: repo
+        let useCase = LoadVisualizationsUseCase(visualizationRepository: repo)
+        let searchUseCase = SearchVisualizationsUseCase(visualizationRepository: repo)
+
+        let viewModel = FeedViewModel(
+            loadVisualizationsUseCase: useCase,
+            searchVisualizationsUseCase: searchUseCase
         )
-        let viewModel = FeedViewModel(loadVisualizationsUseCase: useCase)
+        viewModel.loadData()
         return viewModel
     }
 }
