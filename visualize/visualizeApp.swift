@@ -31,7 +31,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 
 @main
-struct visualizeApp: App {
+struct VisualizeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     init() {
         let key = Bundle.main.infoDictionary?["SCICHART_LICENSE_KEY"] as? String ?? ""
