@@ -1,5 +1,5 @@
 //
-//  FeedViewModel.swift
+//  FeedView.swift
 //  Visualize
 //
 //  Created by Jorge Flores on 13/04/26.
@@ -18,13 +18,10 @@
 ///  navigation title based on scroll position, and adapting layout based on safe area
 ///  insets using geometry tracking.
 
-
 import SwiftUI
 import Foundation
 
-
 struct FeedView: View {
-
 
     // MARK: - States
 
@@ -36,9 +33,10 @@ struct FeedView: View {
     @State private var sharePayload: SharePayload?
     @State private var usersToShare: [AppUser] = []
     @State private var selectedCard: VisualizationCard? = nil
-    @State var shouldLoad: Bool = true
+    var shouldLoad: Bool = true
 
     // MARK: - Body
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -101,33 +99,39 @@ struct FeedView: View {
                 viewModel.loadData(forceRefresh: true)
             }
             .onAppear {
-                if case .loaded = viewModel.state { return }
-                if case .empty = viewModel.state { return }
-                if case .error = viewModel.state { return }
-                if viewModel.isSearchActive { return }
-                viewModel.loadData()
+                if shouldLoad {
+                    viewModel.loadData()
+                }
             }
             .sheet(item: $sharePayload) { payload in
                 let userDatasource = UserDatasource()
                 let teamsDatasource = TeamDatasource()
-                let visualizationDatasource = VisualizationDatasource(userDatasource: userDatasource, teamsDatasource: teamsDatasource)
+                let visualizationDatasource = VisualizationDatasource(
+                    userDatasource: userDatasource,
+                    teamsDatasource: teamsDatasource
+                )
                 let visualizationRepository = VisualizationRepositoryImpl(
                     userDatasource: userDatasource,
                     visualizationDatasource: visualizationDatasource,
                     teamsDatasource: teamsDatasource
                 )
-
+                let teamRepository = TeamRepositoryImpl(
+                    teamDatasource: teamsDatasource,
+                    userDatasource: userDatasource
+                )
                 NavigationStack {
                     ShareTeammatesScreen(
                         viewModel: ShareTeammatesViewModel(
                             userRepository: UserRepositoryImpl(
                                 userDatasource: userDatasource
                             ),
-                            updateSharedUsersUseCase: UpdateSharedUsersUseCase(
+                            teamRepository: teamRepository,
+                            updateSharingUseCase: UpdateSharingUseCase(
                                 visualizationRepository: visualizationRepository
                             ),
                             visualizationID: payload.visualizationID,
-                            initialUsers: payload.editableUsers
+                            initialUsers: payload.editableUsers,
+                            initialTeamIDs: payload.initialTeamIDs
                         ),
                         onConfirm: {
                             viewModel.loadData()
@@ -147,10 +151,10 @@ struct FeedView: View {
     }
 
     // MARK: - Header
+
+    /// Builds the feed header with a menu to switch between All, Personal, and Shared filters.
     @ViewBuilder
-   
     func headerView() -> some View {
-        
         if !viewModel.isSearchActive {
             Menu {
                 Button {
@@ -159,21 +163,20 @@ struct FeedView: View {
                 } label: {
                     Label("All Feed", systemImage: selectedFeed == .all ? "checkmark" : "")
                 }
-                
+
                 Button {
                     selectedFeed = .personal
                     viewModel.setVisualizationFilter(selectedFeed)
                 } label: {
                     Label("Personal Feed", systemImage: selectedFeed == .personal ? "checkmark" : "")
                 }
-                
+
                 Button {
                     selectedFeed = .shared
                     viewModel.setVisualizationFilter(selectedFeed)
                 } label: {
                     Label("Shared Feed", systemImage: selectedFeed == .shared ? "checkmark" : "")
                 }
-                
             } label: {
                 HStack(spacing: 10) {
                     Text(selectedFeed.title)
@@ -184,12 +187,11 @@ struct FeedView: View {
                             let offset = $0.frame(in: .named("scroll")).minY
                             return -offset > height
                         } action: { newValue in
-                            
                             withAnimation(.smooth(duration: 0.10)) {
                                 title = newValue ? selectedFeed.title : nil
                             }
                         }
-                    
+
                     Image(systemName: "control")
                         .font(.body.bold())
                         .foregroundColor(.black)
@@ -199,11 +201,12 @@ struct FeedView: View {
                 .hLeading()
                 .padding(.leading, 35)
             }
-            
         }
     }
 
-    // MARK: - Content
+    // MARK: - Builder
+
+    /// Builds the content area based on the current feed state, including search results.
     @ViewBuilder
     func contentView() -> some View {
         if viewModel.isSearchActive {
@@ -212,11 +215,12 @@ struct FeedView: View {
                 case .loaded(let items):
                     LoadedListView(
                         items: items,
-                        onShare: { visualizationID, allUsers, editableUsers in
+                        onShare: { visualizationID, allUsers, editableUsers, teamIDs in
                             sharePayload = SharePayload(
                                 visualizationID: visualizationID,
                                 allUsers: allUsers,
-                                editableUsers: editableUsers
+                                editableUsers: editableUsers,
+                                initialTeamIDs: teamIDs
                             )
                         },
                         onTap: { card in
@@ -239,11 +243,12 @@ struct FeedView: View {
             } else {
                 LoadedListView(
                     items: viewModel.searchResults,
-                    onShare: { visualizationID, allUsers, editableUsers in
+                    onShare: { visualizationID, allUsers, editableUsers, teamIDs in
                         sharePayload = SharePayload(
                             visualizationID: visualizationID,
                             allUsers: allUsers,
-                            editableUsers: editableUsers
+                            editableUsers: editableUsers,
+                            initialTeamIDs: teamIDs
                         )
                     },
                     onTap: { card in
@@ -256,17 +261,22 @@ struct FeedView: View {
             case .loading:
                 LoadingListView()
             case .empty:
-                EmptyListView(retryAction: { viewModel.loadData(forceRefresh: true) })
+                EmptyListView {
+                    viewModel.loadData()
+                }
             case .error:
-                ErrorListView(retryAction: { viewModel.loadData(forceRefresh: true) })
+                ErrorListView {
+                    viewModel.loadData()
+                }
             case .loaded(let items):
                 LoadedListView(
                     items: items,
-                    onShare: { visualizationID, allUsers, editableUsers in
+                    onShare: { visualizationID, allUsers, editableUsers, teamIDs in
                         sharePayload = SharePayload(
                             visualizationID: visualizationID,
                             allUsers: allUsers,
-                            editableUsers: editableUsers
+                            editableUsers: editableUsers,
+                            initialTeamIDs: teamIDs
                         )
                     },
                     onTap: { card in
@@ -284,6 +294,7 @@ extension View {
     func hLeading() -> some View {
         frame(maxWidth: .infinity, alignment: .leading)
     }
+
     func hCenter() -> some View {
         frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
@@ -296,10 +307,11 @@ struct SharePayload: Identifiable {
     let visualizationID: String
     let allUsers: [AppUser]
     let editableUsers: [AppUser]
+    let initialTeamIDs: [String]
 }
 
 // MARK: - Preview
 
 #Preview {
-    FeedView(viewModel: .preview)
+    FeedView(viewModel: .preview, shouldLoad: true)
 }

@@ -19,10 +19,11 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         self.visualizationDatasource = visualizationDatasource
         self.teamsDatasource = teamsDatasource
     }
-    func updateSharedUsers(visualizationID: String, userIDs: [String]) async throws {
-        try await visualizationDatasource.updateSharedUsers(
+    func updateSharing(visualizationID: String, userIDs: [String], teamIDs: [String]) async throws {
+        try await visualizationDatasource.updateSharing(
             visualizationID: visualizationID,
-            userIDs: userIDs
+            userIDs: userIDs,
+            teamIDs: teamIDs
         )
     }
     func getSharedVisualizations(userID: String) async throws -> [VisualizationCard] {
@@ -103,9 +104,9 @@ class VisualizationRepositoryImpl: VisualizationRepository {
     private func fetchUsersInChunks(ids: [String]) async throws -> [UserDTO] {
         var allUsers: [UserDTO] = []
         let chunkSize = 30
-        for i in stride(from: 0, to: ids.count, by: chunkSize) {
-            let end = min(i + chunkSize, ids.count)
-            let chunk = Array(ids[i..<end])
+        for index in stride(from: 0, to: ids.count, by: chunkSize) {
+            let end = min(index + chunkSize, ids.count)
+            let chunk = Array(ids[index..<end])
             let chunkUsers = try await userDatasource.getUsers(byIDs: chunk)
             allUsers.append(contentsOf: chunkUsers)
         }
@@ -114,9 +115,9 @@ class VisualizationRepositoryImpl: VisualizationRepository {
     private func fetchTeamsInChunks(ids: [String]) async throws -> [TeamDTO] {
         var allTeams: [TeamDTO] = []
         let chunkSize = 30
-        for i in stride(from: 0, to: ids.count, by: chunkSize) {
-            let end = min(i + chunkSize, ids.count)
-            let chunk = Array(ids[i..<end])
+        for index in stride(from: 0, to: ids.count, by: chunkSize) {
+            let end = min(index + chunkSize, ids.count)
+            let chunk = Array(ids[index..<end])
             let chunkTeams = try await teamsDatasource.getTeams(byIDs: chunk)
             allTeams.append(contentsOf: chunkTeams)
         }
