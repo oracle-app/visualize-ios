@@ -55,7 +55,8 @@ class FeedViewModel {
 
     private var allVisualizations: [VisualizationCard] = []
     let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL"
-//    let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL
+//    let currentUserID: String = "oEJtQz0gdbRpTZ8ETPCy"
+    var currentToast: Toast? = nil
 
     /// Search task used for debounce — ignored by @Observable to avoid tracking issues.
     @ObservationIgnored
@@ -136,6 +137,15 @@ class FeedViewModel {
         isSearching = false
         searchTask?.cancel()
     }
+    
+    @MainActor
+    func showToast(_ toast: Toast) {
+        currentToast = toast
+        Task {
+            try? await Task.sleep(for: .seconds(3))
+            currentToast = nil
+        }
+    }
 
     // MARK: - Load Data
     /// Fetches all visualizations and applies the active filter. Uses cache unless forceRefresh is true.
@@ -172,8 +182,10 @@ class FeedViewModel {
                 try await hideVisualizationUseCase.execute(userID: currentUserID, visualizationID: visualizationID)
                 allVisualizations.removeAll { $0.id == visualizationID }
                 applyLocalFilter()
+                await showToast(Toast(message: "Visualization removed from your feed", type: .success))
             } catch {
                 print("Error hiding visualization: \(error)")
+                await showToast(Toast(message: "Failed to remove visualization", type: .error))
             }
         }
     }
@@ -183,8 +195,10 @@ class FeedViewModel {
                 try await deleteVisualizationUseCase.execute(visualizationID: visualizationID)
                 allVisualizations.removeAll { $0.id == visualizationID }
                 applyLocalFilter()
+                await showToast(Toast(message: "Visualization deleted for everyone", type: .success))
             } catch {
                 print("Error deleting visualization: \(error)")
+                await showToast(Toast(message: "Failed to delete visualization", type: .error))
             }
         }
     }

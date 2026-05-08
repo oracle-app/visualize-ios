@@ -136,6 +136,7 @@ struct FeedView: View {
                         ),
                         onConfirm: {
                             viewModel.loadData()
+                            viewModel.showToast(Toast(message: "Visualization shared successfully", type: .success))
                         }
                     )
                     .presentationDetents([.medium, .large])
@@ -144,6 +145,19 @@ struct FeedView: View {
             .navigationBarTitleDisplayMode(.inline)
             .coordinateSpace(name: "scroll")
         }
+        .overlay(alignment: .bottom) {
+            if let toast = viewModel.currentToast {
+                ToastView(toast: toast)
+                    .padding(.bottom, 74)
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                            removal: .opacity.combined(with: .scale(scale: 0.95))
+                        )
+                    )
+            }
+        }
+        .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
         .onGeometryChange(for: EdgeInsets.self) {
             $0.safeAreaInsets
         } action: { newValue in
