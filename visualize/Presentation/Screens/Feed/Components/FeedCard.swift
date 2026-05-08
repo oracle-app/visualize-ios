@@ -177,11 +177,11 @@ extension Color {
         hasher.combine(string)
         let hash = hasher.finalize()
 
-        let r = Double((hash >> 16) & 0xFF) / 255.0
-        let g = Double((hash >> 8) & 0xFF) / 255.0
-        let b = Double(hash & 0xFF) / 255.0
+        let red = Double((hash >> 16) & 0xFF) / 255.0
+        let green = Double((hash >> 8) & 0xFF) / 255.0
+        let blue = Double(hash & 0xFF) / 255.0
 
-        return Color(red: r, green: g, blue: b)
+        return Color(red: red, green: green, blue: blue)
     }
 }
 

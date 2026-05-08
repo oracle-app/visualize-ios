@@ -12,6 +12,26 @@
 import SwiftUI
 struct NavBar: View {
     @State private var selectedTab: Tabs = .feed
+    @State private var feedViewModel: FeedViewModel = {
+        let userDS = UserDatasource()
+        let teamsDS = TeamDatasource()
+        let visualizationDS = VisualizationDatasource(
+            userDatasource: userDS,
+            teamsDatasource: teamsDS
+        )
+        let repo = VisualizationRepositoryImpl(
+            userDatasource: userDS,
+            visualizationDatasource: visualizationDS,
+            teamsDatasource: teamsDS
+        )
+        let useCase = LoadVisualizationsUseCase(visualizationRepository: repo)
+        let searchUseCase = SearchVisualizationsUseCase(visualizationRepository: repo)
+        return FeedViewModel(
+            loadVisualizationsUseCase: useCase,
+            searchVisualizationsUseCase: searchUseCase,
+            
+        )
+    }()
     
     init() {
         let appearance = UITabBarAppearance()
@@ -25,26 +45,13 @@ struct NavBar: View {
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
     
+    
+    
     var body: some View {
-        // TESTING / TEMPORAL
-        let userDS = UserDatasource()
-        let teamsDS = TeamDatasource()
-        let visualizationDS = VisualizationDatasource(
-            userDatasource: userDS,
-            teamsDatasource: teamsDS
-        )
-        let repo = VisualizationRepositoryImpl(
-            userDatasource: userDS,
-            visualizationDatasource: visualizationDS,
-            teamsDatasource: teamsDS
-        )
-        let useCase = LoadVisualizationsUseCase(
-            visualizationRepository: repo
-        )
 
-        let viewModel = FeedViewModel(loadVisualizationsUseCase: useCase)
+        
         TabView(selection: $selectedTab) {
-            FeedView(viewModel: viewModel)
+            FeedView(viewModel: feedViewModel)
                 .tabItem{
                     Label("", systemImage: "house")
                 }

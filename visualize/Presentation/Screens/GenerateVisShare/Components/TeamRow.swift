@@ -43,7 +43,7 @@ struct TeamRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .listRowBackground(Color.white)
+        .listRowBackground(Color.appMint)
     }
 
     // MARK: - Selection Indicator

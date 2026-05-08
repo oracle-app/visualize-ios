@@ -19,10 +19,11 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         self.visualizationDatasource = visualizationDatasource
         self.teamsDatasource = teamsDatasource
     }
-    func updateSharedUsers(visualizationID: String, userIDs: [String]) async throws {
-        try await visualizationDatasource.updateSharedUsers(
+    func updateSharing(visualizationID: String, userIDs: [String], teamIDs: [String]) async throws {
+        try await visualizationDatasource.updateSharing(
             visualizationID: visualizationID,
-            userIDs: userIDs
+            userIDs: userIDs,
+            teamIDs: teamIDs
         )
     }
     func getSharedVisualizations(userID: String) async throws -> [VisualizationCard] {
@@ -33,6 +34,33 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         let dtos = try await visualizationDatasource.getAllPersonalVisualizations(userID: userID)
         return try await fetchDetailsAndMapBatch(dtos: dtos, userID: userID)
     }
+    
+    private func fetchDetailsAndMap(dtos: [VisualizationDTO]) async throws -> [VisualizationCard] {
+        var cards: [VisualizationCard] = []
+        for dto in dtos {
+            let authorDTO = try await userDatasource.getUserByID(userID: dto.authorID)
+            let authorName = authorDTO.username
+            let usersDTOs = try await userDatasource.getUsers(byIDs: dto.sharedWithUsers)
+            let usersSharedWith: [AppUser] = usersDTOs.map {$0.toAppUser()}
+            let teamsDTOs = try await teamsDatasource.getTeams(byIDs: dto.sharedWithTeams)
+            let uniqueMemberIDs = Array(Set(teamsDTOs.flatMap(\.membersIDs)))
+            let membersDTOs = try await userDatasource.getUsers(byIDs: uniqueMemberIDs)
+            let allMembers = membersDTOs.map { $0.toAppUser() }
+            let teamsSharedWith: [Team] = teamsDTOs.map { teamDTO in
+                let specificTeamMembers = allMembers.filter { member in
+                    teamDTO.membersIDs.contains(member.id)
+                }
+                return teamDTO.toTeam(members: specificTeamMembers)
+            }
+            let card = dto.toVisualizationCard(
+                authorName: authorName,
+                teamsSharedWith: teamsSharedWith,
+                usersSharedWith: usersSharedWith,
+            )
+            cards.append(card)
+        }
+        return cards
+    }
     private func fetchDetailsAndMapBatch(dtos: [VisualizationDTO], userID: String) async throws -> [VisualizationCard] {
         guard !dtos.isEmpty else { return [] }
         let currentUser = try await userDatasource.getUserByID(userID: userID)
@@ -41,6 +69,7 @@ class VisualizationRepositoryImpl: VisualizationRepository {
             guard let id = dto.id else { return false }
             return !hiddenIDs.contains(id)
         }
+
         guard !visibleDTOs.isEmpty else { return [] }
         let authorIDs = Set(visibleDTOs.map { $0.authorID })
         let sharedUserIDs = Set(visibleDTOs.flatMap { $0.sharedWithUsers })
@@ -75,9 +104,9 @@ class VisualizationRepositoryImpl: VisualizationRepository {
     private func fetchUsersInChunks(ids: [String]) async throws -> [UserDTO] {
         var allUsers: [UserDTO] = []
         let chunkSize = 30
-        for i in stride(from: 0, to: ids.count, by: chunkSize) {
-            let end = min(i + chunkSize, ids.count)
-            let chunk = Array(ids[i..<end])
+        for index in stride(from: 0, to: ids.count, by: chunkSize) {
+            let end = min(index + chunkSize, ids.count)
+            let chunk = Array(ids[index..<end])
             let chunkUsers = try await userDatasource.getUsers(byIDs: chunk)
             allUsers.append(contentsOf: chunkUsers)
         }
@@ -86,12 +115,18 @@ class VisualizationRepositoryImpl: VisualizationRepository {
     private func fetchTeamsInChunks(ids: [String]) async throws -> [TeamDTO] {
         var allTeams: [TeamDTO] = []
         let chunkSize = 30
-        for i in stride(from: 0, to: ids.count, by: chunkSize) {
-            let end = min(i + chunkSize, ids.count)
-            let chunk = Array(ids[i..<end])
+        for index in stride(from: 0, to: ids.count, by: chunkSize) {
+            let end = min(index + chunkSize, ids.count)
+            let chunk = Array(ids[index..<end])
             let chunkTeams = try await teamsDatasource.getTeams(byIDs: chunk)
             allTeams.append(contentsOf: chunkTeams)
         }
         return allTeams
     }
+
+    func searchVisualizations(userID: String, query: String) async throws -> [VisualizationCard] {
+        let dtos = try await visualizationDatasource.searchVisualizations(userID: userID, query: query)
+        return try await fetchDetailsAndMap(dtos: dtos)
+    }
+
 }

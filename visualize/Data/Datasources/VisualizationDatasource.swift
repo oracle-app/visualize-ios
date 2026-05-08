@@ -74,14 +74,41 @@ class VisualizationDatasource {
         }
         return users
     }
-    /// Replaces the `sharedWithUsers` field of a visualization with the provided user IDs.
+    /// Replaces both `sharedWithUsers` and `sharedWithTeams` in a single Firestore write.
+    ///
     /// - Parameters:
     ///   - visualizationID: The ID of the visualization to update.
-    ///   - userIDs: The new list of user IDs to set as `sharedWithUsers`.
-    func updateSharedUsers(visualizationID: String, userIDs: [String]) async throws {
+    ///   - userIDs: The new list of user IDs to set.
+    ///   - teamIDs: The new list of team IDs to set.
+    func updateSharing(visualizationID: String, userIDs: [String], teamIDs: [String]) async throws {
         try await firebase
             .collection("visualizations")
             .document(visualizationID)
-            .updateData(["sharedWithUsers": userIDs])
+            .updateData([
+                "sharedWithUsers": userIDs,
+                "sharedWithTeams": teamIDs
+            ])
+    }
+    
+    /// Searches visualizations accessible to a user (personal + shared) by title.
+    /// Filters client-side since Firestore does not support native full-text search.
+    /// - Parameters:
+    ///   - userID: The ID of the user performing the search.
+    ///   - query: The search string to match against visualization titles.
+    func searchVisualizations(userID: String, query: String) async throws -> [VisualizationDTO] {
+        let lowercased = query.lowercased()
+        
+        let personal = try await getAllPersonalVisualizations(userID: userID)
+        let shared = try await getAllSharedVisualizations(userID: userID)
+        
+        let all = personal + shared
+        var uniqueDict = [String: VisualizationDTO]()
+        for dto in all {
+            if let id = dto.id { uniqueDict[id] = dto }
+        }
+        
+        return Array(uniqueDict.values).filter {
+            $0.title.lowercased().contains(lowercased)
+        }
     }
 }

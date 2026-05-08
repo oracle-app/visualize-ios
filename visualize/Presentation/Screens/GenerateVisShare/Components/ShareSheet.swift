@@ -228,6 +228,8 @@ struct ShareSheet: View {
                 }
                 .listStyle(.insetGrouped)
                 .listSectionSpacing(12)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
             }
         }
         .overlay(alignment: .top) {
@@ -280,7 +282,7 @@ struct ShareSheet: View {
                 Text(title)
                     .foregroundStyle(.black)
 
-                Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
+                Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
                     .foregroundStyle(.black)
             }
         }
