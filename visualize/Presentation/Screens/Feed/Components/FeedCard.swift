@@ -57,7 +57,7 @@ struct FeedCard: View {
                         .minimumScaleFactor(0.5)
                         //.frame(height: 50, alignment: .center)
                     HStack(spacing: 12) {
-                        Text("by \(author)")
+                        Text("by \(isOwner ? "me" : author)")
                         Text("•")
                         Text(date.formatted(date: .abbreviated, time: .omitted))
                     }
