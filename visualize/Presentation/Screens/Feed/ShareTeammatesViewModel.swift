@@ -28,6 +28,7 @@ class ShareTeammatesViewModel {
     // MARK: IDs
     // Temporary hardcoded user ID, will be replaced with authenticated session value.
     private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
+//    private let userID = "oEJtQz0gdbRpTZ8ETPCy"
     private let initialTeamIDs: [String]
     private let visualizationID: String
     

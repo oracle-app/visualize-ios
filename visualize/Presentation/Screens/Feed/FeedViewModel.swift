@@ -50,9 +50,12 @@ class FeedViewModel {
     var visualizationFilter: VisualizationFilter
     let loadVisualizationsUseCase: LoadVisualizationsUseCase
     let searchVisualizationsUseCase: SearchVisualizationsUseCase
+    let hideVisualizationUseCase: HideVisualizationUseCase
+    let deleteVisualizationUseCase: DeleteVisualizationUseCase
 
     private var allVisualizations: [VisualizationCard] = []
     let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL"
+//    let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL
 
     /// Search task used for debounce — ignored by @Observable to avoid tracking issues.
     @ObservationIgnored
@@ -60,9 +63,13 @@ class FeedViewModel {
 
     // MARK: - Initialization
     init(loadVisualizationsUseCase: LoadVisualizationsUseCase,
-         searchVisualizationsUseCase: SearchVisualizationsUseCase) {
+         searchVisualizationsUseCase: SearchVisualizationsUseCase,
+         hideVisualizationUseCase: HideVisualizationUseCase,
+         deleteVisualizationUseCase: DeleteVisualizationUseCase) {
         self.loadVisualizationsUseCase = loadVisualizationsUseCase
         self.searchVisualizationsUseCase = searchVisualizationsUseCase
+        self.hideVisualizationUseCase = hideVisualizationUseCase
+        self.deleteVisualizationUseCase = deleteVisualizationUseCase
         self.visualizationFilter = .all
     }
 
@@ -157,6 +164,30 @@ class FeedViewModel {
     func fetchInitialData() {
         loadData(forceRefresh: false)
     }
+    
+    // MARK: - Delete Actions
+    func hideVisualization(visualizationID: String) {
+        Task {
+            do {
+                try await hideVisualizationUseCase.execute(userID: currentUserID, visualizationID: visualizationID)
+                allVisualizations.removeAll { $0.id == visualizationID }
+                applyLocalFilter()
+            } catch {
+                print("Error hiding visualization: \(error)")
+            }
+        }
+    }
+    func deleteVisualization(visualizationID: String) {
+        Task {
+            do {
+                try await deleteVisualizationUseCase.execute(visualizationID: visualizationID)
+                allVisualizations.removeAll { $0.id == visualizationID }
+                applyLocalFilter()
+            } catch {
+                print("Error deleting visualization: \(error)")
+            }
+        }
+    }
 }
 
 // MARK: - Preview
@@ -165,23 +196,18 @@ extension FeedViewModel {
     static var preview: FeedViewModel {
         let userDS = UserDatasource()
         let teamDS = TeamDatasource()
-        let visualizationDS = VisualizationDatasource(
-            userDatasource: userDS,
-            teamsDatasource: teamDS
-        )
+        let visualizationDS = VisualizationDatasource(userDatasource: userDS, teamsDatasource: teamDS)
         let repo = VisualizationRepositoryImpl(
             userDatasource: userDS,
             visualizationDatasource: visualizationDS,
             teamsDatasource: teamDS
         )
-        let useCase = LoadVisualizationsUseCase(visualizationRepository: repo)
-        let searchUseCase = SearchVisualizationsUseCase(visualizationRepository: repo)
-
-        let viewModel = FeedViewModel(
-            loadVisualizationsUseCase: useCase,
-            searchVisualizationsUseCase: searchUseCase
+        let userRepo = UserRepositoryImpl(userDatasource: userDS)
+        return FeedViewModel(
+            loadVisualizationsUseCase: LoadVisualizationsUseCase(visualizationRepository: repo),
+            searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
+            hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
+            deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo)
         )
-        viewModel.loadData()
-        return viewModel
     }
 }

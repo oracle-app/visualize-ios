@@ -10,9 +10,11 @@
 class UpdateSharingUseCase {
 
     private let visualizationRepository: any VisualizationRepository
+    private let userRepository: any UserRepository
 
-    init(visualizationRepository: any VisualizationRepository) {
+    init(visualizationRepository: any VisualizationRepository, userRepository: any UserRepository) {
         self.visualizationRepository = visualizationRepository
+        self.userRepository = userRepository
     }
 
     /// Replaces `sharedWithUsers` and `sharedWithTeams` in Firestore with the provided
@@ -33,6 +35,9 @@ class UpdateSharingUseCase {
             userIDs: users.map { $0.id },
             teamIDs: teamIDs
         )
+        for user in users {
+            try await userRepository.removeHiddenVisualization(userID: user.id, visualizationID: visualizationID)
+        }
         return (users, teamIDs)
     }
 }

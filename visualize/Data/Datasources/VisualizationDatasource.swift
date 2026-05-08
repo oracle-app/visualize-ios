@@ -111,4 +111,12 @@ class VisualizationDatasource {
             $0.title.lowercased().contains(lowercased)
         }
     }
+    func deleteVisualization(visualizationID: String) async throws {
+        try await firebase.collection("visualizations").document(visualizationID).delete()
+    }
+
+    func removeUserFromSharedWith(visualizationID: String, userID: String) async throws {
+        try await firebase.collection("visualizations").document(visualizationID)
+            .updateData(["sharedWithUsers": FieldValue.arrayRemove([userID])])
+    }
 }

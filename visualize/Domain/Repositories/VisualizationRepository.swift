@@ -19,5 +19,6 @@ protocol VisualizationRepository {
     func getSharedVisualizations(userID: String) async throws -> [VisualizationCard]
     func getPersonalVisualizations(userID: String) async throws -> [VisualizationCard]
     func searchVisualizations(userID: String, query: String) async throws -> [VisualizationCard]
-
+    func deleteVisualization(visualizationID: String) async throws
+    func removeUserFromSharedWith(visualizationID: String, userID: String) async throws
 }

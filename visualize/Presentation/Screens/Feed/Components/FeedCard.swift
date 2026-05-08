@@ -19,6 +19,8 @@ struct FeedCard: View {
     var date: Date
     var onShare: () -> Void
     var onTap: () -> Void
+    var onHide: () -> Void
+    var onDelete: () -> Void
     var sharedWith: [AppUser]? = nil
     var isOwner: Bool = false
     let maxAvatars = 3
@@ -99,11 +101,11 @@ struct FeedCard: View {
                     .contentShape(Circle())
                 }.buttonStyle(.plain).shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                 .alert(
-                    "Delete visualization?",
-                    isPresented: $showAlert2
+                    "Delete for me?",
+                    isPresented: $showAlert1
                 ) {
                     Button("Delete", role: .destructive) {
-                        
+                        onHide()
                     }
                     
                     Button("Cancel", role: .cancel) {
@@ -113,11 +115,11 @@ struct FeedCard: View {
                     Text("This will remove the visualization from your feed. To see it again, the owner will need to share it with you.")
                 }
                 .alert(
-                    "Delete visualization?",
-                    isPresented: $showAlert1
+                    "Delete for everyone?",
+                    isPresented: $showAlert2
                 ) {
                     Button("Delete", role: .destructive) {
-                        
+                        onDelete()
                     }
                     
                     Button("Cancel", role: .cancel) {

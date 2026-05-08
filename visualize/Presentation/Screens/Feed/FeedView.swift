@@ -127,7 +127,8 @@ struct FeedView: View {
                             ),
                             teamRepository: teamRepository,
                             updateSharingUseCase: UpdateSharingUseCase(
-                                visualizationRepository: visualizationRepository
+                                visualizationRepository: visualizationRepository,
+                                userRepository: UserRepositoryImpl(userDatasource: userDatasource)
                             ),
                             visualizationID: payload.visualizationID,
                             initialUsers: payload.editableUsers,
@@ -226,6 +227,8 @@ struct FeedView: View {
                         onTap: { card in
                             selectedCard = card
                         },
+                        onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
+                        onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
                         currentUserID: viewModel.currentUserID,
                     )
                 default:
@@ -255,6 +258,8 @@ struct FeedView: View {
                     onTap: { card in
                         selectedCard = card
                     },
+                    onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
+                    onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
                     currentUserID: viewModel.currentUserID,
                 )
             }
@@ -284,6 +289,8 @@ struct FeedView: View {
                     onTap: { card in
                         selectedCard = card
                     },
+                    onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
+                    onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
                     currentUserID: viewModel.currentUserID,
                 )
             }
