@@ -20,6 +20,7 @@ struct FeedCard: View {
     var onShare: () -> Void
     var onTap: () -> Void
     var sharedWith: [AppUser]? = nil
+    var isOwner: Bool = false
     let maxAvatars = 3
     
     /// TO DO: Image Implementation that uses profilePictureURL
@@ -66,23 +67,24 @@ struct FeedCard: View {
                 }
                 Spacer()
                 Menu {
-                    Button {
-                        onShare()
-                    } label: {
-                        Label("Share", systemImage: "person.badge.plus")
+                    if isOwner {
+                        Button {
+                            onShare()
+                        } label: {
+                            Label("Share", systemImage: "person.badge.plus")
+                        }
+                        Button(role: .destructive) {
+                            showAlert2.toggle()
+                        } label: {
+                            Label("Delete for everyone", systemImage: "trash")
+                        }
+                    } else {
+                        Button(role: .destructive) {
+                            showAlert1.toggle()
+                        } label: {
+                            Label("Delete for me", systemImage: "trash")
+                        }
                     }
-                    Button (role: .destructive) {
-                        showAlert2.toggle()
-                    } label: {
-                        Label("Delete for everyone", systemImage: "trash")
-                    }
-                    
-                    Button (role: .destructive) {
-                        showAlert1.toggle()
-                    } label: {
-                        Label("Delete for me", systemImage: "trash")
-                    }
-                    
                 } label: {
                     ZStack {
                         Circle()

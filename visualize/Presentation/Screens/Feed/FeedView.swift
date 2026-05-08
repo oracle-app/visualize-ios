@@ -225,7 +225,8 @@ struct FeedView: View {
                         },
                         onTap: { card in
                             selectedCard = card
-                        }
+                        },
+                        currentUserID: viewModel.currentUserID,
                     )
                 default:
                     EmptyView()
@@ -253,7 +254,8 @@ struct FeedView: View {
                     },
                     onTap: { card in
                         selectedCard = card
-                    }
+                    },
+                    currentUserID: viewModel.currentUserID,
                 )
             }
         } else {
@@ -281,7 +283,8 @@ struct FeedView: View {
                     },
                     onTap: { card in
                         selectedCard = card
-                    }
+                    },
+                    currentUserID: viewModel.currentUserID,
                 )
             }
         }
