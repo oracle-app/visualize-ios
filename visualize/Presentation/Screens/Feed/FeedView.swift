@@ -136,7 +136,7 @@ struct FeedView: View {
                         ),
                         onConfirm: {
                             viewModel.loadData()
-                            viewModel.showToast(Toast(message: "Visualization shared successfully", type: .success))
+                            viewModel.showToast(Toast(message: "Sharing updated successfully", type: .success))
                         }
                     )
                     .presentationDetents([.medium, .large])
