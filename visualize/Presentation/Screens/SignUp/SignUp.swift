@@ -9,37 +9,43 @@ import SwiftUI
 
 // MARK: - Sign Up View
 
-/// SwiftUI view responsible for user account creation.
+/// Screen responsible for handling
+/// user account registration.
 ///
-/// This screen provides a structured interface for new user registration,
-/// including input fields for personal data and authentication credentials.
-///
-/// The view delegates all business logic to `SignUpViewModel` following MVVM principles.
-/// It focuses only on presentation and user interaction.
+/// Features:
+/// - User input collection
+/// - Inline validation feedback
+/// - Password visibility toggling
+/// - Keyboard-aware scrolling behavior
+/// - Registration action handling
 struct SignUp: View {
 
     // MARK: - State
     
+    /// ViewModel responsible for managing
+    /// registration state and validation.
     @State private var viewModel: SignUpViewModel
+    
+    /// Controls visibility of the password field.
     @State private var isPasswordVisible = false
+    
+    /// Controls visibility of the confirm password field.
     @State private var isConfirmPasswordVisible = false
     
     // MARK: - Initialization
     
-    /// Initializes the SignUp view with its corresponding ViewModel.
-    ///
-    /// - Parameter viewModel: The ViewModel responsible for registration logic and state.
     init(viewModel: SignUpViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
 
     // MARK: - Body
-        
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
                 
                 // MARK: - Header Image
+                
                 ZStack {
                     Image("SignUpBackground")
                         .resizable()
@@ -50,9 +56,11 @@ struct SignUp: View {
                 .frame(height: 110)
                 
                 // MARK: - Content
+                
                 VStack(spacing: 0) {
                     
-                    // Title
+                    // MARK: Title
+                    
                     Text("Create your account")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundColor(Color(Color.appNavy))
@@ -60,44 +68,66 @@ struct SignUp: View {
                         .padding(.top, 58)
                         .padding(.bottom, 58)
 
-                    // Name input
+                    // MARK: Name Field
+                    
                     InputField(
                         placeholder: "Name",
-                        text: $viewModel.name
+                        text: $viewModel.name,
+                        errorMessage: viewModel.nameError
                     )
                     .padding(.bottom, 28)
 
-                    // Email input
+                    // MARK: Email Field
+                    
                     InputField(
                         placeholder: "Email",
                         text: $viewModel.email,
+                        errorMessage: viewModel.emailError,
                         keyboardType: .emailAddress
                     )
                     .padding(.bottom, 28)
 
-                    // Password input
+                    // MARK: Password Field
+                    
                     PasswordField(
                         placeholder: "Password",
                         text: $viewModel.password,
-                        isVisible: $isPasswordVisible
+                        isVisible: $isPasswordVisible,
+                        errorMessage: viewModel.passwordError
                     )
-                    .padding(.bottom, 8)
+                    .padding(
+                        .bottom,
+                        (
+                            viewModel.passwordError != nil &&
+                            !viewModel.passwordError!.isEmpty
+                        )
+                        ? 28
+                        : 8
+                    )
+                    .animation(
+                        .easeInOut(duration: 0.2),
+                        value: viewModel.passwordError
+                    )
 
-                    // Confirm password input
+                    // MARK: Confirm Password Field
+                    
                     PasswordField(
                         placeholder: "Confirm password",
                         text: $viewModel.confirmPassword,
-                        isVisible: $isConfirmPasswordVisible
+                        isVisible: $isConfirmPasswordVisible,
+                        errorMessage: viewModel.confirmPasswordError
                     )
                     .padding(.bottom, 36)
 
-                    // Sign up button
-                    AuthButton(title: "Sign up", isEnabled: viewModel.isFormValid) {
+                    // MARK: Sign Up Button
+                    
+                    AuthButton(title: "Sign up") {
                         viewModel.signUp()
                     }
                     .padding(.bottom, 20)
 
-                    // Navigation to login
+                    // MARK: Login Navigation
+                    
                     VStack(spacing: 4) {
                         Text("Already have an account?")
                             .font(.system(size: 14))
@@ -108,30 +138,56 @@ struct SignUp: View {
                         } label: {
                             Text("Log in")
                                 .font(.system(size: 15))
-                                .foregroundColor(Color(red: 192/255, green: 130/255, blue: 60/255))
+                                .foregroundColor(
+                                    Color(
+                                        red: 192/255,
+                                        green: 130/255,
+                                        blue: 60/255
+                                    )
+                                )
                                 .underline()
                         }
                     }
                     .padding(.bottom, 16)
 
-                    // App version
+                    // MARK: App Version
+                    
                     Text("V 1.0.0")
                         .font(.system(size: 11))
-                        .foregroundColor(Color(red: 121/255, green: 139/255, blue: 138/255).opacity(0.6))
+                        .foregroundColor(
+                            Color(
+                                red: 121/255,
+                                green: 139/255,
+                                blue: 138/255
+                            )
+                            .opacity(0.6)
+                        )
                         .padding(.bottom, 40)
                 }
                 .frame(maxWidth: 360)
                 .padding(.horizontal, 24)
                 .background(
-                    Color(red: 245/255, green: 244/255, blue: 242/255)
-                        .frame(height: 800, alignment: .top)
-                        .clipShape(RoundedRectangle(cornerRadius: 30)),
+                    Color(
+                        red: 245/255,
+                        green: 244/255,
+                        blue: 242/255
+                    )
+                    .frame(height: 800, alignment: .top)
+                    .clipShape(
+                        RoundedRectangle(cornerRadius: 30)
+                    ),
                     alignment: .top
                 )
             }
         }
-    .background(Color(Color.appTeal).ignoresSafeArea())
-    .scrollDismissesKeyboard(.interactively)
+        .background(
+            Color(Color.appTeal)
+                .ignoresSafeArea()
+        )
+        
+        /// Allows the keyboard to dismiss interactively
+        /// while scrolling.
+        .scrollDismissesKeyboard(.interactively)
     }
 }
 

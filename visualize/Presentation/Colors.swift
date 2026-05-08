@@ -12,6 +12,8 @@ extension Color {
     static let appButtonBackground = Color(red: 235/255, green: 235/255, blue: 240/255) // #EBEBF0
     static let appLightTeal = Color(red: 230/255, green: 237/255, blue: 236/255) //34797C
     static let primaryOrange = Color(red: 235/255,green: 150/255,blue: 50/255)
+    static let appRed = Color(red: 255/255, green: 59/255, blue: 48/255)
+    static let appDarkBlue = Color(red: 26/255, green: 47/255, blue: 63/255)
 }
 
 enum AppColors {

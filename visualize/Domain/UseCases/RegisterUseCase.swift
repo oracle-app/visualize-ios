@@ -9,61 +9,71 @@ import Foundation
 
 // MARK: - Register Errors
 
-/// Defines possible validation errors for the registration process.
+/// Represents validation errors that can occur
+/// during the user registration process.
+///
+/// These errors are thrown before attempting
+/// authentication or user creation.
 enum RegisterError: Error {
     case emailRequired
     case invalidEmail
     case passwordRequired
     case passwordTooShort
+    case passwordNeedsLettersAndNumbers
+    case passwordNeedsSpecialCharacter
 }
 
 // MARK: - Register Use Case
 
-/// Use case responsible for handling the user registration flow.
+/// Handles the business logic for registering a new user.
 ///
-/// This use case coordinates:
-/// - Input validation (email, password, username rules)
-/// - Authentication account creation via `AuthRepository`
-/// - Domain user creation via `UserRepository`
+/// Responsibilities:
+/// - Validate registration input data
+/// - Create the authentication account
+/// - Create the user document in the database
 ///
-/// It ensures a complete and consistent user onboarding process across both
-/// authentication and application data layers.
+/// This use case acts as the bridge between
+/// the presentation layer and repository layer.
 class RegisterUseCase {
     
-    // MARK: - Properties
+    // MARK: - Dependencies
     
+    /// Repository responsible for authentication actions.
     private let authRepository: AuthRepository
+    
+    /// Repository responsible for user database operations.
     private let userRepository: UserRepository
     
     // MARK: - Initialization
     
-    /// Initializes the use case with required repositories.
-    ///
-    /// - Parameters:
-    ///   - authRepository: Repository responsible for authentication operations.
-    ///   - userRepository: Repository responsible for user persistence.
     init(authRepository: AuthRepository, userRepository: UserRepository) {
         self.authRepository = authRepository
         self.userRepository = userRepository
     }
     
-    // MARK: - Execution
+    // MARK: - Execute
     
-    /// Executes the full user registration flow.
+    /// Registers a new user after validating all input fields.
     ///
-    /// This includes:
-    /// 1. Validating input data
-    /// 2. Creating authentication account
-    /// 3. Building domain user model
-    /// 4. Persisting user in the system database
+    /// Steps:
+    /// 1. Validate email and password requirements
+    /// 2. Create authentication account
+    /// 3. Create user profile object
+    /// 4. Save user in database
     ///
     /// - Parameters:
-    ///   - email: The user's email address.
-    ///   - password: The user's password.
-    ///   - username: The chosen username.
-    /// - Returns: The created domain user (`AppUser`).
-    /// - Throws: `RegisterError` for validation issues or repository errors for backend failures.
+    ///   - email: User email address
+    ///   - password: User password
+    ///   - username: Display name chosen by the user
+    ///
+    /// - Returns: The created `AppUser`
+    ///
+    /// - Throws:
+    ///   - `RegisterError` when validation fails
+    ///   - Repository errors during authentication or persistence
     func execute(email: String, password: String, username: String) async throws -> AppUser {
+        
+        // MARK: Input Validation
         
         if email.isEmpty {
             throw RegisterError.emailRequired
@@ -77,11 +87,26 @@ class RegisterUseCase {
             throw RegisterError.passwordRequired
         }
         
-        if password.count < 6 {
+        if password.count < 12 {
             throw RegisterError.passwordTooShort
         }
         
-        let authUser = try await authRepository.register(email: email, password: password)
+        if !hasLettersAndNumbers(password) {
+            throw RegisterError.passwordNeedsLettersAndNumbers
+        }
+        
+        if !hasSpecialCharacter(password) {
+            throw RegisterError.passwordNeedsSpecialCharacter
+        }
+        
+        // MARK: Authentication
+        
+        let authUser = try await authRepository.register(
+            email: email,
+            password: password
+        )
+        
+        // MARK: App User Creation
         
         let appUser = AppUser(
             id: authUser.uid,
@@ -90,19 +115,56 @@ class RegisterUseCase {
             username: username
         )
         
+        // MARK: Database Persistence
+        
         let savedUser = try await userRepository.createUser(user: appUser)
         
         return savedUser
     }
     
-    // MARK: - Validation
+    // MARK: - Validation Helpers
     
-    /// Validates if the provided email has a correct format.
+    /// Validates email format using regex.
     ///
-    /// - Parameter email: The email string to validate.
-    /// - Returns: `true` if the email format is valid, otherwise `false`.
+    /// - Parameter email: Email string to validate
+    /// - Returns: `true` if email format is valid
     private func isValidEmail(_ email: String) -> Bool {
         let regex = #"^\S+@\S+\.\S+$"#
-        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
+        
+        return NSPredicate(
+            format: "SELF MATCHES %@",
+            regex
+        ).evaluate(with: email)
+    }
+    
+    /// Validates that the password contains
+    /// at least one letter and one number.
+    ///
+    /// - Parameter password: Password string to validate
+    /// - Returns: `true` if requirements are met
+    private func hasLettersAndNumbers(_ password: String) -> Bool {
+        let regex = #"^(?=.*[A-Za-z])(?=.*\d).*$"#
+        
+        return NSPredicate(
+            format: "SELF MATCHES %@",
+            regex
+        ).evaluate(with: password)
+    }
+    
+    /// Validates that the password contains
+    /// at least one special character.
+    ///
+    /// Allowed characters:
+    /// `$ @ $ ! % * # ? & .`
+    ///
+    /// - Parameter password: Password string to validate
+    /// - Returns: `true` if requirements are met
+    private func hasSpecialCharacter(_ password: String) -> Bool {
+        let regex = #"^.*[$@$!%*#?&.].*$"#
+        
+        return NSPredicate(
+            format: "SELF MATCHES %@",
+            regex
+        ).evaluate(with: password)
     }
 }

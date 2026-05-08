@@ -95,7 +95,7 @@ struct Login: View {
                     .padding(.bottom, 36)
 
                     // Login button
-                    AuthButton(title: "Log in", isEnabled: viewModel.isFormValid) {
+                    AuthButton(title: "Log in") {
                         viewModel.login()
                     }
                     .padding(.bottom, 20)
