@@ -21,6 +21,7 @@ enum RegisterError: Error {
     case passwordTooShort
     case passwordNeedsLettersAndNumbers
     case passwordNeedsSpecialCharacter
+    case emailAlreadyInUse
 }
 
 // MARK: - Register Use Case

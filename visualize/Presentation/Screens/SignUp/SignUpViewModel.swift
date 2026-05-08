@@ -111,6 +111,8 @@ class SignUpViewModel {
     ///
     /// If validation fails, the corresponding field errors
     /// are updated and registration is cancelled.
+    /// Registration errors returned by Firebase are also mapped
+    /// to user-friendly UI error messages.
     func signUp() {
         errorMessage = nil
         
@@ -141,9 +143,10 @@ class SignUpViewModel {
             } catch let error as RegisterError {
                 
                 switch error {
-                    
+                case .emailAlreadyInUse:
+                    self.emailError = "This email is already registered."
                 case .invalidEmail:
-                    self.emailError = "This email is already registered or invalid."
+                    self.emailError = "This email is invalid."
                     
                 default:
                     self.errorMessage = error.localizedDescription

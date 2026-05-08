@@ -32,10 +32,20 @@ class AuthFirebaseDatasource {
     ///   - email: The new user's email address.
     ///   - password: The new user's password.
     /// - Returns: The newly created Firebase user.
-    /// - Throws: An error if the registration process fails.
+    /// - Throws:
+    ///   - `RegisterError.emailAlreadyInUse` if the email is already registered.
+    ///   - Any other Firebase Authentication error that occurs during registration.
     func register(email: String, password: String) async throws -> FirebaseAuth.User {
-        let result = try await auth.createUser(withEmail: email, password: password)
-        return result.user
+        do {
+            let result = try await auth.createUser(withEmail: email, password: password)
+            return result.user
+        } catch let error as NSError {
+            if let authError = AuthErrorCode(rawValue: error.code),
+               authError == .emailAlreadyInUse {
+                throw RegisterError.emailAlreadyInUse
+            }
+            throw error
+        }
     }
     
     /// Signs out the currently authenticated user.
