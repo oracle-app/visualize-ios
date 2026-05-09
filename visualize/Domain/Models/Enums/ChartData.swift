@@ -1,11 +1,13 @@
 //
-//  ChartFullScreen.swift
+//  ChartData.swift
 //  visualize
 //
-//  Created by Maria Regina Orduño Lopez on 05/05/26.
+//  Created by Mariana Carrillo Holguin on 08/05/26.
 //
 
-enum ChartFullScreen {
+/// Typed chart model used for both card previews in VizReady and full-screen rendering.
+/// Parsed from a JSON string by `ChartConfigParser`.
+enum ChartData {
     case verticalBar(title: String, data: [String: Double], fieldNames: [String])
     case horizontalBar(title: String, data: [String: Double], fieldNames: [String])
     case stackedBar(title: String, data: [String: [Double]], stackNames: [String])
