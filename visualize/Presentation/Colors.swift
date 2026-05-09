@@ -1,30 +1,21 @@
 import SwiftUI
 
 extension Color {
-    static let primaryText = Color(
-        red: 19/255,
-        green: 32/255,
-        blue: 44/255
-    )
-    
-    static let primaryOrange = Color(
-        red: 235/255,
-        green: 150/255,
-        blue: 50/255
-    )
-    
-    static let appTeal       = Color(red: 52/255,  green: 121/255, blue: 124/255) // #34797C
-    static let appNavy       = Color(red: 19/255,  green: 33/255,  blue: 44/255)  // #13212C
-    static let appSubtitle   = Color(red: 89/255,  green: 114/255, blue: 113/255) // #597271
-    static let appMint       = Color(red: 230/255, green: 237/255, blue: 236/255) // #E6EDEC
+    static let primaryText = AppColors.Text.primary
+    static let appMint = AppColors.UI.background
+    static let appTeal = AppColors.Text.teriary
+    static let appSubtitle = AppColors.Text.secondary
+
+    static let appNavy = Color(red: 19/255,  green: 33/255,  blue: 44/255)  // #13212C
     static let appAmber      = Color(red: 232/255, green: 160/255, blue: 32/255)  // #E8A020
     static let appBackground = Color(red: 247/255, green: 247/255, blue: 247/255) // #F7F7F7
-    static let appOrange          = Color(red: 255/255, green: 122/255, blue: 0/255)   // #FF7A00
-    static let appCardTitle       = Color(red: 26/255,  green: 47/255,  blue: 63/255)  // #1A2F3F
+    static let appOrange = Color(red: 255/255, green: 122/255, blue: 0/255)   // #FF7A00
+    static let appCardTitle = Color(red: 26/255,  green: 47/255,  blue: 63/255)  // #1A2F3F
     static let appButtonBackground = Color(red: 235/255, green: 235/255, blue: 240/255) // #EBEBF0
     static let appLightTeal = Color(red: 230/255, green: 237/255, blue: 236/255) //#34797C
     static let appGray = Color(red: 217/255, green: 217/255, blue: 217/255) //#F5F4F2
-    
+    static let primaryOrange = Color(red: 235/255, green: 150/255, blue: 50/255)
+
     static let paletteAqua1 = Color(red: 0/255, green: 53/255, blue: 102/255) //#003566
     static let paletteAqua2 = Color(red: 0/255, green: 150/255, blue: 199/255) //#0096C7
     static let paletteAqua3 = Color(red: 15/255, green: 238/255, blue: 208/255) //#0FEED0
@@ -48,4 +39,18 @@ extension Color {
     static let paletteBlossom3 = Color(red: 255/255, green: 133/255, blue: 161/255) //#FF85A1
     static let paletteBlossom4 = Color(red: 255/255, green: 153/255, blue: 200/255) //#FF99C8
     static let paletteBlossom5 = Color(red: 247/255, green: 37/255, blue: 133/255) //#F72585
+}
+
+enum AppColors {
+    enum Text {
+        static let primary = Color("TextPrimary")
+        static let secondary = Color("TextSecondary")
+        static let teriary = Color("TextTertiary")
+        static let placeholder = Color("TextPlaceholder")
+    }
+
+    enum UI {
+        static let background = Color("ComponentBackground")
+        static let cardShare = Color("CardShare")
+    }
 }

@@ -40,7 +40,7 @@ struct EmailSearchField: View {
                     .fill(.ultraThinMaterial)
                 
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color(red: 230/255, green: 237/255, blue: 236/255).opacity(0.4))
+                    .fill(Color.appMint)
             }
         )
         .overlay(

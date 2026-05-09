@@ -8,6 +8,8 @@ DerivedData/
 .swiftpm
 .build
 visualize/GoogleService-Info.plist
+swiftlint_report.html
 
 # Claude Code
 .claude/
+Config.xcconfig

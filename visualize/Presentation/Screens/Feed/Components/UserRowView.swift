@@ -6,9 +6,9 @@
 //
 
 //
-// A row component that displays basic user information (name and email).
-// Optionally includes a remove button with a tap animation.
-// Designed to be reusable in lists, dropdowns, or selection views.
+/// A row component that displays basic user information (name and email).
+/// Optionally includes a remove button with a tap animation.
+/// Designed to be reusable in lists, dropdowns, or selection views.
 //
 
 import SwiftUI
@@ -19,14 +19,12 @@ struct UserRowView: View {
     var onRemove: (() -> Void)? = nil
     
     @State private var isPressed = false
+    @State private var showConfirmAlert = false
     
     var body: some View {
         HStack(spacing: 12) {
             
-            Image(systemName: "person.crop.circle.fill")
-                .resizable()
-                .frame(width: 40, height: 40)
-                .foregroundStyle(.gray)
+            UserAvatarView (user: user, size: 40, showBorder: false)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.username)
@@ -35,13 +33,13 @@ struct UserRowView: View {
                 
                 Text(user.email)
                     .font(.subheadline)
-                .foregroundStyle(Color.primaryText)
-                .opacity(0.5)
+                    .foregroundStyle(Color.primaryText)
+                    .opacity(0.5)
             }
             
             Spacer()
             
-            if let onRemove {
+            if onRemove != nil {
                 Button {
                     withAnimation(.easeInOut(duration: 0.15)) {
                         isPressed = true
@@ -51,12 +49,12 @@ struct UserRowView: View {
                         withAnimation(.easeInOut(duration: 0.15)) {
                             isPressed = false
                         }
-                        onRemove()
+                        showConfirmAlert = true
                     }
                     
                 } label: {
                     Image(systemName: "xmark.circle")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color(.systemRed))
                         .scaleEffect(isPressed ? 0.8 : 1)
                         .opacity(isPressed ? 0.6 : 1)
                 }
@@ -64,5 +62,16 @@ struct UserRowView: View {
             }
         }
         .padding(8)
+        .alert("Remove user?", isPresented: $showConfirmAlert) {
+            
+            Button("Remove", role: .destructive) {
+                onRemove?()
+            }
+            
+            Button("Cancel", role: .cancel) { }
+            
+        } message: {
+            Text("Are you sure you want to remove \(user.username) from the list?")
+        }
     }
 }

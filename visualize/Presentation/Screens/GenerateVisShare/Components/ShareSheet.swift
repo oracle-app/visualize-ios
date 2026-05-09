@@ -4,132 +4,306 @@
 //
 //  Created by Mariana Carrillo Holguin on 11/04/26.
 //
-// Main screen that allows users to share content with teammates and teams.
-// Integrates search functionality, selected users, and team selection in one view.
-// Coordinates interactions between the ViewModel and reusable UI components
-
 
 import SwiftUI
 
+// MARK: - Share Mode
+
+/// Represents the two sharing options available to the user.
+private enum ShareMode {
+    case personal
+    case teammates
+}
+
+// MARK: - Share Sheet View
+
+/// Bottom sheet that presents sharing options for a generated visualization.
+///
+/// This view handles two states:
+/// - An initial picker with "Save in personal feed" and "Share with teammates" options.
+/// - A full teammates view with user search, selected users, and team selection lists.
+///
+/// The sheet size is controlled externally via `sheetSize` so the parent
+/// (`VizReadyView`) can expand or collapse it programmatically.
 struct ShareSheet: View {
-    
+
+    // MARK: - State
+
     @State private var vm: ShareSheetViewModel
+    @State private var selectedOption: ShareMode? = nil
+
+    @Binding var sheetSize: PresentationDetent
+
+    @State private var isSharingExpanded = true
+    @State private var isMyTeamsExpanded = true
+    @State private var isJoinedTeamsExpanded = true
+
     @FocusState private var isFocused: Bool
     @Environment(\.dismiss) private var dismiss
-    
-    init(viewModel: ShareSheetViewModel) {
+
+    // MARK: - Init
+
+    init(viewModel: ShareSheetViewModel, sheetSize: Binding<PresentationDetent>) {
         _vm = State(initialValue: viewModel)
+        _sheetSize = sheetSize
     }
-    
+
+    // MARK: - Body
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 32)
-                .fill(.thinMaterial)
+                .fill(.ultraThinMaterial)
                 .ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                VStack(spacing: 16) {
-                    Spacer().frame(height: 1)
-                    
-                    // Botón de Personal Feed (UI estática)
-                    Text("Personal feed")
-                        .font(.title3.weight(.semibold))
-                        .foregroundColor(Color.appTeal)
-                        .frame(maxWidth: 360)
-                        .frame(height: 45)
-                        .background(.white)
-                        .clipShape(Capsule())
-                        .overlay(
-                            Capsule()
-                                .stroke(Color.appTeal, lineWidth: 1.5)
-                        )
-                        .shadow(color: .black.opacity(0.15), radius: 4)
-                    
-                    Text("Share with teammates")
-                        .font(.title3.weight(.semibold))
-                        .foregroundColor(Color.primaryText)
-                        .padding(.top, 15)
-                    
-                    // El binding '$vm.email' es correcto para un campo de texto
-                    EmailSearchField(
-                        email: $vm.email,
-                        onClear: { vm.clearEmail() },
-                        isFocused: _isFocused
-                    )
-                    .frame(maxWidth: 360)
-                    
-                    List {
-                        // Cambiado 'users' por 'selectedUsers' (la nueva fuente de verdad)
-                        if !vm.selectedUsers.isEmpty {
-                            UsersListView(
-                                users: vm.selectedUsers,
-                                onRemove: { vm.removeUser($0) }
-                            )
-                            .listRowInsets(EdgeInsets())
-                            .listRowBackground(Color.clear)
-                            .padding(.top, -20)
-                        }
-                        
-                        Section {
-                            ForEach(vm.myTeams) { team in
-                                TeamRow(
-                                    team: team,
-                                    isSelected: vm.isSelected(team),
-                                    onTap: { vm.toggleSelection(team) }
-                                )
-                            }
-                        } header: {
-                            Text("My teams")
-                                .foregroundStyle(Color.primaryText)
-                        }
-                        
-                        Section {
-                            ForEach(vm.joinedTeams) { team in
-                                TeamRow(
-                                    team: team,
-                                    isSelected: vm.isSelected(team),
-                                    onTap: { vm.toggleSelection(team) }
-                                )
-                            }
-                        } header: {
-                            Text("Teams I'm in")
-                                .foregroundStyle(Color.primaryText)
-                        }
-                    }
-                    .listStyle(.insetGrouped)
-                    .scrollContentBackground(.hidden)
-                    .listSectionSpacing(8)
-                    .padding(.top, -12)
+
+            VStack {
+                if selectedOption == nil || selectedOption == .personal {
+                    initialView
+                        .transition(.opacity)
+                        .id("initial")
                 }
-                .overlay(alignment: Alignment.top) {
-                    // Cambiado 'filteredUsers' por 'suggestedUsers' (resultados del debounce)
-                    if isFocused && !vm.suggestedUsers.isEmpty {
-                        SearchResultsDropdown(
-                            results: vm.suggestedUsers,
-                            onSelect: { vm.addUser($0)}
-                        )
-                        .frame(maxWidth: 360)
-                        .padding(.top, 200)
-                        .shadow(radius: 10)
-                        .zIndex(10)
-                    }
+
+                if selectedOption == .teammates {
+                    teammatesView
+                        .transition(.opacity)
+                        .id("teammates")
                 }
             }
-            .task { vm.loadData() } // Dispara la carga paralela
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", systemImage: "xmark") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Confirm", systemImage: "paperplane") {
-                        vm.confirmShare()
-                        dismiss()
-                    }
-                    .tint(Color.primaryOrange)
-                }
+            .animation(.easeInOut(duration: 0.22), value: selectedOption)
+            .toolbar { toolbar }
+        }
+        .onDisappear {
+            sheetSize = .fraction(0.28)
+            selectedOption = nil
+        }
+    }
+
+    // MARK: - Initial View
+
+    /// Compact picker shown when the sheet first appears.
+    /// Lets the user choose between saving to their personal feed or sharing with teammates.
+    private var initialView: some View {
+        VStack(spacing: 16) {
+
+            Button {
+                selectedOption = .personal
+            } label: {
+                Text("Save in personal feed")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(selectedOption == .personal ? .white : Color.appTeal)
+                    .frame(maxWidth: 360)
+                    .frame(height: 45)
+                    .background(Color.appTeal.opacity(selectedOption == .personal ? 1 : 0))
+                    .background(.white)
+                    .clipShape(.capsule)
+                    .overlay(Capsule().stroke(Color.appTeal, lineWidth: 1.5))
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.white, lineWidth: selectedOption == .personal ? 2 : 0)
+                    )
+            }
+
+            if selectedOption == .personal {
+                Text("You can share this with teammates later.")
+                    .font(.subheadline)
+                    .foregroundStyle(.gray)
+                    .transition(.opacity)
+            }
+
+            Button {
+                selectedOption = nil
+                selectedOption = .teammates
+                sheetSize = .large
+                vm.loadData()
+            } label: {
+                Text("Share with teammates")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(Color.appTeal)
+                    .frame(maxWidth: 360)
+                    .frame(height: 45)
+                    .background(.white)
+                    .clipShape(.capsule)
+                    .overlay(Capsule().stroke(Color.appTeal, lineWidth: 1.5))
             }
         }
+        .animation(.easeInOut(duration: 0.18), value: selectedOption)
+    }
+
+    // MARK: - Teammates View
+
+    /// Expanded view showing user search, selected users, and team selection lists.
+    private var teammatesView: some View {
+        VStack(spacing: 16) {
+
+            Text("Share with teammates")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(Color.primaryText)
+
+            EmailSearchField(
+                email: $vm.email,
+                onClear: vm.clearEmail,
+                isFocused: _isFocused
+            )
+            .frame(maxWidth: 360)
+
+            if vm.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List {
+
+                    // Sharing with section: shows selected users (or empty state prompt).
+                    Section {
+                        if isSharingExpanded {
+                            if vm.selectedUsers.isEmpty {
+                                Text("Select teammates individually, or choose a team below.")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
+                                    .listRowBackground(Color.clear)
+                                    .listRowInsets(EdgeInsets())
+                            } else {
+                                UsersListView(
+                                    users: vm.selectedUsers,
+                                    onRemove: vm.removeUser
+                                )
+                                .listRowInsets(EdgeInsets())
+                                .listRowBackground(Color.clear)
+                            }
+                        }
+                    } header: {
+                        collapsableHeader("Sharing with", isExpanded: $isSharingExpanded)
+                    }
+
+                    // My teams section: teams owned by the current user.
+                    Section {
+                        if isMyTeamsExpanded {
+                            if vm.myTeams.isEmpty {
+                                Text("You don't own any teams yet.")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
+                                    .listRowBackground(Color.clear)
+                                    .listRowInsets(EdgeInsets())
+                            } else {
+                                ForEach(vm.myTeams) { team in
+                                    TeamRow(
+                                        team: team,
+                                        isSelected: vm.isSelected(team),
+                                        onTap: { vm.toggleSelection(team) }
+                                    )
+                                }
+                            }
+                        }
+                    } header: {
+                        collapsableHeader("My teams", isExpanded: $isMyTeamsExpanded)
+                    }
+
+                    // Joined teams section: teams the user is a member of.
+                    Section {
+                        if isJoinedTeamsExpanded {
+                            if vm.joinedTeams.isEmpty {
+                                Text("You haven't joined any teams yet.")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
+                                    .listRowBackground(Color.clear)
+                                    .listRowInsets(EdgeInsets())
+                            } else {
+                                ForEach(vm.joinedTeams) { team in
+                                    TeamRow(
+                                        team: team,
+                                        isSelected: vm.isSelected(team),
+                                        onTap: { vm.toggleSelection(team) }
+                                    )
+                                }
+                            }
+                        }
+                    } header: {
+                        collapsableHeader("Teams I'm in", isExpanded: $isJoinedTeamsExpanded)
+                    }
+                }
+                .listStyle(.insetGrouped)
+                .listSectionSpacing(12)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+            }
+        }
+        .overlay(alignment: .top) {
+            if isFocused && !vm.suggestedUsers.isEmpty {
+                SearchResultsDropdown(
+                    results: vm.suggestedUsers,
+                    onSelect: vm.addUser
+                )
+                .frame(maxWidth: 360)
+                .padding(.top, 100)
+            }
+        }
+    }
+
+    // MARK: - Toolbar
+
+    /// Navigation bar buttons: cancel (xmark) and confirm (paperplane).
+    private var toolbar: some ToolbarContent {
+        Group {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel", systemImage: "xmark") {
+                    sheetSize = .fraction(0.28)
+                    selectedOption = nil
+                    dismiss()
+                }
+                .tint(Color.appNavy)
+            }
+
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Confirm", systemImage: "paperplane.fill") {
+                    vm.confirmShare()
+                    dismiss()
+                }
+                .tint(Color.primaryOrange)
+                .disabled(selectedOption == nil)
+            }
+        }
+    }
+
+    // MARK: - Collapsable Header
+
+    /// Returns a tappable header row with a chevron that toggles the given expansion binding.
+    private func collapsableHeader(_ title: String, isExpanded: Binding<Bool>) -> some View {
+        Button {
+            withAnimation {
+                isExpanded.wrappedValue.toggle()
+            }
+        } label: {
+            HStack {
+                Text(title)
+                    .foregroundStyle(.black)
+
+                Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
+                    .foregroundStyle(.black)
+            }
+        }
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        ShareSheet(
+            viewModel: ShareSheetViewModel(
+                teamRepository: TeamRepositoryImpl(
+                    teamDatasource: TeamDatasource(),
+                    userDatasource: UserDatasource()
+                ),
+                userRepository: UserRepositoryImpl(
+                    userDatasource: UserDatasource()
+                )
+            ),
+            sheetSize: .constant(.large)
+        )
     }
 }

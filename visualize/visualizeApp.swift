@@ -7,16 +7,23 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseAppCheck
+import SciChart
+
 
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-#if DEBUG
+
+    FirebaseApp.configure()
+
+    #if DEBUG
     guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
       return true
     }
-#endif
-    FirebaseApp.configure()
+
+    AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+    #endif
 
     return true
   }
@@ -24,8 +31,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 
 @main
-struct visualizeApp: App {
+struct VisualizeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    init() {
+        let key = Bundle.main.infoDictionary?["SCICHART_LICENSE_KEY"] as? String ?? ""
+        SCIChartSurface.setRuntimeLicenseKey(key)
+    }
     var body: some Scene {
         WindowGroup {
             ContentView()

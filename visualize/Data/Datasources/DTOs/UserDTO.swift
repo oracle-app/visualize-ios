@@ -16,5 +16,5 @@ struct UserDTO: Codable, Sendable {
     let themePreference: String
     let userType: String
     let username: String
-    let hiddenVisualizations: [String ]
+    let hiddenVisualizations: [String]
 }
