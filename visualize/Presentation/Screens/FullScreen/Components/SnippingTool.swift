@@ -7,82 +7,6 @@ enum ToolPanel: Equatable {
     case strokeWidth
 }
 
-// MARK: - Undo/Redo pill
-
-struct UndoRedoPill: View {
-    let canUndo: Bool
-    let canRedo: Bool
-    let onUndo: () -> Void
-    let onRedo: () -> Void
-
-    var body: some View {
-        HStack(spacing: 0) {
-            undoRedoButton("arrow.uturn.backward", enabled: canUndo, action: onUndo)
-            undoRedoButton("arrow.uturn.forward", enabled: canRedo, action: onRedo)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .background {
-            ZStack {
-                Color.white.opacity(0.65)
-                RoundedRectangle(cornerRadius: 32).fill(.ultraThinMaterial)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 32))
-        }
-        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 4)
-    }
-
-    @ViewBuilder
-    private func undoRedoButton(
-        _ name: String,
-        enabled: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(name, systemImage: name, action: action)
-            .labelStyle(.iconOnly)
-            .font(.system(size: 17, weight: .medium))
-            .foregroundStyle(enabled ? Color.appNavy : Color.appNavy.opacity(0.28))
-            .frame(width: 42, height: 40)
-            .disabled(!enabled)
-            .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Action buttons
-
-struct SnipActionButtons: View {
-    let onCancel: () -> Void
-    let onConfirm: () -> Void
-
-    var body: some View {
-        HStack(spacing: 10) {
-            Button("Cancel", systemImage: "xmark", action: onCancel)
-                .labelStyle(.iconOnly)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(Color.appNavy)
-                .frame(width: 46, height: 46)
-                .background {
-                    ZStack {
-                        Color.white.opacity(0.65)
-                        Circle().fill(.ultraThinMaterial)
-                    }
-                    .clipShape(Circle())
-                }
-                .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 2)
-                .buttonStyle(.plain)
-
-            Button("Confirm", systemImage: "checkmark", action: onConfirm)
-                .labelStyle(.iconOnly)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 46, height: 46)
-                .background(Color.primaryOrange, in: Circle())
-                .shadow(color: Color.primaryOrange.opacity(0.35), radius: 8, x: 0, y: 2)
-                .buttonStyle(.plain)
-        }
-    }
-}
-
 // MARK: - Floating toolbar
 
 struct SnipFloatingToolbar: View {
@@ -108,14 +32,7 @@ struct SnipFloatingToolbar: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background {
-            ZStack {
-                Color.white.opacity(0.65)
-                RoundedRectangle(cornerRadius: containerRadius).fill(.thinMaterial)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: containerRadius))
-        }
-        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 4)
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: containerRadius))
     }
 
     @ViewBuilder
@@ -215,14 +132,7 @@ struct SnipShapesPanelView: View {
             }
         }
         .padding(8)
-        .background {
-            ZStack {
-                Color.white.opacity(0.65)
-                RoundedRectangle(cornerRadius: 16).fill(.ultraThinMaterial)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-        }
-        .shadow(color: .black.opacity(0.12), radius: 14, x: 0, y: 4)
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
@@ -247,14 +157,7 @@ struct SnipStrokeWidthPanelView: View {
         .padding(.vertical, 14)
         .padding(.horizontal, 10)
         .frame(width: 64)
-        .background {
-            ZStack {
-                Color.white.opacity(0.65)
-                RoundedRectangle(cornerRadius: 16, style: .continuous).fill(.ultraThinMaterial)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        }
-        .shadow(color: .black.opacity(0.12), radius: 14, x: 0, y: 4)
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 
