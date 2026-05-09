@@ -57,7 +57,7 @@ struct FullScreenView: View {
                     Spacer()
                         .frame(height: 70)
                     Button {
-                        // Implement snipping tool
+                        Task { await viewModel.captureChartForEditor() }
                     } label: {
                         Image(systemName: "crop")
                             .font(.system(size: 28))
@@ -75,6 +75,11 @@ struct FullScreenView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .frame(height: 380)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .onGeometryChange(for: CGSize.self) { proxy in
+                            proxy.size
+                        } action: { newSize in
+                            viewModel.chartCaptureSize = newSize
+                        }
                         .padding(.horizontal, 12)
                         .padding(.top, 10)
                 } else {
@@ -108,6 +113,18 @@ struct FullScreenView: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
+            SnipEditorView(
+                chartImage: wrapped.image,
+                onPost: { _ in
+                    print("[FullScreen] SnipEditor onPost stub — image discarded")
+                    viewModel.dismissEditor()
+                },
+                onDismiss: {
+                    viewModel.dismissEditor()
+                }
+            )
         }
         .preventScreenShot()
         .toolbar(.hidden, for: .navigationBar)
