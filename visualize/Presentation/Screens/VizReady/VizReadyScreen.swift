@@ -28,7 +28,16 @@ struct VizReadyView: View {
 
     private let userDatasource = UserDatasource()
     private let teamDatasource = TeamDatasource()
-
+    
+    // MARK: - Init
+    /// - Parameters:
+    ///   - suggestions: Chart suggestions produced by the ML service (or mock).
+    ///   - onClose: Optional closure invoked when the user dismisses via the X button.
+    init(suggestions: [ChartSuggestion], onClose: (() -> Void)? = nil) {
+        self.onClose = onClose
+        self._viewModel = State(initialValue: VizReadyViewModel(suggestions: suggestions))
+    }
+    
     // MARK: - Body
 
     var body: some View {
@@ -136,17 +145,18 @@ struct VizReadyView: View {
     /// Vertically stacked list of selectable chart recommendation cards.
     private var cards: some View {
         VStack(spacing: 12) {
-            ForEach(viewModel.charts) { chart in
+            ForEach(viewModel.suggestions) { suggestion in
                 RecommendedChartCard(
-                    title: chart.title,
-                    isSelected: viewModel.isSelected(chart.id),
+                    title: viewModel.displayTitle(for: suggestion),
+                    chart: suggestion.chart,
+                    isSelected: viewModel.isSelected(suggestion.id),
                     onTap: {
                         withAnimation(.easeInOut(duration: 0.2)) {
-                            viewModel.toggleSelection(for: chart.id)
+                            viewModel.toggleSelection(for: suggestion.id)
                         }
                     },
                     onTitleChange: { newTitle in
-                        viewModel.updateTitle(newTitle, forID: chart.id)
+                        viewModel.updateTitle(newTitle, forID: suggestion.id)
                     }
                 )
             }
@@ -165,6 +175,17 @@ struct VizReadyView: View {
 // MARK: - Preview
 #if DEBUG
 #Preview {
-    VizReadyView()
+    VizReadyView(suggestions: [
+        ChartSuggestion(
+            id: 0,
+            name: "Survival Rate by Passenger Class",
+            chartType: .verticalBar,
+            chart: .verticalBar(
+                title: "Survival Rate by Passenger Class",
+                data: ["1": 107, "2": 93, "3": 218],
+                fieldNames: ["Pclass", "Survived"]
+            )
+        )
+    ])
 }
 #endif
