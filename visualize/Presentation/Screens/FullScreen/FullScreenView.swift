@@ -39,6 +39,8 @@ struct FullScreenView: View {
     // MARK: - Body
 
     var body: some View {
+        let parsedChart = ChartConfigParser.parse(from: card.configJSON)
+
         ZStack {
             Color.appMint
                 .ignoresSafeArea()
@@ -57,7 +59,8 @@ struct FullScreenView: View {
                     Spacer()
                         .frame(height: 70)
                     Button {
-                        Task { await viewModel.captureChartForEditor() }
+                        guard let chart = parsedChart else { return }
+                        Task { await viewModel.captureChartForEditor(chart) }
                     } label: {
                         Image(systemName: "crop")
                             .font(.system(size: 28))
@@ -65,11 +68,12 @@ struct FullScreenView: View {
                             .frame(width: 54, height: 54)
                             .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
                     }
+                    .disabled(parsedChart == nil)
                     .padding(.trailing)
                 }
 
                 // MARK: Chart
-                if let chart = ChartConfigParser.parse(from: card.configJSON) {
+                if let chart = parsedChart {
                     ChartRendererView(chart: chart)
                         .id(chartLoadID)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -35,8 +35,7 @@ struct SnipEditorView: View {
             ZStack {
                 Image(uiImage: chartImage)
                     .resizable()
-                    .scaledToFill()
-                    .clipped()
+                    .scaledToFit()
 
                 AnnotationCanvasView(model: model)
                 SnipGestureOverlayView(model: model)

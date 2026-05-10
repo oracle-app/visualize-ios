@@ -73,11 +73,17 @@ final class FullScreenViewModel {
 
     // MARK: - Capture
 
-    /// Builds `MockChartPlaceholderView`, captures it off-screen at `chartCaptureSize`,
-    /// and assigns the result to `capturedChartImage` to trigger `.fullScreenCover`.
-    func captureChartForEditor() async {
-        let mock = MockChartPlaceholderView()
-        guard let image = ViewSnapshot.capture(mock, size: chartCaptureSize) else {
+    /// Builds `ChartRendererView` for the given `chart`, captures it off-screen at
+    /// `chartCaptureSize`, and assigns the result to `capturedChartImage` to
+    /// trigger `.fullScreenCover`.
+    ///
+    /// Uses `ViewSnapshot.captureAsync` because `ChartRendererView` embeds
+    /// SciChart's Metal-backed `UIViewRepresentable`, whose first frame is
+    /// presented asynchronously via the GPU pipeline. A synchronous
+    /// `drawHierarchy` would capture a blank `CALayer`.
+    func captureChartForEditor(_ chart: ChartData) async {
+        let view = ChartRendererView(chart: chart)
+        guard let image = await ViewSnapshot.capture(view, size: chartCaptureSize) else {
             print("[FullScreen] Capture failed — no active window")
             return
         }
