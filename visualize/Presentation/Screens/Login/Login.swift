@@ -43,7 +43,7 @@ struct Login: View {
             // MARK: - Header Image
             
             ZStack {
-                Image("LoginBackg")
+                Image("AuthBackground")
                     .resizable()
                     .scaledToFill()
                     .clipped()

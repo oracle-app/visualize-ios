@@ -4,15 +4,25 @@
 //
 //  Created by Libia Fv on 19/04/26.
 //
-// Description:
-// The SplashScreen is the initial landing view of VisualizeApp, featuring a teal header and background image.
-// It highlights the app name "Visualize" and the tagline "Turn data into decisions." to communicate its purpose.
-// It includes authentication actions with "Log in" and "Sign up" buttons.
-// A small version label is shown at the bottom.
+// MARK: - Description
+//
+// The SplashScreen serves as the initial landing view of VisualizeApp.
+//
+// This screen:
+// - Displays the app branding and tagline
+// - Uses a themed authentication background image
+// - Presents the Visualize logo prominently in the header
+// - Provides primary authentication actions for logging in and signing up
+// - Shows the current app version at the bottom of the screen
+//
 
 import SwiftUI
 
+// MARK: - Splash Screen View
+
 struct SplashScreen: View {
+
+    // MARK: - Body
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,11 +31,17 @@ struct SplashScreen: View {
                 Color(Color.appTeal)
                     .ignoresSafeArea(edges: .top)
 
-                Image("SplashBackground")
+                Image("AuthBackground")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea(edges: .top)
                     .opacity(0.4)
+
+                Image("VisualizeLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 450, height: 120)
+                    .padding(.bottom, 80)
             }
             .frame(height: 240)
 
@@ -90,7 +106,14 @@ struct SplashScreen: View {
 
                 Text("V 1.0.0")
                     .font(.system(size: 11))
-                    .foregroundColor(Color(red: 121/255, green: 139/255, blue: 138/255).opacity(0.6))
+                    .foregroundColor(
+                        Color(
+                            red: 121/255,
+                            green: 139/255,
+                            blue: 138/255
+                        )
+                        .opacity(0.6)
+                    )
                     .padding(.bottom, 55)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -102,6 +125,8 @@ struct SplashScreen: View {
         .ignoresSafeArea(edges: .top)
     }
 }
+
+// MARK: - Preview
 
 #Preview {
     SplashScreen()
