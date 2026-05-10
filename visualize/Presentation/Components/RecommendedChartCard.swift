@@ -102,6 +102,10 @@ struct RecommendedChartCard: View {
             if let chart {
                 ChartRendererView(chart: chart)
                     .allowsHitTesting(false)
+                    .padding(15)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.white)
+                    .clipShape(.rect(cornerRadius: 10))
             } else {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color.white)

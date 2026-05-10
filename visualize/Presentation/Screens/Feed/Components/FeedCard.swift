@@ -106,7 +106,9 @@ struct FeedCard: View {
             }
             ChartRendererView(chart: chart)
                 .allowsHitTesting(false)
+                .padding(15)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.white)
                 .clipShape(.rect(cornerRadius: 10))
             if let sharedWith, !sharedWith.isEmpty {
                 HStack(spacing: -20) {

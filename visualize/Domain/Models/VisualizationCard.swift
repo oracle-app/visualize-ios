@@ -12,7 +12,7 @@ struct VisualizationCard: Identifiable, Hashable, Equatable{
     let title: String
     let author: String
     let authorID: String
-    let createdAt: Date
+    let createdAt: Da≈
     let chart: ChartData
     let chartType: ChartType
     let teamsSharedWith: [Team]
