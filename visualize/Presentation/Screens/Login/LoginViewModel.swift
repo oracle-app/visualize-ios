@@ -24,11 +24,26 @@ class LoginViewModel {
     
     // MARK: - Input State
     
-    var email = ""
-    var password = ""
+    var email = "" {
+        didSet {
+            if emailError != nil {
+                _ = validateEmail()
+            }
+        }
+    }
     
-    // MARK: - UI State
+    var password = "" {
+        didSet {
+            if passwordError != nil {
+                _ = validatePassword()
+            }
+        }
+    }
     
+    // MARK: - UI Error State
+    
+    var emailError: String? = nil
+    var passwordError: String? = nil
     var errorMessage: String? = nil
     var isLoading: Bool = false
     
@@ -38,41 +53,22 @@ class LoginViewModel {
     
     // MARK: - Initialization
     
-    /// Initializes the ViewModel with its required use case.
-    ///
-    /// - Parameter loginUseCase: Use case responsible for login business logic.
     init(loginUseCase: LoginUseCase) {
         self.loginUseCase = loginUseCase
     }
     
-    // MARK: - Computed Properties
-    
-    /// Indicates whether the login form is valid for submission.
-    ///
-    /// - Returns: `true` if both email and password are not empty.
-    var isFormValid: Bool {
-        !email.isEmpty &&
-        !password.isEmpty
-    }
-    
     // MARK: - Actions
     
-    /// Executes the login flow using the provided credentials.
-    ///
-    /// This method:
-    /// - Validates form state
-    /// - Calls `LoginUseCase`
-    /// - Handles loading and error states
-    /// - Prints user info on success (temporary debugging)
     func login() {
-        guard isFormValid else {
-            errorMessage = "Please fill all fields correctly"
-            return
-        }
+        errorMessage = nil
+        
+        let isEmailValid = validateEmail()
+        let isPasswordValid = validatePassword()
+        
+        guard isEmailValid && isPasswordValid else { return }
         
         Task {
             isLoading = true
-            errorMessage = nil
             
             do {
                 let user = try await loginUseCase.execute(
@@ -80,14 +76,43 @@ class LoginViewModel {
                     password: password
                 )
                 
-                print("UID: \(user.uid)")
                 print("Login success: \(user)")
                 
+            } catch let error as LoginError {
+                switch error {
+                case .emailRequired, .invalidEmail:
+                    self.emailError = "Please enter a valid email address."
+                case .passwordRequired:
+                    self.passwordError = "Required fields cannot be left blank."
+                }
+                
             } catch {
-                errorMessage = error.localizedDescription
+                self.errorMessage = error.localizedDescription
             }
             
             isLoading = false
         }
+    }
+    
+    // MARK: - Validation
+    
+    private func validateEmail() -> Bool {
+        if email.trimmingCharacters(in: .whitespaces).isEmpty {
+            emailError = "Required fields cannot be left blank."
+            return false
+        }
+        
+        emailError = nil
+        return true
+    }
+    
+    private func validatePassword() -> Bool {
+        if password.isEmpty {
+            passwordError = "Required fields cannot be left blank."
+            return false
+        }
+        
+        passwordError = nil
+        return true
     }
 }

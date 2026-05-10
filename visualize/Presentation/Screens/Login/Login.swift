@@ -68,6 +68,7 @@ struct Login: View {
                     InputField(
                         placeholder: "Email",
                         text: $viewModel.email,
+                        errorMessage: viewModel.emailError,
                         keyboardType: .emailAddress
                     )
                     .padding(.bottom, 28)
@@ -76,9 +77,22 @@ struct Login: View {
                     PasswordField(
                         placeholder: "Password",
                         text: $viewModel.password,
-                        isVisible: $isPasswordVisible
+                        isVisible: $isPasswordVisible,
+                        errorMessage: viewModel.passwordError
                     )
-                    .padding(.bottom, 8)
+                    .padding(
+                        .bottom,
+                        (
+                            viewModel.passwordError != nil &&
+                            !viewModel.passwordError!.isEmpty
+                        )
+                        ? 28
+                        : 8
+                    )
+                    .animation(
+                        .easeInOut(duration: 0.2),
+                        value: viewModel.passwordError
+                    )
 
                     // Forgot password action
                     HStack {
