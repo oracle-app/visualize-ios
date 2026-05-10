@@ -97,7 +97,6 @@ struct FullScreenView: View {
                     .padding(.top, 60)
                     
                 } else {
-                    // Si es válido, simplemente le pasamos card.chart
                     ChartRendererView(chart: card.chart)
                         .id(chartLoadID)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -115,8 +114,6 @@ struct FullScreenView: View {
         .toolbar(.hidden, for: .tabBar)
     }
 }
-
-// MARK: - Preview
 
 // MARK: - Preview
 
@@ -150,7 +147,7 @@ struct FullScreenView: View {
         author: "Mariana Islas",
         authorID: "1",
         createdAt: Date(),
-        chart: .unsupported(type: "Invalid JSON"), // Forzamos el estado de error
+        chart: .unsupported(type: "Invalid JSON"),
         chartType: .tile,
         teamsSharedWith: [],
         usersSharedWith: [],
