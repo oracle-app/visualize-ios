@@ -28,7 +28,11 @@ struct GeneratingVisualizationsView: View {
         }
         .task { await viewModel.startLoading() }
         .fullScreenCover(isPresented: $viewModel.navigateToVizReady) {
-            VizReadyView(onClose: { viewModel.dismissToUpload = true })
+            // Pass suggestions so VizReadyView can display chart previews on the cards
+            VizReadyView(
+                suggestions: viewModel.suggestions,
+                onClose: { viewModel.dismissToUpload = true }
+            )
         }
         .onChange(of: viewModel.dismissToUpload) { _, shouldDismiss in
             if shouldDismiss { dismiss() }
@@ -39,12 +43,12 @@ struct GeneratingVisualizationsView: View {
         VStack(spacing: 0) {
             Text(viewModel.title)
                 .font(.title.weight(.bold))
-                .foregroundColor(.appNavy)
+                .foregroundStyle(Color.appNavy)
                 .multilineTextAlignment(.center)
 
             Text(viewModel.message)
                 .font(.body.weight(.regular))
-                .foregroundColor(.appSubtitle)
+                .foregroundStyle(Color.appSubtitle)
                 .multilineTextAlignment(.center)
                 .padding(.top, 20)
                 .padding(.horizontal, 10)
@@ -56,10 +60,18 @@ struct GeneratingVisualizationsView: View {
                     .scaleEffect(1.5)
                     .padding(.top, 30)
             }
+            
+            if let error = viewModel.errorMessage {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 12)
+            }
 
             Text(viewModel.footerMessage)
                 .font(.body.weight(.regular))
-                .foregroundColor(.appSubtitle)
+                .foregroundStyle(Color.appSubtitle)
                 .multilineTextAlignment(.center)
                 .padding(.top, 26)
         }
@@ -72,7 +84,7 @@ struct GeneratingVisualizationsView: View {
         } label: {
             Text("Cancel")
                 .font(.title3.weight(.semibold))
-                .foregroundColor(.appTeal)
+                .foregroundStyle(Color.appTeal)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
                 .background(

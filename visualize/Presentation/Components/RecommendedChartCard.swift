@@ -6,29 +6,29 @@
 //
 
 import SwiftUI
-
 /// Selectable card that displays a single chart visualization option.
-///
 /// The card is stateless regarding title ownership: it fires `onTitleChange`
 /// so the caller's ViewModel can validate and persist the new value.
 struct RecommendedChartCard: View {
-
     // MARK: - Input
     let title: String
+    /// Parsed chart model to render as a non-interactive preview inside the card.
+    /// Falls back to a white placeholder when `nil`.
+    var chart: ChartData? = nil
     var isSelected: Bool = false
     var onTap: (() -> Void)? = nil
     var onTitleChange: ((String) -> Void)? = nil
-
+    
     // MARK: - Edit state
     @State private var isEditAlertPresented = false
     @State private var draft = ""
     private let charLimit = VizReadyViewModel.titleCharLimit
-
+    
     // MARK: - Body
     var body: some View {
         VStack(spacing: 12) {
             headerRow
-            chartPlaceholder
+            chartPreview
         }
         .padding(16)
         .background(isSelected ? Color.appTeal : Color.appMint)
@@ -51,9 +51,8 @@ struct RecommendedChartCard: View {
         .contentShape(Rectangle())
         .onTapGesture { onTap?() }
     }
-
+    
     // MARK: - Subviews
-
     private var headerRow: some View {
         HStack(alignment: .top, spacing: 12) {
             Text(title)
@@ -66,7 +65,6 @@ struct RecommendedChartCard: View {
             editButton
         }
     }
-
     private var editButton: some View {
         Button {
             draft = title
@@ -96,11 +94,21 @@ struct RecommendedChartCard: View {
             Text("Max \(charLimit) characters")
         }
     }
-
-    private var chartPlaceholder: some View {
-        RoundedRectangle(cornerRadius: 10)
-            .fill(Color.white)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    /// Non-interactive chart preview rendered from the parsed chart model.
+    /// `allowsHitTesting(false)` disables zoom, pan, and tooltips in card context.
+    /// Falls back to a white rounded rectangle when no chart model is provided.
+    private var chartPreview: some View {
+        Group {
+            if let chart {
+                ChartRendererView(chart: chart)
+                    .allowsHitTesting(false)
+            } else {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipShape(.rect(cornerRadius: 10))
     }
 
     private var selectionBorder: some View {
