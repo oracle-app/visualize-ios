@@ -69,16 +69,8 @@ struct FullScreenView: View {
                 }
 
                 // MARK: Chart
-                if let chart = ChartConfigParser.parse(from: card.configJSON) {
-                    ChartRendererView(chart: chart)
-                        .id(chartLoadID)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .frame(height: 380)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                        .padding(.horizontal, 12)
-                        .padding(.top, 10)
-                } else {
-
+                /// This should get the complete JSON from the DB and render it, not reuse the one of VisualizationCard
+                if case .unsupported = card.chart {
                     // MARK: Error State
                     VStack(spacing: 5) {
                         Text("Couldn't load")
@@ -103,8 +95,17 @@ struct FullScreenView: View {
                     .frame(height: 380)
                     .padding(.horizontal, 12)
                     .padding(.top, 60)
+                    
+                } else {
+                    // Si es válido, simplemente le pasamos card.chart
+                    ChartRendererView(chart: card.chart)
+                        .id(chartLoadID)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .frame(height: 380)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .padding(.horizontal, 12)
+                        .padding(.top, 10)
                 }
-
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -117,6 +118,8 @@ struct FullScreenView: View {
 
 // MARK: - Preview
 
+// MARK: - Preview
+
 #Preview("Scatter") {
     FullScreenView(card: VisualizationCard(
         id: "preview-id",
@@ -124,7 +127,8 @@ struct FullScreenView: View {
         author: "Mariana Islas",
         authorID: "1",
         createdAt: Date(),
-        configJSON: MockConfigJSON.chart,
+        chart: .tile(title: "Preview", value: 100, label: "Test"), // Le pasas un dato Mock
+        chartType: .tile,                                          // Le pasas el tipo Mock
         teamsSharedWith: [],
         usersSharedWith: [
             AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
@@ -146,7 +150,8 @@ struct FullScreenView: View {
         author: "Mariana Islas",
         authorID: "1",
         createdAt: Date(),
-        configJSON: "{}",
+        chart: .unsupported(type: "Invalid JSON"), // Forzamos el estado de error
+        chartType: .tile,
         teamsSharedWith: [],
         usersSharedWith: [],
         allUsersSharedWith: []

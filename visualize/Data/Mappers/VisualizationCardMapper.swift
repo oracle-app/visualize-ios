@@ -23,13 +23,30 @@ extension VisualizationDTO {
                 }
             }
             let allUsers = Array(allUsersDict.values)
+            let jsonString = self.previewJSON
+            let parsedChart = ChartConfigParser.parse(from: jsonString) ?? .unsupported(type: "Invalid JSON")
+            let derivedChartType: ChartType
+            switch parsedChart {
+            case .verticalBar:   derivedChartType = .verticalBar
+            case .horizontalBar: derivedChartType = .horizontalBar
+            case .stackedBar:    derivedChartType = .stackedBar
+            case .line:          derivedChartType = .line
+            case .pie:           derivedChartType = .pie
+            case .donut:         derivedChartType = .donut
+            case .scatter:       derivedChartType = .scatter
+            case .area:          derivedChartType = .area
+            case .tile:          derivedChartType = .tile
+            case .unsupported:
+                derivedChartType = .tile
+            }
             return VisualizationCard(
                 id: self.id ?? "",
                 title: self.title,
                 author: authorName,
                 authorID: self.authorID,
                 createdAt: self.createdAt,
-                configJSON: self.configJSON,
+                chart: parsedChart,
+                chartType: derivedChartType,
                 teamsSharedWith: teamsSharedWith,
                 usersSharedWith: usersSharedWith,
                 allUsersSharedWith: allUsers
