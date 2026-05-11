@@ -61,6 +61,7 @@ class FeedViewModel {
     /// Search task used for debounce — ignored by @Observable to avoid tracking issues.
     @ObservationIgnored
     private var searchTask: Task<Void, Never>?
+    private var toastTask: Task<Void, Never>?
 
     // MARK: - Initialization
     init(loadVisualizationsUseCase: LoadVisualizationsUseCase,
@@ -140,9 +141,11 @@ class FeedViewModel {
     
     @MainActor
     func showToast(_ toast: Toast) {
+        toastTask?.cancel()
         currentToast = toast
-        Task {
+        toastTask = Task {
             try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
             currentToast = nil
         }
     }
@@ -181,6 +184,7 @@ class FeedViewModel {
             do {
                 try await hideVisualizationUseCase.execute(userID: currentUserID, visualizationID: visualizationID)
                 allVisualizations.removeAll { $0.id == visualizationID }
+                searchResults.removeAll { $0.id == visualizationID }
                 applyLocalFilter()
                 await showToast(Toast(message: "Visualization removed from your feed", type: .success))
             } catch {
@@ -194,6 +198,7 @@ class FeedViewModel {
             do {
                 try await deleteVisualizationUseCase.execute(visualizationID: visualizationID)
                 allVisualizations.removeAll { $0.id == visualizationID }
+                searchResults.removeAll { $0.id == visualizationID }
                 applyLocalFilter()
                 await showToast(Toast(message: "Visualization deleted for everyone", type: .success))
             } catch {
