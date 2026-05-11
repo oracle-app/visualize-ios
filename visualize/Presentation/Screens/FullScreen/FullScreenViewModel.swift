@@ -11,9 +11,9 @@ import SwiftUI
 
 // MARK: - IdentifiableImage
 
-/// Thin `Identifiable` + `Sendable` wrapper around `UIImage`.
+/// Thin `Identifiable` wrapper around `UIImage`.
 /// Used to drive `.fullScreenCover(item:)` from `FullScreenViewModel`.
-struct IdentifiableImage: Identifiable, Sendable {
+struct IdentifiableImage: Identifiable {
     let id = UUID()
     let image: UIImage
 }
@@ -39,6 +39,7 @@ final class FullScreenViewModel {
 
     var capturedChartImage: IdentifiableImage?
     var chartCaptureSize: CGSize = CGSize(width: 800, height: 380)
+    var showCaptureError: Bool = false
 
     // MARK: - Dependencies
 
@@ -84,7 +85,7 @@ final class FullScreenViewModel {
     func captureChartForEditor(_ chart: ChartData) async {
         let view = ChartRendererView(chart: chart)
         guard let image = await ViewSnapshot.capture(view, size: chartCaptureSize) else {
-            print("[FullScreen] Capture failed — no active window")
+            showCaptureError = true
             return
         }
         capturedChartImage = IdentifiableImage(image: image)

@@ -130,6 +130,11 @@ struct FullScreenView: View {
                 }
             )
         }
+        .alert("Capture failed", isPresented: $viewModel.showCaptureError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Could not capture the chart. Please try again.")
+        }
         .preventScreenShot()
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
