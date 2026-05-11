@@ -16,6 +16,9 @@ struct LoadedListView: View {
     let onShare: (String, [AppUser], [AppUser], [String]) -> Void
     //let onShare: (String, [AppUser]) -> Void
     let onTap: (VisualizationCard) -> Void
+    let onHide: (String) -> Void
+    let onDelete: (String) -> Void
+    let currentUserID: String
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -27,7 +30,10 @@ struct LoadedListView: View {
                         date: item.createdAt,
                         onShare: { onShare(item.id, item.allUsersSharedWith, item.usersSharedWith, item.teamsSharedWith.map { $0.id }) },
                         onTap: { onTap(item) },
+                        onHide: { onHide(item.id) },
+                        onDelete: { onDelete(item.id) },
                         sharedWith: item.allUsersSharedWith,
+                        isOwner: item.authorID == currentUserID,
                         //configJSON: item.configJSON
                     )
                 }

@@ -28,6 +28,7 @@ class ShareTeammatesViewModel {
     // MARK: IDs
     // Temporary hardcoded user ID, will be replaced with authenticated session value.
     private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
+//    private let userID = "oEJtQz0gdbRpTZ8ETPCy"
     private let initialTeamIDs: [String]
     private let visualizationID: String
     
@@ -130,10 +131,12 @@ class ShareTeammatesViewModel {
     }
     /// Persists the current `selectedUsers` list to Firestore, replacing the previous one.
     func confirmShare() async throws {
+        let selectedTeams = (myTeams + joinedTeams).filter { selectedTeamIDs.contains($0.id) }
         let result = try await updateSharingUseCase.execute(
             visualizationID: visualizationID,
             users: selectedUsers,
-            teamIDs: Array(selectedTeamIDs)
+            teamIDs: Array(selectedTeamIDs),
+            teams: selectedTeams
         )
         self.selectedUsers = result.users
         self.selectedTeamIDs = Set(result.teamIDs)
