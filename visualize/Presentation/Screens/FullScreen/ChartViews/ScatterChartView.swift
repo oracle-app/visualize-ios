@@ -100,11 +100,8 @@ struct ScatterChartView: UIViewRepresentable {
 // MARK: - Preview
 
 #Preview {
-    ScatterChartView(
-        xValues: [34.5, 47.0, 62.0, 27.0, 22.0, 14.0, 30.0, 26.0, 18.0, 21.0],
-        yValues: [0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-        xLabel: "Age",
-        yLabel: "Survived"
-    )
-    .frame(height: 400)
+    if let chart = ChartConfigParser.parse(from: MockChartJSONs.scatterConfig) {
+        ChartRendererView(chart: chart)
+            .frame(height: 400)
+    }
 }

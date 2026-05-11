@@ -84,7 +84,7 @@ struct VerticalBarChartView: UIViewRepresentable {
  
 // MARK: - Preview
 #Preview {
-    if let chart = ChartConfigParser.parse(from: MockChartJSONs.verticalBar) {
+    if let chart = ChartConfigParser.parse(from: MockChartJSONs.verticalBarConfig) {
         ChartRendererView(chart: chart)
             .frame(height: 400)
     }

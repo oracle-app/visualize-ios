@@ -40,12 +40,16 @@ struct ShareSheet: View {
 
     @FocusState private var isFocused: Bool
     @Environment(\.dismiss) private var dismiss
+    
+    /// Called after the visualization is successfully created in Firestore.
+    var onConfirm: (() -> Void)?
 
     // MARK: - Init
 
-    init(viewModel: ShareSheetViewModel, sheetSize: Binding<PresentationDetent>) {
+    init(viewModel: ShareSheetViewModel, sheetSize: Binding<PresentationDetent>, onConfirm: (() -> Void)? = nil) {
         _vm = State(initialValue: viewModel)
         _sheetSize = sheetSize
+        self.onConfirm = onConfirm
     }
 
     // MARK: - Body
@@ -260,15 +264,18 @@ struct ShareSheet: View {
 
             ToolbarItem(placement: .confirmationAction) {
                 Button("Confirm", systemImage: "paperplane.fill") {
-                    vm.confirmShare()
-                    dismiss()
+                    Task {
+                        // Create the visualization in Firestore, then dismiss and notify parent
+                        try? await vm.confirmShare()
+                        dismiss()
+                        onConfirm?()
+                    }
                 }
                 .tint(Color.primaryOrange)
                 .disabled(selectedOption == nil)
             }
         }
     }
-
     // MARK: - Collapsable Header
 
     /// Returns a tappable header row with a chevron that toggles the given expansion binding.
@@ -292,16 +299,30 @@ struct ShareSheet: View {
 // MARK: - Preview
 
 #Preview {
+    let userDatasource = UserDatasource()
+    let teamDatasource = TeamDatasource()
+    let vizDatasource = VisualizationDatasource(
+        userDatasource: userDatasource,
+        teamsDatasource: teamDatasource
+    )
     NavigationStack {
         ShareSheet(
             viewModel: ShareSheetViewModel(
                 teamRepository: TeamRepositoryImpl(
-                    teamDatasource: TeamDatasource(),
-                    userDatasource: UserDatasource()
+                    teamDatasource: teamDatasource,
+                    userDatasource: userDatasource
                 ),
-                userRepository: UserRepositoryImpl(
-                    userDatasource: UserDatasource()
-                )
+                userRepository: UserRepositoryImpl(userDatasource: userDatasource),
+                createVisualizationUseCase: CreateVisualizationUseCase(
+                    visualizationRepository: VisualizationRepositoryImpl(
+                        userDatasource: userDatasource,
+                        visualizationDatasource: vizDatasource,
+                        teamsDatasource: teamDatasource
+                    )
+                ),
+                chartTitle: "Survival Rate by Passenger Class",
+                chartConfigJSON: MockChartJSONs.verticalBarConfig,
+                chartPreviewJSON: MockChartJSONs.verticalBarPreview
             ),
             sheetSize: .constant(.large)
         )
