@@ -27,7 +27,7 @@ struct ProfileHeaderView: View {
     // MARK: - Private properties
 
     private var headerBackground: some View {
-        Image("SignUpBackg")
+        Image("SignUpBackground")
             .resizable()
             .scaledToFill()
             .frame(maxWidth: .infinity)
