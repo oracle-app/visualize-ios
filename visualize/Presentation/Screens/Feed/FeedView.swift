@@ -127,7 +127,8 @@ struct FeedView: View {
                             ),
                             teamRepository: teamRepository,
                             updateSharingUseCase: UpdateSharingUseCase(
-                                visualizationRepository: visualizationRepository
+                                visualizationRepository: visualizationRepository,
+                                userRepository: UserRepositoryImpl(userDatasource: userDatasource)
                             ),
                             visualizationID: payload.visualizationID,
                             initialUsers: payload.editableUsers,
@@ -135,6 +136,7 @@ struct FeedView: View {
                         ),
                         onConfirm: {
                             viewModel.loadData()
+                            viewModel.showToast(Toast(message: "Sharing updated successfully", type: .success))
                         }
                     )
                     .presentationDetents([.medium, .large])
@@ -143,6 +145,19 @@ struct FeedView: View {
             .navigationBarTitleDisplayMode(.inline)
             .coordinateSpace(name: "scroll")
         }
+        .overlay(alignment: .bottom) {
+            if let toast = viewModel.currentToast {
+                ToastView(toast: toast)
+                    .padding(.bottom, 74)
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                            removal: .opacity.combined(with: .scale(scale: 0.95))
+                        )
+                    )
+            }
+        }
+        .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
         .onGeometryChange(for: EdgeInsets.self) {
             $0.safeAreaInsets
         } action: { newValue in
@@ -225,7 +240,10 @@ struct FeedView: View {
                         },
                         onTap: { card in
                             selectedCard = card
-                        }
+                        },
+                        onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
+                        onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
+                        currentUserID: viewModel.currentUserID,
                     )
                 default:
                     EmptyView()
@@ -253,7 +271,10 @@ struct FeedView: View {
                     },
                     onTap: { card in
                         selectedCard = card
-                    }
+                    },
+                    onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
+                    onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
+                    currentUserID: viewModel.currentUserID,
                 )
             }
         } else {
@@ -281,11 +302,15 @@ struct FeedView: View {
                     },
                     onTap: { card in
                         selectedCard = card
-                    }
+                    },
+                    onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
+                    onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
+                    currentUserID: viewModel.currentUserID,
                 )
             }
         }
     }
+
 }
 
 // MARK: - View Extensions

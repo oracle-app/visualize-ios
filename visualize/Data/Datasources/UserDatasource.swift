@@ -62,4 +62,12 @@ class UserDatasource{
             .getDocuments()
         return snapshot.documents.compactMap { try? $0.data(as: UserDTO.self) }
     }
+    func addHiddenVisualization(userID: String, visualizationID: String) async throws {
+        try await firebase.collection("users").document(userID)
+            .updateData(["hiddenVisualizations": FieldValue.arrayUnion([visualizationID])])
+    }
+    func removeHiddenVisualization(userID: String, visualizationID: String) async throws {
+        try await firebase.collection("users").document(userID)
+            .updateData(["hiddenVisualizations": FieldValue.arrayRemove([visualizationID])])
+    }
 }

@@ -15,21 +15,18 @@ struct NavBar: View {
     @State private var feedViewModel: FeedViewModel = {
         let userDS = UserDatasource()
         let teamsDS = TeamDatasource()
-        let visualizationDS = VisualizationDatasource(
-            userDatasource: userDS,
-            teamsDatasource: teamsDS
-        )
+        let visualizationDS = VisualizationDatasource(userDatasource: userDS, teamsDatasource: teamsDS)
         let repo = VisualizationRepositoryImpl(
             userDatasource: userDS,
             visualizationDatasource: visualizationDS,
             teamsDatasource: teamsDS
         )
-        let useCase = LoadVisualizationsUseCase(visualizationRepository: repo)
-        let searchUseCase = SearchVisualizationsUseCase(visualizationRepository: repo)
+        let userRepo = UserRepositoryImpl(userDatasource: userDS)
         return FeedViewModel(
-            loadVisualizationsUseCase: useCase,
-            searchVisualizationsUseCase: searchUseCase,
-            
+            loadVisualizationsUseCase: LoadVisualizationsUseCase(visualizationRepository: repo),
+            searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
+            hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
+            deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo)
         )
     }()
     

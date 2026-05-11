@@ -128,5 +128,11 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         let dtos = try await visualizationDatasource.searchVisualizations(userID: userID, query: query)
         return try await fetchDetailsAndMap(dtos: dtos)
     }
+    func deleteVisualization(visualizationID: String) async throws {
+        try await visualizationDatasource.deleteVisualization(visualizationID: visualizationID)
+    }
 
+    func removeUserFromSharedWith(visualizationID: String, userID: String) async throws {
+        try await visualizationDatasource.removeUserFromSharedWith(visualizationID: visualizationID, userID: userID)
+    }
 }
