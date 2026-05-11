@@ -39,6 +39,8 @@ struct FullScreenView: View {
     // MARK: - Body
 
     var body: some View {
+        let parsedChart = ChartConfigParser.parse(from: card.configJSON)
+
         ZStack {
             Color.appMint
                 .ignoresSafeArea()
@@ -57,7 +59,8 @@ struct FullScreenView: View {
                     Spacer()
                         .frame(height: 70)
                     Button {
-                        // Implement snipping tool
+                        guard let chart = parsedChart else { return }
+                        Task { await viewModel.captureChartForEditor(chart) }
                     } label: {
                         Image(systemName: "crop")
                             .font(.system(size: 28))
@@ -65,16 +68,22 @@ struct FullScreenView: View {
                             .frame(width: 54, height: 54)
                             .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
                     }
+                    .disabled(parsedChart == nil)
                     .padding(.trailing)
                 }
 
                 // MARK: Chart
-                if let chart = ChartConfigParser.parse(from: card.configJSON) {
+                if let chart = parsedChart {
                     ChartRendererView(chart: chart)
                         .id(chartLoadID)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .frame(height: 380)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .onGeometryChange(for: CGSize.self) { proxy in
+                            proxy.size
+                        } action: { newSize in
+                            viewModel.chartCaptureSize = newSize
+                        }
                         .padding(.horizontal, 12)
                         .padding(.top, 10)
                 } else {
@@ -108,6 +117,23 @@ struct FullScreenView: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
+            SnipEditorView(
+                chartImage: wrapped.image,
+                onPost: { _ in
+                    print("[FullScreen] SnipEditor onPost stub — image discarded")
+                    viewModel.dismissEditor()
+                },
+                onDismiss: {
+                    viewModel.dismissEditor()
+                }
+            )
+        }
+        .alert("Capture failed", isPresented: $viewModel.showCaptureError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Could not capture the chart. Please try again.")
         }
         .preventScreenShot()
         .toolbar(.hidden, for: .navigationBar)
