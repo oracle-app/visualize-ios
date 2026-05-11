@@ -129,8 +129,8 @@ struct FullScreenView: View {
         author: "Mariana Islas",
         authorID: "1",
         createdAt: Date(),
-        chart: .tile(title: "Preview", value: 100, label: "Test"), // Le pasas un dato Mock
-        chartType: .tile,                                          // Le pasas el tipo Mock
+        chart: .tile(title: "Preview", value: 100, label: "Test"),
+        chartType: .tile,
         teamsSharedWith: [],
         usersSharedWith: [
             AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
