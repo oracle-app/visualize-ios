@@ -7,13 +7,14 @@
 
 import Foundation
 
-struct VisualizationCard: Identifiable, Hashable {
+struct VisualizationCard: Identifiable, Hashable, Equatable{
     let id: String
     let title: String
     let author: String
     let authorID: String
     let createdAt: Date
-    let configJSON: String
+    let chart: ChartData
+    let chartType: ChartType
     let teamsSharedWith: [Team]
     let usersSharedWith: [AppUser]
     let allUsersSharedWith: [AppUser]
