@@ -10,7 +10,6 @@ import FirebaseCore
 import FirebaseAppCheck
 import SciChart
 
-
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
@@ -29,7 +28,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   }
 }
 
-
 @main
 struct VisualizeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
@@ -39,7 +37,9 @@ struct VisualizeApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(
+                authRepository: AuthRepositoryImpl(source: AuthFirebaseDatasource())
+            )
         }
     }
 }

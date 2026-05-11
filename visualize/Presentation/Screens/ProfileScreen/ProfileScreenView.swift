@@ -10,7 +10,16 @@ import SwiftUI
 struct ProfileScreenView: View {
     // MARK: - State properties
 
-    @State private var viewModel: ProfileScreenViewModel = .init()
+    @State private var viewModel: ProfileScreenViewModel
+
+    // MARK: - Initialization
+
+    init(logoutUseCase: LogoutUseCase, sessionManager: SessionManager) {
+        _viewModel = State(initialValue: ProfileScreenViewModel(
+            logoutUseCase: logoutUseCase,
+            sessionManager: sessionManager
+        ))
+    }
 
     // MARK: - Internal properties
 
@@ -86,5 +95,9 @@ private enum Metrics {
 }
 
 #Preview {
-    ProfileScreenView()
+    let repo = AuthRepositoryImpl(source: AuthFirebaseDatasource())
+    ProfileScreenView(
+        logoutUseCase: LogoutUseCase(repository: repo),
+        sessionManager: SessionManager(isLoggedIn: true)
+    )
 }

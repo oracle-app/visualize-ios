@@ -19,6 +19,7 @@ import Observation
 /// - Validates form state
 /// - Coordinates login flow through `LoginUseCase`
 ///
+@MainActor
 @Observable
 class LoginViewModel {
     
@@ -33,16 +34,15 @@ class LoginViewModel {
     var isLoading: Bool = false
     
     // MARK: - Dependencies
-    
+
     private let loginUseCase: LoginUseCase
-    
+    private let sessionManager: SessionManager
+
     // MARK: - Initialization
-    
-    /// Initializes the ViewModel with its required use case.
-    ///
-    /// - Parameter loginUseCase: Use case responsible for login business logic.
-    init(loginUseCase: LoginUseCase) {
+
+    init(loginUseCase: LoginUseCase, sessionManager: SessionManager) {
         self.loginUseCase = loginUseCase
+        self.sessionManager = sessionManager
     }
     
     // MARK: - Computed Properties
@@ -75,13 +75,11 @@ class LoginViewModel {
             errorMessage = nil
             
             do {
-                let user = try await loginUseCase.execute(
+                _ = try await loginUseCase.execute(
                     email: email,
                     password: password
                 )
-                
-                print("UID: \(user.uid)")
-                print("Login success: \(user)")
+                sessionManager.didLogIn()
                 
             } catch {
                 errorMessage = error.localizedDescription

@@ -5,6 +5,7 @@
 //  Created by Zuleyca Guadalupe Balles Soto on 28/04/26.
 //
 
+import Foundation
 import Observation
 
 /// Defines the available chart color themes for the profile screen.
@@ -41,6 +42,9 @@ final class ProfileScreenViewModel {
     private(set) var username: String = "Diana Escalante"
     private(set) var email: String = "dianaescalante@gmail.com"
     private(set) var selectedChartTheme: ChartColorTheme = .aqua
+    private(set) var logoutError: String?
+
+    let availableChartThemes: [ChartColorTheme] = ChartColorTheme.allCases
 
     var aboutItems: [AboutItem] {
         [
@@ -55,7 +59,17 @@ final class ProfileScreenViewModel {
         ]
     }
 
-    let availableChartThemes: [ChartColorTheme] = ChartColorTheme.allCases
+    // MARK: - Private properties
+
+    private let logoutUseCase: LogoutUseCase
+    private let sessionManager: SessionManager
+
+    // MARK: - Initialization
+
+    init(logoutUseCase: LogoutUseCase, sessionManager: SessionManager) {
+        self.logoutUseCase = logoutUseCase
+        self.sessionManager = sessionManager
+    }
 
     // MARK: - Internal methods
 
@@ -72,7 +86,12 @@ final class ProfileScreenViewModel {
 
     /// Handles the logout action.
     func logOut() {
-        // TODO: Implement in feature/authentication/logout
+        do {
+            try logoutUseCase.execute()
+            sessionManager.didLogOut()
+        } catch {
+            logoutError = error.localizedDescription
+        }
     }
 
     // MARK: - Private methods

@@ -11,6 +11,9 @@
 
 import SwiftUI
 struct NavBar: View {
+    let logoutUseCase: LogoutUseCase
+    let sessionManager: SessionManager
+
     @State private var selectedTab: Tabs = .feed
     @State private var feedViewModel: FeedViewModel = {
         let userDS = UserDatasource()
@@ -33,15 +36,15 @@ struct NavBar: View {
         )
     }()
     
-    init() {
+    init(logoutUseCase: LogoutUseCase, sessionManager: SessionManager) {
+        self.logoutUseCase = logoutUseCase
+        self.sessionManager = sessionManager
+
         let appearance = UITabBarAppearance()
         appearance.configureWithDefaultBackground()
-        
         appearance.stackedLayoutAppearance.selected.iconColor = .systemMint
         appearance.stackedLayoutAppearance.normal.iconColor = .black
-        
-        
-        UITabBar.appearance().standardAppearance =  appearance
+        UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
     
@@ -67,8 +70,10 @@ struct NavBar: View {
                     Label("", systemImage: "person.2")
                 }
                 .tag(Tabs.teams)
-            ProfileScreenView()
-            Color.blue.ignoresSafeArea()
+            ProfileScreenView(
+                logoutUseCase: logoutUseCase,
+                sessionManager: sessionManager
+            )
                     .tabItem{
                     Label("",systemImage: "person.circle")
                 }
@@ -77,6 +82,10 @@ struct NavBar: View {
     }
 }
 #Preview {
-    NavBar()
+    let repo = AuthRepositoryImpl(source: AuthFirebaseDatasource())
+    NavBar(
+        logoutUseCase: LogoutUseCase(repository: repo),
+        sessionManager: SessionManager(isLoggedIn: true)
+    )
 }
 

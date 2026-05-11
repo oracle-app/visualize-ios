@@ -138,13 +138,11 @@ struct Login: View {
 // MARK: - Preview
 
 #Preview {
+    let repo = AuthRepositoryImpl(source: AuthFirebaseDatasource())
     Login(
         viewModel: LoginViewModel(
-            loginUseCase: LoginUseCase(
-                repository: AuthRepositoryImpl(
-                    source: AuthFirebaseDatasource()
-                )
-            )
+            loginUseCase: LoginUseCase(repository: repo),
+            sessionManager: SessionManager(isLoggedIn: false)
         )
     )
 }
