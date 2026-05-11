@@ -6,6 +6,13 @@
 //
 
 protocol UserRepository {
+    /// Retrieves a user by their unique identifier.
+    ///
+    /// - Parameter userID: The unique identifier of the user.
+    /// - Returns: The domain user (`AppUser`) matching the given ID.
+    /// - Throws: An error if the user cannot be found or the fetch fails.
+    func getUserByID(userID: String) async throws -> AppUser
+
     func getUserSuggestionsByEmail(email: String) async throws -> [AppUser]
     
     /// Creates a new user in the system.

@@ -11,7 +11,6 @@
 
 import SwiftUI
 struct NavBar: View {
-    let logoutUseCase: LogoutUseCase
     let sessionManager: SessionManager
 
     @State private var selectedTab: Tabs = .feed
@@ -32,13 +31,24 @@ struct NavBar: View {
         return FeedViewModel(
             loadVisualizationsUseCase: useCase,
             searchVisualizationsUseCase: searchUseCase,
-            
+
         )
     }()
-    
-    init(logoutUseCase: LogoutUseCase, sessionManager: SessionManager) {
-        self.logoutUseCase = logoutUseCase
+
+    private let logoutUseCase: LogoutUseCase
+    private let getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase
+
+    init(sessionManager: SessionManager) {
         self.sessionManager = sessionManager
+
+        let authSource = AuthFirebaseDatasource()
+        let authRepo = AuthRepositoryImpl(source: authSource)
+        let userRepo = UserRepositoryImpl(userDatasource: UserDatasource())
+        self.logoutUseCase = LogoutUseCase(repository: authRepo)
+        self.getCurrentUserProfileUseCase = GetCurrentUserProfileUseCase(
+            authRepository: authRepo,
+            userRepository: userRepo
+        )
 
         let appearance = UITabBarAppearance()
         appearance.configureWithDefaultBackground()
@@ -72,6 +82,7 @@ struct NavBar: View {
                 .tag(Tabs.teams)
             ProfileScreenView(
                 logoutUseCase: logoutUseCase,
+                getCurrentUserProfileUseCase: getCurrentUserProfileUseCase,
                 sessionManager: sessionManager
             )
                     .tabItem{
@@ -82,10 +93,6 @@ struct NavBar: View {
     }
 }
 #Preview {
-    let repo = AuthRepositoryImpl(source: AuthFirebaseDatasource())
-    NavBar(
-        logoutUseCase: LogoutUseCase(repository: repo),
-        sessionManager: SessionManager(isLoggedIn: true)
-    )
+    NavBar(sessionManager: SessionManager(isLoggedIn: true))
 }
 

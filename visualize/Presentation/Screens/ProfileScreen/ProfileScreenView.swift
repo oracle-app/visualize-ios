@@ -14,9 +14,14 @@ struct ProfileScreenView: View {
 
     // MARK: - Initialization
 
-    init(logoutUseCase: LogoutUseCase, sessionManager: SessionManager) {
+    init(
+        logoutUseCase: LogoutUseCase,
+        getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase,
+        sessionManager: SessionManager
+    ) {
         _viewModel = State(initialValue: ProfileScreenViewModel(
             logoutUseCase: logoutUseCase,
+            getCurrentUserProfileUseCase: getCurrentUserProfileUseCase,
             sessionManager: sessionManager
         ))
     }
@@ -76,6 +81,9 @@ struct ProfileScreenView: View {
             }
             .scrollIndicators(.hidden)
             .ignoresSafeArea(edges: .top)
+            .onAppear {
+                viewModel.loadProfile()
+            }
         }
     }
 }
@@ -95,9 +103,14 @@ private enum Metrics {
 }
 
 #Preview {
-    let repo = AuthRepositoryImpl(source: AuthFirebaseDatasource())
+    let authRepo = AuthRepositoryImpl(source: AuthFirebaseDatasource())
+    let userRepo = UserRepositoryImpl(userDatasource: UserDatasource())
     ProfileScreenView(
-        logoutUseCase: LogoutUseCase(repository: repo),
+        logoutUseCase: LogoutUseCase(repository: authRepo),
+        getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase(
+            authRepository: authRepo,
+            userRepository: userRepo
+        ),
         sessionManager: SessionManager(isLoggedIn: true)
     )
 }

@@ -36,10 +36,7 @@ struct ContentView: View {
 
     var body: some View {
         if sessionManager.isLoggedIn {
-            NavBar(
-                logoutUseCase: LogoutUseCase(repository: authRepository),
-                sessionManager: sessionManager
-            )
+            NavBar(sessionManager: sessionManager)
         } else {
             Login(
                 viewModel: LoginViewModel(

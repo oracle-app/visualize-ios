@@ -39,9 +39,10 @@ enum ChartColorTheme: String, CaseIterable, Identifiable {
 final class ProfileScreenViewModel {
     // MARK: - Internal properties
 
-    private(set) var username: String = "Diana Escalante"
-    private(set) var email: String = "dianaescalante@gmail.com"
+    private(set) var username: String = ""
+    private(set) var email: String = ""
     private(set) var selectedChartTheme: ChartColorTheme = .aqua
+    private(set) var isLoadingProfile: Bool = false
     private(set) var logoutError: String?
 
     let availableChartThemes: [ChartColorTheme] = ChartColorTheme.allCases
@@ -62,16 +63,37 @@ final class ProfileScreenViewModel {
     // MARK: - Private properties
 
     private let logoutUseCase: LogoutUseCase
+    private let getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase
     private let sessionManager: SessionManager
 
     // MARK: - Initialization
 
-    init(logoutUseCase: LogoutUseCase, sessionManager: SessionManager) {
+    init(
+        logoutUseCase: LogoutUseCase,
+        getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase,
+        sessionManager: SessionManager
+    ) {
         self.logoutUseCase = logoutUseCase
+        self.getCurrentUserProfileUseCase = getCurrentUserProfileUseCase
         self.sessionManager = sessionManager
     }
 
     // MARK: - Internal methods
+
+    /// Loads the current user profile from the database.
+    func loadProfile() {
+        Task {
+            isLoadingProfile = true
+            do {
+                let user: AppUser = try await getCurrentUserProfileUseCase.execute()
+                username = user.username
+                email = user.email
+            } catch {
+                logoutError = error.localizedDescription
+            }
+            isLoadingProfile = false
+        }
+    }
 
     /// Updates the selected chart color theme.
     /// - Parameter theme: The chart color theme selected by the user.
