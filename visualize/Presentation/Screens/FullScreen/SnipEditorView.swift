@@ -35,8 +35,7 @@ struct SnipEditorView: View {
             ZStack {
                 Image(uiImage: chartImage)
                     .resizable()
-                    .scaledToFill()
-                    .clipped()
+                    .scaledToFit()
 
                 AnnotationCanvasView(model: model)
                 SnipGestureOverlayView(model: model)
@@ -55,24 +54,6 @@ struct SnipEditorView: View {
             }
 
             VStack(spacing: 0) {
-                HStack(alignment: .top) {
-                    UndoRedoPill(
-                        canUndo: model.canUndo,
-                        canRedo: model.canRedo,
-                        onUndo: { model.undo() },
-                        onRedo: { model.redo() }
-                    )
-
-                    Spacer()
-
-                    SnipActionButtons(
-                        onCancel: { showDiscardAlert = true },
-                        onConfirm: { showPostAlert = true }
-                    )
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 12)
-
                 Spacer()
 
                 HStack(alignment: .bottom, spacing: 0) {
@@ -107,6 +88,8 @@ struct SnipEditorView: View {
             .animation(.spring(duration: 0.22, bounce: 0.1), value: openPanel)
         }
         .preferredColorScheme(.light)
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbarBackground(.hidden, for: .bottomBar)
         .alert("Discard changes?", isPresented: $showDiscardAlert) {
             Button("Discard", role: .destructive) { onDismiss() }
             Button("Continue", role: .cancel) {}
@@ -131,7 +114,27 @@ struct SnipEditorView: View {
             Button("Add") { bindable.commitText() }
         }
         .toolbar {
-            if model.activeTool == .crop && model.liveCropRect != nil {
+            ToolbarItem(placement: .topBarLeading) {
+                ControlGroup {
+                    Button("Undo", systemImage: "arrow.uturn.backward") { model.undo() }
+                        .disabled(!model.canUndo)
+                    Button("Redo", systemImage: "arrow.uturn.forward") { model.redo() }
+                        .disabled(!model.canRedo)
+                }
+                .controlGroupStyle(.navigation)
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Cancel", systemImage: "xmark") { showDiscardAlert = true }
+                    .tint(Color.appNavy)
+            }
+
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Confirm", systemImage: "checkmark") { showPostAlert = true }
+                    .tint(Color.primaryOrange)
+            }
+
+            if model.activeTool == .crop, model.liveCropRect != nil {
                 ToolbarItem(placement: .bottomBar) {
                     Button("Cancel") { model.cancelCrop() }
                 }
