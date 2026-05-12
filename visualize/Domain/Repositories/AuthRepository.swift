@@ -44,4 +44,7 @@ protocol AuthRepository {
     ///
     /// - Returns: The current domain user or `nil` if no session exists.
     func getCurrentUser() -> AuthUser?
+    
+    /// Deletes the currently authenticated user.
+    func deleteCurrentUser() async throws
 }

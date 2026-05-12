@@ -68,4 +68,16 @@ class AuthRepositoryImpl: AuthRepository {
     func getCurrentUser() -> AuthUser? {
         return source.getCurrentUser()?.toDomain()
     }
+    
+    /// Deletes the currently authenticated user account.
+    ///
+    /// This operation permanently removes the user from the authentication system.
+    /// After successful deletion, the current session becomes invalid and the user
+    /// will no longer be signed in.
+    ///
+    ///
+    /// - Throws: An error if the deletion fails or if there is no authenticated user.
+    func deleteCurrentUser() async throws {
+        try await source.deleteCurrentUser()
+    }
 }
