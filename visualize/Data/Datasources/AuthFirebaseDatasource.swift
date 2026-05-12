@@ -63,4 +63,15 @@ class AuthFirebaseDatasource {
     func getCurrentUser() -> FirebaseAuth.User? {
         return auth.currentUser
     }
+    
+    /// Deletes the currently authenticated user from Firebase Authentication.
+    ///
+    /// This operation permanently removes the user account associated with
+    /// the current session. After deletion, the user will no longer be
+    /// authenticated and `auth.currentUser` will return `nil`.
+    ///
+    /// - Throws: An error if the deletion fails or if no user is currently signed in.
+    func deleteCurrentUser() async throws {
+        try await auth.currentUser?.delete()
+    }
 }

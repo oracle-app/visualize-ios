@@ -117,10 +117,14 @@ class RegisterUseCase {
         )
         
         // MARK: Database Persistence
-        
-        let savedUser = try await userRepository.createUser(user: appUser)
-        
-        return savedUser
+
+        do {
+            let savedUser = try await userRepository.createUser(user: appUser)
+            return savedUser
+        } catch {
+            try? await authRepository.deleteCurrentUser()
+            throw error
+        }
     }
     
     // MARK: - Validation Helpers
