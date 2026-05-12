@@ -71,16 +71,6 @@ struct FeedCard: View {
                             Label("Delete for me", systemImage: "trash")
                         }
                     }
-                    Button (role: .destructive) {
-                        showAlert2.toggle()
-                    } label: {
-                        Label("Delete for everyone", systemImage: "trash")
-                    }
-                    Button (role: .destructive) {
-                        showAlert1.toggle()
-                    } label: {
-                        Label("Delete for me", systemImage: "trash")
-                    }
                 } label: {
                     ZStack {
                         Circle()

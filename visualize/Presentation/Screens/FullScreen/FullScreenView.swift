@@ -58,7 +58,7 @@ struct FullScreenView: View {
                     Spacer()
                         .frame(height: 70)
                     Button {
-                        // Implement snipping tool
+                        Task { await viewModel.captureChartForEditor(card.chart) }
                     } label: {
                         Image(systemName: "crop")
                             .font(.system(size: 28))
@@ -94,6 +94,18 @@ struct FullScreenView: View {
         }
         .onAppear { parseConfigChart() }
         .onChange(of: chartLoadID) { _, _ in parseConfigChart() }
+        .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
+            SnipEditorView(
+                chartImage: wrapped.image,
+                onPost: { _ in
+                    print("[FullScreen] SnipEditor onPost stub — image discarded")
+                    viewModel.dismissEditor()
+                },
+                onDismiss: {
+                    viewModel.dismissEditor()
+                }
+            )
+        }
         .alert("Capture failed", isPresented: $viewModel.showCaptureError) {
             Button("OK", role: .cancel) {}
         } message: {

@@ -20,24 +20,21 @@ struct LoadedListView: View {
     let currentUserID: String
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            LazyVStack(spacing: 12) {
-                ForEach(items, id: \.id) { item in
-                    FeedCard(
-                        title: item.title,
-                        author: item.author,
-                        date: item.createdAt,
-                        chart: item.chart,
-                        onShare: { onShare(item.id, item.allUsersSharedWith, item.usersSharedWith, item.teamsSharedWith.map { $0.id }) },
-                        onTap: { onTap(item) },
-                        onHide: { onHide(item.id) },
-                        onDelete: { onDelete(item.id) },
-                        sharedWith: item.allUsersSharedWith,
-                        isOwner: item.authorID == currentUserID,
-                    )
-                }
+        LazyVStack(spacing: 12) {
+            ForEach(items, id: \.id) { item in
+                FeedCard(
+                    title: item.title,
+                    author: item.author,
+                    date: item.createdAt,
+                    chart: item.chart,
+                    onShare: { onShare(item.id, item.allUsersSharedWith, item.usersSharedWith, item.teamsSharedWith.map { $0.id }) },
+                    onTap: { onTap(item) },
+                    onHide: { onHide(item.id) },
+                    onDelete: { onDelete(item.id) },
+                    sharedWith: item.allUsersSharedWith,
+                    isOwner: item.authorID == currentUserID,
+                )
             }
         }
-        .scrollEdgeEffectStyle(.hard, for: .top)
     }
 }
