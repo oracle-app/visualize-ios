@@ -23,6 +23,8 @@ import Foundation
 
 struct FeedView: View {
 
+    @Environment(AppCoordinator.self) private var coordinator
+
     // MARK: - States
 
     @State var selectedFeed: VisualizationFilter = .all
@@ -38,113 +40,111 @@ struct FeedView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 10) {
-                    headerView()
-                    contentView()
-                }
-                .padding(0)
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 10) {
+                headerView()
+                contentView()
             }
-            .navigationDestination(item: $selectedCard) { card in
-                FullScreenView(card: card)
-                    .navigationBarBackButtonHidden(true)
-            }
-            .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
-                if viewModel.isSearchActive {
-                    HStack(spacing: 8) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundStyle(.secondary)
-                            .font(.body)
-                        TextField("Search visualizations...", text: $viewModel.searchQuery)
-                            .textFieldStyle(.plain)
-                            .font(.body)
-                            .frame(width: 180)
-                            .submitLabel(.search)
-                        Button {
-                            withAnimation(.smooth(duration: 0.2)) {
-                                viewModel.isSearchActive = false
-                                viewModel.clearSearch()
-                            }
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .transition(.move(edge: .leading).combined(with: .opacity))
-                } else {
+            .padding(0)
+        }
+        .navigationDestination(item: $selectedCard) { card in
+            FullScreenView(card: card)
+                .navigationBarBackButtonHidden(true)
+        }
+        .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
+            if viewModel.isSearchActive {
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+                        .font(.body)
+                    TextField("Search visualizations...", text: $viewModel.searchQuery)
+                        .textFieldStyle(.plain)
+                        .font(.body)
+                        .frame(width: 180)
+                        .submitLabel(.search)
                     Button {
                         withAnimation(.smooth(duration: 0.2)) {
-                            viewModel.isSearchActive = true
+                            viewModel.isSearchActive = false
+                            viewModel.clearSearch()
                         }
                     } label: {
-                        Image(systemName: "magnifyingglass")
-                    }
-                    .transition(.move(edge: .leading).combined(with: .opacity))
-                }
-            } trailing: {
-                HStack(spacing: 15) {
-                    Button("Notifications", systemImage: "bell") {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
                     }
                 }
-            } principal: {
-                if let title {
-                    Text(title)
-                        .fontWeight(.semibold)
-                        .transition(.offset(y: 10).combined(with: AnyTransition(.blurReplace)))
+                .transition(.move(edge: .leading).combined(with: .opacity))
+            } else {
+                Button {
+                    withAnimation(.smooth(duration: 0.2)) {
+                        viewModel.isSearchActive = true
+                    }
+                } label: {
+                    Image(systemName: "magnifyingglass")
                 }
-            } primaryAction: {
+                .transition(.move(edge: .leading).combined(with: .opacity))
             }
-            .refreshable {
-                viewModel.loadData(forceRefresh: true)
-            }
-            .onAppear {
-                if shouldLoad {
-                    viewModel.loadData()
-                }
-            }
-            .sheet(item: $sharePayload) { payload in
-                let userDatasource = UserDatasource()
-                let teamsDatasource = TeamDatasource()
-                let visualizationDatasource = VisualizationDatasource(
-                    userDatasource: userDatasource,
-                    teamsDatasource: teamsDatasource
-                )
-                let visualizationRepository = VisualizationRepositoryImpl(
-                    userDatasource: userDatasource,
-                    visualizationDatasource: visualizationDatasource,
-                    teamsDatasource: teamsDatasource
-                )
-                let teamRepository = TeamRepositoryImpl(
-                    teamDatasource: teamsDatasource,
-                    userDatasource: userDatasource
-                )
-                NavigationStack {
-                    ShareTeammatesScreen(
-                        viewModel: ShareTeammatesViewModel(
-                            userRepository: UserRepositoryImpl(
-                                userDatasource: userDatasource
-                            ),
-                            teamRepository: teamRepository,
-                            updateSharingUseCase: UpdateSharingUseCase(
-                                visualizationRepository: visualizationRepository,
-                                userRepository: UserRepositoryImpl(userDatasource: userDatasource)
-                            ),
-                            visualizationID: payload.visualizationID,
-                            initialUsers: payload.editableUsers,
-                            initialTeamIDs: payload.initialTeamIDs
-                        ),
-                        onConfirm: {
-                            viewModel.loadData()
-                            viewModel.showToast(Toast(message: "Sharing updated successfully", type: .success))
-                        }
-                    )
-                    .presentationDetents([.medium, .large])
+        } trailing: {
+            HStack(spacing: 15) {
+                Button("Notifications", systemImage: "bell") {
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .coordinateSpace(name: "scroll")
+        } principal: {
+            if let title {
+                Text(title)
+                    .fontWeight(.semibold)
+                    .transition(.offset(y: 10).combined(with: AnyTransition(.blurReplace)))
+            }
+        } primaryAction: {
         }
+        .refreshable {
+            viewModel.loadData(forceRefresh: true)
+        }
+        .onAppear {
+            if shouldLoad {
+                viewModel.loadData()
+            }
+        }
+        .sheet(item: $sharePayload) { payload in
+            let userDatasource = UserDatasource()
+            let teamsDatasource = TeamDatasource()
+            let visualizationDatasource = VisualizationDatasource(
+                userDatasource: userDatasource,
+                teamsDatasource: teamsDatasource
+            )
+            let visualizationRepository = VisualizationRepositoryImpl(
+                userDatasource: userDatasource,
+                visualizationDatasource: visualizationDatasource,
+                teamsDatasource: teamsDatasource
+            )
+            let teamRepository = TeamRepositoryImpl(
+                teamDatasource: teamsDatasource,
+                userDatasource: userDatasource
+            )
+            NavigationStack {
+                ShareTeammatesScreen(
+                    viewModel: ShareTeammatesViewModel(
+                        userRepository: UserRepositoryImpl(
+                            userDatasource: userDatasource
+                        ),
+                        teamRepository: teamRepository,
+                        updateSharingUseCase: UpdateSharingUseCase(
+                            visualizationRepository: visualizationRepository,
+                            userRepository: UserRepositoryImpl(userDatasource: userDatasource)
+                        ),
+                        visualizationID: payload.visualizationID,
+                        initialUsers: payload.editableUsers,
+                        initialTeamIDs: payload.initialTeamIDs
+                    ),
+                    onConfirm: {
+                        viewModel.loadData()
+                        viewModel.showToast(Toast(message: "Sharing updated successfully", type: .success))
+                    }
+                )
+                .presentationDetents([.medium, .large])
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .coordinateSpace(name: "scroll")
         .overlay(alignment: .bottom) {
             if let toast = viewModel.currentToast {
                 ToastView(toast: toast)
@@ -178,14 +178,12 @@ struct FeedView: View {
                 } label: {
                     Label("All Feed", systemImage: selectedFeed == .all ? "checkmark" : "")
                 }
-
                 Button {
                     selectedFeed = .personal
                     viewModel.setVisualizationFilter(selectedFeed)
                 } label: {
                     Label("Personal Feed", systemImage: selectedFeed == .personal ? "checkmark" : "")
                 }
-
                 Button {
                     selectedFeed = .shared
                     viewModel.setVisualizationFilter(selectedFeed)
@@ -206,7 +204,6 @@ struct FeedView: View {
                                 title = newValue ? selectedFeed.title : nil
                             }
                         }
-
                     Image(systemName: "control")
                         .font(.body.bold())
                         .foregroundColor(.black)
@@ -219,7 +216,7 @@ struct FeedView: View {
         }
     }
 
-    // MARK: - Builder
+    // MARK: - Content
 
     /// Builds the content area based on the current feed state, including search results.
     @ViewBuilder
@@ -238,12 +235,10 @@ struct FeedView: View {
                                 initialTeamIDs: teamIDs
                             )
                         },
-                        onTap: { card in
-                            selectedCard = card
-                        },
+                        onTap: { card in selectedCard = card },
                         onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
                         onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
-                        currentUserID: viewModel.currentUserID,
+                        currentUserID: viewModel.currentUserID
                     )
                 default:
                     EmptyView()
@@ -269,12 +264,10 @@ struct FeedView: View {
                             initialTeamIDs: teamIDs
                         )
                     },
-                    onTap: { card in
-                        selectedCard = card
-                    },
+                    onTap: { card in selectedCard = card },
                     onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
                     onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
-                    currentUserID: viewModel.currentUserID,
+                    currentUserID: viewModel.currentUserID
                 )
             }
         } else {
@@ -300,17 +293,14 @@ struct FeedView: View {
                             initialTeamIDs: teamIDs
                         )
                     },
-                    onTap: { card in
-                        selectedCard = card
-                    },
+                    onTap: { card in selectedCard = card },
                     onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
                     onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
-                    currentUserID: viewModel.currentUserID,
+                    currentUserID: viewModel.currentUserID
                 )
             }
         }
     }
-
 }
 
 // MARK: - View Extensions
@@ -338,5 +328,11 @@ struct SharePayload: Identifiable {
 // MARK: - Preview
 
 #Preview {
-    FeedView(viewModel: .preview, shouldLoad: true)
+    NavigationStack{
+        FeedView(
+            viewModel: .preview,
+            shouldLoad: false
+        )
+        .environment(AppCoordinator())
+    }
 }
