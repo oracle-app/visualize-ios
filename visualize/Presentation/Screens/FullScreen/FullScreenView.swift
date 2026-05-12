@@ -22,6 +22,7 @@ struct FullScreenView: View {
 
     @State private var viewModel: FullScreenViewModel
     @State private var chartLoadID = UUID()
+    @State private var chart: ChartData? = nil
     @Environment(\.dismiss) private var dismiss
 
     // MARK: - Init
@@ -39,14 +40,12 @@ struct FullScreenView: View {
     // MARK: - Body
 
     var body: some View {
-        let parsedChart = ChartConfigParser.parse(from: card.configJSON)
-
         ZStack {
             Color.appMint
                 .ignoresSafeArea()
-
+ 
             VStack {
-
+ 
                 // MARK: Header
                 FSHeaderView(
                     title: card.title,
@@ -59,8 +58,7 @@ struct FullScreenView: View {
                     Spacer()
                         .frame(height: 70)
                     Button {
-                        guard let chart = parsedChart else { return }
-                        Task { await viewModel.captureChartForEditor(chart) }
+                        // Implement snipping tool
                     } label: {
                         Image(systemName: "crop")
                             .font(.system(size: 28))
@@ -68,68 +66,34 @@ struct FullScreenView: View {
                             .frame(width: 54, height: 54)
                             .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
                     }
-                    .disabled(parsedChart == nil)
                     .padding(.trailing)
                 }
 
                 // MARK: Chart
-                if let chart = parsedChart {
-                    ChartRendererView(chart: chart)
-                        .id(chartLoadID)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .frame(height: 380)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                        .onGeometryChange(for: CGSize.self) { proxy in
-                            proxy.size
-                        } action: { newSize in
-                            viewModel.chartCaptureSize = newSize
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.top, 10)
-                } else {
-
-                    // MARK: Error State
-                    VStack(spacing: 5) {
-                        Text("Couldn't load")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(Color.appTeal)
-                        Text("Something went wrong.")
-                            .font(.system(size: 17))
-                            .foregroundStyle(Color.appTeal)
-                            .multilineTextAlignment(.center)
-                        Button("Try again") {
-                            chartLoadID = UUID()
-                        }
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 130)
-                        .padding(.vertical, 15)
-                        .background(Color.appTeal)
-                        .cornerRadius(296)
-                        .padding(.top, 200)
+                // Parses configJSON (full data), card.chart uses previewJSON (reduced),
+                // which is only for feed card previews and should not be used here.
+                if let parsedChart = chart {
+                    if case .unsupported = parsedChart {
+                        errorState
+                    } else {
+                        ChartRendererView(chart: parsedChart)
+                            .id(chartLoadID)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .frame(height: 380)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .padding(.horizontal, 12)
+                            .padding(.top, 10)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .frame(height: 380)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 60)
+                } else {
+                    errorState
                 }
-
+                
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
-            SnipEditorView(
-                chartImage: wrapped.image,
-                onPost: { _ in
-                    print("[FullScreen] SnipEditor onPost stub — image discarded")
-                    viewModel.dismissEditor()
-                },
-                onDismiss: {
-                    viewModel.dismissEditor()
-                }
-            )
-        }
+        .onAppear { parseConfigChart() }
+        .onChange(of: chartLoadID) { _, _ in parseConfigChart() }
         .alert("Capture failed", isPresented: $viewModel.showCaptureError) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -138,6 +102,39 @@ struct FullScreenView: View {
         .preventScreenShot()
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
+    }
+ 
+    // MARK: - Private
+ 
+    /// Parses the full chart from `card.configJSON` for interactive full-screen rendering.
+    private func parseConfigChart() {
+        chart = ChartConfigParser.parse(from: card.configJSON) ?? .unsupported(type: "Invalid JSON")
+    }
+ 
+    private var errorState: some View {
+        VStack(spacing: 5) {
+            Text("Couldn't load")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(Color.appTeal)
+            Text("Something went wrong.")
+                .font(.system(size: 17))
+                .foregroundStyle(Color.appTeal)
+                .multilineTextAlignment(.center)
+            Button("Try again") {
+                chartLoadID = UUID()
+            }
+            .font(.system(size: 17, weight: .semibold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 130)
+            .padding(.vertical, 15)
+            .background(Color.appTeal)
+            .cornerRadius(296)
+            .padding(.top, 200)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(height: 380)
+        .padding(.horizontal, 12)
+        .padding(.top, 60)
     }
 }
 
@@ -150,7 +147,9 @@ struct FullScreenView: View {
         author: "Mariana Islas",
         authorID: "1",
         createdAt: Date(),
-        configJSON: MockConfigJSON.chart,
+        chart: .tile(title: "Preview", value: 100, label: "Test"),
+        chartType: .tile,
+        configJSON: MockChartJSONs.verticalBarConfig,
         teamsSharedWith: [],
         usersSharedWith: [
             AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
@@ -172,6 +171,8 @@ struct FullScreenView: View {
         author: "Mariana Islas",
         authorID: "1",
         createdAt: Date(),
+        chart: .unsupported(type: "Invalid JSON"),
+        chartType: .tile,
         configJSON: "{}",
         teamsSharedWith: [],
         usersSharedWith: [],

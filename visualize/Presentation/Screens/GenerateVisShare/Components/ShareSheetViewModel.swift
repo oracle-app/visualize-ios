@@ -61,6 +61,9 @@ final class ShareSheetViewModel {
     var selectedTeamIDs: Set<String> = []
     var isLoading = false
     var error: String?
+    /// Non-nil when `confirmShare` fails. Displayed in `ShareSheet` so the user knows the save failed.
+    var confirmError: String? = nil
+
 
     // MARK: - Private State
 
@@ -98,29 +101,24 @@ final class ShareSheetViewModel {
     /// Fetches the teams owned by and joined by the current user concurrently.
     ///
     /// Guards against duplicate in-flight requests. Sets `isLoading` during
-    /// the fetch and populates `myTeams` and `joinedTeams` on success,
-    /// or sets `error` on failure.
+    /// the fetch and populates `myTeams` and `joinedTeams` on success.
     func loadData() {
         guard !isLoading else { return }
 
         Task {
             isLoading = true
-            error = nil
-
             do {
                 async let myTeamsRequest = teamRepository.getTeamsUserOwns(userID: userID)
                 async let joinedTeamsRequest = teamRepository.getTeamsUserIsIn(userID: userID)
-
                 myTeams = try await myTeamsRequest
                 joinedTeams = try await joinedTeamsRequest
             } catch {
                 self.error = "Error loading teams: \(error.localizedDescription)"
             }
-
             isLoading = false
         }
     }
-
+    
     // MARK: - Actions
 
     /// Adds a user to the selected list if not already present, then clears the search field.
@@ -161,6 +159,7 @@ final class ShareSheetViewModel {
     /// For teammates: populated with the user's selections from the sheet.
     /// - Throws: Any error from `CreateVisualizationUseCase`.
     func confirmShare() async throws {
+        confirmError = nil
         try await createVisualizationUseCase.execute(
             title: chartTitle,
             authorID: userID,

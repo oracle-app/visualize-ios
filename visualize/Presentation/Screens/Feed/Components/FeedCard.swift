@@ -17,6 +17,7 @@ struct FeedCard: View {
     var title: String
     var author: String
     var date: Date
+    var chart: ChartData
     var onShare: () -> Void
     var onTap: () -> Void
     var onHide: () -> Void
@@ -24,31 +25,14 @@ struct FeedCard: View {
     var sharedWith: [AppUser]? = nil
     var isOwner: Bool = false
     let maxAvatars = 3
-    
     /// TO DO: Image Implementation that uses profilePictureURL
-    
     /// Asigns random color based on ID.
-   
-    
-    
-    
-    
-    
-    
     private var colors: [Color] {
         (sharedWith ?? []).map { user in
             Color.random(from: user.id)
         }
     }
-    
-    
-    
-    
-    
-    
     //var colors: [Color] = [Color.random(from: "oEJtQz0gdbRpTZ8ETPCy")]
-    
-    
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top) {
@@ -87,6 +71,16 @@ struct FeedCard: View {
                             Label("Delete for me", systemImage: "trash")
                         }
                     }
+                    Button (role: .destructive) {
+                        showAlert2.toggle()
+                    } label: {
+                        Label("Delete for everyone", systemImage: "trash")
+                    }
+                    Button (role: .destructive) {
+                        showAlert1.toggle()
+                    } label: {
+                        Label("Delete for me", systemImage: "trash")
+                    }
                 } label: {
                     ZStack {
                         Circle()
@@ -121,18 +115,18 @@ struct FeedCard: View {
                     Button("Delete", role: .destructive) {
                         onDelete()
                     }
-                    
                     Button("Cancel", role: .cancel) {
-                        
                     }
                 } message: {
                     Text("This will permanently remove the visualization from the feed for you and everyone you shared it with. This action cannot be undone.")
                 }
             }
-            Text("viz")
+            ChartRendererView(chart: chart)
+                .allowsHitTesting(false)
+                .padding(15)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.white)
-                .cornerRadius(10)
+                .clipShape(.rect(cornerRadius: 10))
             if let sharedWith, !sharedWith.isEmpty {
                 HStack(spacing: -20) {
                     let displayMembers = Array(sharedWith.prefix(maxAvatars))
@@ -171,9 +165,6 @@ struct FeedCard: View {
                }
    }
 }
-
-
-
 /// Generates a random color based on the given string
 extension Color {
     static func random(from string: String) -> Color {

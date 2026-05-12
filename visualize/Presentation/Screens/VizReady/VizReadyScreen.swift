@@ -6,15 +6,15 @@
 //
 
 import SwiftUI
-
+ 
 // MARK: - VizReadyView
-
+ 
 /// Full-screen view that presents AI-generated chart suggestions and lets
 /// the user pick one before proceeding to the next step.
 struct VizReadyView: View {
-
+ 
     // MARK: - State properties
-
+ 
     /// Called after the close button dismisses this view, so the caller can
     /// chain further dismissals up the navigation stack.
     var onClose: (() -> Void)?
@@ -30,6 +30,7 @@ struct VizReadyView: View {
     private let teamDatasource: TeamDatasource = TeamDatasource()
  
     // MARK: - Init
+ 
     /// - Parameters:
     ///   - suggestions: Chart suggestions produced by the ML service (or mock).
     ///   - onClose: Optional closure invoked when the user dismisses via the X button.
@@ -37,9 +38,9 @@ struct VizReadyView: View {
         self.onClose = onClose
         self._viewModel = State(initialValue: VizReadyViewModel(suggestions: suggestions))
     }
-    
+ 
     // MARK: - Body
-
+ 
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -98,7 +99,7 @@ struct VizReadyView: View {
     }
  
     // MARK: - Private views
-
+ 
     /// Expanded header shown at the top of the list.
     private var expandedHeader: some View {
         VStack(spacing: 8) {
@@ -108,7 +109,7 @@ struct VizReadyView: View {
                     .foregroundStyle(Color.appNavy)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8)
-
+ 
                 Text("We've generated several charts based\non your dataset.")
                     .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(Color.appSubtitle)
@@ -118,7 +119,7 @@ struct VizReadyView: View {
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
-
+ 
             Text("Choose the chart that best represents the insights you want to share")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Color.appSubtitle.opacity(0.8))
@@ -146,7 +147,7 @@ struct VizReadyView: View {
                     }
                 )
             }
-
+ 
             if let error = viewModel.titleValidationError {
                 Text(error)
                     .font(.system(size: 13, weight: .regular))
@@ -156,9 +157,11 @@ struct VizReadyView: View {
             }
         }
     }
-
+ 
     /// Builds the ShareSheet with the selected chart's title, configJSON, and previewJSON.
-    /// Handles post-confirm navigation back to the feed by dismissing this view and its parent.
+    /// Falls back to empty strings if no suggestion is selected, the proceed button
+    /// is always disabled when there is no selection, so this path should never reach Firestore.
+    /// Dismisses VizReadyView and its parent on successful save.
     private var shareSheet: some View {
         let vizDatasource = VisualizationDatasource(
             userDatasource: userDatasource,
@@ -200,7 +203,7 @@ struct VizReadyView: View {
 }
  
 // MARK: - Preview
-
+ 
 #if DEBUG
 #Preview {
     VizReadyView(suggestions: [

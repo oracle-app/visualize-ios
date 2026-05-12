@@ -47,7 +47,7 @@ struct ChartConfigParser {
         
         switch chartType {
         case .scatter:
-            let points = zip(field1Values, field2Values).map { (x: $0, y: $1) }
+            let points = zip(field1Values, field2Values).map { ScatterPoint(x: $0, y: $1) }
             return .scatter(title: chartName, data: points, fieldNames: [field1Label, field2Label])
         case .line:
             var lineData: [Double: Double] = [:]

@@ -31,6 +31,7 @@ struct ShareSheet: View {
 
     @State private var vm: ShareSheetViewModel
     @State private var selectedOption: ShareMode? = nil
+    @State private var isConfirming: Bool = false
 
     @Binding var sheetSize: PresentationDetent
 
@@ -72,6 +73,16 @@ struct ShareSheet: View {
                         .transition(.opacity)
                         .id("teammates")
                 }
+ 
+                // Show Firestore error inline so the user knows the save failed
+                if let error = vm.confirmError {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                        .transition(.opacity)
+                }
             }
             .animation(.easeInOut(duration: 0.22), value: selectedOption)
             .toolbar { toolbar }
@@ -88,7 +99,6 @@ struct ShareSheet: View {
     /// Lets the user choose between saving to their personal feed or sharing with teammates.
     private var initialView: some View {
         VStack(spacing: 16) {
-
             Button {
                 selectedOption = .personal
             } label: {
@@ -138,7 +148,6 @@ struct ShareSheet: View {
     /// Expanded view showing user search, selected users, and team selection lists.
     private var teammatesView: some View {
         VStack(spacing: 16) {
-
             Text("Share with teammates")
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(Color.primaryText)
@@ -155,8 +164,6 @@ struct ShareSheet: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {
-
-                    // Sharing with section: shows selected users (or empty state prompt).
                     Section {
                         if isSharingExpanded {
                             if vm.selectedUsers.isEmpty {
@@ -180,7 +187,6 @@ struct ShareSheet: View {
                         collapsableHeader("Sharing with", isExpanded: $isSharingExpanded)
                     }
 
-                    // My teams section: teams owned by the current user.
                     Section {
                         if isMyTeamsExpanded {
                             if vm.myTeams.isEmpty {
@@ -205,7 +211,6 @@ struct ShareSheet: View {
                         collapsableHeader("My teams", isExpanded: $isMyTeamsExpanded)
                     }
 
-                    // Joined teams section: teams the user is a member of.
                     Section {
                         if isJoinedTeamsExpanded {
                             if vm.joinedTeams.isEmpty {
@@ -265,17 +270,25 @@ struct ShareSheet: View {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Confirm", systemImage: "paperplane.fill") {
                     Task {
-                        // Create the visualization in Firestore, then dismiss and notify parent
-                        try? await vm.confirmShare()
-                        dismiss()
-                        onConfirm?()
+                        isConfirming = true
+                        defer { isConfirming = false }
+                        do {
+                            try await vm.confirmShare()
+                            // Only dismiss and notify parent on success
+                            dismiss()
+                            onConfirm?()
+                        } catch {
+                            // Error is surfaced via vm.confirmError, sheet stays open
+                            vm.confirmError = error.localizedDescription
+                        }
                     }
                 }
                 .tint(Color.primaryOrange)
-                .disabled(selectedOption == nil)
+                .disabled(selectedOption == nil || isConfirming)
             }
         }
     }
+
     // MARK: - Collapsable Header
 
     /// Returns a tappable header row with a chevron that toggles the given expansion binding.

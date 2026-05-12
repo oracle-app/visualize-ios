@@ -1,3 +1,10 @@
+//
+//  EmailSearchField.swift
+//  Visualize
+//
+//  Created by Diana Escalante on 14/04/26.
+//
+
 import SwiftUI
 
 struct EmailSearchField: View {
