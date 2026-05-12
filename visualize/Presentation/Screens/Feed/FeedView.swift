@@ -87,11 +87,6 @@ struct FeedView: View {
             HStack(spacing: 15) {
                 Button("Notifications", systemImage: "bell") {
                 }
-       
-//                Button("Logout", systemImage: "rectangle.portrait.and.arrow.right") {
-//                    try? AuthRepositoryImpl(source: AuthFirebaseDatasource()).logout()
-//                    coordinator.replace(path: [])
-//                }
             }
         } principal: {
             if let title {

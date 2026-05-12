@@ -44,7 +44,8 @@ struct VisualizeApp: App {
                     authRepository: AuthRepositoryImpl(
                         source: AuthFirebaseDatasource()
                     )
-                )
+                ),
+                coordinator: AppCoordinator()
             )
         }
     }

@@ -22,13 +22,13 @@ struct RootScreen: View {
 
     // MARK: - State
 
-    @State private var coordinator = AppCoordinator()
+    @State private var coordinator: AppCoordinator
     @State private var viewModel: RootViewModel
 
     // MARK: - Initialization
-
-    init(viewModel: RootViewModel) {
+    init(viewModel: RootViewModel, coordinator: AppCoordinator) {
         _viewModel = State(initialValue: viewModel)
+        _coordinator = State(initialValue: coordinator)
     }
 
     // MARK: - Body
