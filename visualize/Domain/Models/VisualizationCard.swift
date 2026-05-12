@@ -15,7 +15,6 @@ struct VisualizationCard: Identifiable, Hashable, Equatable{
     let createdAt: Date
     let chart: ChartData
     let chartType: ChartType
-    let configJSON: String
     let teamsSharedWith: [Team]
     let usersSharedWith: [AppUser]
     let allUsersSharedWith: [AppUser]

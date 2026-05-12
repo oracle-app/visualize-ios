@@ -22,17 +22,27 @@ struct FullScreenView: View {
 
     @State private var viewModel: FullScreenViewModel
     @State private var chartLoadID = UUID()
-    @State private var chart: ChartData? = nil
     @Environment(\.dismiss) private var dismiss
 
     // MARK: - Init
 
     init(card: VisualizationCard) {
         self.card = card
+        let userDatasource = UserDatasource()
+        let teamDatasource = TeamDatasource()
+        let vizDatasource = VisualizationDatasource(
+            userDatasource: userDatasource,
+            teamsDatasource: teamDatasource
+        )
         self._viewModel = State(initialValue: FullScreenViewModel(
             teamRepository: TeamRepositoryImpl(
-                teamDatasource: TeamDatasource(),
-                userDatasource: UserDatasource()
+                teamDatasource: teamDatasource,
+                userDatasource: userDatasource
+            ),
+            visualizationRepository: VisualizationRepositoryImpl(
+                userDatasource: userDatasource,
+                visualizationDatasource: vizDatasource,
+                teamsDatasource: teamDatasource
             )
         ))
     }
@@ -58,7 +68,10 @@ struct FullScreenView: View {
                     Spacer()
                         .frame(height: 70)
                     Button {
-                        Task { await viewModel.captureChartForEditor(card.chart) }
+                        if let json = viewModel.configJSON,
+                           let chart = ChartConfigParser.parse(from: json) {
+                            Task { await viewModel.captureChartForEditor(chart) }
+                        }
                     } label: {
                         Image(systemName: "crop")
                             .font(.system(size: 28))
@@ -66,34 +79,45 @@ struct FullScreenView: View {
                             .frame(width: 54, height: 54)
                             .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
                     }
+                    .disabled(viewModel.configJSON == nil)
                     .padding(.trailing)
                 }
 
                 // MARK: Chart
-                // Parses configJSON (full data), card.chart uses previewJSON (reduced),
-                // which is only for feed card previews and should not be used here.
-                if let parsedChart = chart {
-                    if case .unsupported = parsedChart {
-                        errorState
-                    } else {
-                        ChartRendererView(chart: parsedChart)
-                            .id(chartLoadID)
+                // configJSON is fetched from Firestore on appear, not stored on the card, so the feed remains lightweight.
+                Group {
+                    if viewModel.isLoadingConfig {
+                        ProgressView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .frame(height: 380)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                            .padding(.horizontal, 12)
-                            .padding(.top, 10)
+                    } else if let json = viewModel.configJSON,
+                              let parsedChart = ChartConfigParser.parse(from: json) {
+                        if case .unsupported = parsedChart {
+                            errorState
+                        } else {
+                            ChartRendererView(chart: parsedChart)
+                                .id(chartLoadID)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .frame(height: 380)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .padding(.horizontal, 12)
+                                .padding(.top, 10)
+                        }
+                    } else {
+                        errorState
                     }
-                } else {
-                    errorState
                 }
                 
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .onAppear { parseConfigChart() }
-        .onChange(of: chartLoadID) { _, _ in parseConfigChart() }
+        .task { await viewModel.fetchConfigJSON(visualizationID: card.id) }
+        .onChange(of: chartLoadID) { _, _ in
+            // Reset configJSON so fetchConfigJSON runs again on retry
+            viewModel.configJSON = nil
+            Task { await viewModel.fetchConfigJSON(visualizationID: card.id) }
+        }
         .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
             SnipEditorView(
                 chartImage: wrapped.image,
@@ -117,11 +141,6 @@ struct FullScreenView: View {
     }
  
     // MARK: - Private
- 
-    /// Parses the full chart from `card.configJSON` for interactive full-screen rendering.
-    private func parseConfigChart() {
-        chart = ChartConfigParser.parse(from: card.configJSON) ?? .unsupported(type: "Invalid JSON")
-    }
  
     private var errorState: some View {
         VStack(spacing: 5) {
@@ -161,7 +180,6 @@ struct FullScreenView: View {
         createdAt: Date(),
         chart: .tile(title: "Preview", value: 100, label: "Test"),
         chartType: .tile,
-        configJSON: MockChartJSONs.verticalBarConfig,
         teamsSharedWith: [],
         usersSharedWith: [
             AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
@@ -185,7 +203,6 @@ struct FullScreenView: View {
         createdAt: Date(),
         chart: .unsupported(type: "Invalid JSON"),
         chartType: .tile,
-        configJSON: "{}",
         teamsSharedWith: [],
         usersSharedWith: [],
         allUsersSharedWith: []

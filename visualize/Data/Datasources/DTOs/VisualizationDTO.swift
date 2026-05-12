@@ -16,6 +16,6 @@ struct VisualizationDTO: Codable {
     let createdAt: Date
     let authorID: String
     let configJSON: String
-    let previewJSON: String?
+    let previewJSON: String
     // Should add authorName for faster results
 }

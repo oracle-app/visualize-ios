@@ -158,4 +158,9 @@ class VisualizationRepositoryImpl: VisualizationRepository {
             teamIDs: teamIDs
         )
     }
+ 
+    /// Delegates configJSON fetch to the datasource.
+    func fetchConfigJSON(visualizationID: String) async throws -> String? {
+        try await visualizationDatasource.fetchConfigJSON(visualizationID: visualizationID)
+    }
 }

@@ -41,4 +41,11 @@ protocol VisualizationRepository {
         userIDs: [String],
         teamIDs: [String]
     ) async throws
+ 
+    /// Fetches only the `configJSON` field for a single visualization from the data store.
+    /// Used by `FullScreenView` to load the full chart data on demand, avoiding the
+    /// memory cost of carrying `configJSON` in every feed card.
+    /// - Parameter visualizationID: The ID of the visualization to fetch.
+    /// - Returns: The raw `configJSON` string, or `nil` if the document or field is missing.
+    func fetchConfigJSON(visualizationID: String) async throws -> String?
 }

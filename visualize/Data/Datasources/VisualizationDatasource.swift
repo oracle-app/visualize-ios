@@ -155,9 +155,20 @@ class VisualizationDatasource {
             configJSON: configJSON,
             previewJSON: previewJSON
         )
-        
-        try firebase
+        try firebase.collection("visualizations").addDocument(from: dto)
+    }
+    
+    /// Fetches only the `configJSON` field for a single visualization.
+    /// Called by `FullScreenView` on demand to avoid loading the full JSON into every
+    /// feed card. Returns `nil` if the document does not exist or the field is missing.
+    /// - Parameter visualizationID: The Firestore document ID of the visualization.
+    /// - Returns: The raw `configJSON` string, or `nil` if unavailable.
+    /// - Throws: Any Firestore read error.
+    func fetchConfigJSON(visualizationID: String) async throws -> String? {
+        let snapshot = try await firebase
             .collection("visualizations")
-            .addDocument(from: dto)
+            .document(visualizationID)
+            .getDocument()
+        return snapshot.data()?["configJSON"] as? String
     }
 }

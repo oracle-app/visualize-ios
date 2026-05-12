@@ -35,6 +35,15 @@ final class FullScreenViewModel {
     var isLoading: Bool = false
     var error: String?
 
+    // MARK: - Config JSON State
+
+    /// Full chart JSON fetched from Firestore on demand.
+    /// `nil` while loading; `.some("")` or a parse failure maps to the error state.
+    var configJSON: String? = nil
+    var isLoadingConfig: Bool = true
+    /// Non-nil when the configJSON fetch fails.
+    var configError: String? = nil
+ 
     // MARK: - Capture State
 
     var capturedChartImage: IdentifiableImage?
@@ -44,12 +53,15 @@ final class FullScreenViewModel {
     // MARK: - Dependencies
 
     private let teamRepository: any TeamRepository
+    /// Repository used to fetch `configJSON` on demand for full-screen rendering.
+    private let visualizationRepository: any VisualizationRepository
     private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
 
     // MARK: - Init
 
-    init(teamRepository: any TeamRepository) {
+    init(teamRepository: any TeamRepository, visualizationRepository: any VisualizationRepository) {
         self.teamRepository = teamRepository
+        self.visualizationRepository = visualizationRepository
     }
 
     // MARK: - Data Loading
@@ -72,6 +84,27 @@ final class FullScreenViewModel {
         team?.members ?? []
     }
 
+    // MARK: - Config JSON
+
+    /// Fetches `configJSON` for the given visualization ID from Firestore.
+    /// Fetches the config only once and skips duplicate requests when `configJSON` is already loaded.
+    /// Sets `isLoadingConfig` during the fetch and `configError` on failure.
+    /// - Parameter visualizationID: The Firestore document ID of the visualization.
+    func fetchConfigJSON(visualizationID: String) async {
+        guard configJSON == nil else { return }
+        isLoadingConfig = true
+        configError = nil
+        do {
+            configJSON = try await visualizationRepository.fetchConfigJSON(visualizationID: visualizationID)
+            if configJSON == nil {
+                configError = "Chart data not found."
+            }
+        } catch {
+            configError = error.localizedDescription
+        }
+        isLoadingConfig = false
+    }
+ 
     // MARK: - Capture
 
     /// Builds `ChartRendererView` for the given `chart`, captures it off-screen at

@@ -51,7 +51,6 @@ extension VisualizationDTO {
                 createdAt: self.createdAt,
                 chart: parsedChart,
                 chartType: derivedChartType,
-                configJSON: self.configJSON,
                 teamsSharedWith: teamsSharedWith,
                 usersSharedWith: usersSharedWith,
                 allUsersSharedWith: allUsers
