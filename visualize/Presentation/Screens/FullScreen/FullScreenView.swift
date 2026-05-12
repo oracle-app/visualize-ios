@@ -104,6 +104,7 @@ struct FullScreenView: View {
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .frame(height: 380)
                                 .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .onGeometryChange(for: CGSize.self) { $0.size } action: { viewModel.chartCaptureSize = $1 }
                                 .padding(.horizontal, 12)
                                 .padding(.top, 10)
                         }

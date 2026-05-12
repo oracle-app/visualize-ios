@@ -52,7 +52,7 @@ final class FullScreenViewModel {
     // MARK: - Capture State
 
     var capturedChartImage: IdentifiableImage?
-    var chartCaptureSize: CGSize = CGSize(width: 800, height: 380)
+    var chartCaptureSize: CGSize = .zero
     var showCaptureError: Bool = false
 
     // MARK: - Dependencies
