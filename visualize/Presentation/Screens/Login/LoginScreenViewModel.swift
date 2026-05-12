@@ -19,6 +19,7 @@ import Observation
 /// - Validates form state
 /// - Coordinates login flow through `LoginUseCase`
 ///
+@MainActor
 @Observable
 class LoginViewModel {
     
@@ -46,6 +47,7 @@ class LoginViewModel {
     var passwordError: String? = nil
     var errorMessage: String? = nil
     var isLoading: Bool = false
+    var isLoggedIn: Bool = false
     
     // MARK: - Dependencies
     
@@ -77,6 +79,7 @@ class LoginViewModel {
                 )
                 
                 print("Login success: \(user)")
+                isLoggedIn = true
                 
             } catch let error as LoginError {
                 switch error {

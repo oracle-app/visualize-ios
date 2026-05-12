@@ -19,6 +19,7 @@ import SwiftUI
 /// - Keyboard-aware scrolling behavior
 /// - Registration action handling
 struct SignUp: View {
+    @Environment(AppCoordinator.self) private var coordinator 
 
     // MARK: - State
     
@@ -134,7 +135,7 @@ struct SignUp: View {
                             .foregroundColor(Color(Color.appSubtitle))
 
                         Button {
-                            // Navigation
+                            coordinator.replace(path: [.login])
                         } label: {
                             Text("Log in")
                                 .font(.system(size: 15))
@@ -188,6 +189,12 @@ struct SignUp: View {
         /// Allows the keyboard to dismiss interactively
         /// while scrolling.
         .scrollDismissesKeyboard(.interactively)
+        .navigationBarBackButtonHidden(true)
+        .onChange(of: viewModel.isRegistered) { _, success in
+            if success {
+                coordinator.replace(path: [.login])
+            }
+        }
     }
 }
 
@@ -206,4 +213,5 @@ struct SignUp: View {
             )
         )
     )
+    .environment(AppCoordinator())
 }

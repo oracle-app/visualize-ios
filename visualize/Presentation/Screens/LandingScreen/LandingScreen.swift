@@ -1,12 +1,12 @@
 //
-//  SplashScreen.swift
+//  LandingScreen.swift
 //  visualize
 //
 //  Created by Libia Fv on 19/04/26.
 //
 // MARK: - Description
 //
-// The SplashScreen serves as the initial landing view of VisualizeApp.
+// The LandingScreen serves as the initial landing view of VisualizeApp.
 //
 // This screen:
 // - Displays the app branding and tagline
@@ -20,7 +20,8 @@ import SwiftUI
 
 // MARK: - Splash Screen View
 
-struct SplashScreen: View {
+struct LandingScreen: View {
+    @Environment(AppCoordinator.self) private var coordinator
 
     // MARK: - Body
 
@@ -29,19 +30,21 @@ struct SplashScreen: View {
 
             ZStack(alignment: .bottom) {
                 Color(Color.appTeal)
-                    .ignoresSafeArea(edges: .top)
+//                    .ignoresSafeArea(edges: .top)
 
                 Image("AuthBackground")
                     .resizable()
                     .scaledToFill()
-                    .ignoresSafeArea(edges: .top)
+//                    .ignoresSafeArea(edges: .top)
                     .opacity(0.4)
+                    .clipped()
 
                 Image("VisualizeLogo")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 450, height: 120)
-                    .padding(.bottom, 80)
+                    .frame(maxWidth: 350)
+                    .frame(height: 120)
+                    .padding(.bottom, 45)
             }
             .frame(height: 240)
 
@@ -70,6 +73,7 @@ struct SplashScreen: View {
 
                 VStack(spacing: 12) {
                     Button {
+                        coordinator.push(.login)
                     } label: {
                         Text("Log in")
                             .font(.system(size: 17, weight: .semibold))
@@ -85,6 +89,7 @@ struct SplashScreen: View {
                     .padding(.bottom, 20)
 
                     Button {
+                        coordinator.push(.signUp)
                     } label: {
                         Text("Sign up")
                             .font(.system(size: 17, weight: .semibold))
@@ -123,11 +128,14 @@ struct SplashScreen: View {
         }
         .background(Color.appTeal)
         .ignoresSafeArea(edges: .top)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
 // MARK: - Preview
 
 #Preview {
-    SplashScreen()
+    LandingScreen()
+        .environment(AppCoordinator())
 }
+

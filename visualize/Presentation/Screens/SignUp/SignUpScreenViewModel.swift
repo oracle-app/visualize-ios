@@ -21,6 +21,7 @@ import Observation
 ///
 /// Uses `@Observable` so the UI updates automatically
 /// whenever any observable property changes.
+@MainActor
 @Observable
 class SignUpViewModel {
     
@@ -90,6 +91,8 @@ class SignUpViewModel {
     /// Indicates whether a registration request is currently running.
     var isLoading: Bool = false
     
+    var isRegistered: Bool = false
+    
     // MARK: - Dependencies
     
     /// Use case responsible for user registration logic.
@@ -139,6 +142,7 @@ class SignUpViewModel {
                 )
                 
                 print("Registered: \(user)")
+                isRegistered = true
                 
             } catch let error as RegisterError {
                 

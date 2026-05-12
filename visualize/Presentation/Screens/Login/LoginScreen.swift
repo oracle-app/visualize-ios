@@ -16,10 +16,11 @@ import SwiftUI
 /// - Email and password input fields
 /// - Login action button
 /// - Navigation entry point to sign-up flow
-/// - Basic UI layout and branding elements
+/// - Basic UI layout anKd branding elements
 ///
 /// The view delegates all business logic to `LoginViewModel`.
 struct Login: View {
+    @Environment(AppCoordinator.self) private var coordinator
 
     // MARK: - State
     
@@ -121,7 +122,7 @@ struct Login: View {
                             .foregroundColor(Color(Color.appSubtitle))
 
                         Button {
-                            // Navigation
+                            coordinator.push(.signUp)
                         } label: {
                             Text("Sign up")
                                 .font(.system(size: 15))
@@ -146,6 +147,11 @@ struct Login: View {
             .scrollDismissesKeyboard(.interactively)
         }
         .background(Color(Color.appTeal))
+        .onChange(of: viewModel.isLoggedIn) { _, success in
+            if success {
+                coordinator.replace(path: [.feed])
+            }
+        }
     }
 }
 
@@ -161,4 +167,5 @@ struct Login: View {
             )
         )
     )
+    .environment(AppCoordinator())
 }
