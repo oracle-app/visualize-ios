@@ -20,7 +20,7 @@ class VisualizationDatasource {
         let sharedWithUser = try await firebase.collection("visualizations")
             .whereField("sharedWithUsers", arrayContains: userID)
             .getDocuments()
-         return sharedWithUser.documents.compactMap {
+        return sharedWithUser.documents.compactMap {
             do {
                 return try $0.data(as: VisualizationDTO.self)
             } catch {
@@ -52,11 +52,11 @@ class VisualizationDatasource {
     }
     func getAllPersonalVisualizations(userID: String) async throws -> [VisualizationDTO] {
         let snapshot = try await firebase.collection("visualizations")
-                .whereField("authorID", isEqualTo: "\(userID)")
-                .getDocuments()
+            .whereField("authorID", isEqualTo: "\(userID)")
+            .getDocuments()
         let dtos = snapshot.documents.compactMap { document in
-                    try? document.data(as: VisualizationDTO.self)
-            }
+            try? document.data(as: VisualizationDTO.self)
+        }
         return dtos
     }
     func getAllUsersVisualizationIsSharedWith(visualizationID: String) async throws -> [UserDTO] {
@@ -111,12 +111,64 @@ class VisualizationDatasource {
             $0.title.lowercased().contains(lowercased)
         }
     }
+    
     func deleteVisualization(visualizationID: String) async throws {
-        try await firebase.collection("visualizations").document(visualizationID).delete()
+        try await firebase
+            .collection("visualizations")
+            .document(visualizationID)
+            .delete()
     }
-
+    
     func removeUserFromSharedWith(visualizationID: String, userID: String) async throws {
-        try await firebase.collection("visualizations").document(visualizationID)
-            .updateData(["sharedWithUsers": FieldValue.arrayRemove([userID])])
+        try await firebase
+            .collection("visualizations")
+            .document(visualizationID)
+            .updateData([
+                "sharedWithUsers": FieldValue.arrayRemove([userID])
+            ])
+    }
+    
+    /// Creates a new visualization document in Firestore with config and preview JSON fields.
+    ///
+    /// - Parameters:
+    ///   - title: Display title chosen by the user.
+    ///   - authorID: ID of the user creating the visualization.
+    ///   - configJSON: Full chart JSON for `FullScreenView` rendering.
+    ///   - previewJSON: Reduced chart JSON for feed card previews.
+    ///   - userIDs: IDs of users the visualization is shared with. Empty for personal feed.
+    ///   - teamIDs: IDs of teams the visualization is shared with. Empty for personal feed.
+    /// - Throws: Any Firestore write error.
+    func createVisualization(
+        title: String,
+        authorID: String,
+        configJSON: String,
+        previewJSON: String,
+        userIDs: [String],
+        teamIDs: [String]
+    ) async throws {
+        let dto = VisualizationDTO(
+            title: title,
+            sharedWithTeams: teamIDs,
+            sharedWithUsers: userIDs,
+            createdAt: Date(),
+            authorID: authorID,
+            configJSON: configJSON,
+            previewJSON: previewJSON
+        )
+        try firebase.collection("visualizations").addDocument(from: dto)
+    }
+    
+    /// Fetches only the `configJSON` field for a single visualization.
+    /// Called by `FullScreenView` on demand to avoid loading the full JSON into every
+    /// feed card. Returns `nil` if the document does not exist or the field is missing.
+    /// - Parameter visualizationID: The Firestore document ID of the visualization.
+    /// - Returns: The raw `configJSON` string, or `nil` if unavailable.
+    /// - Throws: Any Firestore read error.
+    func fetchConfigJSON(visualizationID: String) async throws -> String? {
+        let snapshot = try await firebase
+            .collection("visualizations")
+            .document(visualizationID)
+            .getDocument()
+        return snapshot.data()?["configJSON"] as? String
     }
 }

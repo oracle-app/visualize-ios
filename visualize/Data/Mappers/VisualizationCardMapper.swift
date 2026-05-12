@@ -23,8 +23,12 @@ extension VisualizationDTO {
                 }
             }
             let allUsers = Array(allUsersDict.values)
-            let jsonString = self.previewJSON
-            let parsedChart = ChartConfigParser.parse(from: jsonString) ?? .unsupported(type: "Invalid JSON")
+            
+            // Parse preview chart from previewJSON (reduced data) for feed card rendering.
+            // FullScreenView parses configJSON directly to get all data points.
+            let previewString = self.previewJSON ?? self.configJSON
+            let parsedChart = ChartConfigParser.parse(from: previewString) ?? .unsupported(type: "Invalid JSON")
+     
             let derivedChartType: ChartType
             switch parsedChart {
             case .verticalBar:   derivedChartType = .verticalBar
@@ -36,9 +40,9 @@ extension VisualizationDTO {
             case .scatter:       derivedChartType = .scatter
             case .area:          derivedChartType = .area
             case .tile:          derivedChartType = .tile
-            case .unsupported:
-                derivedChartType = .tile
+            case .unsupported:   derivedChartType = .tile
             }
+     
             return VisualizationCard(
                 id: self.id ?? "",
                 title: self.title,
@@ -52,4 +56,5 @@ extension VisualizationDTO {
                 allUsersSharedWith: allUsers
             )
         }
-}
+    }
+     

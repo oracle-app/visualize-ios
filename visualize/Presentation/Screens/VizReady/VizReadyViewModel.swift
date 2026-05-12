@@ -38,6 +38,13 @@ final class VizReadyViewModel {
     // MARK: - Computed
     /// `true` when the user has selected a single chart.
     var isSelectionValid: Bool { selectedID != nil }
+    
+    /// The currently selected `ChartSuggestion`, or `nil` if nothing is selected.
+    /// Used by `VizReadyView` to pass chart data to `ShareSheetViewModel`.
+    var selectedSuggestion: ChartSuggestion? {
+        guard let selectedID else { return nil }
+        return suggestions.first { $0.id == selectedID }
+    }
 
     /// Returns the user-edited title for a suggestion, or the original ML name.
     /// - Parameter suggestion: The suggestion to resolve the title for.

@@ -69,7 +69,7 @@ class VisualizationRepositoryImpl: VisualizationRepository {
             guard let id = dto.id else { return false }
             return !hiddenIDs.contains(id)
         }
-
+        
         guard !visibleDTOs.isEmpty else { return [] }
         let authorIDs = Set(visibleDTOs.map { $0.authorID })
         let sharedUserIDs = Set(visibleDTOs.flatMap { $0.sharedWithUsers })
@@ -123,16 +123,44 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         }
         return allTeams
     }
-
+    
     func searchVisualizations(userID: String, query: String) async throws -> [VisualizationCard] {
         let dtos = try await visualizationDatasource.searchVisualizations(userID: userID, query: query)
         return try await fetchDetailsAndMap(dtos: dtos)
     }
+    
     func deleteVisualization(visualizationID: String) async throws {
         try await visualizationDatasource.deleteVisualization(visualizationID: visualizationID)
     }
-
+    
     func removeUserFromSharedWith(visualizationID: String, userID: String) async throws {
-        try await visualizationDatasource.removeUserFromSharedWith(visualizationID: visualizationID, userID: userID)
+        try await visualizationDatasource.removeUserFromSharedWith(
+            visualizationID: visualizationID,
+            userID: userID
+        )
+    }
+    
+    /// Delegates visualization creation to the datasource with config and preview JSON.
+    func createVisualization(
+        title: String,
+        authorID: String,
+        configJSON: String,
+        previewJSON: String,
+        userIDs: [String],
+        teamIDs: [String]
+    ) async throws {
+        try await visualizationDatasource.createVisualization(
+            title: title,
+            authorID: authorID,
+            configJSON: configJSON,
+            previewJSON: previewJSON,
+            userIDs: userIDs,
+            teamIDs: teamIDs
+        )
+    }
+ 
+    /// Delegates configJSON fetch to the datasource.
+    func fetchConfigJSON(visualizationID: String) async throws -> String? {
+        try await visualizationDatasource.fetchConfigJSON(visualizationID: visualizationID)
     }
 }

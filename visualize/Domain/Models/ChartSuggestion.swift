@@ -16,4 +16,10 @@ struct ChartSuggestion: Identifiable {
     let chartType: ChartType
     /// Fully parsed chart model, ready to be passed to `ChartRendererView`.
     let chart: ChartData
+    /// Reduced JSON with fewer data points. Rendered in card previews and saved to Firestore
+    /// for use in the feed.
+    let previewJSON: String
+    /// Full JSON with all data points. Saved to Firestore and used by `FullScreenView`
+    /// to render the complete interactive chart.
+    let configJSON: String
 }

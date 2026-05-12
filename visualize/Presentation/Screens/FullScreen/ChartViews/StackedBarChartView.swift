@@ -103,7 +103,7 @@ struct StackedBarChartView: UIViewRepresentable {
  
 // MARK: - Preview
 #Preview {
-    if let chart = ChartConfigParser.parse(from: MockChartJSONs.stackedBar) {
+    if let chart = ChartConfigParser.parse(from: MockChartJSONs.stackedBarConfig) {
         ChartRendererView(chart: chart)
             .frame(height: 400)
     }

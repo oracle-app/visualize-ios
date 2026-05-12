@@ -28,10 +28,21 @@ struct FullScreenView: View {
 
     init(card: VisualizationCard) {
         self.card = card
+        let userDatasource = UserDatasource()
+        let teamDatasource = TeamDatasource()
+        let vizDatasource = VisualizationDatasource(
+            userDatasource: userDatasource,
+            teamsDatasource: teamDatasource
+        )
         self._viewModel = State(initialValue: FullScreenViewModel(
             teamRepository: TeamRepositoryImpl(
-                teamDatasource: TeamDatasource(),
-                userDatasource: UserDatasource()
+                teamDatasource: teamDatasource,
+                userDatasource: userDatasource
+            ),
+            visualizationRepository: VisualizationRepositoryImpl(
+                userDatasource: userDatasource,
+                visualizationDatasource: vizDatasource,
+                teamsDatasource: teamDatasource
             )
         ))
     }
@@ -42,9 +53,9 @@ struct FullScreenView: View {
         ZStack {
             Color.appMint
                 .ignoresSafeArea()
-
+ 
             VStack {
-
+ 
                 // MARK: Header
                 FSHeaderView(
                     title: card.title,
@@ -57,7 +68,11 @@ struct FullScreenView: View {
                     Spacer()
                         .frame(height: 70)
                     Button {
-                        Task { await viewModel.captureChartForEditor(card.chart) }
+                        // parsedChart is pre-validated by isChartRenderable:
+                        // nil and .unsupported are both excluded, so force-unwrap is safe here.
+                        if let chart = viewModel.parsedChart {
+                            Task { await viewModel.captureChartForEditor(chart) }
+                        }
                     } label: {
                         Image(systemName: "crop")
                             .font(.system(size: 28))
@@ -65,49 +80,48 @@ struct FullScreenView: View {
                             .frame(width: 54, height: 54)
                             .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
                     }
+                    // Disabled when parsedChart is nil (not yet loaded / parse error)
+                    // or .unsupported (chart type not yet renderable).
+                    .disabled(!viewModel.isChartRenderable)
                     .padding(.trailing)
                 }
 
                 // MARK: Chart
-                /// This should get the complete JSON from the DB and render it, not reuse the one of VisualizationCard
-                if case .unsupported = card.chart {
-                    // MARK: Error State
-                    VStack(spacing: 5) {
-                        Text("Couldn't load")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(Color.appTeal)
-                        Text("Something went wrong.")
-                            .font(.system(size: 17))
-                            .foregroundStyle(Color.appTeal)
-                            .multilineTextAlignment(.center)
-                        Button("Try again") {
-                            chartLoadID = UUID()
+                // configJSON is fetched from Firestore on appear, not stored on the card,
+                // so the feed remains lightweight. The parsed ChartData is stored in
+                // viewModel.parsedChart — ChartConfigParser is never called from the body.
+                Group {
+                    if viewModel.isLoadingConfig {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .frame(height: 380)
+                    } else if let chart = viewModel.parsedChart {
+                        if case .unsupported = chart {
+                            errorState
+                        } else {
+                            ChartRendererView(chart: chart)
+                                .id(chartLoadID)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .frame(height: 380)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .padding(.horizontal, 12)
+                                .padding(.top, 10)
                         }
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 130)
-                        .padding(.vertical, 15)
-                        .background(Color.appTeal)
-                        .cornerRadius(296)
-                        .padding(.top, 200)
+                    } else {
+                        errorState
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .frame(height: 380)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 60)
-                    
-                } else {
-                    ChartRendererView(chart: card.chart)
-                        .id(chartLoadID)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .frame(height: 380)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                        .padding(.horizontal, 12)
-                        .padding(.top, 10)
                 }
+                
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .task { await viewModel.fetchConfigJSON(visualizationID: card.id) }
+        .onChange(of: chartLoadID) { _, _ in
+            // Reset all config state through the VM so both configJSON
+            // and parsedChart are cleared atomically before the retry fetch.
+            viewModel.resetConfig()
+            Task { await viewModel.fetchConfigJSON(visualizationID: card.id) }
         }
         .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
             SnipEditorView(
@@ -130,10 +144,38 @@ struct FullScreenView: View {
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
     }
+ 
+    // MARK: - Private
+ 
+    private var errorState: some View {
+        VStack(spacing: 5) {
+            Text("Couldn't load")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(Color.appTeal)
+            Text("Something went wrong.")
+                .font(.system(size: 17))
+                .foregroundStyle(Color.appTeal)
+                .multilineTextAlignment(.center)
+            Button("Try again") {
+                chartLoadID = UUID()
+            }
+            .font(.system(size: 17, weight: .semibold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 130)
+            .padding(.vertical, 15)
+            .background(Color.appTeal)
+            .cornerRadius(296)
+            .padding(.top, 200)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(height: 380)
+        .padding(.horizontal, 12)
+        .padding(.top, 60)
+    }
 }
-
+ 
 // MARK: - Preview
-
+ 
 #Preview("Scatter") {
     FullScreenView(card: VisualizationCard(
         id: "preview-id",
