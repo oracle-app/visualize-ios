@@ -68,8 +68,9 @@ struct FullScreenView: View {
                     Spacer()
                         .frame(height: 70)
                     Button {
-                        if let json = viewModel.configJSON,
-                           let chart = ChartConfigParser.parse(from: json) {
+                        // parsedChart is pre-validated by isChartRenderable:
+                        // nil and .unsupported are both excluded, so force-unwrap is safe here.
+                        if let chart = viewModel.parsedChart {
                             Task { await viewModel.captureChartForEditor(chart) }
                         }
                     } label: {
@@ -79,23 +80,26 @@ struct FullScreenView: View {
                             .frame(width: 54, height: 54)
                             .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
                     }
-                    .disabled(viewModel.configJSON == nil)
+                    // Disabled when parsedChart is nil (not yet loaded / parse error)
+                    // or .unsupported (chart type not yet renderable).
+                    .disabled(!viewModel.isChartRenderable)
                     .padding(.trailing)
                 }
 
                 // MARK: Chart
-                // configJSON is fetched from Firestore on appear, not stored on the card, so the feed remains lightweight.
+                // configJSON is fetched from Firestore on appear, not stored on the card,
+                // so the feed remains lightweight. The parsed ChartData is stored in
+                // viewModel.parsedChart — ChartConfigParser is never called from the body.
                 Group {
                     if viewModel.isLoadingConfig {
                         ProgressView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .frame(height: 380)
-                    } else if let json = viewModel.configJSON,
-                              let parsedChart = ChartConfigParser.parse(from: json) {
-                        if case .unsupported = parsedChart {
+                    } else if let chart = viewModel.parsedChart {
+                        if case .unsupported = chart {
                             errorState
                         } else {
-                            ChartRendererView(chart: parsedChart)
+                            ChartRendererView(chart: chart)
                                 .id(chartLoadID)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .frame(height: 380)
@@ -114,8 +118,9 @@ struct FullScreenView: View {
         }
         .task { await viewModel.fetchConfigJSON(visualizationID: card.id) }
         .onChange(of: chartLoadID) { _, _ in
-            // Reset configJSON so fetchConfigJSON runs again on retry
-            viewModel.configJSON = nil
+            // Reset all config state through the VM so both configJSON
+            // and parsedChart are cleared atomically before the retry fetch.
+            viewModel.resetConfig()
             Task { await viewModel.fetchConfigJSON(visualizationID: card.id) }
         }
         .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
@@ -168,9 +173,9 @@ struct FullScreenView: View {
         .padding(.top, 60)
     }
 }
-
+ 
 // MARK: - Preview
-
+ 
 #Preview("Scatter") {
     FullScreenView(card: VisualizationCard(
         id: "preview-id",

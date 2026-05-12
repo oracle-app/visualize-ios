@@ -38,10 +38,15 @@ final class FullScreenViewModel {
     // MARK: - Config JSON State
 
     /// Full chart JSON fetched from Firestore on demand.
-    /// `nil` while loading; `.some("")` or a parse failure maps to the error state.
+    /// `nil` while loading or after a failed fetch.
     var configJSON: String? = nil
+    /// `ChartData` parsed from `configJSON` once the fetch completes.
+    /// `nil` while loading, or when the JSON is missing or malformed.
+    /// `.unsupported` when the chart type is not yet renderable.
+    /// The view consumes this directly — no parsing happens in the body.
+    var parsedChart: ChartData? = nil
     var isLoadingConfig: Bool = true
-    /// Non-nil when the configJSON fetch fails.
+    /// Non-nil when the configJSON fetch or parse fails.
     var configError: String? = nil
  
     // MARK: - Capture State
@@ -86,9 +91,36 @@ final class FullScreenViewModel {
 
     // MARK: - Config JSON
 
-    /// Fetches `configJSON` for the given visualization ID from Firestore.
-    /// Fetches the config only once and skips duplicate requests when `configJSON` is already loaded.
-    /// Sets `isLoadingConfig` during the fetch and `configError` on failure.
+    /// Whether the fetched chart is valid and renderable.
+    /// `false` when `parsedChart` is nil or `.unsupported`.
+    /// Used to gate the crop button so it is never active on an unrenderable chart.
+    var isChartRenderable: Bool {
+        guard let chart = parsedChart else { return false }
+        if case .unsupported = chart { return false }
+        return true
+    }
+ 
+    /// Resets config state in preparation for a retry fetch.
+    /// Called from the view's `onChange(of: chartLoadID)` before re-invoking `fetchConfigJSON`.
+    func resetConfig() {
+        configJSON = nil
+        parsedChart = nil
+        configError = nil
+        isLoadingConfig = true
+    }
+ 
+    /// Fetches `configJSON` for the given visualization ID from Firestore and parses it
+    /// into `parsedChart` immediately, so the SwiftUI body never calls the parser directly.
+    ///
+    /// Parsing is intentionally performed here rather than in the view body because:
+    /// - The body can re-evaluate on any `@Observable` change; parsing a full JSON string
+    ///   on every re-render is wasteful and runs on the main thread.
+    /// - Centralizing the result in `parsedChart` lets `isChartRenderable` derive from
+    ///   a single source of truth used by both the chart display and the crop button.
+    ///
+    /// Skips the fetch when `configJSON` is already loaded (guard prevents duplicate requests).
+    /// Sets `isLoadingConfig` during the fetch and `configError` on failure or bad JSON.
+    ///
     /// - Parameter visualizationID: The Firestore document ID of the visualization.
     func fetchConfigJSON(visualizationID: String) async {
         guard configJSON == nil else { return }
@@ -96,7 +128,13 @@ final class FullScreenViewModel {
         configError = nil
         do {
             configJSON = try await visualizationRepository.fetchConfigJSON(visualizationID: visualizationID)
-            if configJSON == nil {
+            if let json = configJSON {
+                parsedChart = ChartConfigParser.parse(from: json)
+                if parsedChart == nil {
+                    configError = "Chart data could not be parsed."
+                }
+                // .unsupported is a valid parse result — the view renders errorState for it.
+            } else {
                 configError = "Chart data not found."
             }
         } catch {
