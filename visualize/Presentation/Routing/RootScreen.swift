@@ -19,20 +19,20 @@ import SwiftUI
 /// On appear, checks for an existing session and skips the landing
 /// screen if the user is already authenticated.
 struct RootScreen: View {
-
+    
     // MARK: - State
-
+    
     @State private var coordinator: AppCoordinator
     @State private var viewModel: RootViewModel
-
+    
     // MARK: - Initialization
     init(viewModel: RootViewModel, coordinator: AppCoordinator) {
         _viewModel = State(initialValue: viewModel)
         _coordinator = State(initialValue: coordinator)
     }
-
+    
     // MARK: - Body
-
+    
     var body: some View {
         NavigationStack(path: $coordinator.path) {
             LandingScreen()
@@ -64,15 +64,38 @@ struct RootScreen: View {
                     case .feed:
                         FeedView(viewModel: .preview, shouldLoad: true)
                             .navigationBarBackButtonHidden(true)
+                    case .resetPassword:
+                        ResetPasswordView(
+                            viewModel: ResetPasswordViewModel(
+                                resetPasswordUseCase: ResetPasswordUseCase(
+                                    authRepository: AuthRepositoryImpl(
+                                        source: AuthFirebaseDatasource()
+                                    )
+                                )
+                            )
+                        )
+                        .navigationBarBackButtonHidden(true)
+                        
+                    case .checkEmail(let email):
+                        CheckEmailView(
+                            viewModel: CheckEmailViewModel(
+                                email: email,
+                                resetPasswordUseCase: ResetPasswordUseCase(
+                                    authRepository: AuthRepositoryImpl(
+                                        source: AuthFirebaseDatasource()
+                                    )
+                                )
+                            )
+                        )
+                        .navigationBarBackButtonHidden(true)
                     }
                 }
-        }
-        .environment(coordinator)
-        .onAppear {
-            viewModel.checkSession()
-            if viewModel.isLoggedIn {
-                coordinator.replace(path: [.feed])
-            }
-        }
+                .onAppear {
+                    viewModel.checkSession()
+                    if viewModel.isLoggedIn {
+                        coordinator.replace(path: [.feed])
+                    }
+                }
+        }.environment(coordinator)
     }
 }

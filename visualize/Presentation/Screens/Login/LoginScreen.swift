@@ -99,7 +99,7 @@ struct Login: View {
                     HStack {
                         Spacer()
                         Button {
-                            // functionality
+                            coordinator.push(.resetPassword)
                         } label: {
                             Text("Forgot your password?")
                                 .font(.system(size: 13))
