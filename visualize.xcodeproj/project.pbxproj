@@ -32,7 +32,7 @@
 
 /* Begin PBXFileReference section */
 		053BEF1B2F8AEC41008A3D6B /* visualize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = visualize.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE38560F2FAD7B2C00BAED1C /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+        DE38560F2FAD7B2C00BAED1C /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
