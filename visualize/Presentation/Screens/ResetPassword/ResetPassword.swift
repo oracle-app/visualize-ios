@@ -74,7 +74,7 @@ struct ResetPasswordView: View {
                 
                 // MARK: - Description
                 
-                Text("Enter the email address associated with your account to receive a recovery code.")
+                Text("Enter the email address associated with your account to receive a recovery link.")
                     .font(.system(size: 17))
                     .foregroundColor(Color(Color.appSubtitle))
                     .multilineTextAlignment(.center)

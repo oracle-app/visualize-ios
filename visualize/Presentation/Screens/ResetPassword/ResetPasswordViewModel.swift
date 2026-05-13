@@ -65,7 +65,9 @@ class ResetPasswordViewModel {
 
     /// Validates the email field and triggers the password reset request.
     func submit() {
+        guard !isLoading else { return }
         errorMessage = nil
+        email = email.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard validateEmail() else { return }
 
@@ -84,10 +86,12 @@ class ResetPasswordViewModel {
                     self.emailError = "Please enter a valid email address."
                 }
 
-            } catch {
-                // Firebase does not distinguish between registered and unregistered
-                // emails for security reasons, so we always show the success state.
-                didSendEmail = true
+            } catch let error as NSError {
+                if error.domain == "FIRAuthErrorDomain" {
+                    didSendEmail = true
+                } else {
+                    self.errorMessage = "Something went wrong. Please try again."
+                }
             }
 
             isLoading = false
