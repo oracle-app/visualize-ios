@@ -22,6 +22,8 @@ enum MockChartJSONs {
         (config: stackedBarConfig,   preview: stackedBarPreview),
         (config: lineConfig,         preview: linePreview),
         (config: pieConfig,          preview: piePreview),
+        (config: horizontalBarPreview,      preview: horizontalBarConfig),
+        (config: areaConfig,         preview: areaPreview)
     ]
  
     // MARK: - Chart 0 · Vertical Bar
@@ -59,10 +61,10 @@ enum MockChartJSONs {
     }
     """
  
-    // MARK: - Chart 1 · Horizontal Bar (renderer pending)
+    // MARK: - Chart 1 · Horizontal Bar
  
     /// Average Fare by Passenger Class
-    static let horizontalBar: String = """
+    static let horizontalBarPreview: String = """
     {
         "chartIndex": 1,
         "chartName": "Average Fare by Passenger Class",
@@ -74,6 +76,22 @@ enum MockChartJSONs {
         "metrics": { "field1": "Pclass", "field2": "Avg Fare" },
         "page": 0, "pageSize": 5000, "preview": false,
         "status": "COMPLETED", "totalPages": 1, "totalPoints": 3
+    }
+    """
+    
+    /// Average Fare and Survival Rate by Embarkation Port, 8 categories (full for FullScreenView)
+    static let horizontalBarConfig: String = """
+    {
+        "chartIndex": 1,
+        "chartName": "Average Fare by Age Group",
+        "chartType": "Horizontal Bar Chart",
+        "data": {
+            "field1": ["0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70+"],
+            "field2": ["31.25", "22.18", "28.64", "45.92", "52.37", "61.84", "38.45", "24.11"]
+        },
+        "metrics": { "field1": "Age Group", "field2": "Avg Fare" },
+        "page": 0, "pageSize": 5000, "preview": false,
+        "status": "COMPLETED", "totalPages": 1, "totalPoints": 8
     }
     """
  
@@ -306,7 +324,7 @@ enum MockChartJSONs {
     }
     """
     
-    // MARK: - Chart 8 · Area (renderer pending)
+    // MARK: - Chart 8 · Area
  
     /// Survivors and Deaths by Age Group, 8 groups (full for FullScreenView)
     static let areaConfig: String = """

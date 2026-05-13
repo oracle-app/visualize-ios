@@ -20,13 +20,13 @@ struct ChartRendererView: View {
     var body: some View {
         switch chart {
         // MARK: Scatter
-        case .scatter(_, let data, let fieldNames):
-            ScatterChartView(
-                xValues: data.map { $0.x },
-                yValues: data.map { $0.y },
-                xLabel: fieldNames.first ?? "X",
-                yLabel: fieldNames.last ?? "Y"
-            )
+            case .scatter(_, let data, let fieldNames):
+                ScatterChartView(
+                    xValues: data.map { $0.x },
+                    yValues: data.map { $0.y },
+                    xLabel: fieldNames.first ?? "X",
+                    yLabel: fieldNames.last ?? "Y"
+                )
             
             // MARK: Vertical Bar
             case .verticalBar(_, let data, let fieldNames):
@@ -38,11 +38,12 @@ struct ChartRendererView: View {
                 )
             
             // MARK: Horizontal Bar
-            case .horizontalBar:
-                ContentUnavailableView(
-                    "Coming Soon",
-                    systemImage: "chart.bar.fill",
-                    description: Text("Horizontal bar chart will be available soon.")
+            case .horizontalBar(_, let data, let fieldNames):
+                HorizontalBarChartView(
+                    categories: sortedKeys(from: data),
+                    values: sortedValues(from: data),
+                    xLabel: fieldNames.first ?? "X",
+                    yLabel: fieldNames.last ?? "Y"
                 )
             
             // MARK: Stacked Bar
@@ -77,11 +78,12 @@ struct ChartRendererView: View {
                 )
             
             // MARK: Area
-            case .area:
-                ContentUnavailableView(
-                    "Coming Soon",
-                    systemImage: "chart.xyaxis.line",
-                    description: Text("This chart type will be available soon.")
+            case .area(let title, let series, let categories):
+                AreaChartView(
+                    categories: categories,
+                    series: series,
+                    xLabel: "Category",
+                    yLabel: "Count"
                 )
      
             // MARK: Tile
