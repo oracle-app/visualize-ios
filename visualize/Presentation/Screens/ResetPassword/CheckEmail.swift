@@ -19,9 +19,13 @@ import SwiftUI
 ///
 /// This view is purely presentational and does not handle business logic.
 struct CheckEmailView: View {
+    @Environment(AppCoordinator.self) private var coordinator
     
-    /// Action triggered when the back button is pressed
-    let onBack: () -> Void = {}
+    @State private var viewModel: CheckEmailViewModel
+
+    init(viewModel: CheckEmailViewModel) {
+        _viewModel = State(initialValue: viewModel)
+    }
     
     // MARK: - Body
     
@@ -30,7 +34,7 @@ struct CheckEmailView: View {
             
             // MARK: - Header Image
             
-            Image("LoginBackground")
+            Image("AuthBackground")
                 .resizable()
                 .frame(height: 240)
                 .scaledToFill()
@@ -43,7 +47,7 @@ struct CheckEmailView: View {
                 
                 // MARK: - Back Button
                 
-                Button(action: onBack) {
+                Button { coordinator.pop() } label: {
                     Image(systemName: "arrow.backward")
                         .font(.system(size: 22))
                         .foregroundStyle(Color.primaryText)
@@ -81,13 +85,14 @@ struct CheckEmailView: View {
                     HStack {
                         Text("Didn't get the email?")
                         
-                        Button(action: {
-                            // TODO: add resend logic later
-                        }) {
-                            Text("Resend email")
+                        Button {
+                            viewModel.resend()
+                        } label: {
+                            Text(viewModel.isResending ? "Sending..." : "Resend email")
                                 .underline()
                                 .foregroundColor(Color(Color.primaryOrange))
                         }
+                        .disabled(viewModel.isResending || viewModel.didResend)
                     }
                     .font(.system(size: 17))
                     .foregroundColor(Color(Color.appSubtitle))
@@ -100,11 +105,8 @@ struct CheckEmailView: View {
                 
                 // MARK: - Back to Login Button
                 
-                AuthButton(
-                    title: "Back to log in",
-                    isEnabled: true
-                ) {
-                    // Navigation back to login screen
+                AuthButton(title: "Back to log in") {
+                    coordinator.replace(path: [.login])
                 }
                 
                 // MARK: - App Version
@@ -132,5 +134,15 @@ struct CheckEmailView: View {
 // MARK: - Preview
 
 #Preview {
-    return CheckEmailView()
+    CheckEmailView(
+        viewModel: CheckEmailViewModel(
+            email: "user@example.com",
+            resetPasswordUseCase: ResetPasswordUseCase(
+                authRepository: AuthRepositoryImpl(
+                    source: AuthFirebaseDatasource()
+                )
+            )
+        )
+    )
+    .environment(AppCoordinator())
 }

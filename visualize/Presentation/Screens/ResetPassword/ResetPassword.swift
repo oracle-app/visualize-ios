@@ -18,6 +18,7 @@ import SwiftUI
 /// The view is focused only on UI and user interaction,
 /// delegating logic to `ResetPasswordViewModel`.
 struct ResetPasswordView: View {
+    @Environment(AppCoordinator.self) private var coordinator
     
     // MARK: - State
     
@@ -31,9 +32,6 @@ struct ResetPasswordView: View {
         _viewModel = State(initialValue: viewModel)
     }
     
-    /// Action triggered when the back button is pressed
-    let onBack: () -> Void = {}
-    
     // MARK: - Body
     
     var body: some View {
@@ -41,7 +39,7 @@ struct ResetPasswordView: View {
             
             // MARK: - Header Image
             
-            Image("LoginBackground")
+            Image("AuthBackground")
                 .resizable()
                 .frame(height: 240)
                 .scaledToFill()
@@ -54,7 +52,7 @@ struct ResetPasswordView: View {
                 
                 // MARK: - Back Button
                 
-                Button(action: onBack) {
+                Button { coordinator.pop() } label: {
                     Image(systemName: "arrow.backward")
                         .font(.system(size: 22))
                         .foregroundStyle(Color.primaryText)
@@ -88,6 +86,7 @@ struct ResetPasswordView: View {
                 InputField(
                     placeholder: "Email",
                     text: $viewModel.email,
+                    errorMessage: viewModel.emailError,
                     keyboardType: .emailAddress
                 )
                 .padding(.horizontal, 24)
@@ -96,11 +95,8 @@ struct ResetPasswordView: View {
                 
                 // MARK: - Send Button
                 
-                AuthButton(
-                    title: "Send",
-                    isEnabled: viewModel.isFormValid
-                ) {
-                    // Action will trigger password reset
+                AuthButton(title: "Send") {
+                    viewModel.submit()
                 }
                 
                 // MARK: - App Version
@@ -122,12 +118,25 @@ struct ResetPasswordView: View {
             .frame(maxHeight: .infinity)
             .ignoresSafeArea(edges: .bottom)
         }
+        .onChange(of: viewModel.didSendEmail) { _, sent in
+            if sent {
+                coordinator.push(.checkEmail(email: viewModel.email))
+            }
+        }
     }
 }
 
 // MARK: - Preview
 
 #Preview {
-    let viewModel = ResetPasswordViewModel()
-    return ResetPasswordView(viewModel: viewModel)
+    ResetPasswordView(
+        viewModel: ResetPasswordViewModel(
+            resetPasswordUseCase: ResetPasswordUseCase(
+                authRepository: AuthRepositoryImpl(
+                    source: AuthFirebaseDatasource()
+                )
+            )
+        )
+    )
+    .environment(AppCoordinator())
 }

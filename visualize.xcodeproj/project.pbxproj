@@ -21,19 +21,17 @@
 		053BF0102F8C7462008A3D6B /* FirebaseFunctionsCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF00F2F8C7462008A3D6B /* FirebaseFunctionsCombine-Community */; };
 		053BF0142F8C7462008A3D6B /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF0132F8C7462008A3D6B /* FirebaseInstallations */; };
 		053BF0162F8C7462008A3D6B /* FirebaseMLModelDownloader in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF0152F8C7462008A3D6B /* FirebaseMLModelDownloader */; };
-        053BF0182F8C7462008A3D6B /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF0172F8C7462008A3D6B /* FirebaseMessaging */; };
+		053BF0182F8C7462008A3D6B /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF0172F8C7462008A3D6B /* FirebaseMessaging */; };
 		053BF01A2F8C7462008A3D6B /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF0192F8C7462008A3D6B /* FirebasePerformance */; };
 		053BF01C2F8C7462008A3D6B /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01B2F8C7462008A3D6B /* FirebaseRemoteConfig */; };
 		053BF01E2F8C7462008A3D6B /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01D2F8C7462008A3D6B /* FirebaseStorage */; };
 		053BF0202F8C7462008A3D6B /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01F2F8C7462008A3D6B /* FirebaseStorageCombine-Community */; };
-
 		DE3856102FAD7B2C00BAED1C /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DE38560F2FAD7B2C00BAED1C /* Config.xcconfig */; };
 		E46E46BF2FA9937000E87EF6 /* SciChart in Frameworks */ = {isa = PBXBuildFile; productRef = E46E46BE2FA9937000E87EF6 /* SciChart */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		053BEF1B2F8AEC41008A3D6B /* visualize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = visualize.app; sourceTree = BUILT_PRODUCTS_DIR; };
-
 		DE38560F2FAD7B2C00BAED1C /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -235,6 +233,7 @@
 /* Begin XCBuildConfiguration section */
 		053BEF242F8AEC43008A3D6B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DE38560F2FAD7B2C00BAED1C /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -298,6 +297,7 @@
 		};
 		053BEF252F8AEC43008A3D6B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DE38560F2FAD7B2C00BAED1C /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;

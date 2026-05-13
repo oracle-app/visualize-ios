@@ -74,4 +74,12 @@ class AuthFirebaseDatasource {
     func deleteCurrentUser() async throws {
         try await auth.currentUser?.delete()
     }
+    
+    /// Sends a password reset email to the given address.
+    ///
+    /// - Parameter email: The email address to send the reset link to.
+    /// - Throws: An error if Firebase fails to send the email.
+    func sendPasswordReset(to email: String) async throws {
+        try await auth.sendPasswordReset(withEmail: email)
+    }
 }
