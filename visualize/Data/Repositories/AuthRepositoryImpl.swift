@@ -80,4 +80,12 @@ class AuthRepositoryImpl: AuthRepository {
     func deleteCurrentUser() async throws {
         try await source.deleteCurrentUser()
     }
+    
+    /// Sends a password reset email to the given address.
+    ///
+    /// - Parameter email: The email address to send the reset link to.
+    /// - Throws: An error if the operation fails.
+    func sendPasswordReset(to email: String) async throws {
+        try await source.sendPasswordReset(to: email)
+    }
 }

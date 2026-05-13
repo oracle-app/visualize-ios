@@ -47,4 +47,7 @@ protocol AuthRepository {
     
     /// Deletes the currently authenticated user.
     func deleteCurrentUser() async throws
+    
+    /// Sends a password reset email to the given address.
+    func sendPasswordReset(to email: String) async throws
 }
