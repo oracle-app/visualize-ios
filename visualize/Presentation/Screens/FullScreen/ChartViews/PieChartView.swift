@@ -47,6 +47,7 @@ struct PieChartView: UIViewRepresentable {
  
         surface.renderableSeries.add(pieSeries)
         surface.chartModifiers.add(SCIPieChartTooltipModifier())
+        surface.chartModifiers.add(SCIPieSegmentSelectionModifier())
  
         return surface
     }
