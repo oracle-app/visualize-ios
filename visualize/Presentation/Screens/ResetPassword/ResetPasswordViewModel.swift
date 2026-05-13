@@ -7,6 +7,7 @@
 
 import Foundation
 import Observation
+import FirebaseAuth
 
 // MARK: - Reset Password ViewModel
 
@@ -87,7 +88,8 @@ class ResetPasswordViewModel {
                 }
 
             } catch let error as NSError {
-                if error.domain == "FIRAuthErrorDomain" {
+                if let authError = AuthErrorCode(rawValue: error.code),
+                   authError == .userNotFound {
                     didSendEmail = true
                 } else {
                     self.errorMessage = "Something went wrong. Please try again."
