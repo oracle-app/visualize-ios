@@ -80,9 +80,10 @@ struct FullScreenView: View {
                             .frame(width: 54, height: 54)
                             .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
                     }
-                    // Disabled when parsedChart is nil (not yet loaded / parse error)
-                    // or .unsupported (chart type not yet renderable).
-                    .disabled(!viewModel.isChartRenderable)
+                    // Disabled when parsedChart is nil (not yet loaded / parse error),
+                    // .unsupported (chart type not yet renderable), or when
+                    // chartCaptureSize is zero (geometry value hasn't arrived yet).
+                    .disabled(!viewModel.isCropEnabled)
                     .padding(.trailing)
                 }
 
@@ -104,6 +105,12 @@ struct FullScreenView: View {
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .frame(height: 380)
                                 .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .onGeometryChange(for: CGSize.self) { $0.size } action: {
+                                    // Ignore zero sizes — a transient layout pass
+                                    // should not overwrite a valid previous size.
+                                    guard $1.width > 0, $1.height > 0 else { return }
+                                    viewModel.chartCaptureSize = $1
+                                }
                                 .padding(.horizontal, 12)
                                 .padding(.top, 10)
                         }
