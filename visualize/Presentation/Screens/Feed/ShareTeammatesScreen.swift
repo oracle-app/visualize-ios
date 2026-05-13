@@ -229,9 +229,10 @@ extension ShareTeammatesViewModel {
                     userDatasource: userDatasource,
                     visualizationDatasource: visualizationDatasource,
                     teamsDatasource: teamDatasource
-                )
+                ),
+                userRepository: UserRepositoryImpl(userDatasource: userDatasource)
             ),
-            visualizationID: "LnSqGF5VrD73GTjyRZAZ",
+            visualizationID: "LnSqGF5VrD73GTjyRZAZ"
         )
     }
 }

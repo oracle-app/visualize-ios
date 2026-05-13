@@ -28,9 +28,19 @@ final class ShareSheetViewModel {
 
     private let teamRepository: any TeamRepository
     private let userRepository: any UserRepository
+    private let createVisualizationUseCase: CreateVisualizationUseCase
 
     // Temporary hardcoded user ID, will be replaced with authenticated session value.
     private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
+    
+    // MARK: - Chart Data
+ 
+    /// Title of the selected chart suggestion, potentially edited by the user in VizReady.
+    let chartTitle: String
+    /// Full JSON string saved as `configJSON` in Firestore for use in `FullScreenView`.
+    let chartConfigJSON: String
+    /// Reduced JSON string saved as `previewJSON` in Firestore for use in feed card previews.
+    let chartPreviewJSON: String
 
     // MARK: - Input State
 
@@ -51,6 +61,9 @@ final class ShareSheetViewModel {
     var selectedTeamIDs: Set<String> = []
     var isLoading = false
     var error: String?
+    /// Non-nil when `confirmShare` fails. Displayed in `ShareSheet` so the user knows the save failed.
+    var confirmError: String? = nil
+
 
     // MARK: - Private State
 
@@ -63,9 +76,24 @@ final class ShareSheetViewModel {
     /// - Parameters:
     ///   - teamRepository: Repository used to fetch teams.
     ///   - userRepository: Repository used to search users by email.
-    init(teamRepository: any TeamRepository, userRepository: any UserRepository) {
+    ///   - createVisualizationUseCase: Use case that persists the visualization on confirmation.
+    ///   - chartTitle: Title of the chart the user selected in VizReady.
+    ///   - chartConfigJSON: Full chart JSON to save as `configJSON` in Firestore.
+    ///   - chartPreviewJSON: Reduced chart JSON to save as `previewJSON` in Firestore.
+    init(
+        teamRepository: any TeamRepository,
+        userRepository: any UserRepository,
+        createVisualizationUseCase: CreateVisualizationUseCase,
+        chartTitle: String,
+        chartConfigJSON: String,
+        chartPreviewJSON: String
+    ) {
         self.teamRepository = teamRepository
         self.userRepository = userRepository
+        self.createVisualizationUseCase = createVisualizationUseCase
+        self.chartTitle = chartTitle
+        self.chartConfigJSON = chartConfigJSON
+        self.chartPreviewJSON = chartPreviewJSON
     }
 
     // MARK: - Data Loading
@@ -73,29 +101,24 @@ final class ShareSheetViewModel {
     /// Fetches the teams owned by and joined by the current user concurrently.
     ///
     /// Guards against duplicate in-flight requests. Sets `isLoading` during
-    /// the fetch and populates `myTeams` and `joinedTeams` on success,
-    /// or sets `error` on failure.
+    /// the fetch and populates `myTeams` and `joinedTeams` on success.
     func loadData() {
         guard !isLoading else { return }
 
         Task {
             isLoading = true
-            error = nil
-
             do {
                 async let myTeamsRequest = teamRepository.getTeamsUserOwns(userID: userID)
                 async let joinedTeamsRequest = teamRepository.getTeamsUserIsIn(userID: userID)
-
                 myTeams = try await myTeamsRequest
                 joinedTeams = try await joinedTeamsRequest
             } catch {
                 self.error = "Error loading teams: \(error.localizedDescription)"
             }
-
             isLoading = false
         }
     }
-
+    
     // MARK: - Actions
 
     /// Adds a user to the selected list if not already present, then clears the search field.
@@ -131,9 +154,20 @@ final class ShareSheetViewModel {
         suggestedUsers = []
     }
 
-    /// Confirms the share action and logs the selection summary.
-    func confirmShare() {
-        print("Sharing with \(selectedUsers.count) users and \(selectedTeamIDs.count) teams.")
+    /// Creates the visualization in Firestore with both JSON fields and the current sharing selection.
+    /// For personal feed: `selectedUsers` and `selectedTeamIDs` are both empty.
+    /// For teammates: populated with the user's selections from the sheet.
+    /// - Throws: Any error from `CreateVisualizationUseCase`.
+    func confirmShare() async throws {
+        confirmError = nil
+        try await createVisualizationUseCase.execute(
+            title: chartTitle,
+            authorID: userID,
+            configJSON: chartConfigJSON,
+            previewJSON: chartPreviewJSON,
+            users: selectedUsers,
+            teamIDs: Array(selectedTeamIDs)
+        )
     }
 
     // MARK: - Search Logic

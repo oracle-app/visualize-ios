@@ -6,30 +6,31 @@
 //
 
 import SwiftUI
-
+ 
 // MARK: - VizReadyView
-
+ 
 /// Full-screen view that presents AI-generated chart suggestions and lets
 /// the user pick one before proceeding to the next step.
 struct VizReadyView: View {
-
+ 
     // MARK: - State properties
-
+ 
     /// Called after the close button dismisses this view, so the caller can
     /// chain further dismissals up the navigation stack.
     var onClose: (() -> Void)?
     /// Dismisses this fullScreenCover.
     @Environment(\.dismiss) var dismiss
     /// Backing state machine for chart selection and title editing.
-    @State private var viewModel = VizReadyViewModel()
+    @State private var viewModel: VizReadyViewModel
     /// Controls presentation of the share sheet after the user taps proceed.
-    @State private var showShareSheet = false
+    @State private var showShareSheet: Bool = false
     @State private var sheetSize: PresentationDetent = .fraction(0.28)
-
-    private let userDatasource = UserDatasource()
-    private let teamDatasource = TeamDatasource()
-    
+ 
+    private let userDatasource: UserDatasource = UserDatasource()
+    private let teamDatasource: TeamDatasource = TeamDatasource()
+ 
     // MARK: - Init
+ 
     /// - Parameters:
     ///   - suggestions: Chart suggestions produced by the ML service (or mock).
     ///   - onClose: Optional closure invoked when the user dismisses via the X button.
@@ -37,9 +38,9 @@ struct VizReadyView: View {
         self.onClose = onClose
         self._viewModel = State(initialValue: VizReadyViewModel(suggestions: suggestions))
     }
-    
+ 
     // MARK: - Body
-
+ 
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -48,6 +49,7 @@ struct VizReadyView: View {
                     cards
                 }
             }
+            .scrollIndicators(.hidden)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -91,28 +93,13 @@ struct VizReadyView: View {
                 }
             }
             .sheet(isPresented: $showShareSheet) {
-                NavigationStack {
-                    ShareSheet(
-                        viewModel: ShareSheetViewModel(
-                            teamRepository: TeamRepositoryImpl(
-                                teamDatasource: teamDatasource,
-                                userDatasource: userDatasource
-                            ),
-                            userRepository: UserRepositoryImpl(userDatasource: userDatasource)
-                        ),
-                        sheetSize: $sheetSize
-                    )
-                }
-                .presentationDetents(
-                    [.fraction(0.34), .large],
-                    selection: $sheetSize)
-                .presentationBackground(.clear)
+                shareSheet
             }
         }
     }
-
+ 
     // MARK: - Private views
-
+ 
     /// Expanded header shown at the top of the list.
     private var expandedHeader: some View {
         VStack(spacing: 8) {
@@ -122,7 +109,7 @@ struct VizReadyView: View {
                     .foregroundStyle(Color.appNavy)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8)
-
+ 
                 Text("We've generated several charts based\non your dataset.")
                     .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(Color.appSubtitle)
@@ -132,7 +119,7 @@ struct VizReadyView: View {
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
-
+ 
             Text("Choose the chart that best represents the insights you want to share")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Color.appSubtitle.opacity(0.8))
@@ -160,7 +147,7 @@ struct VizReadyView: View {
                     }
                 )
             }
-
+ 
             if let error = viewModel.titleValidationError {
                 Text(error)
                     .font(.system(size: 13, weight: .regular))
@@ -170,9 +157,53 @@ struct VizReadyView: View {
             }
         }
     }
+ 
+    /// Builds the ShareSheet with the selected chart's title, configJSON, and previewJSON.
+    /// Falls back to empty strings if no suggestion is selected, the proceed button
+    /// is always disabled when there is no selection, so this path should never reach Firestore.
+    /// Dismisses VizReadyView and its parent on successful save.
+    private var shareSheet: some View {
+        let vizDatasource = VisualizationDatasource(
+            userDatasource: userDatasource,
+            teamsDatasource: teamDatasource
+        )
+        let vizRepository = VisualizationRepositoryImpl(
+            userDatasource: userDatasource,
+            visualizationDatasource: vizDatasource,
+            teamsDatasource: teamDatasource
+        )
+        let suggestion = viewModel.selectedSuggestion
+ 
+        return NavigationStack {
+            ShareSheet(
+                viewModel: ShareSheetViewModel(
+                    teamRepository: TeamRepositoryImpl(
+                        teamDatasource: teamDatasource,
+                        userDatasource: userDatasource
+                    ),
+                    userRepository: UserRepositoryImpl(userDatasource: userDatasource),
+                    createVisualizationUseCase: CreateVisualizationUseCase(
+                        visualizationRepository: vizRepository
+                    ),
+                    chartTitle: suggestion.map { viewModel.displayTitle(for: $0) } ?? "",
+                    chartConfigJSON: suggestion?.configJSON ?? "",
+                    chartPreviewJSON: suggestion?.previewJSON ?? ""
+                ),
+                sheetSize: $sheetSize,
+                // Dismiss VizReadyView after the visualization is saved, returning to the feed
+                onConfirm: {
+                    dismiss()
+                    onClose?()
+                }
+            )
+        }
+        .presentationDetents([.fraction(0.34), .large], selection: $sheetSize)
+        .presentationBackground(.clear)
+    }
 }
-
+ 
 // MARK: - Preview
+ 
 #if DEBUG
 #Preview {
     VizReadyView(suggestions: [
@@ -182,9 +213,11 @@ struct VizReadyView: View {
             chartType: .verticalBar,
             chart: .verticalBar(
                 title: "Survival Rate by Passenger Class",
-                data: ["1": 107, "2": 93, "3": 218],
+                data: ["1": 136, "2": 87, "3": 119],
                 fieldNames: ["Pclass", "Survived"]
-            )
+            ),
+            previewJSON: MockChartJSONs.verticalBarPreview,
+            configJSON: MockChartJSONs.verticalBarConfig
         )
     ])
 }

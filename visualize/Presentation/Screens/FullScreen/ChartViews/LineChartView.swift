@@ -79,7 +79,7 @@ struct LineChartView: UIViewRepresentable {
  
 // MARK: - Preview
 #Preview {
-    if let chart = ChartConfigParser.parse(from: MockChartJSONs.line) {
+    if let chart = ChartConfigParser.parse(from: MockChartJSONs.lineConfig) {
         ChartRendererView(chart: chart)
             .frame(height: 400)
     }
