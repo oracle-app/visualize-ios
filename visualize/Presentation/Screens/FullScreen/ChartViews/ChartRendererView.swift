@@ -15,6 +15,10 @@ struct ChartRendererView: View {
     // MARK: - Properties
     /// The parsed chart model containing type and data.
     let chart: ChartData
+    /// Optional viewport override applied to the fresh chart instance before snapshot.
+    var viewport: ChartViewport? = nil
+    /// Callback invoked once the coordinator attaches to the live surface.
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
     // MARK: - Body
     
     var body: some View {
@@ -25,7 +29,9 @@ struct ChartRendererView: View {
                     xValues: data.map { $0.x },
                     yValues: data.map { $0.y },
                     xLabel: fieldNames.first ?? "X",
-                    yLabel: fieldNames.last ?? "Y"
+                    yLabel: fieldNames.last ?? "Y",
+                    viewport: viewport,
+                    onCoordinatorReady: onCoordinatorReady
                 )
             
             // MARK: Vertical Bar
@@ -34,7 +40,9 @@ struct ChartRendererView: View {
                     categories: sortedKeys(from: data),
                     values: sortedValues(from: data),
                     xLabel: fieldNames.first ?? "X",
-                    yLabel: fieldNames.last ?? "Y"
+                    yLabel: fieldNames.last ?? "Y",
+                    viewport: viewport,
+                    onCoordinatorReady: onCoordinatorReady
                 )
             
             // MARK: Horizontal Bar
@@ -43,7 +51,9 @@ struct ChartRendererView: View {
                     categories: sortedKeys(from: data),
                     values: sortedValues(from: data),
                     xLabel: fieldNames.first ?? "X",
-                    yLabel: fieldNames.last ?? "Y"
+                    yLabel: fieldNames.last ?? "Y",
+                    viewport: viewport,
+                    onCoordinatorReady: onCoordinatorReady
                 )
             
             // MARK: Stacked Bar
@@ -52,7 +62,9 @@ struct ChartRendererView: View {
                     data: data,
                     categories: stackNames,
                     xLabel: "Category",
-                    yLabel: "Count"
+                    yLabel: "Count",
+                    viewport: viewport,
+                    onCoordinatorReady: onCoordinatorReady
                 )
             
             // MARK: Line
@@ -60,7 +72,9 @@ struct ChartRendererView: View {
                 LineChartView(
                     data: data,
                     xLabel: fieldNames.first ?? "X",
-                    yLabel: fieldNames.last ?? "Y"
+                    yLabel: fieldNames.last ?? "Y",
+                    viewport: viewport,
+                    onCoordinatorReady: onCoordinatorReady
                 )
             
             // MARK: Pie
@@ -83,7 +97,9 @@ struct ChartRendererView: View {
                     categories: categories,
                     series: series,
                     xLabel: "Category",
-                    yLabel: "Count"
+                    yLabel: "Count",
+                    viewport: viewport,
+                    onCoordinatorReady: onCoordinatorReady
                 )
      
             // MARK: Tile
