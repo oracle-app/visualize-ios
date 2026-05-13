@@ -37,7 +37,6 @@ struct AreaChartView: UIViewRepresentable {
     func makeCoordinator() -> ChartTooltipCoordinator {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
         coordinator.xValues = categories.enumerated().map { idx, _ in Double(idx) }
-        // yValues del primer series como referencia
         coordinator.yValues = series.sorted { $0.key < $1.key }.first?.value ?? []
         coordinator.isStackedChart = true
         return coordinator
@@ -100,6 +99,10 @@ struct AreaChartView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: SCIChartSurface, context: Context) {}
+    
+    static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: ChartTooltipCoordinator) {
+        coordinator.cleanup()
+    }
 }
 
 // MARK: - Preview

@@ -87,6 +87,10 @@ struct ScatterChartView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: SCIChartSurface, context: Context) {}
+    
+    static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: ChartTooltipCoordinator) {
+        coordinator.cleanup()
+    }
 }
 
 // MARK: - Preview

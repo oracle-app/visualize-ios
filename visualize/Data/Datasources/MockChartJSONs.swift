@@ -22,7 +22,7 @@ enum MockChartJSONs {
         (config: stackedBarConfig,   preview: stackedBarPreview),
         (config: lineConfig,         preview: linePreview),
         (config: pieConfig,          preview: piePreview),
-        (config: horizontalBarPreview,      preview: horizontalBarConfig),
+        (config: horizontalBarConfig,      preview: horizontalBarPreview),
         (config: areaConfig,         preview: areaPreview)
     ]
  

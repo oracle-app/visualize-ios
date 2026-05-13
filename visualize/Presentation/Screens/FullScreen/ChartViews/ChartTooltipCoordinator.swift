@@ -147,4 +147,14 @@ class ChartTooltipCoordinator: NSObject {
         tap.numberOfTapsRequired = 1
         surface.addGestureRecognizer(tap)
     }
+    
+    // MARK: - Lifecycle
+
+    func cleanup() {
+        removeTooltip()
+    }
+
+    deinit {
+        removeTooltip()
+    }
 }
