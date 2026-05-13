@@ -79,8 +79,16 @@ struct ChartConfigParser {
             return .donut(title: chartName, data: field2Values, fieldNames: field1Raw)
         case .area:
             var areaData: [String: [Double]] = [:]
-            zip(field1Raw, field2Values).forEach { areaData[$0] = [$1] }
-            return .area(title: chartName, data: areaData, stackNames: [field1Label, field2Label])
+            if let field2Dict = dataDict["field2"] as? [String: Any] {
+                for (key, rawValue) in field2Dict {
+                    if let strArr = rawValue as? [String] {
+                        areaData[key] = strArr.compactMap { Double($0) }
+                    } else if let numArr = rawValue as? [NSNumber] {
+                        areaData[key] = numArr.map { $0.doubleValue }
+                    }
+                }
+            }
+            return .area(title: chartName, data: areaData, stackNames: field1Raw)
         case .tile:
             let value = field1Values.first ?? 0
             return .tile(title: chartName, value: value, label: field1Label)

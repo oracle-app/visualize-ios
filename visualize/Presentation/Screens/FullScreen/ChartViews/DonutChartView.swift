@@ -51,8 +51,10 @@ struct DonutChartView: UIViewRepresentable {
         }
  
         surface.renderableSeries.add(donutSeries)
+        // MARK: - Interactivity
         surface.chartModifiers.add(SCIPieChartTooltipModifier())
- 
+        surface.chartModifiers.add(SCIPieSegmentSelectionModifier())
+        
         return surface
     }
  
