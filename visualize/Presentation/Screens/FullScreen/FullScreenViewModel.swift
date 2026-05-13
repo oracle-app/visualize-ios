@@ -99,6 +99,14 @@ final class FullScreenViewModel {
         if case .unsupported = chart { return false }
         return true
     }
+
+    /// Whether the crop button should be active.
+    /// Requires a renderable chart AND a valid (non-zero) capture size.
+    /// Guards against the user tapping Crop before the geometry value arrives
+    /// or after a transient layout pass sets `chartCaptureSize` back to `.zero`.
+    var isCropEnabled: Bool {
+        isChartRenderable && chartCaptureSize.width > 0 && chartCaptureSize.height > 0
+    }
  
     /// Resets config state in preparation for a retry fetch.
     /// Called from the view's `onChange(of: chartLoadID)` before re-invoking `fetchConfigJSON`.
