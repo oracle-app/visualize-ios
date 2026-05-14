@@ -11,6 +11,8 @@
 
 import SwiftUI
 struct NavBar: View {
+    @Environment(AppCoordinator.self) private var coordinator
+
     @State private var selectedTab: Tabs = .feed
     @State private var feedViewModel: FeedViewModel = {
         let userDS = UserDatasource()
@@ -42,34 +44,33 @@ struct NavBar: View {
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
     
-    
-    
     var body: some View {
-
+        @Bindable var coordinator = coordinator
         
-        TabView(selection: $selectedTab) {
-            FeedView(viewModel: feedViewModel)
-                .tabItem{
-                    Label("", systemImage: "house")
-                }
-                .tag(Tabs.feed)
-            CreateVisualization()
-                .tabItem{
-                    Label("", systemImage: "plus")
-                }
-                .tag(Tabs.create)
-            //TeamsView()
-            Color.green.ignoresSafeArea()
-                    .tabItem{
-                    Label("", systemImage: "person.2")
-                }
-                .tag(Tabs.teams)
-            //ProfileView()
-            Color.blue.ignoresSafeArea()
-                    .tabItem{
-                    Label("",systemImage: "person.circle")
-                }
-                .tag(Tabs.profile)
+        TabView(selection: $coordinator.selectedTab) {
+            NavigationStack(path: $coordinator.feedPath) {
+                FeedView(viewModel: feedViewModel)
+            }
+            .tabItem { Label("", systemImage: "house") }
+            .tag(Tabs.feed)
+
+            NavigationStack(path: $coordinator.createPath) {
+                CreateVisualization()
+            }
+            .tabItem { Label("", systemImage: "plus") }
+            .tag(Tabs.create)
+
+            NavigationStack(path: $coordinator.teamsPath) {
+                Color.green.ignoresSafeArea()
+            }
+            .tabItem { Label("", systemImage: "person.2") }
+            .tag(Tabs.teams)
+
+            NavigationStack(path: $coordinator.profilePath) {
+                Color.blue.ignoresSafeArea()
+            }
+            .tabItem { Label("", systemImage: "person.circle") }
+            .tag(Tabs.profile)
         }
     }
 }

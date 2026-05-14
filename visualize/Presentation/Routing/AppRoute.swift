@@ -15,7 +15,6 @@
 enum AppRoute: Hashable {
     case login
     case signUp
-    case feed
     case resetPassword
     case checkEmail(email: String)
 }
