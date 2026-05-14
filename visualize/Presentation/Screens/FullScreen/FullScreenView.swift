@@ -34,6 +34,7 @@ struct FullScreenView: View {
             userDatasource: userDatasource,
             teamsDatasource: teamDatasource
         )
+        let storageDatasource = StorageDatasource()
         self._viewModel = State(initialValue: FullScreenViewModel(
             teamRepository: TeamRepositoryImpl(
                 teamDatasource: teamDatasource,
@@ -43,6 +44,9 @@ struct FullScreenView: View {
                 userDatasource: userDatasource,
                 visualizationDatasource: vizDatasource,
                 teamsDatasource: teamDatasource
+            ),
+            uploadSnipUseCase: UploadSnipUseCase(
+                snipRepository: SnipRepositoryImpl(storageDatasource: storageDatasource)
             )
         ))
     }

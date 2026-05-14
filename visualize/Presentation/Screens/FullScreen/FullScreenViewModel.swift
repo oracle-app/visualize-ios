@@ -76,9 +76,7 @@ final class FullScreenViewModel {
     init(
         teamRepository: any TeamRepository,
         visualizationRepository: any VisualizationRepository,
-        uploadSnipUseCase: UploadSnipUseCase = UploadSnipUseCase(
-            snipRepository: SnipRepositoryImpl(storageDatasource: StorageDatasource())
-        )
+        uploadSnipUseCase: UploadSnipUseCase
     ) {
         self.teamRepository = teamRepository
         self.visualizationRepository = visualizationRepository
