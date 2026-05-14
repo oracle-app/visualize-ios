@@ -88,17 +88,7 @@ struct ScatterChartView: UIViewRepresentable {
         onCoordinatorReady?(context.coordinator)
 
         // MARK: Viewport override
-        if let vp = viewport {
-            if let xr = vp.xRange {
-                surface.xAxes.item(at: 0).visibleRange = SCIDoubleRange(min: xr.lowerBound, max: xr.upperBound)
-            }
-            if let yr = vp.yRange {
-                surface.yAxes.item(at: 0).visibleRange = SCIDoubleRange(min: yr.lowerBound, max: yr.upperBound)
-            }
-            os_log(.debug, log: SnipCaptureLog.general,
-                   "Viewport applied: x=%{public}@  y=%{public}@",
-                   String(describing: vp.xRange), String(describing: vp.yRange))
-        }
+        surface.applyViewport(viewport)
 
         return surface
     }
