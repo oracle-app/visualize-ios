@@ -54,6 +54,7 @@ struct RootScreen: View {
                                         )
                                     )
                                 )
+                                .navigationBarBackButtonHidden(true)
                             case .signUp:
                                 SignUp(
                                     viewModel: SignUpViewModel(
@@ -67,6 +68,7 @@ struct RootScreen: View {
                                         )
                                     )
                                 )
+                                .navigationBarBackButtonHidden(true)
                             case .resetPassword:
                                 ResetPasswordView(
                                     viewModel: ResetPasswordViewModel(
@@ -77,6 +79,7 @@ struct RootScreen: View {
                                         )
                                     )
                                 )
+                                .navigationBarBackButtonHidden(true)
                             case .checkEmail(let email):
                                 CheckEmailView(
                                     viewModel: CheckEmailViewModel(
@@ -88,6 +91,7 @@ struct RootScreen: View {
                                         )
                                     )
                                 )
+                                .navigationBarBackButtonHidden(true)
                             default: // Implement future screens
                                 EmptyView()
                         }
