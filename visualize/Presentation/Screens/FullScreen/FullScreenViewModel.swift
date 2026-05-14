@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseAuth
 import Observation
 import SwiftUI
 
@@ -62,6 +63,7 @@ final class FullScreenViewModel {
 
     var isUploading: Bool = false
     var uploadError: String? = nil
+    var userName: String?
 
     // MARK: - Dependencies
 
@@ -209,10 +211,13 @@ final class FullScreenViewModel {
                 userID: userID,
                 visualizationID: visualizationID
             )
+            let name = Auth.auth().currentUser?.displayName ?? ""
+            userName = name
             try await postSnipCommentUseCase.execute(
                 visualizationID: visualizationID,
                 authorID: userID,
-                imageURL: url
+                imageURL: url,
+                authorName: name
             )
             isUploading = false
             dismissEditor()

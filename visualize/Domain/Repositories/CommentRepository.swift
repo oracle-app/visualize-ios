@@ -6,5 +6,5 @@
 import Foundation
 
 protocol CommentRepository {
-    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL) async throws
+    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL, authorName: String) async throws
 }

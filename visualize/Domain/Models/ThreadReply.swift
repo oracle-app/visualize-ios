@@ -10,7 +10,7 @@ struct ThreadReply: Identifiable, Codable {
     @DocumentID var id: String?
     
     var authorID: String
-    var authorName: String = " "
+    var authorName: String = ""
     var authorAvatarURL: String?
     var createdAt: Timestamp
     var content: String
