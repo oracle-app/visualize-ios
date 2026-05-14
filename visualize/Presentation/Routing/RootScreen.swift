@@ -92,11 +92,9 @@ struct RootScreen: View {
                                     )
                                 )
                                 .navigationBarBackButtonHidden(true)
-                            default: // Implement future screens
-                                EmptyView()
+                            }
                         }
                     }
-                }
             }
         }
         .environment(coordinator)
