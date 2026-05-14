@@ -20,6 +20,13 @@ struct VerticalBarChartView: UIViewRepresentable {
     let values: [Double]
     let xLabel: String
     let yLabel: String
+    // MARK: - Coordinator
+    func makeCoordinator() -> ChartTooltipCoordinator {
+        let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
+        coordinator.xValues = categories.enumerated().map { idx, cat in Double(cat) ?? Double(idx) }
+        coordinator.yValues = values
+        return coordinator
+    }
  
     // MARK: - UIViewRepresentable
     func makeUIView(context: Context) -> SCIChartSurface {
@@ -68,23 +75,21 @@ struct VerticalBarChartView: UIViewRepresentable {
         surface.renderableSeries.add(renderSeries)
  
         // MARK: Interactivity
-        let modifierGroup = SCIModifierGroup(childModifiers: [
-            SCIZoomPanModifier(),
-            SCIPinchZoomModifier(),
-            SCIZoomExtentsModifier(),
-            SCIRolloverModifier()
-        ])
-        surface.chartModifiers.add(modifierGroup)
+        context.coordinator.attach(to: surface, zoomDirection: .xDirection,  pinchDirection: .xDirection)
  
         return surface
     }
  
     func updateUIView(_ uiView: SCIChartSurface, context: Context) {}
+    
+    static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: ChartTooltipCoordinator) {
+        coordinator.cleanup()
+    }
 }
  
 // MARK: - Preview
 #Preview {
-    if let chart = ChartConfigParser.parse(from: MockChartJSONs.verticalBar) {
+    if let chart = ChartConfigParser.parse(from: MockChartJSONs.verticalBarConfig) {
         ChartRendererView(chart: chart)
             .frame(height: 400)
     }

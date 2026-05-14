@@ -51,4 +51,10 @@ class UserRepositoryImpl: UserRepository {
         )
         return userRaw.toAppUser()
     }
+    func addHiddenVisualization(userID: String, visualizationID: String) async throws {
+        try await userDatasource.addHiddenVisualization(userID: userID, visualizationID: visualizationID)
+    }
+    func removeHiddenVisualization(userID: String, visualizationID: String) async throws {
+        try await userDatasource.removeHiddenVisualization(userID: userID, visualizationID: visualizationID)
+    }
 }

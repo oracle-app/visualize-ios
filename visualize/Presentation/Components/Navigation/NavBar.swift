@@ -4,43 +4,32 @@
 //
 //  Created by Kimberly Marquez on 4/15/26.
 
-// Reusable navigation bar component that manages the main app navigation using a tab-based structure.
-// It maintains the currently selected tab state and dynamically switches between different views such as feed, create, teams, and profile.
-// Integrates system tab bar customization (UIKit appearance) to control icon colors and visual styling independently from the rest of the UI.
-// Designed to centralize navigation logic while allowing scalable extension of tabs and consistent user experience across the application.
-
 import SwiftUI
-struct NavBar: View {
-    let sessionManager: SessionManager
 
+struct NavBar: View {
     @State private var selectedTab: Tabs = .feed
     @State private var feedViewModel: FeedViewModel = {
         let userDS = UserDatasource()
         let teamsDS = TeamDatasource()
-        let visualizationDS = VisualizationDatasource(
-            userDatasource: userDS,
-            teamsDatasource: teamsDS
-        )
+        let visualizationDS = VisualizationDatasource(userDatasource: userDS, teamsDatasource: teamsDS)
         let repo = VisualizationRepositoryImpl(
             userDatasource: userDS,
             visualizationDatasource: visualizationDS,
             teamsDatasource: teamsDS
         )
-        let useCase = LoadVisualizationsUseCase(visualizationRepository: repo)
-        let searchUseCase = SearchVisualizationsUseCase(visualizationRepository: repo)
+        let userRepo = UserRepositoryImpl(userDatasource: userDS)
         return FeedViewModel(
-            loadVisualizationsUseCase: useCase,
-            searchVisualizationsUseCase: searchUseCase,
-
+            loadVisualizationsUseCase: LoadVisualizationsUseCase(visualizationRepository: repo),
+            searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
+            hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
+            deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo)
         )
     }()
 
     private let logoutUseCase: LogoutUseCase
     private let getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase
 
-    init(sessionManager: SessionManager) {
-        self.sessionManager = sessionManager
-
+    init() {
         let authSource = AuthFirebaseDatasource()
         let authRepo = AuthRepositoryImpl(source: authSource)
         let userRepo = UserRepositoryImpl(userDatasource: UserDatasource())
@@ -57,12 +46,8 @@ struct NavBar: View {
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
-    
-    
-    
-    var body: some View {
 
-        
+    var body: some View {
         TabView(selection: $selectedTab) {
             FeedView(viewModel: feedViewModel)
                 .tabItem{
@@ -74,7 +59,6 @@ struct NavBar: View {
                     Label("", systemImage: "plus")
                 }
                 .tag(Tabs.create)
-            //TeamsView()
             Color.green.ignoresSafeArea()
                     .tabItem{
                     Label("", systemImage: "person.2")
@@ -82,8 +66,7 @@ struct NavBar: View {
                 .tag(Tabs.teams)
             ProfileScreenView(
                 logoutUseCase: logoutUseCase,
-                getCurrentUserProfileUseCase: getCurrentUserProfileUseCase,
-                sessionManager: sessionManager
+                getCurrentUserProfileUseCase: getCurrentUserProfileUseCase
             )
                     .tabItem{
                     Label("",systemImage: "person.circle")
@@ -92,7 +75,8 @@ struct NavBar: View {
         }
     }
 }
-#Preview {
-    NavBar(sessionManager: SessionManager(isLoggedIn: true))
-}
 
+#Preview {
+    NavBar()
+        .environment(AppCoordinator())
+}

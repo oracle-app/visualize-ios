@@ -24,9 +24,9 @@ struct DonutChartView: UIViewRepresentable {
     private let segmentColors: [UIColor] = [
         UIColor(Color.appTeal),
         UIColor(Color.primaryOrange),
-        UIColor(Color.appNavy),
+        UIColor(Color.appLightTeal),
         UIColor(Color.appMint),
-        UIColor(Color.appSubtitle)
+        UIColor(Color.appChartGray)
     ]
  
     // MARK: - UIViewRepresentable
@@ -51,8 +51,10 @@ struct DonutChartView: UIViewRepresentable {
         }
  
         surface.renderableSeries.add(donutSeries)
+        // MARK: - Interactivity
         surface.chartModifiers.add(SCIPieChartTooltipModifier())
- 
+        surface.chartModifiers.add(SCIPieSegmentSelectionModifier())
+        
         return surface
     }
  
@@ -78,7 +80,7 @@ struct DonutChartView: UIViewRepresentable {
  
 // MARK: - Preview
 #Preview {
-    if let chart = ChartConfigParser.parse(from: MockChartJSONs.donut) {
+    if let chart = ChartConfigParser.parse(from: MockChartJSONs.donutConfig) {
         ChartRendererView(chart: chart)
             .frame(height: 400)
     }

@@ -10,19 +10,18 @@ import SwiftUI
 struct ProfileScreenView: View {
     // MARK: - State properties
 
+    @Environment(AppCoordinator.self) private var coordinator
     @State private var viewModel: ProfileScreenViewModel
 
     // MARK: - Initialization
 
     init(
         logoutUseCase: LogoutUseCase,
-        getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase,
-        sessionManager: SessionManager
+        getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase
     ) {
         _viewModel = State(initialValue: ProfileScreenViewModel(
             logoutUseCase: logoutUseCase,
-            getCurrentUserProfileUseCase: getCurrentUserProfileUseCase,
-            sessionManager: sessionManager
+            getCurrentUserProfileUseCase: getCurrentUserProfileUseCase
         ))
     }
 
@@ -35,7 +34,7 @@ struct ProfileScreenView: View {
 
             ScrollView {
                 VStack(spacing: Metrics.sectionSpacing) {
-                    ProfileHeaderView() {
+                    ProfileHeaderView(profilePictureURL: viewModel.profilePictureURL) {
                         viewModel.editProfilePhoto()
                     }
 
@@ -84,6 +83,11 @@ struct ProfileScreenView: View {
             .onAppear {
                 viewModel.loadProfile()
             }
+            .onChange(of: viewModel.isLoggedOut) { _, loggedOut in
+                if loggedOut {
+                    coordinator.replace(path: [])
+                }
+            }
         }
     }
 }
@@ -110,7 +114,7 @@ private enum Metrics {
         getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase(
             authRepository: authRepo,
             userRepository: userRepo
-        ),
-        sessionManager: SessionManager(isLoggedIn: true)
+        )
     )
+    .environment(AppCoordinator())
 }

@@ -19,7 +19,16 @@ struct LineChartView: UIViewRepresentable {
     let data: [Double: Double]
     let xLabel: String
     let yLabel: String
- 
+    
+    // MARK: - Coordinator
+        func makeCoordinator() -> ChartTooltipCoordinator {
+            let sorted = data.sorted { $0.key < $1.key }
+            let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
+            coordinator.xValues = sorted.map { $0.key }
+            coordinator.yValues = sorted.map { $0.value }
+            return coordinator
+        }
+    
     // MARK: - UIViewRepresentable
     func makeUIView(context: Context) -> SCIChartSurface {
         let surface = SCIChartSurface()
@@ -63,23 +72,21 @@ struct LineChartView: UIViewRepresentable {
         surface.renderableSeries.add(renderSeries)
  
         // MARK: Interactivity
-        let modifierGroup = SCIModifierGroup(childModifiers: [
-            SCIZoomPanModifier(),
-            SCIPinchZoomModifier(),
-            SCIZoomExtentsModifier(),
-            SCIRolloverModifier()
-        ])
-        surface.chartModifiers.add(modifierGroup)
+        context.coordinator.attach(to: surface, zoomDirection: .xDirection)
  
         return surface
     }
  
     func updateUIView(_ uiView: SCIChartSurface, context: Context) {}
+    
+    static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: ChartTooltipCoordinator) {
+        coordinator.cleanup()
+    }
 }
  
 // MARK: - Preview
 #Preview {
-    if let chart = ChartConfigParser.parse(from: MockChartJSONs.line) {
+    if let chart = ChartConfigParser.parse(from: MockChartJSONs.lineConfig) {
         ChartRendererView(chart: chart)
             .frame(height: 400)
     }

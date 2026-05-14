@@ -22,9 +22,9 @@ struct PieChartView: UIViewRepresentable {
     private let segmentColors: [UIColor] = [
         UIColor(Color.appTeal),
         UIColor(Color.primaryOrange),
-        UIColor(Color.appNavy),
+        UIColor(Color.appLightTeal),
         UIColor(Color.appMint),
-        UIColor(Color.appSubtitle)
+        UIColor(Color.appChartGray)
     ]
  
     // MARK: - UIViewRepresentable
@@ -47,6 +47,7 @@ struct PieChartView: UIViewRepresentable {
  
         surface.renderableSeries.add(pieSeries)
         surface.chartModifiers.add(SCIPieChartTooltipModifier())
+        surface.chartModifiers.add(SCIPieSegmentSelectionModifier())
  
         return surface
     }
@@ -72,7 +73,7 @@ struct PieChartView: UIViewRepresentable {
  
 // MARK: - Preview
 #Preview {
-    if let chart = ChartConfigParser.parse(from: MockChartJSONs.pie) {
+    if let chart = ChartConfigParser.parse(from: MockChartJSONs.pieConfig) {
         ChartRendererView(chart: chart)
             .frame(height: 400)
     }

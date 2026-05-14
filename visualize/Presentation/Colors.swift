@@ -15,6 +15,9 @@ extension Color {
     static let appLightTeal = Color(red: 230/255, green: 237/255, blue: 236/255) //#34797C
     static let appGray = Color(red: 217/255, green: 217/255, blue: 217/255) //#F5F4F2
     static let primaryOrange = Color(red: 235/255, green: 150/255, blue: 50/255)
+    static let appChartGray = Color(red: 140/255, green: 140/255, blue: 145/255) // #8C8C91
+    static let appRed = Color(red: 255/255, green: 59/255, blue: 48/255)
+    static let appDarkBlue = Color(red: 26/255, green: 47/255, blue: 63/255)
 
     static let paletteAqua1 = Color(red: 0/255, green: 53/255, blue: 102/255) //#003566
     static let paletteAqua2 = Color(red: 0/255, green: 150/255, blue: 199/255) //#0096C7

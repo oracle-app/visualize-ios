@@ -24,4 +24,6 @@ protocol UserRepository {
     /// - Returns: The created user as a domain `AppUser`.
     /// - Throws: An error if the user creation process fails.
     func createUser(user: AppUser) async throws -> AppUser
+    func addHiddenVisualization(userID: String, visualizationID: String) async throws
+    func removeHiddenVisualization(userID: String, visualizationID: String) async throws
 }

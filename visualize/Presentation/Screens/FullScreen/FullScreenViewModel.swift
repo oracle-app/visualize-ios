@@ -35,21 +35,38 @@ final class FullScreenViewModel {
     var isLoading: Bool = false
     var error: String?
 
+    // MARK: - Config JSON State
+
+    /// Full chart JSON fetched from Firestore on demand.
+    /// `nil` while loading or after a failed fetch.
+    var configJSON: String? = nil
+    /// `ChartData` parsed from `configJSON` once the fetch completes.
+    /// `nil` while loading, or when the JSON is missing or malformed.
+    /// `.unsupported` when the chart type is not yet renderable.
+    /// The view consumes this directly — no parsing happens in the body.
+    var parsedChart: ChartData? = nil
+    var isLoadingConfig: Bool = true
+    /// Non-nil when the configJSON fetch or parse fails.
+    var configError: String? = nil
+ 
     // MARK: - Capture State
 
     var capturedChartImage: IdentifiableImage?
-    var chartCaptureSize: CGSize = CGSize(width: 800, height: 380)
+    var chartCaptureSize: CGSize = .zero
     var showCaptureError: Bool = false
 
     // MARK: - Dependencies
 
     private let teamRepository: any TeamRepository
+    /// Repository used to fetch `configJSON` on demand for full-screen rendering.
+    private let visualizationRepository: any VisualizationRepository
     private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
 
     // MARK: - Init
 
-    init(teamRepository: any TeamRepository) {
+    init(teamRepository: any TeamRepository, visualizationRepository: any VisualizationRepository) {
         self.teamRepository = teamRepository
+        self.visualizationRepository = visualizationRepository
     }
 
     // MARK: - Data Loading
@@ -72,6 +89,68 @@ final class FullScreenViewModel {
         team?.members ?? []
     }
 
+    // MARK: - Config JSON
+
+    /// Whether the fetched chart is valid and renderable.
+    /// `false` when `parsedChart` is nil or `.unsupported`.
+    /// Used to gate the crop button so it is never active on an unrenderable chart.
+    var isChartRenderable: Bool {
+        guard let chart = parsedChart else { return false }
+        if case .unsupported = chart { return false }
+        return true
+    }
+
+    /// Whether the crop button should be active.
+    /// Requires a renderable chart AND a valid (non-zero) capture size.
+    /// Guards against the user tapping Crop before the geometry value arrives
+    /// or after a transient layout pass sets `chartCaptureSize` back to `.zero`.
+    var isCropEnabled: Bool {
+        isChartRenderable && chartCaptureSize.width > 0 && chartCaptureSize.height > 0
+    }
+ 
+    /// Resets config state in preparation for a retry fetch.
+    /// Called from the view's `onChange(of: chartLoadID)` before re-invoking `fetchConfigJSON`.
+    func resetConfig() {
+        configJSON = nil
+        parsedChart = nil
+        configError = nil
+        isLoadingConfig = true
+    }
+ 
+    /// Fetches `configJSON` for the given visualization ID from Firestore and parses it
+    /// into `parsedChart` immediately, so the SwiftUI body never calls the parser directly.
+    ///
+    /// Parsing is intentionally performed here rather than in the view body because:
+    /// - The body can re-evaluate on any `@Observable` change; parsing a full JSON string
+    ///   on every re-render is wasteful and runs on the main thread.
+    /// - Centralizing the result in `parsedChart` lets `isChartRenderable` derive from
+    ///   a single source of truth used by both the chart display and the crop button.
+    ///
+    /// Skips the fetch when `configJSON` is already loaded (guard prevents duplicate requests).
+    /// Sets `isLoadingConfig` during the fetch and `configError` on failure or bad JSON.
+    ///
+    /// - Parameter visualizationID: The Firestore document ID of the visualization.
+    func fetchConfigJSON(visualizationID: String) async {
+        guard configJSON == nil else { return }
+        isLoadingConfig = true
+        configError = nil
+        do {
+            configJSON = try await visualizationRepository.fetchConfigJSON(visualizationID: visualizationID)
+            if let json = configJSON {
+                parsedChart = ChartConfigParser.parse(from: json)
+                if parsedChart == nil {
+                    configError = "Chart data could not be parsed."
+                }
+                // .unsupported is a valid parse result — the view renders errorState for it.
+            } else {
+                configError = "Chart data not found."
+            }
+        } catch {
+            configError = error.localizedDescription
+        }
+        isLoadingConfig = false
+    }
+ 
     // MARK: - Capture
 
     /// Builds `ChartRendererView` for the given `chart`, captures it off-screen at

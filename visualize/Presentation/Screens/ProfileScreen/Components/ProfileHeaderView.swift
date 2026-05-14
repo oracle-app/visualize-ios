@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileHeaderView: View {
     // MARK: - Internal properties
 
+    let profilePictureURL: URL?
     let editProfilePhotoAction: () -> Void
 
     var body: some View {
@@ -38,16 +39,33 @@ struct ProfileHeaderView: View {
 
     private var profileAvatar: some View {
         ZStack(alignment: .bottomTrailing) {
-            Image(systemName: "person.fill")
-                .font(.system(size: Metrics.avatarIconSize, weight: .semibold))
-                .foregroundStyle(Color.appSubtitle)
-                .frame(width: Metrics.avatarSize, height: Metrics.avatarSize)
-                .background(Color.appGray)
-                .clipShape(.circle)
-                .overlay {
-                    Circle()
-                        .strokeBorder(.white, lineWidth: Metrics.avatarBorderWidth)
+            Group {
+                if let url = profilePictureURL {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure:
+                            avatarPlaceholder
+                        case .empty:
+                            ProgressView()
+                        @unknown default:
+                            avatarPlaceholder
+                        }
+                    }
+                } else {
+                    avatarPlaceholder
                 }
+            }
+            .frame(width: Metrics.avatarSize, height: Metrics.avatarSize)
+            .background(Color.appGray)
+            .clipShape(.circle)
+            .overlay {
+                Circle()
+                    .strokeBorder(.white, lineWidth: Metrics.avatarBorderWidth)
+            }
 
             Button("Edit profile photo", systemImage: "pencil", action: editProfilePhotoAction)
                 .labelStyle(.iconOnly)
@@ -61,6 +79,12 @@ struct ProfileHeaderView: View {
                         .strokeBorder(.white, lineWidth: Metrics.editButtonBorderWidth)
                 }
         }
+    }
+
+    private var avatarPlaceholder: some View {
+        Image(systemName: "person.fill")
+            .font(.system(size: Metrics.avatarIconSize, weight: .semibold))
+            .foregroundStyle(Color.appSubtitle)
     }
 }
 
@@ -107,5 +131,5 @@ private enum Metrics {
 }
 
 #Preview {
-    ProfileHeaderView {}
+    ProfileHeaderView(profilePictureURL: nil) {}
 }

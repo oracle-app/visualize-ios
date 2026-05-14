@@ -37,8 +37,13 @@ struct VisualizeApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            ContentView(
-                authRepository: AuthRepositoryImpl(source: AuthFirebaseDatasource())
+            RootScreen(
+                viewModel: RootViewModel(
+                    authRepository: AuthRepositoryImpl(
+                        source: AuthFirebaseDatasource()
+                    )
+                ),
+                coordinator: AppCoordinator()
             )
         }
     }

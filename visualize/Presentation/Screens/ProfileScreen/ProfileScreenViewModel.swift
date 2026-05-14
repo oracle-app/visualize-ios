@@ -41,6 +41,7 @@ final class ProfileScreenViewModel {
 
     private(set) var username: String = ""
     private(set) var email: String = ""
+    private(set) var profilePictureURL: URL?
     private(set) var selectedChartTheme: ChartColorTheme = .aqua
     private(set) var isLoadingProfile: Bool = false
     private(set) var logoutError: String?
@@ -60,22 +61,21 @@ final class ProfileScreenViewModel {
         ]
     }
 
+    private(set) var isLoggedOut: Bool = false
+
     // MARK: - Private properties
 
     private let logoutUseCase: LogoutUseCase
     private let getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase
-    private let sessionManager: SessionManager
 
     // MARK: - Initialization
 
     init(
         logoutUseCase: LogoutUseCase,
-        getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase,
-        sessionManager: SessionManager
+        getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase
     ) {
         self.logoutUseCase = logoutUseCase
         self.getCurrentUserProfileUseCase = getCurrentUserProfileUseCase
-        self.sessionManager = sessionManager
     }
 
     // MARK: - Internal methods
@@ -88,6 +88,9 @@ final class ProfileScreenViewModel {
                 let user: AppUser = try await getCurrentUserProfileUseCase.execute()
                 username = user.username
                 email = user.email
+                if let urlString = user.profilePictureURL {
+                    profilePictureURL = URL(string: urlString)
+                }
             } catch {
                 logoutError = error.localizedDescription
             }
@@ -110,7 +113,7 @@ final class ProfileScreenViewModel {
     func logOut() {
         do {
             try logoutUseCase.execute()
-            sessionManager.didLogOut()
+            isLoggedOut = true
         } catch {
             logoutError = error.localizedDescription
         }

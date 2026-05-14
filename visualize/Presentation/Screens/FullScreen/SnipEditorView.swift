@@ -32,17 +32,19 @@ struct SnipEditorView: View {
 
         NavigationStack {
         ZStack {
-            ZStack {
-                Image(uiImage: chartImage)
-                    .resizable()
-                    .scaledToFit()
+            Color.clear
+                .overlay {
+                    ZStack {
+                        Image(uiImage: chartImage)
+                            .resizable()
+                            .scaledToFit()
 
-                AnnotationCanvasView(model: model)
-                SnipGestureOverlayView(model: model)
-            }
-            .containerRelativeFrame([.horizontal, .vertical])
-            .onGeometryChange(for: CGSize.self) { $0.size } action: { canvasSize = $1 }
-            .ignoresSafeArea()
+                        AnnotationCanvasView(model: model)
+                        SnipGestureOverlayView(model: model)
+                    }
+                    .aspectRatio(chartImage.size, contentMode: .fit)
+                    .onGeometryChange(for: CGSize.self) { $0.size } action: { canvasSize = $1 }
+                }
 
             if openPanel != nil {
                 Color.clear
@@ -87,6 +89,7 @@ struct SnipEditorView: View {
             }
             .animation(.spring(duration: 0.22, bounce: 0.1), value: openPanel)
         }
+        .ignoresSafeArea()
         .preferredColorScheme(.light)
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarBackground(.hidden, for: .bottomBar)

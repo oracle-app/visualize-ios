@@ -50,19 +50,28 @@ class FeedViewModel {
     var visualizationFilter: VisualizationFilter
     let loadVisualizationsUseCase: LoadVisualizationsUseCase
     let searchVisualizationsUseCase: SearchVisualizationsUseCase
+    let hideVisualizationUseCase: HideVisualizationUseCase
+    let deleteVisualizationUseCase: DeleteVisualizationUseCase
 
     private var allVisualizations: [VisualizationCard] = []
-    private let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL"
+    let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL"
+//    let currentUserID: String = "oEJtQz0gdbRpTZ8ETPCy"
+    var currentToast: Toast? = nil
 
     /// Search task used for debounce — ignored by @Observable to avoid tracking issues.
     @ObservationIgnored
     private var searchTask: Task<Void, Never>?
+    private var toastTask: Task<Void, Never>?
 
     // MARK: - Initialization
     init(loadVisualizationsUseCase: LoadVisualizationsUseCase,
-         searchVisualizationsUseCase: SearchVisualizationsUseCase) {
+         searchVisualizationsUseCase: SearchVisualizationsUseCase,
+         hideVisualizationUseCase: HideVisualizationUseCase,
+         deleteVisualizationUseCase: DeleteVisualizationUseCase) {
         self.loadVisualizationsUseCase = loadVisualizationsUseCase
         self.searchVisualizationsUseCase = searchVisualizationsUseCase
+        self.hideVisualizationUseCase = hideVisualizationUseCase
+        self.deleteVisualizationUseCase = deleteVisualizationUseCase
         self.visualizationFilter = .all
     }
 
@@ -129,6 +138,17 @@ class FeedViewModel {
         isSearching = false
         searchTask?.cancel()
     }
+    
+    @MainActor
+    func showToast(_ toast: Toast) {
+        toastTask?.cancel()
+        currentToast = toast
+        toastTask = Task {
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            currentToast = nil
+        }
+    }
 
     // MARK: - Load Data
     /// Fetches all visualizations and applies the active filter. Uses cache unless forceRefresh is true.
@@ -157,6 +177,36 @@ class FeedViewModel {
     func fetchInitialData() {
         loadData(forceRefresh: false)
     }
+    
+    // MARK: - Delete Actions
+    func hideVisualization(visualizationID: String) {
+        Task {
+            do {
+                try await hideVisualizationUseCase.execute(userID: currentUserID, visualizationID: visualizationID)
+                allVisualizations.removeAll { $0.id == visualizationID }
+                searchResults.removeAll { $0.id == visualizationID }
+                applyLocalFilter()
+                await showToast(Toast(message: "Visualization removed from your feed", type: .success))
+            } catch {
+                print("Error hiding visualization: \(error)")
+                await showToast(Toast(message: "Failed to remove visualization", type: .error))
+            }
+        }
+    }
+    func deleteVisualization(visualizationID: String) {
+        Task {
+            do {
+                try await deleteVisualizationUseCase.execute(visualizationID: visualizationID)
+                allVisualizations.removeAll { $0.id == visualizationID }
+                searchResults.removeAll { $0.id == visualizationID }
+                applyLocalFilter()
+                await showToast(Toast(message: "Visualization deleted for everyone", type: .success))
+            } catch {
+                print("Error deleting visualization: \(error)")
+                await showToast(Toast(message: "Failed to delete visualization", type: .error))
+            }
+        }
+    }
 }
 
 // MARK: - Preview
@@ -165,23 +215,18 @@ extension FeedViewModel {
     static var preview: FeedViewModel {
         let userDS = UserDatasource()
         let teamDS = TeamDatasource()
-        let visualizationDS = VisualizationDatasource(
-            userDatasource: userDS,
-            teamsDatasource: teamDS
-        )
+        let visualizationDS = VisualizationDatasource(userDatasource: userDS, teamsDatasource: teamDS)
         let repo = VisualizationRepositoryImpl(
             userDatasource: userDS,
             visualizationDatasource: visualizationDS,
             teamsDatasource: teamDS
         )
-        let useCase = LoadVisualizationsUseCase(visualizationRepository: repo)
-        let searchUseCase = SearchVisualizationsUseCase(visualizationRepository: repo)
-
-        let viewModel = FeedViewModel(
-            loadVisualizationsUseCase: useCase,
-            searchVisualizationsUseCase: searchUseCase
+        let userRepo = UserRepositoryImpl(userDatasource: userDS)
+        return FeedViewModel(
+            loadVisualizationsUseCase: LoadVisualizationsUseCase(visualizationRepository: repo),
+            searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
+            hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
+            deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo)
         )
-        viewModel.loadData()
-        return viewModel
     }
 }

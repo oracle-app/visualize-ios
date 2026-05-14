@@ -19,6 +19,14 @@ struct ScatterChartView: UIViewRepresentable {
     let yValues: [Double]
     let xLabel: String
     let yLabel: String
+    
+    // MARK: - Coordinator
+    func makeCoordinator() -> ChartTooltipCoordinator {
+        let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
+        coordinator.xValues = xValues
+        coordinator.yValues = yValues
+        return coordinator
+    }
 
     // MARK: - UIViewRepresentable
 
@@ -73,38 +81,23 @@ struct ScatterChartView: UIViewRepresentable {
         surface.renderableSeries.add(renderSeries)
 
         // MARK: Interactivity
-        let zoomPan = SCIZoomPanModifier()
-        zoomPan.direction = .xyDirection
-
-        let pinchZoom = SCIPinchZoomModifier()
-        pinchZoom.direction = .xyDirection
-
-        let rollover = SCIRolloverModifier()
-        rollover.showTooltip = true
-
-        let modifierGroup = SCIModifierGroup(childModifiers: [
-            zoomPan,
-            pinchZoom,
-            SCIZoomExtentsModifier(),
-            rollover
-        ])
-
-        surface.chartModifiers.add(modifierGroup)
+        context.coordinator.attach(to: surface)
 
         return surface
     }
 
     func updateUIView(_ uiView: SCIChartSurface, context: Context) {}
+    
+    static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: ChartTooltipCoordinator) {
+        coordinator.cleanup()
+    }
 }
 
 // MARK: - Preview
 
 #Preview {
-    ScatterChartView(
-        xValues: [34.5, 47.0, 62.0, 27.0, 22.0, 14.0, 30.0, 26.0, 18.0, 21.0],
-        yValues: [0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-        xLabel: "Age",
-        yLabel: "Survived"
-    )
-    .frame(height: 400)
+    if let chart = ChartConfigParser.parse(from: MockChartJSONs.scatterConfig) {
+        ChartRendererView(chart: chart)
+            .frame(height: 400)
+    }
 }

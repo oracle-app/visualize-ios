@@ -16,10 +16,11 @@ import SwiftUI
 /// - Email and password input fields
 /// - Login action button
 /// - Navigation entry point to sign-up flow
-/// - Basic UI layout and branding elements
+/// - Basic UI layout anKd branding elements
 ///
 /// The view delegates all business logic to `LoginViewModel`.
 struct Login: View {
+    @Environment(AppCoordinator.self) private var coordinator
 
     // MARK: - State
     
@@ -43,7 +44,7 @@ struct Login: View {
             // MARK: - Header Image
             
             ZStack {
-                Image("LoginBackg")
+                Image("AuthBackground")
                     .resizable()
                     .scaledToFill()
                     .clipped()
@@ -68,6 +69,7 @@ struct Login: View {
                     InputField(
                         placeholder: "Email",
                         text: $viewModel.email,
+                        errorMessage: viewModel.emailError,
                         keyboardType: .emailAddress
                     )
                     .padding(.bottom, 28)
@@ -76,15 +78,28 @@ struct Login: View {
                     PasswordField(
                         placeholder: "Password",
                         text: $viewModel.password,
-                        isVisible: $isPasswordVisible
+                        isVisible: $isPasswordVisible,
+                        errorMessage: viewModel.passwordError
                     )
-                    .padding(.bottom, 8)
+                    .padding(
+                        .bottom,
+                        (
+                            viewModel.passwordError != nil &&
+                            !viewModel.passwordError!.isEmpty
+                        )
+                        ? 28
+                        : 8
+                    )
+                    .animation(
+                        .easeInOut(duration: 0.2),
+                        value: viewModel.passwordError
+                    )
 
                     // Forgot password action
                     HStack {
                         Spacer()
                         Button {
-                            // functionality
+                            coordinator.push(.resetPassword)
                         } label: {
                             Text("Forgot your password?")
                                 .font(.system(size: 13))
@@ -95,7 +110,7 @@ struct Login: View {
                     .padding(.bottom, 36)
 
                     // Login button
-                    AuthButton(title: "Log in", isEnabled: viewModel.isFormValid) {
+                    AuthButton(title: "Log in") {
                         viewModel.login()
                     }
                     .padding(.bottom, 20)
@@ -107,7 +122,7 @@ struct Login: View {
                             .foregroundColor(Color(Color.appSubtitle))
 
                         Button {
-                            // Navigation
+                            coordinator.push(.signUp)
                         } label: {
                             Text("Sign up")
                                 .font(.system(size: 15))
@@ -132,6 +147,11 @@ struct Login: View {
             .scrollDismissesKeyboard(.interactively)
         }
         .background(Color(Color.appTeal))
+        .onChange(of: viewModel.isLoggedIn) { _, success in
+            if success {
+                coordinator.replace(path: [.feed])
+            }
+        }
     }
 }
 
@@ -141,8 +161,8 @@ struct Login: View {
     let repo = AuthRepositoryImpl(source: AuthFirebaseDatasource())
     Login(
         viewModel: LoginViewModel(
-            loginUseCase: LoginUseCase(repository: repo),
-            sessionManager: SessionManager(isLoggedIn: false)
+            loginUseCase: LoginUseCase(repository: repo)
         )
     )
+    .environment(AppCoordinator())
 }

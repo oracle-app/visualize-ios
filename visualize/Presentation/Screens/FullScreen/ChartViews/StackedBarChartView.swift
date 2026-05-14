@@ -15,7 +15,6 @@ import SciChart
 struct StackedBarChartView: UIViewRepresentable {
  
     // MARK: - Properties
- 
     /// Stack key -> values per category. Keys are rendered in ascending order.
     let data: [String: [Double]]
     /// Ordered category labels for the X axis (e.g. `["0","1","2","3"]`).
@@ -30,7 +29,19 @@ struct StackedBarChartView: UIViewRepresentable {
         UIColor(Color.appNavy),
         UIColor(Color.appMint)
     ]
- 
+    
+    // MARK: - Coordinator
+    func makeCoordinator() -> ChartTooltipCoordinator {
+        let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
+
+        coordinator.xValues = categories.enumerated().map { idx, cat in
+            Double(cat) ?? Double(idx)
+        }
+
+        coordinator.isStackedChart = true
+
+        return coordinator
+    }
     // MARK: - UIViewRepresentable
     func makeUIView(context: Context) -> SCIChartSurface {
         let surface = SCIChartSurface()
@@ -87,23 +98,21 @@ struct StackedBarChartView: UIViewRepresentable {
         surface.renderableSeries.add(stackedCollection)
  
         // MARK: Interactivity
-        let modifierGroup = SCIModifierGroup(childModifiers: [
-            SCIZoomPanModifier(),
-            SCIPinchZoomModifier(),
-            SCIZoomExtentsModifier(),
-            SCIRolloverModifier()
-        ])
-        surface.chartModifiers.add(modifierGroup)
+        context.coordinator.attach(to: surface)
  
         return surface
     }
  
     func updateUIView(_ uiView: SCIChartSurface, context: Context) {}
+    
+    static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: ChartTooltipCoordinator) {
+        coordinator.cleanup()
+    }
 }
  
 // MARK: - Preview
 #Preview {
-    if let chart = ChartConfigParser.parse(from: MockChartJSONs.stackedBar) {
+    if let chart = ChartConfigParser.parse(from: MockChartJSONs.stackedBarConfig) {
         ChartRendererView(chart: chart)
             .frame(height: 400)
     }
