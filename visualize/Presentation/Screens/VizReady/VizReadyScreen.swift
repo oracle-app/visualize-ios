@@ -192,12 +192,13 @@ struct VizReadyView: View {
                     chartPreviewJSON: suggestion?.previewJSON ?? ""
                 ),
                 sheetSize: $sheetSize,
-                // Clear the create tab stack and land on the feed tab.
-                // popToRoot() removes generatingVisualizations + vizReady from createPath.
-                // selectedTab = .feed switches the visible tab without touching feedPath.
                 onConfirm: {
-                    coordinator.popToRoot()
-                    coordinator.selectedTab = .feed
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(350))
+                        coordinator.selectedTab = .feed
+                        try? await Task.sleep(for: .milliseconds(50))
+                        coordinator.popToRoot()
+                    }
                 }
             )
         }

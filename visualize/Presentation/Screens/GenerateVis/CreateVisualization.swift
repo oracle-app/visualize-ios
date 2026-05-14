@@ -108,11 +108,16 @@ struct CreateVisualization: View {
                 } else {
                     ExampleTable()
                         .padding(.bottom, 32)
-
                 }
             }
             .padding(.horizontal, 20)
             .background(Color(.systemBackground))
+        }
+        // Reset upload state when returning from a completed flow.
+        .onChange(of: coordinator.createPath.isEmpty) { _, isEmpty in
+            if isEmpty && viewModel.isUploadComplete {
+                viewModel.resetFile()
+            }
         }
         .fileImporter(
             isPresented: $isFilePickerPresented,
@@ -133,6 +138,8 @@ struct CreateVisualization: View {
         }
     }
 }
+
+// MARK: - Preview
 
 #Preview {
     CreateVisualization()
