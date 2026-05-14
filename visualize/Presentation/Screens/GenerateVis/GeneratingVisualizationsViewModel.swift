@@ -17,8 +17,7 @@ final class GeneratingVisualizationsViewModel {
     let footerMessage = "This may take a moment..."
 
     var isLoading = false
-    var navigateToVizReady = false
-    var dismissToUpload = false
+    
     
     /// Chart suggestions returned by the repository; passed to `VizReadyView` on success.
     var suggestions: [ChartSuggestion] = []
@@ -36,20 +35,16 @@ final class GeneratingVisualizationsViewModel {
     }
  
     // MARK: - Intents
-    /// Fetches chart suggestions from the repository and navigates to VizReady on success.
+    /// Fetches chart suggestions from the repository.
+    /// The view reads `suggestions` after this returns and navigates via the coordinator.
     func startLoading() async {
         isLoading = true
         errorMessage = nil
         do {
             suggestions = try await chartSuggestionsRepository.getSuggestions()
-            navigateToVizReady = true
         } catch {
             errorMessage = error.localizedDescription
-            isLoading = false
         }
-    }
-
-    func onCancelTapped() {
-        dismissToUpload = true
+        isLoading = false
     }
 }
