@@ -4,28 +4,20 @@
 //
 
 import Foundation
-import FirebaseFirestore
 
 final class CommentRepositoryImpl: CommentRepository {
 
-    private let db: Firestore
+    private let commentDatasource: CommentDatasource
 
-    init(db: Firestore = Firestore.firestore()) {
-        self.db = db
+    init(commentDatasource: CommentDatasource = CommentDatasource()) {
+        self.commentDatasource = commentDatasource
     }
 
     func postSnipComment(visualizationID: String, authorID: String, imageURL: URL) async throws {
-        let data: [String: Any] = [
-            "authorID": authorID,
-            "content": "",
-            "createdAt": Timestamp(),
-            "imageURL": imageURL.absoluteString
-        ]
-
-        try await db
-            .collection("visualizations")
-            .document(visualizationID)
-            .collection("comments")
-            .addDocument(data: data)
+        try await commentDatasource.postSnipComment(
+            visualizationID: visualizationID,
+            authorID: authorID,
+            imageURL: imageURL
+        )
     }
 }
