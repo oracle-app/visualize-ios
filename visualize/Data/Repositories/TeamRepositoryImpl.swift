@@ -13,32 +13,24 @@ class TeamRepositoryImpl: TeamRepository {
         self.userDatasource = userDatasource
     }
     func getTeamsUserOwns(userID: String) async throws -> [Team] {
-        let teamsOwnedByUserRaw = try await teamDatasource.getTeamsUserOwns(userID: userID)
-        var finalTeams: [Team] = []
-        for teamDTO in teamsOwnedByUserRaw {
-            var members: [AppUser] = []
-            for id in teamDTO.membersIDs {
-                let userDTO = try await userDatasource.getUserByID(userID: id)
-                members.append(userDTO.toAppUser())
-            }
-            let team = teamDTO.toTeam(members: members)
-            finalTeams.append(team)
+        let teamsDTOs = try await teamDatasource.getTeamsUserOwns(userID: userID)
+        let allMemberIDs = Set(teamsDTOs.flatMap { $0.membersIDs })
+        let usersDTOs = try await userDatasource.getUsers(byIDs: Array(allMemberIDs))
+        let usersDict = Dictionary(uniqueKeysWithValues: usersDTOs.map { ($0.id, $0.toAppUser()) })
+        return teamsDTOs.map { teamDTO in
+            let members = teamDTO.membersIDs.compactMap { usersDict[$0] }
+            return teamDTO.toTeam(members: members)
         }
-        return finalTeams
     }
     func getTeamsUserIsIn(userID: String) async throws -> [Team] {
         let teamsDTOs = try await teamDatasource.getTeamsUserIsIn(userID: userID)
-        var finalTeams: [Team] = []
-        for teamDTO in teamsDTOs {
-            var members: [AppUser] = []
-            for id in teamDTO.membersIDs {
-                let userDTO = try await userDatasource.getUserByID(userID: id)
-                members.append(userDTO.toAppUser())
-            }
-            let team = teamDTO.toTeam(members: members)
-            finalTeams.append(team)
+        let allMemberIDs = Set(teamsDTOs.flatMap { $0.membersIDs })
+        let usersDTOs = try await userDatasource.getUsers(byIDs: Array(allMemberIDs))
+        let usersDict = Dictionary(uniqueKeysWithValues: usersDTOs.map { ($0.id, $0.toAppUser()) })
+        return teamsDTOs.map { teamDTO in
+            let members = teamDTO.membersIDs.compactMap { usersDict[$0] }
+            return teamDTO.toTeam(members: members)
         }
-        return finalTeams
     }
     func createTeam(name: String, ownerID: String, initialMembers: [String]) async throws {
         let newTeam = TeamDTO(
