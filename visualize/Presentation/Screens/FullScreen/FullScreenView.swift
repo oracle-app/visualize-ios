@@ -77,10 +77,11 @@ struct FullScreenView: View {
                     Spacer()
                         .frame(height: 70)
                     Button {
-                        // parsedChart is pre-validated by isChartRenderable:
-                        // nil and .unsupported are both excluded, so force-unwrap is safe here.
                         if let chart = viewModel.parsedChart {
-                            Task { await viewModel.captureChartForEditor(chart) }
+                            showThreads = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                Task { await viewModel.captureChartForEditor(chart) }
+                            }
                         }
                     } label: {
                         Image(systemName: "crop")
@@ -152,6 +153,7 @@ struct FullScreenView: View {
                 },
                 onDismiss: {
                     viewModel.dismissEditor()
+                    showThreads = true
                 }
             )
         }
@@ -168,7 +170,6 @@ struct FullScreenView: View {
                 .presentationDetents([.fraction(0.08), .medium, .large])
                 .presentationBackgroundInteraction(.enabled(upThrough: .large))
                 .presentationCornerRadius(24)
-                .interactiveDismissDisabled(true)
         }
     }
  

@@ -32,7 +32,7 @@ struct SnipEditorView: View {
 
         NavigationStack {
         ZStack {
-            Color.clear
+            Color.white
                 .overlay {
                     ZStack {
                         Image(uiImage: chartImage)
