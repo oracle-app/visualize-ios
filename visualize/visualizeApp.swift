@@ -7,28 +7,47 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseAppCheck
+import SciChart
 
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-#if DEBUG
+
+    if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
+        FirebaseApp.configure()
+    }
+
+    #if DEBUG
     guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
+      assertionFailure("GoogleService-Info.plist is missing — Firebase will not be configured. Add the file to the project.")
       return true
     }
-#endif
-    FirebaseApp.configure()
+
+    AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+    #endif
 
     return true
   }
 }
 
-
 @main
-struct visualizeApp: App {
+struct VisualizeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    init() {
+        let key = Bundle.main.infoDictionary?["SCICHART_LICENSE_KEY"] as? String ?? ""
+        SCIChartSurface.setRuntimeLicenseKey(key)
+    }
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootScreen(
+                viewModel: RootViewModel(
+                    authRepository: AuthRepositoryImpl(
+                        source: AuthFirebaseDatasource()
+                    )
+                ),
+                coordinator: AppCoordinator()
+            )
         }
     }
 }

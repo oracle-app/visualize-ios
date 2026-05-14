@@ -4,61 +4,162 @@
 //
 //  Created by Libia Fv on 19/04/26.
 //
-// Description:
-//  Reusable SwiftUI components for authentication UI.
-//  Includes input fields, a password field, and a styled button.
 
 import SwiftUI
 
-struct InputField: View {
-    let placeholder: String
-    @Binding var text: String
-    var keyboardType: UIKeyboardType = .default
-    @FocusState private var isFocused: Bool
+// MARK: - Input Field
 
+/// Reusable text input component used across
+/// authentication screens.
+///
+/// Features:
+/// - Dynamic error styling
+/// - Focus state styling
+/// - Custom keyboard type
+/// - Inline validation message
+struct InputField: View {
+    
+    // MARK: - Properties
+    
+    let placeholder: String
+    
+    @Binding var text: String
+    
+    /// Optional validation error message.
+    var errorMessage: String? = nil
+    
+    /// Keyboard configuration depending on input type.
+    var keyboardType: UIKeyboardType = .default
+    
+    /// Tracks focus state for UI feedback.
+    @FocusState private var isFocused: Bool
+    
+    // MARK: - Computed Properties
+    
+    /// Determines whether the field
+    /// is currently displaying an error state.
+    private var hasError: Bool {
+        errorMessage != nil && !errorMessage!.isEmpty
+    }
+
+    // MARK: - Body
+    
     var body: some View {
-        TextField(placeholder, text: $text)
-            .keyboardType(keyboardType)
-            .autocapitalization(.none)
-            .autocorrectionDisabled()
-            .padding(.horizontal, 16)
-            .padding(.vertical, 18)
-            .background(Color.appLightTeal)
-            .focused($isFocused)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(
+        TextField(
+            "",
+            text: $text,
+            prompt: Text(placeholder)
+                .foregroundColor(
+                    hasError ? .red : Color.gray.opacity(0.8)
+                )
+        )
+        .keyboardType(keyboardType)
+        .autocapitalization(.none)
+        .autocorrectionDisabled()
+        .padding(.horizontal, 16)
+        .padding(.vertical, 18)
+        .focused($isFocused)
+        .background(
+            hasError ? Color.white : Color.appLightTeal
+        )
+        .foregroundStyle(Color.appDarkBlue)
+        .tint(hasError ? .red : Color.appTeal)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(
+                    hasError
+                    ? Color.red
+                    : (
                         isFocused
-                        ? Color(Color.appTeal).opacity(0.7)
-                        : Color(Color.appTeal).opacity(0.15),
-                        lineWidth: isFocused ? 1.8 : 1
-                    )
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .animation(.easeInOut(duration: 0.2), value: isFocused)
-            .foregroundColor(Color(red: 26/255, green: 47/255, blue: 63/255))
+                        ? Color.appTeal.opacity(0.7)
+                        : Color.appTeal.opacity(0.15)
+                    ),
+                    lineWidth: isFocused || hasError ? 1.8 : 1
+                )
+                .animation(.easeInOut(duration: 0.2), value: isFocused)
+                .animation(.easeInOut(duration: 0.2), value: hasError)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(alignment: .bottomLeading) {
+            Text(errorMessage ?? "")
+                .font(.system(size: 13))
+                .foregroundColor(.red)
+                .opacity(hasError ? 1 : 0)
+                .offset(x: 8, y: 19)
+        }
     }
 }
 
-struct PasswordField: View {
-    let placeholder: String
-    @Binding var text: String
-    @Binding var isVisible: Bool
-    @FocusState private var isFocused: Bool
+// MARK: - Password Field
 
+/// Reusable secure input component for passwords.
+///
+/// Features:
+/// - Password visibility toggle
+/// - Dynamic validation styling
+/// - Focus state feedback
+/// - Inline validation message
+struct PasswordField: View {
+    
+    // MARK: - Properties
+    
+    let placeholder: String
+    
+    @Binding var text: String
+    
+    /// Controls password visibility state.
+    @Binding var isVisible: Bool
+    
+    /// Optional validation error message.
+    var errorMessage: String? = nil
+    
+    /// Tracks focus state for UI feedback.
+    @FocusState private var isFocused: Bool
+    
+    // MARK: - Computed Properties
+    
+    /// Determines whether the field
+    /// is currently displaying an error state.
+    private var hasError: Bool {
+        errorMessage != nil && !errorMessage!.isEmpty
+    }
+
+    // MARK: - Body
+    
     var body: some View {
         HStack {
-            Group {
-                if isVisible {
-                    TextField(placeholder, text: $text)
-                } else {
-                    SecureField(placeholder, text: $text)
-                }
+            
+            // MARK: Password Input
+            
+            ZStack {
+                SecureField(
+                    "",
+                    text: $text,
+                    prompt: Text(placeholder)
+                        .foregroundColor(
+                            hasError ? .red : Color.gray.opacity(0.8)
+                        )
+                )
+                .opacity(isVisible ? 0 : 1)
+                
+                TextField(
+                    "",
+                    text: $text,
+                    prompt: Text(placeholder)
+                        .foregroundColor(
+                            hasError ? .red : Color.gray.opacity(0.8)
+                        )
+                )
+                .opacity(isVisible ? 1 : 0)
             }
             .autocapitalization(.none)
             .autocorrectionDisabled()
             .focused($isFocused)
+            .foregroundStyle(Color.appDarkBlue)
+            .tint(hasError ? .red : Color.appTeal)
 
+            // MARK: Visibility Toggle
+            
             Button {
                 isVisible.toggle()
             } label: {
@@ -68,27 +169,53 @@ struct PasswordField: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 18)
-        .background(Color.appLightTeal)
+        .background(
+            hasError ? Color.white : Color.appLightTeal
+        )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
-                    isFocused
-                        ? Color(Color.appTeal).opacity(0.7)
-                        : Color(Color.appTeal).opacity(0.15),
-                    lineWidth: isFocused ? 1.8 : 1
+                    hasError
+                    ? Color.red
+                    : (
+                        isFocused
+                        ? Color.appTeal.opacity(0.7)
+                        : Color.appTeal.opacity(0.15)
+                    ),
+                    lineWidth: isFocused || hasError ? 1.8 : 1
                 )
+                .animation(.easeInOut(duration: 0.2), value: isFocused)
+                .animation(.easeInOut(duration: 0.2), value: hasError)
         )
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .animation(.easeInOut(duration: 0.2), value: isFocused)
-        .foregroundColor(Color(red: 26/255, green: 47/255, blue: 63/255))
+        .overlay(alignment: .bottomLeading) {
+            Text(errorMessage ?? "")
+                .font(.system(size: 13))
+                .foregroundColor(.red)
+                .opacity(hasError ? 1 : 0)
+                .offset(x: 8, y: 19)
+        }
     }
 }
 
+// MARK: - Authentication Button
+
+/// Reusable button component used in
+/// authentication-related screens.
+///
+/// Used for:
+/// - Sign up
+/// - Login
+/// - Authentication actions
 struct AuthButton: View {
+    
+    // MARK: - Properties
+    
     let title: String
-    let isEnabled: Bool
     let action: () -> Void
 
+    // MARK: - Body
+    
     var body: some View {
         Button(action: action) {
             Text(title)
@@ -99,11 +226,7 @@ struct AuthButton: View {
                 .background(
                     RoundedRectangle(cornerRadius: 50)
                         .fill(Color(Color.appTeal))
-                        .opacity(isEnabled ? 1 : 0.5)
                 )
         }
-        .disabled(!isEnabled)
     }
 }
-
-

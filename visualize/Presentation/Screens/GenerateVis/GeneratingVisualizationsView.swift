@@ -9,11 +9,10 @@ import SwiftUI
 
 struct GeneratingVisualizationsView: View {
     @State private var viewModel = GeneratingVisualizationsViewModel()
-    @Environment(\.dismiss) private var dismiss
+    @Environment(AppCoordinator.self) private var coordinator
 
     var body: some View {
         ZStack {
-            backgroundView
 
             VStack(spacing: 0) {
                 Spacer()
@@ -27,30 +26,26 @@ struct GeneratingVisualizationsView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 36)
         }
-        .task { viewModel.startLoading() }
-        .fullScreenCover(isPresented: $viewModel.navigateToVizReady) {
-            VizReadyView(onClose: { viewModel.dismissToUpload = true })
+        .task { await viewModel.startLoading()
+            // Navigate to VizReady once suggestions are ready.
+            // navigateToVizReady(with:) stores the suggestions and pushes the route in one call,
+            // so the route is never pushed without its data.
+            if !viewModel.suggestions.isEmpty {
+                coordinator.navigateToVizReady(with: viewModel.suggestions)
+            }
         }
-        .onChange(of: viewModel.dismissToUpload) { _, shouldDismiss in
-            if shouldDismiss { dismiss() }
-        }
-    }
-
-    private var backgroundView: some View {
-        Color.appBackground
-            .ignoresSafeArea()
     }
 
     private var centerContent: some View {
         VStack(spacing: 0) {
             Text(viewModel.title)
                 .font(.title.weight(.bold))
-                .foregroundColor(.appNavy)
+                .foregroundStyle(Color.appNavy)
                 .multilineTextAlignment(.center)
 
             Text(viewModel.message)
                 .font(.body.weight(.regular))
-                .foregroundColor(.appSubtitle)
+                .foregroundStyle(Color.appSubtitle)
                 .multilineTextAlignment(.center)
                 .padding(.top, 20)
                 .padding(.horizontal, 10)
@@ -62,10 +57,18 @@ struct GeneratingVisualizationsView: View {
                     .scaleEffect(1.5)
                     .padding(.top, 30)
             }
+            
+            if let error = viewModel.errorMessage {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 12)
+            }
 
             Text(viewModel.footerMessage)
                 .font(.body.weight(.regular))
-                .foregroundColor(.appSubtitle)
+                .foregroundStyle(Color.appSubtitle)
                 .multilineTextAlignment(.center)
                 .padding(.top, 26)
         }
@@ -74,11 +77,12 @@ struct GeneratingVisualizationsView: View {
 
     private var cancelButtonSection: some View {
         Button {
-            viewModel.onCancelTapped()
+            // Pop back to CreateVisualization, discarding the generating screen.
+            coordinator.pop()
         } label: {
             Text("Cancel")
                 .font(.title3.weight(.semibold))
-                .foregroundColor(.appTeal)
+                .foregroundStyle(Color.appTeal)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
                 .background(
@@ -103,4 +107,5 @@ struct GeneratingVisualizationsView: View {
 
 #Preview {
     GeneratingVisualizationsView()
+        .environment(AppCoordinator())
 }

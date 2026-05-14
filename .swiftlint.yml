@@ -1,0 +1,12 @@
+disabled_rules:
+  - trailing_whitespace
+  - identifier_name
+  - line_length
+  - function_parameter_count
+  - empty_parameters
+  - type_body_length
+  - comma
+  - type_name
+
+file_length:
+  warning: 400

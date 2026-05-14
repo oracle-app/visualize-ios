@@ -18,46 +18,214 @@
 import SwiftUI
 import Observation
 
-struct FeedItem: Identifiable {
-    let id = UUID()
-    let title: String
-    let author: String
-    let date: String
-    let sharedWith: [Color]?
+// MARK: - Feed State
+
+enum FeedState {
+    case loading
+    case loaded([VisualizationCard])
+    case empty
+    case error
 }
 
+// MARK: - ViewModel
+
+@MainActor
 @Observable
 class FeedViewModel {
+
+    // MARK: - Feed State
     var state: FeedState = .loading
-    
-    private let service: FeedServiceProtocol
 
-    init(service: FeedServiceProtocol = FeedService()) {
-        self.service = service
+    // MARK: - Search State
+    /// Bound to the search input; triggers a debounced search on every change.
+    var searchQuery: String = "" {
+        didSet { scheduleSearch() }
+    }
+    /// Results returned by the last completed search.
+    var searchResults: [VisualizationCard] = []
+    /// True while a search request is in flight.
+    var isSearching: Bool = false
+    var isSearchActive: Bool = false
+
+    // MARK: - Dependencies
+    var visualizationFilter: VisualizationFilter
+    let loadVisualizationsUseCase: LoadVisualizationsUseCase
+    let searchVisualizationsUseCase: SearchVisualizationsUseCase
+    let hideVisualizationUseCase: HideVisualizationUseCase
+    let deleteVisualizationUseCase: DeleteVisualizationUseCase
+
+    private var allVisualizations: [VisualizationCard] = []
+    let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL"
+//    let currentUserID: String = "oEJtQz0gdbRpTZ8ETPCy"
+    var currentToast: Toast? = nil
+
+    /// Search task used for debounce — ignored by @Observable to avoid tracking issues.
+    @ObservationIgnored
+    private var searchTask: Task<Void, Never>?
+    private var toastTask: Task<Void, Never>?
+
+    // MARK: - Initialization
+    init(loadVisualizationsUseCase: LoadVisualizationsUseCase,
+         searchVisualizationsUseCase: SearchVisualizationsUseCase,
+         hideVisualizationUseCase: HideVisualizationUseCase,
+         deleteVisualizationUseCase: DeleteVisualizationUseCase) {
+        self.loadVisualizationsUseCase = loadVisualizationsUseCase
+        self.searchVisualizationsUseCase = searchVisualizationsUseCase
+        self.hideVisualizationUseCase = hideVisualizationUseCase
+        self.deleteVisualizationUseCase = deleteVisualizationUseCase
+        self.visualizationFilter = .all
+    }
+
+    // MARK: - Filter
+    /// Updates the active feed filter and reloads data if the filter changed.
+    func setVisualizationFilter(_ filter: VisualizationFilter) {
+        if filter == self.visualizationFilter { return }
+        self.visualizationFilter = filter
+        if !allVisualizations.isEmpty {
+            applyLocalFilter()
+        } else {
+            loadData()
+        }
+    }
+
+    /// Filters the cached visualizations locally without a network call.
+    private func applyLocalFilter() {
+        var filteredItems: [VisualizationCard] = []
+        switch visualizationFilter {
+        case .all:
+            filteredItems = allVisualizations
+        case .personal:
+            filteredItems = allVisualizations.filter { $0.authorID == currentUserID }
+        case .shared:
+            filteredItems = allVisualizations.filter { $0.authorID != currentUserID }
+        }
+        state = filteredItems.isEmpty ? .empty : .loaded(filteredItems)
+    }
+
+    // MARK: - Search
+    /// Cancels any pending search and schedules a new one after a debounce delay.
+    private func scheduleSearch() {
+        guard searchQuery.count >= 2 else {
+            searchResults = []
+            return
+        }
+        let query = searchQuery.lowercased()
+        searchResults = allVisualizations.filter {
+            $0.title.lowercased().contains(query)
+        }
+    }
+
+
+    /// Executes the search and updates `searchResults` with the returned cards.
+    private func performSearch() async {
+        do {
+            let results = try await searchVisualizationsUseCase.execute(
+                userID: currentUserID,
+                query: searchQuery
+            )
+            searchResults = results
+        } catch {
+            print(error)
+            searchResults = []
+        }
+        isSearching = false
+    }
+
+    /// Resets all search state and cancels any in-flight search task.
+    func clearSearch() {
+        searchQuery = ""
+        searchResults = []
+        isSearching = false
+        searchTask?.cancel()
     }
     
-    enum FeedState {
-        case loading
-        case loaded([FeedItem])
-        case empty
-        case error
+    func showToast(_ toast: Toast) {
+        toastTask?.cancel()
+        currentToast = toast
+        toastTask = Task {
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            currentToast = nil
+        }
     }
 
-    
- 
-    
-    func loadData() {
-        state = .loading
-       
+    // MARK: - Load Data
+    /// Fetches all visualizations and applies the active filter. Uses cache unless forceRefresh is true.
+    func loadData(forceRefresh: Bool = false) {
+        if forceRefresh {
+            allVisualizations.removeAll()
+        }
+        if allVisualizations.isEmpty {
+            state = .loading
+        }
         Task {
             do {
-                // simulate loading delay
-                try await Task.sleep(nanoseconds: 1_000_000_000)
-                let items = try await service.fetchFeed()
-                state = items.isEmpty ? .empty : .loaded(items)
+                let items = try await loadVisualizationsUseCase.execute(
+                    userID: currentUserID
+                )
+                self.allVisualizations = items
+                applyLocalFilter()
             } catch {
+                print(error)
                 state = .error
             }
         }
+    }
+
+    /// Loads data on first appear without forcing a refresh.
+    func fetchInitialData() {
+        loadData(forceRefresh: false)
+    }
+    
+    // MARK: - Delete Actions
+    func hideVisualization(visualizationID: String) {
+        Task {
+            do {
+                try await hideVisualizationUseCase.execute(userID: currentUserID, visualizationID: visualizationID)
+                allVisualizations.removeAll { $0.id == visualizationID }
+                searchResults.removeAll { $0.id == visualizationID }
+                applyLocalFilter()
+                await showToast(Toast(message: "Visualization removed from your feed", type: .success))
+            } catch {
+                print("Error hiding visualization: \(error)")
+                await showToast(Toast(message: "Failed to remove visualization", type: .error))
+            }
+        }
+    }
+    func deleteVisualization(visualizationID: String) {
+        Task {
+            do {
+                try await deleteVisualizationUseCase.execute(visualizationID: visualizationID)
+                allVisualizations.removeAll { $0.id == visualizationID }
+                searchResults.removeAll { $0.id == visualizationID }
+                applyLocalFilter()
+                await showToast(Toast(message: "Visualization deleted for everyone", type: .success))
+            } catch {
+                print("Error deleting visualization: \(error)")
+                await showToast(Toast(message: "Failed to delete visualization", type: .error))
+            }
+        }
+    }
+}
+
+// MARK: - Preview
+
+extension FeedViewModel {
+    static var preview: FeedViewModel {
+        let userDS = UserDatasource()
+        let teamDS = TeamDatasource()
+        let visualizationDS = VisualizationDatasource(userDatasource: userDS, teamsDatasource: teamDS)
+        let repo = VisualizationRepositoryImpl(
+            userDatasource: userDS,
+            visualizationDatasource: visualizationDS,
+            teamsDatasource: teamDS
+        )
+        let userRepo = UserRepositoryImpl(userDatasource: userDS)
+        return FeedViewModel(
+            loadVisualizationsUseCase: LoadVisualizationsUseCase(visualizationRepository: repo),
+            searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
+            hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
+            deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo)
+        )
     }
 }

@@ -6,23 +6,23 @@
 //
 
 //
-// A scrollable list view that displays multiple users.
-// Each user is rendered using UserRowView and supports removal actions.
-// Includes separators between items for better visual organization.
+/// A scrollable list view that displays multiple users.
+/// Each user is rendered using UserRowView and supports removal actions.
+/// Includes separators between items for better visual organization.
 //
 
 import SwiftUI
 
 struct UsersListView: View {
     
-    let users: [User]
-    let onRemove: (User) -> Void
+    let users: [AppUser]
+    let onRemove: (AppUser) -> Void
     
     var body: some View {
         ScrollView {
             VStack(spacing: 8) {
+                
                 ForEach(users.indices, id: \.self) { index in
-                    
                     UserRowView(
                         user: users[index],
                         onRemove: {
