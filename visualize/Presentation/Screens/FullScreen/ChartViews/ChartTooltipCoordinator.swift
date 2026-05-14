@@ -7,6 +7,7 @@
 
 import UIKit
 import SciChart
+import os.log
 
 class ChartTooltipCoordinator: NSObject {
 
@@ -128,7 +129,12 @@ class ChartTooltipCoordinator: NSObject {
 
     // MARK: - Attach
 
-    func attach(to surface: SCIChartSurface, zoomDirection: SCIDirection2D = .xyDirection, pinchDirection: SCIDirection2D = .xyDirection) {
+    func attach(
+        to surface: SCIChartSurface,
+        zoomDirection: SCIDirection2D = .xyDirection,
+        pinchDirection: SCIDirection2D = .xyDirection,
+        onAttach: ((ChartTooltipCoordinator) -> Void)? = nil
+    ) {
         self.surface = surface
 
         let zoomPan = SCIZoomPanModifier()
@@ -146,8 +152,44 @@ class ChartTooltipCoordinator: NSObject {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         tap.numberOfTapsRequired = 1
         surface.addGestureRecognizer(tap)
+
+        onAttach?(self)
     }
     
+    // MARK: - Viewport Snapshot
+
+    /// Reads the current X/Y visible ranges from the live surface.
+    /// Returns `nil` only when `surface` is nil; a single-axis cast failure
+    /// defaults that axis to nil while the other axis is still honored.
+    @MainActor
+    func currentViewport() -> ChartViewport? {
+        guard let surface else {
+            os_log(.error, log: SnipCaptureLog.general,
+                   "currentViewport: surface ref is nil — falling back to default range")
+            return nil
+        }
+
+        let x: ClosedRange<Double>?
+        if let r = surface.xAxes.item(at: 0).visibleRange as? SCIDoubleRange {
+            x = r.min.toDouble()...r.max.toDouble()
+        } else {
+            os_log(.error, log: SnipCaptureLog.general,
+                   "currentViewport: xAxis visibleRange is not SCIDoubleRange — using nil")
+            x = nil
+        }
+
+        let y: ClosedRange<Double>?
+        if let r = surface.yAxes.item(at: 0).visibleRange as? SCIDoubleRange {
+            y = r.min.toDouble()...r.max.toDouble()
+        } else {
+            os_log(.error, log: SnipCaptureLog.general,
+                   "currentViewport: yAxis visibleRange is not SCIDoubleRange — using nil")
+            y = nil
+        }
+
+        return ChartViewport(xRange: x, yRange: y)
+    }
+
     // MARK: - Lifecycle
 
     func cleanup() {

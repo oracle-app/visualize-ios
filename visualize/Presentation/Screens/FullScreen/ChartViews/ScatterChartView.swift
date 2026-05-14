@@ -10,6 +10,7 @@
 
 import SwiftUI
 import SciChart
+import os.log
 
 struct ScatterChartView: UIViewRepresentable {
 
@@ -19,6 +20,8 @@ struct ScatterChartView: UIViewRepresentable {
     let yValues: [Double]
     let xLabel: String
     let yLabel: String
+    var viewport: ChartViewport? = nil
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
     
     // MARK: - Coordinator
     func makeCoordinator() -> ChartTooltipCoordinator {
@@ -82,6 +85,10 @@ struct ScatterChartView: UIViewRepresentable {
 
         // MARK: Interactivity
         context.coordinator.attach(to: surface)
+        onCoordinatorReady?(context.coordinator)
+
+        // MARK: Viewport override
+        surface.applyViewport(viewport)
 
         return surface
     }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SciChart
+import os.log
  
 /// SciChart-based stacked column chart renderer.
 /// Each key in `data` becomes one stack layer, sorted ascending by key.
@@ -21,7 +22,9 @@ struct StackedBarChartView: UIViewRepresentable {
     let categories: [String]
     let xLabel: String
     let yLabel: String
- 
+    var viewport: ChartViewport? = nil
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
+
     // MARK: - Private
     private let stackColors: [UIColor] = [
         UIColor(Color.appTeal),
@@ -99,7 +102,11 @@ struct StackedBarChartView: UIViewRepresentable {
  
         // MARK: Interactivity
         context.coordinator.attach(to: surface)
- 
+        onCoordinatorReady?(context.coordinator)
+
+        // MARK: Viewport override
+        surface.applyViewport(viewport)
+
         return surface
     }
  

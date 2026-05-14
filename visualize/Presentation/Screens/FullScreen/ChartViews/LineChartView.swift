@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SciChart
+import os.log
  
 /// SciChart-based line chart renderer.
 /// Wraps `SCIChartSurface` in a `UIViewRepresentable` with zoom, pan,
@@ -19,6 +20,8 @@ struct LineChartView: UIViewRepresentable {
     let data: [Double: Double]
     let xLabel: String
     let yLabel: String
+    var viewport: ChartViewport? = nil
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
     
     // MARK: - Coordinator
         func makeCoordinator() -> ChartTooltipCoordinator {
@@ -73,7 +76,11 @@ struct LineChartView: UIViewRepresentable {
  
         // MARK: Interactivity
         context.coordinator.attach(to: surface, zoomDirection: .xDirection)
- 
+        onCoordinatorReady?(context.coordinator)
+
+        // MARK: Viewport override
+        surface.applyViewport(viewport)
+
         return surface
     }
  

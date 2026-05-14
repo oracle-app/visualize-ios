@@ -34,6 +34,8 @@ struct FullScreenView: View {
             userDatasource: userDatasource,
             teamsDatasource: teamDatasource
         )
+        let storageDatasource = StorageDatasource()
+        let commentDatasource = CommentDatasource()
         self._viewModel = State(initialValue: FullScreenViewModel(
             teamRepository: TeamRepositoryImpl(
                 teamDatasource: teamDatasource,
@@ -43,6 +45,12 @@ struct FullScreenView: View {
                 userDatasource: userDatasource,
                 visualizationDatasource: vizDatasource,
                 teamsDatasource: teamDatasource
+            ),
+            uploadSnipUseCase: UploadSnipUseCase(
+                snipRepository: SnipRepositoryImpl(storageDatasource: storageDatasource)
+            ),
+            postSnipCommentUseCase: PostSnipCommentUseCase(
+                commentRepository: CommentRepositoryImpl(commentDatasource: commentDatasource)
             )
         ))
     }
@@ -100,7 +108,10 @@ struct FullScreenView: View {
                         if case .unsupported = chart {
                             errorState
                         } else {
-                            ChartRendererView(chart: chart)
+                            ChartRendererView(
+                                chart: chart,
+                                onCoordinatorReady: { viewModel.tooltipCoordinator = $0 }
+                            )
                                 .id(chartLoadID)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .frame(height: 380)
@@ -133,9 +144,10 @@ struct FullScreenView: View {
         .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
             SnipEditorView(
                 chartImage: wrapped.image,
-                onPost: { _ in
-                    print("[FullScreen] SnipEditor onPost stub — image discarded")
-                    viewModel.dismissEditor()
+                onPost: { image in
+                    Task {
+                        _ = await viewModel.uploadSnip(image, visualizationID: card.id)
+                    }
                 },
                 onDismiss: {
                     viewModel.dismissEditor()
