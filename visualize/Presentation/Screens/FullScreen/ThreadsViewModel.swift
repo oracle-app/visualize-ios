@@ -25,7 +25,7 @@ class ThreadsViewModel {
     private let db = Firestore.firestore()
     private let visualizationID: String
     private let isPreview: Bool
-    private var userCache: [String: AppUser] = [:]  // Avoids redundant Firestore user fetches
+    private var userCache: [String: AppUser] = [:]
 
     // MARK: - Init
 
@@ -41,6 +41,7 @@ class ThreadsViewModel {
             Comment(
                 id: "c1",
                 authorID: "Kimberly Marquez",
+                authorName: "Kimberly Marquez",
                 content: "Este es un comentario de prueba",
                 createdAt: Timestamp(date: Date()),
                 threads: [
@@ -80,6 +81,7 @@ class ThreadsViewModel {
                 try? $0.data(as: Comment.self)
             }
 
+            // Enrich threads and author names in parallel
             await withTaskGroup(of: (Int, [ThreadReply]).self) { group in
                 for i in loaded.indices {
                     guard let commentID = loaded[i].id else { continue }
@@ -88,10 +90,14 @@ class ThreadsViewModel {
                         return (i, threads)
                     }
                 }
-
                 for await (index, threads) in group {
                     loaded[index].threads = threads
                 }
+            }
+
+            // Enrich comment author names after threads are loaded
+            for i in loaded.indices {
+                loaded[i] = await enrichCommentAuthor(comment: loaded[i])
             }
 
             comments = loaded
@@ -118,7 +124,6 @@ class ThreadsViewModel {
                 .document(commentID)
                 .collection("threads")
                 .addDocument(data: data)
-
         } catch {
             print("Error posting reply: \(error)")
         }
@@ -149,7 +154,6 @@ class ThreadsViewModel {
                         return (i, enriched)
                     }
                 }
-
                 for await (index, enrichedReply) in group {
                     replies[index] = enrichedReply
                 }
@@ -160,6 +164,35 @@ class ThreadsViewModel {
             print("Error loading threads: \(error)")
             return []
         }
+    }
+
+    /// Resolves the author name for a comment from Firestore, using the cache when possible.
+    private func enrichCommentAuthor(comment: Comment) async -> Comment {
+        var updated = comment
+
+        // If Firestore already stored authorName, just use it
+        if let name = comment.authorName, !name.isEmpty {
+            return updated
+        }
+
+        if let cached = userCache[comment.authorID] {
+            updated.authorName = cached.username
+            return updated
+        }
+
+        do {
+            let doc = try await db
+                .collection("users")
+                .document(comment.authorID)
+                .getDocument()
+            let user = try doc.data(as: AppUser.self)
+            userCache[comment.authorID] = user
+            updated.authorName = user.username
+        } catch {
+            updated.authorName = nil  // fallback al authorID en el row
+        }
+
+        return updated
     }
 
     /// Fills in author info and relative timestamp on a reply, using the cache when possible.
@@ -183,10 +216,8 @@ class ThreadsViewModel {
                 .collection("users")
                 .document(reply.authorID)
                 .getDocument()
-
             let user = try doc.data(as: AppUser.self)
             userCache[reply.authorID] = user
-
             enriched.authorName = user.username
             enriched.authorAvatarURL = user.profilePictureURL
             enriched.timeAgo = reply.createdAt.dateValue().timeAgoDisplay()

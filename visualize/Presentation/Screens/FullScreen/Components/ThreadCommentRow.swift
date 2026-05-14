@@ -50,11 +50,11 @@ struct ThreadCommentRow: View {
                 .padding(.horizontal)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(comment.authorID)
+                Text(comment.authorName ?? comment.authorID)
                     .font(.body.weight(.bold))
                     .foregroundStyle(.black)
 
-                Text("20 min ago")
+                Text(comment.createdAt.dateValue().timeAgoDisplay())
                     .font(.subheadline)
                     .foregroundStyle(.black.opacity(0.5))
             }
@@ -82,25 +82,41 @@ struct ThreadCommentRow: View {
     }
 
     /// Visualization image or a placeholder if no image is provided.
+    // ThreadCommentRow.swift
+
     private var imageSection: some View {
         Group {
-            if let img = image {
-                Image(uiImage: img)
-                    .resizable()
-                    .scaledToFit()
-                    .cornerRadius(12)
+            if let urlString = comment.imageURL,
+               let url = URL(string: urlString) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .cornerRadius(12)
+                    case .failure:
+                        placeholderImage
+                    case .empty:
+                        ProgressView()
+                            .frame(height: 120)
+                    @unknown default:
+                        placeholderImage
+                    }
+                }
             } else {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.08))
-                    .frame(height: 120)
-                    .overlay(
-                        Label("", systemImage: "photo")
-                            .foregroundStyle(.secondary)
-                    )
+                placeholderImage
             }
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 9)
+    }
+
+    private var placeholderImage: some View {
+        RoundedRectangle(cornerRadius: 12)
+            .fill(Color.black.opacity(0.08))
+            .frame(height: 120)
+            .overlay(Label("", systemImage: "photo").foregroundStyle(.secondary))
     }
 }
 

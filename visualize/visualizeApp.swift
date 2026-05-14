@@ -39,14 +39,7 @@ struct VisualizeApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            RootScreen(
-                viewModel: RootViewModel(
-                    authRepository: AuthRepositoryImpl(
-                        source: AuthFirebaseDatasource()
-                    )
-                ),
-                coordinator: AppCoordinator()
-            )
+            ThreadsView()
         }
     }
 }

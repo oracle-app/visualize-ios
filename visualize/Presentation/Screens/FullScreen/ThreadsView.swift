@@ -22,7 +22,7 @@ struct ThreadsView: View {
 
     @State private var viewModel: ThreadsViewModel
     @State private var replyText = ""
-    @State private var activeCommentID: String? = nil  // Tracks which comment is being replied to
+    @State private var activeCommentID: String? = nil
     @State private var currentUser: AppUser? = nil
 
     // MARK: - Init
@@ -91,7 +91,6 @@ struct ThreadsView: View {
 
     // MARK: - Subviews
 
-    /// Animated bottom bar shown when the user is replying to a comment.
     @ViewBuilder
     private var replyInputBar: some View {
         if activeCommentID != nil {
@@ -108,23 +107,15 @@ struct ThreadsView: View {
 
     // MARK: - Private Methods
 
-    /// Fetches the current Firebase authenticated user from Firestore.
     private func fetchCurrentUser() async {
-        guard let firebaseUser = Auth.auth().currentUser else { return }
-
-        do {
-            let doc = try await Firestore.firestore()
-                .collection("users")
-                .document(firebaseUser.uid)
-                .getDocument()
-
-            currentUser = try doc.data(as: AppUser.self)
-        } catch {
-            print("Error fetching current user: \(error)")
-        }
+        currentUser = AppUser(
+            id: "e9Nk8XrxHJAtw-N3Hf2FL",
+            email: "test@test.com",
+            profilePictureURL: nil,
+            username: "Kimberly Marquez"
+        )
     }
 
-    /// Validates and submits the reply, then resets the input state.
     private func submitReply() {
         guard let commentID = activeCommentID,
               !replyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
