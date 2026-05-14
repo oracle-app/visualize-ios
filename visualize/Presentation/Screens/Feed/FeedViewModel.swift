@@ -29,6 +29,7 @@ enum FeedState {
 
 // MARK: - ViewModel
 
+@MainActor
 @Observable
 class FeedViewModel {
 
@@ -116,7 +117,6 @@ class FeedViewModel {
 
 
     /// Executes the search and updates `searchResults` with the returned cards.
-    @MainActor
     private func performSearch() async {
         do {
             let results = try await searchVisualizationsUseCase.execute(
@@ -139,7 +139,6 @@ class FeedViewModel {
         searchTask?.cancel()
     }
     
-    @MainActor
     func showToast(_ toast: Toast) {
         toastTask?.cancel()
         currentToast = toast

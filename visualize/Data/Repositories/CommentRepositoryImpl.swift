@@ -13,11 +13,12 @@ final class CommentRepositoryImpl: CommentRepository {
         self.commentDatasource = commentDatasource
     }
 
-    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL) async throws {
+    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL, authorName: String) async throws {
         try await commentDatasource.postSnipComment(
             visualizationID: visualizationID,
             authorID: authorID,
-            imageURL: imageURL
+            imageURL: imageURL,
+            authorName: authorName
         )
     }
 }

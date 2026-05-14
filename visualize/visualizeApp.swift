@@ -15,10 +15,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 
-    FirebaseApp.configure()
+    if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
+        FirebaseApp.configure()
+    }
 
     #if DEBUG
     guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
+      assertionFailure("GoogleService-Info.plist is missing — Firebase will not be configured. Add the file to the project.")
       return true
     }
 

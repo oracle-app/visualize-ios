@@ -14,6 +14,7 @@ import Foundation
 import FirebaseFirestore
 import Observation
 
+@MainActor
 @Observable
 class ThreadsViewModel {
 
@@ -21,6 +22,7 @@ class ThreadsViewModel {
 
     var comments: [Comment] = []
     var isLoading = false
+    var threadError: String?
 
     private let db = Firestore.firestore()
     private let visualizationID: String
@@ -102,7 +104,7 @@ class ThreadsViewModel {
 
             comments = loaded
         } catch {
-            print("Error loading comments: \(error)")
+            threadError = error.localizedDescription
         }
     }
 
@@ -125,7 +127,7 @@ class ThreadsViewModel {
                 .collection("threads")
                 .addDocument(data: data)
         } catch {
-            print("Error posting reply: \(error)")
+            threadError = error.localizedDescription
         }
     }
 
@@ -161,7 +163,7 @@ class ThreadsViewModel {
 
             return replies
         } catch {
-            print("Error loading threads: \(error)")
+            threadError = error.localizedDescription
             return []
         }
     }
@@ -170,8 +172,8 @@ class ThreadsViewModel {
     private func enrichCommentAuthor(comment: Comment) async -> Comment {
         var updated = comment
 
-        // If Firestore already stored authorName, just use it
-        if let name = comment.authorName, !name.isEmpty {
+        // If Firestore already stored a real authorName (not a UID), just use it
+        if let name = comment.authorName, !name.isEmpty, name != comment.authorID, name.contains(" ") || name.count < 30 {
             return updated
         }
 
@@ -185,11 +187,11 @@ class ThreadsViewModel {
                 .collection("users")
                 .document(comment.authorID)
                 .getDocument()
-            let user = try doc.data(as: AppUser.self)
-            userCache[comment.authorID] = user
-            updated.authorName = user.username
+            if let username = doc.data()?["username"] as? String, !username.isEmpty {
+                updated.authorName = username
+            }
         } catch {
-            updated.authorName = nil  // fallback al authorID en el row
+            updated.authorName = nil
         }
 
         return updated

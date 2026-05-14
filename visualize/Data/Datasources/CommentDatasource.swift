@@ -13,9 +13,10 @@ final class CommentDatasource {
         self.firebase = firebase
     }
 
-    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL) async throws {
+    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL, authorName: String) async throws {
         let data: [String: Any] = [
             "authorID": authorID,
+            "authorName": authorName,
             "content": "",
             "createdAt": Timestamp(),
             "imageURL": imageURL.absoluteString
