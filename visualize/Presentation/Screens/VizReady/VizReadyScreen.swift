@@ -57,8 +57,7 @@ struct VizReadyView: View {
                 )
                 .alert("Discard generated visualizations?", isPresented: $showDiscardAlert) {
                     Button("Discard", role: .destructive) {
-                        // Clear the create tab stack, returning to CreateVisualization.
-                        coordinator.popToRoot()
+                        coordinator.resetCreateFlow()
                     }
                     Button("Cancel", role: .cancel) { }
                 } message: {
@@ -195,9 +194,9 @@ struct VizReadyView: View {
                 onConfirm: {
                     Task {
                         try? await Task.sleep(for: .milliseconds(350))
-                        coordinator.selectedTab = .feed
-                        try? await Task.sleep(for: .milliseconds(50))
-                        coordinator.popToRoot()
+                        await MainActor.run {
+                            coordinator.finishCreateFlow()
+                        }
                     }
                 }
             )
