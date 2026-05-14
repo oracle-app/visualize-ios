@@ -136,9 +136,10 @@ struct FullScreenView: View {
         .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
             SnipEditorView(
                 chartImage: wrapped.image,
-                onPost: { _ in
-                    print("[FullScreen] SnipEditor onPost stub — image discarded")
-                    viewModel.dismissEditor()
+                onPost: { image in
+                    Task {
+                        _ = await viewModel.uploadSnip(image, visualizationID: card.id)
+                    }
                 },
                 onDismiss: {
                     viewModel.dismissEditor()

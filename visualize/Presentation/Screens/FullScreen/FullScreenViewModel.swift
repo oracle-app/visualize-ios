@@ -58,18 +58,31 @@ final class FullScreenViewModel {
     /// Used to read the current zoom/pan viewport at capture time.
     var tooltipCoordinator: ChartTooltipCoordinator? = nil
 
+    // MARK: - Upload State
+
+    var isUploading: Bool = false
+    var uploadError: String? = nil
+
     // MARK: - Dependencies
 
     private let teamRepository: any TeamRepository
     /// Repository used to fetch `configJSON` on demand for full-screen rendering.
     private let visualizationRepository: any VisualizationRepository
+    private let uploadSnipUseCase: UploadSnipUseCase
     private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
 
     // MARK: - Init
 
-    init(teamRepository: any TeamRepository, visualizationRepository: any VisualizationRepository) {
+    init(
+        teamRepository: any TeamRepository,
+        visualizationRepository: any VisualizationRepository,
+        uploadSnipUseCase: UploadSnipUseCase = UploadSnipUseCase(
+            snipRepository: SnipRepositoryImpl(storageDatasource: StorageDatasource())
+        )
+    ) {
         self.teamRepository = teamRepository
         self.visualizationRepository = visualizationRepository
+        self.uploadSnipUseCase = uploadSnipUseCase
     }
 
     // MARK: - Data Loading
@@ -177,5 +190,31 @@ final class FullScreenViewModel {
     /// Clears `capturedChartImage`, dismissing the presented `SnipEditorView`.
     func dismissEditor() {
         capturedChartImage = nil
+    }
+
+    // MARK: - Upload
+
+    /// Uploads the annotated snip image to Firebase Storage.
+    /// - Parameters:
+    ///   - image: The annotated snip image from `SnipEditorView`.
+    ///   - visualizationID: The ID of the current visualization.
+    /// - Returns: The download URL on success, `nil` on failure.
+    func uploadSnip(_ image: UIImage, visualizationID: String) async -> URL? {
+        isUploading = true
+        uploadError = nil
+        do {
+            let url = try await uploadSnipUseCase.execute(
+                image: image,
+                userID: userID,
+                visualizationID: visualizationID
+            )
+            isUploading = false
+            dismissEditor()
+            return url
+        } catch {
+            uploadError = error.localizedDescription
+            isUploading = false
+            return nil
+        }
     }
 }
