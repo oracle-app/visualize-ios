@@ -17,6 +17,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct CreateVisualization: View {
+    
+    @Environment(AppCoordinator.self) private var coordinator
 
     @State
     private var viewModel =
@@ -100,20 +102,19 @@ struct CreateVisualization: View {
                 if viewModel.isUploadComplete {
                     GenerateVisButton {
                         // TODO: Remove this mock trigger — replace with real generation call when microservice is connected
-                        viewModel.navigateToGenerating = true
+                        coordinator.push(.generatingVisualizations)
                     }
                     .padding(.bottom, 43)
                 } else {
                     ExampleTable()
                         .padding(.bottom, 32)
-
                 }
             }
             .padding(.horizontal, 20)
             .background(Color(.systemBackground))
         }
-        .fullScreenCover(isPresented: $viewModel.navigateToGenerating) {
-            GeneratingVisualizationsView()
+        .onChange(of: coordinator.createFlowResetID) { _, _ in
+            viewModel.resetFile()
         }
         .fileImporter(
             isPresented: $isFilePickerPresented,
@@ -135,10 +136,9 @@ struct CreateVisualization: View {
     }
 }
 
-
+// MARK: - Preview
 
 #Preview {
     CreateVisualization()
+        .environment(AppCoordinator())
 }
-
-

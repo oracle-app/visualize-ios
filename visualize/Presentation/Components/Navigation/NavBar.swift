@@ -13,7 +13,6 @@ import SwiftUI
 struct NavBar: View {
     @Environment(AppCoordinator.self) private var coordinator
 
-    @State private var selectedTab: Tabs = .feed
     @State private var feedViewModel: FeedViewModel = {
         let userDS = UserDatasource()
         let teamsDS = TeamDatasource()
@@ -56,6 +55,20 @@ struct NavBar: View {
 
             NavigationStack(path: $coordinator.createPath) {
                 CreateVisualization()
+                    .navigationDestination(for: AppRoute.self) { route in
+                        switch route {
+                        case .generatingVisualizations:
+                            GeneratingVisualizationsView()
+                                .navigationBarBackButtonHidden(true)
+ 
+                        case .vizReady:
+                            VizReadyView(suggestions: coordinator.pendingSuggestions)
+                                .navigationBarBackButtonHidden(true)
+ 
+                        default:
+                            EmptyView()
+                        }
+                    }
             }
             .tabItem { Label("", systemImage: "plus") }
             .tag(Tabs.create)
@@ -76,5 +89,6 @@ struct NavBar: View {
 }
 #Preview {
     NavBar()
+        .environment(AppCoordinator())
 }
 
