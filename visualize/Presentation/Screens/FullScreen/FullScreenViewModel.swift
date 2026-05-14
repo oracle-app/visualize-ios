@@ -69,6 +69,7 @@ final class FullScreenViewModel {
     /// Repository used to fetch `configJSON` on demand for full-screen rendering.
     private let visualizationRepository: any VisualizationRepository
     private let uploadSnipUseCase: UploadSnipUseCase
+    private let postSnipCommentUseCase: PostSnipCommentUseCase
     private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
 
     // MARK: - Init
@@ -76,11 +77,13 @@ final class FullScreenViewModel {
     init(
         teamRepository: any TeamRepository,
         visualizationRepository: any VisualizationRepository,
-        uploadSnipUseCase: UploadSnipUseCase
+        uploadSnipUseCase: UploadSnipUseCase,
+        postSnipCommentUseCase: PostSnipCommentUseCase = PostSnipCommentUseCase(commentRepository: CommentRepositoryImpl())
     ) {
         self.teamRepository = teamRepository
         self.visualizationRepository = visualizationRepository
         self.uploadSnipUseCase = uploadSnipUseCase
+        self.postSnipCommentUseCase = postSnipCommentUseCase
     }
 
     // MARK: - Data Loading
@@ -192,7 +195,7 @@ final class FullScreenViewModel {
 
     // MARK: - Upload
 
-    /// Uploads the annotated snip image to Firebase Storage.
+    /// Uploads the annotated snip to Firebase Storage and saves a Comment document in Firestore.
     /// - Parameters:
     ///   - image: The annotated snip image from `SnipEditorView`.
     ///   - visualizationID: The ID of the current visualization.
@@ -205,6 +208,11 @@ final class FullScreenViewModel {
                 image: image,
                 userID: userID,
                 visualizationID: visualizationID
+            )
+            try await postSnipCommentUseCase.execute(
+                visualizationID: visualizationID,
+                authorID: userID,
+                imageURL: url
             )
             isUploading = false
             dismissEditor()
