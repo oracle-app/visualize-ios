@@ -13,7 +13,7 @@ import SwiftUI
 /// the user pick one before proceeding to the next step.
 struct VizReadyView: View {
  
-    // MARK: - State properties
+    // MARK: - State
  
     @Environment(AppCoordinator.self) private var coordinator
     /// Backing state machine for chart selection and title editing.
@@ -37,68 +37,66 @@ struct VizReadyView: View {
     // MARK: - Body
  
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 0) {
-                    expandedHeader
-                    cards
+        ScrollView {
+            VStack(spacing: 0) {
+                expandedHeader
+                cards
+            }
+        }
+        .scrollIndicators(.hidden)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(
+                    action: { showDiscardAlert = true },
+                    label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(Color.appNavy)
+                    }
+                )
+                .alert("Discard generated visualizations?", isPresented: $showDiscardAlert) {
+                    Button("Discard", role: .destructive) {
+                        // Clear the create tab stack, returning to CreateVisualization.
+                        coordinator.popToRoot()
+                    }
+                    Button("Cancel", role: .cancel) { }
+                } message: {
+                    Text("This will discard your generated visualizations and return you to the dataset upload screen.")
                 }
             }
-            .scrollIndicators(.hidden)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(
-                        action: { showDiscardAlert = true },
-                        label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 15, weight: .medium))
-                                .foregroundStyle(Color.appNavy)
-                        }
-                    )
-                    .alert("Discard generated visualizations?", isPresented: $showDiscardAlert) {
-                        Button("Discard", role: .destructive) {
-                            // Clear the create tab stack, returning to CreateVisualization.
-                            coordinator.popToRoot()
-                        }
-                        Button("Cancel", role: .cancel) { }
-                    } message: {
-                        Text("This will discard your generated visualizations and return you to the dataset upload screen.")
+            ToolbarItem(placement: .principal) {
+                Group {
+                    if UIImage(named: "OracleLogo") != nil {
+                        Image("OracleLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 20)
+                    } else {
+                        Text("Choose visualization")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(Color.appNavy)
                     }
                 }
-                ToolbarItem(placement: .principal) {
-                    Group {
-                        if UIImage(named: "OracleLogo") != nil {
-                            Image("OracleLogo")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 20)
-                        } else {
-                            Text("Choose visualization")
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundStyle(Color.appNavy)
-                        }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(
+                    action: { showShareSheet = true },
+                    label: {
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(
+                                viewModel.isSelectionValid
+                                    ? Color.appNavy
+                                    : Color.gray.opacity(0.35)
+                            )
                     }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(
-                        action: { showShareSheet = true },
-                        label: {
-                            Image(systemName: "arrow.right")
-                                .font(.system(size: 15, weight: .medium))
-                                .foregroundStyle(
-                                    viewModel.isSelectionValid
-                                        ? Color.appNavy
-                                        : Color.gray.opacity(0.35)
-                                )
-                        }
-                    )
-                    .disabled(!viewModel.isSelectionValid)
-                }
+                )
+                .disabled(!viewModel.isSelectionValid)
             }
-            .sheet(isPresented: $showShareSheet) {
-                shareSheet
-            }
+        }
+        .sheet(isPresented: $showShareSheet) {
+            shareSheet
         }
     }
  
@@ -212,20 +210,22 @@ struct VizReadyView: View {
  
 #if DEBUG
 #Preview {
-    VizReadyView(suggestions: [
-        ChartSuggestion(
-            id: 0,
-            name: "Survival Rate by Passenger Class",
-            chartType: .verticalBar,
-            chart: .verticalBar(
-                title: "Survival Rate by Passenger Class",
-                data: ["1": 136, "2": 87, "3": 119],
-                fieldNames: ["Pclass", "Survived"]
-            ),
-            previewJSON: MockChartJSONs.verticalBarPreview,
-            configJSON: MockChartJSONs.verticalBarConfig
-        )
-    ])
+    NavigationStack {
+        VizReadyView(suggestions: [
+            ChartSuggestion(
+                id: 0,
+                name: "Survival Rate by Passenger Class",
+                chartType: .verticalBar,
+                chart: .verticalBar(
+                    title: "Survival Rate by Passenger Class",
+                    data: ["1": 136, "2": 87, "3": 119],
+                    fieldNames: ["Pclass", "Survived"]
+                ),
+                previewJSON: MockChartJSONs.verticalBarPreview,
+                configJSON: MockChartJSONs.verticalBarConfig
+            )
+        ])
+    }
     .environment(AppCoordinator())
 }
 #endif
