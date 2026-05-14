@@ -17,6 +17,8 @@ enum AppRoute: Hashable {
     case signUp
     case resetPassword
     case checkEmail(email: String)
+    case generatingVisualizations
+    case vizReady
 }
 
 // MARK: - Root Route

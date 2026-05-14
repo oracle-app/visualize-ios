@@ -27,6 +27,14 @@ final class AppCoordinator {
     var isAuthenticated: Bool = false
     var path: [AppRoute] = []
     var root: RootRoute = .landing
+    
+    /// Chart suggestions produced by the ML service, passed from
+    /// `GeneratingVisualizationsView` to `VizReadyView`.
+    ///
+    /// Stored here instead of in `AppRoute` because `ChartData`'s
+    /// associated values (e.g. `[String: Double]`) are not `Hashable`,
+    /// which is required for route enum cases.
+    var pendingSuggestions: [ChartSuggestion] = []
 
     // MARK: - Tab State
 
@@ -137,5 +145,12 @@ final class AppCoordinator {
         createPath.removeAll()
         teamsPath.removeAll()
         profilePath.removeAll()
+    }
+    
+    /// Stores suggestions and pushes `.vizReady` in a single call.
+    /// - Parameter suggestions: The chart suggestions to display in `VizReadyView`.
+    func navigateToVizReady(with suggestions: [ChartSuggestion]) {
+        pendingSuggestions = suggestions
+        push(.vizReady)
     }
 }
