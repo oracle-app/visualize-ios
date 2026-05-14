@@ -5,6 +5,7 @@
 //  Created by Kimberly Marquez on 4/28/26.
 //
 import SwiftUI
+import FirebaseCore
 
 struct ThreadCommentRow: View {
     var comment: Comment
@@ -80,16 +81,7 @@ struct ThreadCommentRow: View {
                     .padding(.horizontal, 18)
                     .padding(.vertical, 9)
             }
-            
-            VStack(spacing: 0) {
-                ForEach(Array(comment.threads.enumerated()), id: \.offset) { index, reply in
-                    ThreadReplyRow(
-                        isFirst: index == 0,
-                        isLast: index == comment.threads.count - 1,
-                        reply: reply
-                    )
-                }
-            }
+            ThreadRepliesList(threads: comment.threads)
         }
         .background(RoundedRectangle(cornerRadius: 20)
             .fill(Color.appThreadsPrimary.opacity(0.5)))
@@ -97,12 +89,32 @@ struct ThreadCommentRow: View {
     }
     
 }
+
+private struct ThreadRepliesList: View {
+    let threads: [ThreadReply]
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            ForEach(threads) { (reply: ThreadReply) in
+                ThreadReplyRow(
+                    isFirst: isFirst(reply),
+                    reply: reply
+                )
+            }
+        }
+    }
+    
+    private func isFirst(_ reply: ThreadReply) -> Bool {
+        threads.first?.id == reply.id
+    }
+}
+
 #Preview {
     ThreadCommentRow(
         comment: Comment(
-            authorID: "user123",
+            authorID: "Kimberly Marquez",
             content: "Este es un comentario de prueba",
-            createdAt: .init()
+            createdAt: Timestamp(date: Date())
         ),
         activeCommentID: .constant(nil)
     )

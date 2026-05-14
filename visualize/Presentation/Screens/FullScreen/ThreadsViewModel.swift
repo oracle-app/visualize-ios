@@ -17,15 +17,12 @@ class ThreadsViewModel {
 
     private let db = Firestore.firestore()
     private let visualizationID: String
-
-    // Cache local de usuarios para evitar múltiples reads repetidos
     private var userCache: [String: AppUser] = [:]
 
     init(visualizationID: String) {
         self.visualizationID = visualizationID
     }
-
-    // MARK: - Load Comments + Threads
+    
     func loadComments() async {
         isLoading = true
         defer { isLoading = false }
@@ -62,7 +59,7 @@ class ThreadsViewModel {
         }
     }
 
-    // MARK: - Load Threads
+
     private func loadThreads(commentID: String) async -> [ThreadReply] {
         do {
             let snapshot = try await db
@@ -98,7 +95,6 @@ class ThreadsViewModel {
         }
     }
 
-    // MARK: - Post Reply
     func postReply(to commentID: String, content: String, author: AppUser) async {
         let data: [String: Any] = [
             "authorID": author.id ?? "",
@@ -122,18 +118,14 @@ class ThreadsViewModel {
             print("Error posteando reply: \(error)")
         }
     }
-
-    // MARK: - User Enrichment / Cache
     private func enrichWithUser(reply: ThreadReply) async -> ThreadReply {
         var enriched = reply
 
-        // Si ya viene duplicado desde Firestore, úsalo directamente
         if !enriched.authorName.isEmpty {
             enriched.timeAgo = reply.createdAt.dateValue().timeAgoDisplay()
             return enriched
         }
 
-        // Cache local
         if let cachedUser = userCache[reply.authorID] {
             enriched.authorName = cachedUser.username
             enriched.authorAvatarURL = cachedUser.profilePictureURL

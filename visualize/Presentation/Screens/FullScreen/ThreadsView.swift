@@ -7,7 +7,6 @@
 import SwiftUI
 
 struct ThreadsView: View {
-    // TODO: Reemplazar con el ID real cuando se conecte con Fullscreen
     let visualizationID: String
 
     @State private var viewModel: ThreadsViewModel
@@ -15,13 +14,13 @@ struct ThreadsView: View {
     @State private var activeCommentID: String? = nil
 
     init(visualizationID: String = "3nlO5I3PoEWAaKzwfcKB") {
+        self.visualizationID = visualizationID
         self._viewModel = State(initialValue: ThreadsViewModel(visualizationID: visualizationID))
     }
 
     var body: some View {
         VStack(spacing: 0) {
 
-            // MARK: - Header
             VStack(spacing: 8) {
                 Text("Threads")
                     .font(.headline)
@@ -32,7 +31,6 @@ struct ThreadsView: View {
 
             Divider()
 
-            // MARK: - Lista de comments
             ScrollView {
                 VStack(spacing: 16) {
                     if viewModel.isLoading {
@@ -58,7 +56,6 @@ struct ThreadsView: View {
                 await viewModel.loadComments()
             }
 
-            // MARK: - Reply Field (solo visible si hay thread activo)
             .safeAreaInset(edge: .bottom) {
                 if activeCommentID != nil {
                     VStack(spacing: 0) {
@@ -85,7 +82,6 @@ struct ThreadsView: View {
                             else { return }
 
                             Task {
-                                // TODO: Reemplazar mockUser con el usuario real autenticado
                                 let mockUser = AppUser(
                                     id: "e9Nk8XrxHJAtwN3Hf2FL",
                                     email: "example1@gmail.com",
