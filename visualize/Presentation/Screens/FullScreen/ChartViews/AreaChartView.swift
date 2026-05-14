@@ -11,6 +11,7 @@
 
 import SwiftUI
 import SciChart
+import os.log
 
 struct AreaChartView: UIViewRepresentable {
 
@@ -22,6 +23,8 @@ struct AreaChartView: UIViewRepresentable {
     let series: [String: [Double]]
     let xLabel: String
     let yLabel: String
+    var viewport: ChartViewport? = nil
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
 
     // MARK: - Private
 
@@ -94,6 +97,20 @@ struct AreaChartView: UIViewRepresentable {
 
         // MARK: Interactivity
         context.coordinator.attach(to: surface)
+        onCoordinatorReady?(context.coordinator)
+
+        // MARK: Viewport override
+        if let vp = viewport {
+            if let xr = vp.xRange {
+                surface.xAxes.item(at: 0).visibleRange = SCIDoubleRange(min: xr.lowerBound, max: xr.upperBound)
+            }
+            if let yr = vp.yRange {
+                surface.yAxes.item(at: 0).visibleRange = SCIDoubleRange(min: yr.lowerBound, max: yr.upperBound)
+            }
+            os_log(.debug, log: SnipCaptureLog.general,
+                   "Viewport applied: x=%{public}@  y=%{public}@",
+                   String(describing: vp.xRange), String(describing: vp.yRange))
+        }
 
         return surface
     }

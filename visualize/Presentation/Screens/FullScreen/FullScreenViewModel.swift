@@ -54,6 +54,9 @@ final class FullScreenViewModel {
     var capturedChartImage: IdentifiableImage?
     var chartCaptureSize: CGSize = .zero
     var showCaptureError: Bool = false
+    /// Reference to the live chart's coordinator, set when the chart surface attaches.
+    /// Used to read the current zoom/pan viewport at capture time.
+    var tooltipCoordinator: ChartTooltipCoordinator? = nil
 
     // MARK: - Dependencies
 
@@ -162,7 +165,8 @@ final class FullScreenViewModel {
     /// presented asynchronously via the GPU pipeline. A synchronous
     /// `drawHierarchy` would capture a blank `CALayer`.
     func captureChartForEditor(_ chart: ChartData) async {
-        let view = ChartRendererView(chart: chart)
+        let viewport = tooltipCoordinator?.currentViewport()
+        let view = ChartRendererView(chart: chart, viewport: viewport)
         guard let image = await ViewSnapshot.capture(view, size: chartCaptureSize) else {
             showCaptureError = true
             return

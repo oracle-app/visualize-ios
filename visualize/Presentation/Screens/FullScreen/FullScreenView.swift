@@ -100,7 +100,10 @@ struct FullScreenView: View {
                         if case .unsupported = chart {
                             errorState
                         } else {
-                            ChartRendererView(chart: chart)
+                            ChartRendererView(
+                                chart: chart,
+                                onCoordinatorReady: { viewModel.tooltipCoordinator = $0 }
+                            )
                                 .id(chartLoadID)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .frame(height: 380)
