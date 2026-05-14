@@ -4,12 +4,8 @@
 //
 //  Created by Kimberly Marquez on 4/15/26.
 
-// Reusable navigation bar component that manages the main app navigation using a tab-based structure.
-// It maintains the currently selected tab state and dynamically switches between different views such as feed, create, teams, and profile.
-// Integrates system tab bar customization (UIKit appearance) to control icon colors and visual styling independently from the rest of the UI.
-// Designed to centralize navigation logic while allowing scalable extension of tabs and consistent user experience across the application.
-
 import SwiftUI
+
 struct NavBar: View {
     @Environment(AppCoordinator.self) private var coordinator
 
@@ -30,22 +26,31 @@ struct NavBar: View {
             deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo)
         )
     }()
-    
+
+    private let logoutUseCase: LogoutUseCase
+    private let getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase
+
     init() {
+        let authSource = AuthFirebaseDatasource()
+        let authRepo = AuthRepositoryImpl(source: authSource)
+        let userRepo = UserRepositoryImpl(userDatasource: UserDatasource())
+        self.logoutUseCase = LogoutUseCase(repository: authRepo)
+        self.getCurrentUserProfileUseCase = GetCurrentUserProfileUseCase(
+            authRepository: authRepo,
+            userRepository: userRepo
+        )
+
         let appearance = UITabBarAppearance()
         appearance.configureWithDefaultBackground()
-        
         appearance.stackedLayoutAppearance.selected.iconColor = .systemMint
         appearance.stackedLayoutAppearance.normal.iconColor = .black
-        
-        
-        UITabBar.appearance().standardAppearance =  appearance
+        UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
-    
+
     var body: some View {
         @Bindable var coordinator = coordinator
-        
+
         TabView(selection: $coordinator.selectedTab) {
             NavigationStack(path: $coordinator.feedPath) {
                 FeedView(viewModel: feedViewModel)
@@ -60,11 +65,11 @@ struct NavBar: View {
                         case .generatingVisualizations:
                             GeneratingVisualizationsView()
                                 .navigationBarBackButtonHidden(true)
- 
+
                         case .vizReady:
                             VizReadyView(suggestions: coordinator.pendingSuggestions)
                                 .navigationBarBackButtonHidden(true)
- 
+
                         default:
                             EmptyView()
                         }
@@ -80,15 +85,18 @@ struct NavBar: View {
             .tag(Tabs.teams)
 
             NavigationStack(path: $coordinator.profilePath) {
-                Color.blue.ignoresSafeArea()
+                ProfileScreenView(
+                    logoutUseCase: logoutUseCase,
+                    getCurrentUserProfileUseCase: getCurrentUserProfileUseCase
+                )
             }
             .tabItem { Label("", systemImage: "person.circle") }
             .tag(Tabs.profile)
         }
     }
 }
+
 #Preview {
     NavBar()
         .environment(AppCoordinator())
 }
-

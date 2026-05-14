@@ -10,7 +10,6 @@ import FirebaseCore
 import FirebaseAppCheck
 import SciChart
 
-
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
@@ -31,7 +30,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     return true
   }
 }
-
 
 @main
 struct VisualizeApp: App {
