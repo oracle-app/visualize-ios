@@ -47,6 +47,15 @@ struct SnipEditorView: View {
                         guard newSize.width > 0, newSize.height > 0 else { return }
                         canvasSize = newSize
                     }
+                    .mask {
+                        if let rect = model.cropRect {
+                            Canvas { ctx, _ in
+                                ctx.fill(Path(rect), with: .color(.black))
+                            }
+                        } else {
+                            Rectangle()
+                        }
+                    }
                 }
 
             if openPanel != nil {
@@ -173,7 +182,28 @@ struct SnipEditorView: View {
         let renderer = ImageRenderer(content: canvas)
         renderer.scale = displayScale
         guard let exported = renderer.uiImage else { return }
-        onPost(exported)
+
+        let final: UIImage
+        if let cropRect = model.cropRect,
+           let cgImage = exported.cgImage {
+            // cropRect is in canvas points — scale to pixel space
+            let scale = exported.scale
+            let pixelRect = CGRect(
+                x: cropRect.origin.x * scale,
+                y: cropRect.origin.y * scale,
+                width: cropRect.width * scale,
+                height: cropRect.height * scale
+            )
+            if let cropped = cgImage.cropping(to: pixelRect) {
+                final = UIImage(cgImage: cropped, scale: exported.scale, orientation: exported.imageOrientation)
+            } else {
+                final = exported
+            }
+        } else {
+            final = exported
+        }
+
+        onPost(final)
         onDismiss()
     }
 }
