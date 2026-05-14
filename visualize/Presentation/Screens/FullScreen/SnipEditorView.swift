@@ -50,6 +50,9 @@ struct SnipEditorView: View {
                 }
 
             if openPanel != nil {
+                // Tap-outside scrim to dismiss the floating panel.
+                // onTapGesture is intentional here — a Button would break
+                // VoiceOver semantics for an invisible full-screen dismiss layer.
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture {

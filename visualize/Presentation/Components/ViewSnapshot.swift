@@ -75,6 +75,8 @@ enum ViewSnapshot {
         // Let SwiftUI commit + GPU pipeline (e.g. SciChart Metal) submit and present.
         try? await Task.sleep(for: .nanoseconds(warmupNanos))
 
+        // UIGraphicsImageRenderer is required here because SCIChartSurface
+        // is a Metal-backed UIView; SwiftUI's ImageRenderer cannot capture it.
         let renderer = UIGraphicsImageRenderer(size: size)
         return renderer.image { _ in
             host.view.drawHierarchy(in: host.view.bounds, afterScreenUpdates: true)
