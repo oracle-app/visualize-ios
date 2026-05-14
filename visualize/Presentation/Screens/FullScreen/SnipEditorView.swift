@@ -43,7 +43,10 @@ struct SnipEditorView: View {
                         SnipGestureOverlayView(model: model)
                     }
                     .aspectRatio(chartImage.size, contentMode: .fit)
-                    .onGeometryChange(for: CGSize.self) { $0.size } action: { canvasSize = $1 }
+                    .onGeometryChange(for: CGSize.self) { proxy in proxy.size } action: { newSize in
+                        guard newSize.width > 0, newSize.height > 0 else { return }
+                        canvasSize = newSize
+                    }
                 }
 
             if openPanel != nil {
