@@ -331,7 +331,7 @@ struct SharePayload: Identifiable {
     NavigationStack{
         FeedView(
             viewModel: .preview,
-            shouldLoad: false
+            shouldLoad: true
         )
         .environment(AppCoordinator())
     }

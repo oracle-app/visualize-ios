@@ -32,7 +32,7 @@ struct SnipEditorView: View {
 
         NavigationStack {
         ZStack {
-            Color.clear
+            Color.white
                 .overlay {
                     ZStack {
                         Image(uiImage: chartImage)
@@ -43,10 +43,25 @@ struct SnipEditorView: View {
                         SnipGestureOverlayView(model: model)
                     }
                     .aspectRatio(chartImage.size, contentMode: .fit)
-                    .onGeometryChange(for: CGSize.self) { $0.size } action: { canvasSize = $1 }
+                    .onGeometryChange(for: CGSize.self) { proxy in proxy.size } action: { newSize in
+                        guard newSize.width > 0, newSize.height > 0 else { return }
+                        canvasSize = newSize
+                    }
+                    .mask {
+                        if let rect = model.cropRect {
+                            Canvas { ctx, _ in
+                                ctx.fill(Path(rect), with: .color(.black))
+                            }
+                        } else {
+                            Rectangle()
+                        }
+                    }
                 }
 
             if openPanel != nil {
+                // Tap-outside scrim to dismiss the floating panel.
+                // onTapGesture is intentional here — a Button would break
+                // VoiceOver semantics for an invisible full-screen dismiss layer.
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -167,7 +182,28 @@ struct SnipEditorView: View {
         let renderer = ImageRenderer(content: canvas)
         renderer.scale = displayScale
         guard let exported = renderer.uiImage else { return }
-        onPost(exported)
+
+        let final: UIImage
+        if let cropRect = model.cropRect,
+           let cgImage = exported.cgImage {
+            // cropRect is in canvas points — scale to pixel space
+            let scale = exported.scale
+            let pixelRect = CGRect(
+                x: cropRect.origin.x * scale,
+                y: cropRect.origin.y * scale,
+                width: cropRect.width * scale,
+                height: cropRect.height * scale
+            )
+            if let cropped = cgImage.cropping(to: pixelRect) {
+                final = UIImage(cgImage: cropped, scale: exported.scale, orientation: exported.imageOrientation)
+            } else {
+                final = exported
+            }
+        } else {
+            final = exported
+        }
+
+        onPost(final)
         onDismiss()
     }
 }

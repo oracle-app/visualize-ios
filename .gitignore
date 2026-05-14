@@ -7,8 +7,8 @@ DerivedData/
 .LSOverride
 .swiftpm
 .build
-visualize/GoogleService-Info.plist
 swiftlint_report.html
+visualize/GoogleService-Info.plist
 
 # Claude Code
 .claude/

@@ -34,69 +34,80 @@ struct RootScreen: View {
     // MARK: - Body
     
     var body: some View {
-        NavigationStack(path: $coordinator.path) {
-            LandingScreen()
-                .navigationBarBackButtonHidden(true)
-                .toolbar(.hidden, for: .navigationBar)
-                .navigationDestination(for: AppRoute.self) { route in
-                    switch route {
-                    case .login:
-                        Login(viewModel: LoginViewModel(
-                            loginUseCase: LoginUseCase(
-                                repository: AuthRepositoryImpl(
-                                    source: AuthFirebaseDatasource()
-                                )
-                            )
-                        ))
+        Group {
+            if coordinator.isAuthenticated {
+                NavBar()
+            } else {
+                NavigationStack(path: $coordinator.path) {
+                    LandingScreen()
                         .navigationBarBackButtonHidden(true)
-                    case .signUp:
-                        SignUp(viewModel: SignUpViewModel(
-                            registerUseCase: RegisterUseCase(
-                                authRepository: AuthRepositoryImpl(
-                                    source: AuthFirebaseDatasource()
-                                ),
-                                userRepository: UserRepositoryImpl(
-                                    userDatasource: UserDatasource()
-                                )
-                            )
-                        ))
-                        .navigationBarBackButtonHidden(true)
-                    case .feed:
-                        NavBar()
-                            .navigationBarBackButtonHidden(true)
-                            .toolbar(.hidden, for: .navigationBar)
-                    case .resetPassword:
-                        ResetPasswordView(
-                            viewModel: ResetPasswordViewModel(
-                                resetPasswordUseCase: ResetPasswordUseCase(
-                                    authRepository: AuthRepositoryImpl(
-                                        source: AuthFirebaseDatasource()
+                        .toolbar(.hidden, for: .navigationBar)
+                        .navigationDestination(for: AppRoute.self) { route in
+                            switch route {
+                            case .login:
+                                Login(
+                                    viewModel: LoginViewModel(
+                                        loginUseCase: LoginUseCase(
+                                            repository: AuthRepositoryImpl(
+                                                source: AuthFirebaseDatasource()
+                                            )
+                                        )
                                     )
                                 )
-                            )
-                        )
-                        .navigationBarBackButtonHidden(true)
-                        
-                    case .checkEmail(let email):
-                        CheckEmailView(
-                            viewModel: CheckEmailViewModel(
-                                email: email,
-                                resetPasswordUseCase: ResetPasswordUseCase(
-                                    authRepository: AuthRepositoryImpl(
-                                        source: AuthFirebaseDatasource()
+                                .navigationBarBackButtonHidden(true)
+                            case .signUp:
+                                SignUp(
+                                    viewModel: SignUpViewModel(
+                                        registerUseCase: RegisterUseCase(
+                                            authRepository: AuthRepositoryImpl(
+                                                source: AuthFirebaseDatasource()
+                                            ),
+                                            userRepository: UserRepositoryImpl(
+                                                userDatasource: UserDatasource()
+                                            )
+                                        )
                                     )
                                 )
-                            )
-                        )
-                        .navigationBarBackButtonHidden(true)
-                    }
+                                .navigationBarBackButtonHidden(true)
+                            case .resetPassword:
+                                ResetPasswordView(
+                                    viewModel: ResetPasswordViewModel(
+                                        resetPasswordUseCase: ResetPasswordUseCase(
+                                            authRepository: AuthRepositoryImpl(
+                                                source: AuthFirebaseDatasource()
+                                            )
+                                        )
+                                    )
+                                )
+                                .navigationBarBackButtonHidden(true)
+                            case .checkEmail(let email):
+                                CheckEmailView(
+                                    viewModel: CheckEmailViewModel(
+                                        email: email,
+                                        resetPasswordUseCase: ResetPasswordUseCase(
+                                            authRepository: AuthRepositoryImpl(
+                                                source: AuthFirebaseDatasource()
+                                            )
+                                        )
+                                    )
+                                )
+                                .navigationBarBackButtonHidden(true)
+ 
+                            // These routes belong to the Create tab and are registered
+                            // in NavBar's Create NavigationStack. They are listed here
+                            // only to satisfy switch exhaustiveness, they are never
+                            // pushed onto the auth path.
+                            case .generatingVisualizations, .vizReady:
+                                EmptyView()
+                            }
+                        }
                 }
-                .onAppear {
-                    viewModel.checkSession()
-                    if viewModel.isLoggedIn {
-                        coordinator.replace(path: [.feed])
-                    }
-                }
-        }.environment(coordinator)
+            }
+        }
+        .environment(coordinator)
+        .onAppear {
+            viewModel.checkSession()
+            coordinator.isAuthenticated = viewModel.isLoggedIn
+        }
     }
 }

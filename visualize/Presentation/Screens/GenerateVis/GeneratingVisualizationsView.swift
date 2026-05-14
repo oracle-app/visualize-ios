@@ -9,7 +9,7 @@ import SwiftUI
 
 struct GeneratingVisualizationsView: View {
     @State private var viewModel = GeneratingVisualizationsViewModel()
-    @Environment(\.dismiss) private var dismiss
+    @Environment(AppCoordinator.self) private var coordinator
 
     var body: some View {
         ZStack {
@@ -26,16 +26,13 @@ struct GeneratingVisualizationsView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 36)
         }
-        .task { await viewModel.startLoading() }
-        .fullScreenCover(isPresented: $viewModel.navigateToVizReady) {
-            // Pass suggestions so VizReadyView can display chart previews on the cards
-            VizReadyView(
-                suggestions: viewModel.suggestions,
-                onClose: { viewModel.dismissToUpload = true }
-            )
-        }
-        .onChange(of: viewModel.dismissToUpload) { _, shouldDismiss in
-            if shouldDismiss { dismiss() }
+        .task { await viewModel.startLoading()
+            // Navigate to VizReady once suggestions are ready.
+            // navigateToVizReady(with:) stores the suggestions and pushes the route in one call,
+            // so the route is never pushed without its data.
+            if !viewModel.suggestions.isEmpty {
+                coordinator.navigateToVizReady(with: viewModel.suggestions)
+            }
         }
     }
 
@@ -80,7 +77,8 @@ struct GeneratingVisualizationsView: View {
 
     private var cancelButtonSection: some View {
         Button {
-            viewModel.onCancelTapped()
+            // Pop back to CreateVisualization, discarding the generating screen.
+            coordinator.pop()
         } label: {
             Text("Cancel")
                 .font(.title3.weight(.semibold))
@@ -109,4 +107,5 @@ struct GeneratingVisualizationsView: View {
 
 #Preview {
     GeneratingVisualizationsView()
+        .environment(AppCoordinator())
 }

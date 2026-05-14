@@ -85,7 +85,7 @@ struct ProfileScreenView: View {
             }
             .onChange(of: viewModel.isLoggedOut) { _, loggedOut in
                 if loggedOut {
-                    coordinator.replace(path: [])
+                    coordinator.logout()
                 }
             }
         }

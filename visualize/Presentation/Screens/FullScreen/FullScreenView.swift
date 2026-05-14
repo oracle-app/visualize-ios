@@ -22,6 +22,7 @@ struct FullScreenView: View {
 
     @State private var viewModel: FullScreenViewModel
     @State private var chartLoadID = UUID()
+    @State private var showThreads = true
     @Environment(\.dismiss) private var dismiss
 
     // MARK: - Init
@@ -34,6 +35,8 @@ struct FullScreenView: View {
             userDatasource: userDatasource,
             teamsDatasource: teamDatasource
         )
+        let storageDatasource = StorageDatasource()
+        let commentDatasource = CommentDatasource()
         self._viewModel = State(initialValue: FullScreenViewModel(
             teamRepository: TeamRepositoryImpl(
                 teamDatasource: teamDatasource,
@@ -43,6 +46,12 @@ struct FullScreenView: View {
                 userDatasource: userDatasource,
                 visualizationDatasource: vizDatasource,
                 teamsDatasource: teamDatasource
+            ),
+            uploadSnipUseCase: UploadSnipUseCase(
+                snipRepository: SnipRepositoryImpl(storageDatasource: storageDatasource)
+            ),
+            postSnipCommentUseCase: PostSnipCommentUseCase(
+                commentRepository: CommentRepositoryImpl(commentDatasource: commentDatasource)
             )
         ))
     }
@@ -68,10 +77,11 @@ struct FullScreenView: View {
                     Spacer()
                         .frame(height: 70)
                     Button {
-                        // parsedChart is pre-validated by isChartRenderable:
-                        // nil and .unsupported are both excluded, so force-unwrap is safe here.
                         if let chart = viewModel.parsedChart {
-                            Task { await viewModel.captureChartForEditor(chart) }
+                            showThreads = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                Task { await viewModel.captureChartForEditor(chart) }
+                            }
                         }
                     } label: {
                         Image(systemName: "crop")
@@ -100,7 +110,10 @@ struct FullScreenView: View {
                         if case .unsupported = chart {
                             errorState
                         } else {
-                            ChartRendererView(chart: chart)
+                            ChartRendererView(
+                                chart: chart,
+                                onCoordinatorReady: { viewModel.tooltipCoordinator = $0 }
+                            )
                                 .id(chartLoadID)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .frame(height: 380)
@@ -133,12 +146,14 @@ struct FullScreenView: View {
         .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
             SnipEditorView(
                 chartImage: wrapped.image,
-                onPost: { _ in
-                    print("[FullScreen] SnipEditor onPost stub — image discarded")
-                    viewModel.dismissEditor()
+                onPost: { image in
+                    Task {
+                        _ = await viewModel.uploadSnip(image, visualizationID: card.id)
+                    }
                 },
                 onDismiss: {
                     viewModel.dismissEditor()
+                    showThreads = true
                 }
             )
         }
@@ -150,6 +165,12 @@ struct FullScreenView: View {
         .preventScreenShot()
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
+        .sheet(isPresented: $showThreads) {
+            ThreadsView(visualizationID: card.id)
+                .presentationDetents([.fraction(0.08), .medium, .large])
+                .presentationBackgroundInteraction(.enabled(upThrough: .large))
+                .presentationCornerRadius(24)
+        }
     }
  
     // MARK: - Private

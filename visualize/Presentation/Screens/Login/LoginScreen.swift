@@ -149,7 +149,7 @@ struct Login: View {
         .background(Color(Color.appTeal))
         .onChange(of: viewModel.isLoggedIn) { _, success in
             if success {
-                coordinator.replace(path: [.feed])
+                coordinator.login()
             }
         }
     }
