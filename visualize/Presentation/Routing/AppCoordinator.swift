@@ -22,43 +22,52 @@ import Foundation
 @Observable
 final class AppCoordinator {
 
-    // MARK: - State
+    // MARK: - Auth State
 
-    /// The current navigation stack of routes.
+    var isAuthenticated: Bool = false
     var path: [AppRoute] = []
-
-    /// The root-level route of the app (e.g. landing screen).
     var root: RootRoute = .landing
 
-    // MARK: - Navigation Actions
+    // MARK: - Tab State
 
-    /// Pushes a new route onto the navigation stack.
-    ///
-    /// - Parameter route: The destination route to navigate to.
+    var selectedTab: Tabs = .feed
+    var feedPath: [AppRoute] = []
+    var createPath: [AppRoute] = []
+    var teamsPath: [AppRoute] = []
+    var profilePath: [AppRoute] = []
+
+    // MARK: - Auth Navigation
+
     func push(_ route: AppRoute) {
         path.append(route)
     }
 
-    /// Pops the last route from the navigation stack.
-    ///
-    /// Does nothing if the stack is already empty.
     func pop() {
         guard !path.isEmpty else { return }
         path.removeLast()
     }
 
-    /// Pops all routes, returning to the root screen.
     func popToRoot() {
         path.removeAll()
     }
 
-    /// Replaces the entire navigation stack with a new path.
-    ///
-    /// Useful for flows like login → feed where back navigation
-    /// to previous screens should not be allowed.
-    ///
-    /// - Parameter newPath: The new array of routes to set as the stack.
     func replace(path newPath: [AppRoute]) {
         path = newPath
+    }
+
+    // MARK: - Session
+
+    func login() {
+        path.removeAll()
+        isAuthenticated = true
+    }
+
+    func logout() {
+        isAuthenticated = false
+        path.removeAll()
+        feedPath.removeAll()
+        createPath.removeAll()
+        teamsPath.removeAll()
+        profilePath.removeAll()
     }
 }

@@ -34,68 +34,71 @@ struct RootScreen: View {
     // MARK: - Body
     
     var body: some View {
-        NavigationStack(path: $coordinator.path) {
-            LandingScreen()
-                .navigationBarBackButtonHidden(true)
-                .toolbar(.hidden, for: .navigationBar)
-                .navigationDestination(for: AppRoute.self) { route in
-                    switch route {
-                    case .login:
-                        Login(viewModel: LoginViewModel(
-                            loginUseCase: LoginUseCase(
-                                repository: AuthRepositoryImpl(
-                                    source: AuthFirebaseDatasource()
-                                )
-                            )
-                        ))
+        Group {
+            if coordinator.isAuthenticated {
+                NavBar()
+            } else {
+                NavigationStack(path: $coordinator.path) {
+                    LandingScreen()
                         .navigationBarBackButtonHidden(true)
-                    case .signUp:
-                        SignUp(viewModel: SignUpViewModel(
-                            registerUseCase: RegisterUseCase(
-                                authRepository: AuthRepositoryImpl(
-                                    source: AuthFirebaseDatasource()
-                                ),
-                                userRepository: UserRepositoryImpl(
-                                    userDatasource: UserDatasource()
-                                )
-                            )
-                        ))
-                        .navigationBarBackButtonHidden(true)
-                    case .feed:
-                        FeedView(viewModel: .preview, shouldLoad: true)
-                            .navigationBarBackButtonHidden(true)
-                    case .resetPassword:
-                        ResetPasswordView(
-                            viewModel: ResetPasswordViewModel(
-                                resetPasswordUseCase: ResetPasswordUseCase(
-                                    authRepository: AuthRepositoryImpl(
-                                        source: AuthFirebaseDatasource()
+                        .toolbar(.hidden, for: .navigationBar)
+                        .navigationDestination(for: AppRoute.self) { route in
+                            switch route {
+                            case .login:
+                                Login(
+                                    viewModel: LoginViewModel(
+                                        loginUseCase: LoginUseCase(
+                                            repository: AuthRepositoryImpl(
+                                                source: AuthFirebaseDatasource()
+                                            )
+                                        )
                                     )
                                 )
-                            )
-                        )
-                        .navigationBarBackButtonHidden(true)
-                        
-                    case .checkEmail(let email):
-                        CheckEmailView(
-                            viewModel: CheckEmailViewModel(
-                                email: email,
-                                resetPasswordUseCase: ResetPasswordUseCase(
-                                    authRepository: AuthRepositoryImpl(
-                                        source: AuthFirebaseDatasource()
+                            case .signUp:
+                                SignUp(
+                                    viewModel: SignUpViewModel(
+                                        registerUseCase: RegisterUseCase(
+                                            authRepository: AuthRepositoryImpl(
+                                                source: AuthFirebaseDatasource()
+                                            ),
+                                            userRepository: UserRepositoryImpl(
+                                                userDatasource: UserDatasource()
+                                            )
+                                        )
                                     )
                                 )
-                            )
-                        )
-                        .navigationBarBackButtonHidden(true)
+                            case .resetPassword:
+                                ResetPasswordView(
+                                    viewModel: ResetPasswordViewModel(
+                                        resetPasswordUseCase: ResetPasswordUseCase(
+                                            authRepository: AuthRepositoryImpl(
+                                                source: AuthFirebaseDatasource()
+                                            )
+                                        )
+                                    )
+                                )
+                            case .checkEmail(let email):
+                                CheckEmailView(
+                                    viewModel: CheckEmailViewModel(
+                                        email: email,
+                                        resetPasswordUseCase: ResetPasswordUseCase(
+                                            authRepository: AuthRepositoryImpl(
+                                                source: AuthFirebaseDatasource()
+                                            )
+                                        )
+                                    )
+                                )
+                            default: // Implement future screens
+                                EmptyView()
+                        }
                     }
                 }
-                .onAppear {
-                    viewModel.checkSession()
-                    if viewModel.isLoggedIn {
-                        coordinator.replace(path: [.feed])
-                    }
-                }
-        }.environment(coordinator)
+            }
+        }
+        .environment(coordinator)
+        .onAppear {
+            viewModel.checkSession()
+            coordinator.isAuthenticated = viewModel.isLoggedIn
+        }
     }
 }
