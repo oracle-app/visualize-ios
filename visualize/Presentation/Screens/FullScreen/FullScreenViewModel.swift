@@ -78,7 +78,7 @@ final class FullScreenViewModel {
         teamRepository: any TeamRepository,
         visualizationRepository: any VisualizationRepository,
         uploadSnipUseCase: UploadSnipUseCase,
-        postSnipCommentUseCase: PostSnipCommentUseCase = PostSnipCommentUseCase(commentRepository: CommentRepositoryImpl())
+        postSnipCommentUseCase: PostSnipCommentUseCase
     ) {
         self.teamRepository = teamRepository
         self.visualizationRepository = visualizationRepository
