@@ -4,6 +4,11 @@
 //
 //  Created by Kimberly Marquez on 03/05/26.
 //
+//  Manages comments and thread replies for a visualization.
+//  - Loads comments and nested replies from Firestore in parallel
+//  - Posts new replies and refreshes the comments list
+//  - Caches user data to avoid redundant Firestore fetches
+//  - Enriches replies with author info and relative timestamps
 
 import Foundation
 import FirebaseFirestore
@@ -12,18 +17,54 @@ import Observation
 @Observable
 class ThreadsViewModel {
 
+    // MARK: - Properties
+
     var comments: [Comment] = []
     var isLoading = false
 
     private let db = Firestore.firestore()
     private let visualizationID: String
-    private var userCache: [String: AppUser] = [:]
+    private let isPreview: Bool
+    private var userCache: [String: AppUser] = [:]  // Avoids redundant Firestore user fetches
 
-    init(visualizationID: String) {
+    // MARK: - Init
+
+    init(visualizationID: String, isPreview: Bool = false) {
         self.visualizationID = visualizationID
+        self.isPreview = isPreview
     }
-    
+
+    #if DEBUG
+    static func preview() -> ThreadsViewModel {
+        let vm = ThreadsViewModel(visualizationID: "preview", isPreview: true)
+        vm.comments = [
+            Comment(
+                id: "c1",
+                authorID: "Kimberly Marquez",
+                content: "Este es un comentario de prueba",
+                createdAt: Timestamp(date: Date()),
+                threads: [
+                    ThreadReply(
+                        id: "r1",
+                        authorID: "u1",
+                        authorName: "Diana Escalante",
+                        authorAvatarURL: "",
+                        createdAt: Timestamp(date: Date()),
+                        content: "Este es un reply de prueba",
+                        timeAgo: "5 min ago"
+                    )
+                ]
+            )
+        ]
+        return vm
+    }
+    #endif
+
+    // MARK: - Public Methods
+
+    /// Loads all comments and their thread replies for the current visualization.
     func loadComments() async {
+        guard !isPreview else { return }
         isLoading = true
         defer { isLoading = false }
 
@@ -55,11 +96,37 @@ class ThreadsViewModel {
 
             comments = loaded
         } catch {
-            print("Error cargando comments: \(error)")
+            print("Error loading comments: \(error)")
         }
     }
 
+    /// Posts a reply under the given comment and refreshes the comments list.
+    func postReply(to commentID: String, content: String, author: AppUser) async {
+        let data: [String: Any] = [
+            "authorID": author.id,
+            "authorName": author.username,
+            "authorAvatarURL": author.profilePictureURL ?? "",
+            "content": content,
+            "createdAt": Timestamp()
+        ]
 
+        do {
+            try await db
+                .collection("visualizations")
+                .document(visualizationID)
+                .collection("comments")
+                .document(commentID)
+                .collection("threads")
+                .addDocument(data: data)
+
+        } catch {
+            print("Error posting reply: \(error)")
+        }
+    }
+
+    // MARK: - Private Methods
+
+    /// Fetches and enriches all thread replies for a given comment.
     private func loadThreads(commentID: String) async -> [ThreadReply] {
         do {
             let snapshot = try await db
@@ -90,34 +157,12 @@ class ThreadsViewModel {
 
             return replies
         } catch {
-            print("Error cargando threads: \(error)")
+            print("Error loading threads: \(error)")
             return []
         }
     }
 
-    func postReply(to commentID: String, content: String, author: AppUser) async {
-        let data: [String: Any] = [
-            "authorID": author.id ?? "",
-            "authorName": author.username,
-            "authorAvatarURL": author.profilePictureURL ?? "",
-            "content": content,
-            "createdAt": Timestamp()
-        ]
-
-        do {
-            try await db
-                .collection("visualizations")
-                .document(visualizationID)
-                .collection("comments")
-                .document(commentID)
-                .collection("threads")
-                .addDocument(data: data)
-
-            await loadComments()
-        } catch {
-            print("Error posteando reply: \(error)")
-        }
-    }
+    /// Fills in author info and relative timestamp on a reply, using the cache when possible.
     private func enrichWithUser(reply: ThreadReply) async -> ThreadReply {
         var enriched = reply
 
@@ -141,8 +186,7 @@ class ThreadsViewModel {
 
             let user = try doc.data(as: AppUser.self)
             userCache[reply.authorID] = user
-            
-            
+
             enriched.authorName = user.username
             enriched.authorAvatarURL = user.profilePictureURL
             enriched.timeAgo = reply.createdAt.dateValue().timeAgoDisplay()
@@ -153,6 +197,8 @@ class ThreadsViewModel {
         return enriched
     }
 }
+
+// MARK: - Date Extension
 
 extension Date {
     func timeAgoDisplay() -> String {

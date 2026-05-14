@@ -22,6 +22,7 @@ struct FullScreenView: View {
 
     @State private var viewModel: FullScreenViewModel
     @State private var chartLoadID = UUID()
+    @State private var showThreads = true
     @Environment(\.dismiss) private var dismiss
 
     // MARK: - Init
@@ -162,6 +163,13 @@ struct FullScreenView: View {
         .preventScreenShot()
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
+        .sheet(isPresented: $showThreads) {
+            ThreadsView(visualizationID: card.id)
+                .presentationDetents([.fraction(0.08), .medium, .large])
+                .presentationBackgroundInteraction(.enabled(upThrough: .large))
+                .presentationCornerRadius(24)
+                .interactiveDismissDisabled(true)
+        }
     }
  
     // MARK: - Private
