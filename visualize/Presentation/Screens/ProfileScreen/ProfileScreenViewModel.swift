@@ -22,13 +22,13 @@ enum ChartColorTheme: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .aqua:
-            ""
+            "Aqua"
         case .iris:
-            ""
+            "Iris"
         case .autumn:
-            ""
+            "Autumn"
         case .blossom:
-            ""
+            "Blossom"
         }
     }
 }
@@ -44,6 +44,7 @@ final class ProfileScreenViewModel {
     private(set) var profilePictureURL: URL?
     private(set) var selectedChartTheme: ChartColorTheme = .aqua
     private(set) var isLoadingProfile: Bool = false
+    private(set) var profileError: String?
     private(set) var logoutError: String?
 
     let availableChartThemes: [ChartColorTheme] = ChartColorTheme.allCases
@@ -92,7 +93,7 @@ final class ProfileScreenViewModel {
                     profilePictureURL = URL(string: urlString)
                 }
             } catch {
-                logoutError = error.localizedDescription
+                profileError = error.localizedDescription
             }
             isLoadingProfile = false
         }
