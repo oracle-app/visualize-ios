@@ -2,6 +2,8 @@
 //  UploadSnipUseCase.swift
 //  visualize
 //
+//  Created by Nicolas Peralta on 15/05/26.
+//
 
 import UIKit
 

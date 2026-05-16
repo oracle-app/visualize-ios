@@ -1,7 +1,15 @@
+//
+//  SnippingTool.swift
+//  visualize
+//
+//  Created by Nicolas Peralta on 15/05/26.
+//
+
 import SwiftUI
 
 // MARK: - Panel state
 
+/// Floating panel currently expanded from the snipping toolbar.
 enum ToolPanel: Equatable {
     case shapes
     case strokeWidth
@@ -9,6 +17,7 @@ enum ToolPanel: Equatable {
 
 // MARK: - Floating toolbar
 
+/// Bottom floating toolbar used to select snipping annotation tools and style controls.
 struct SnipFloatingToolbar: View {
     @Binding var selectedTool: DrawingTool
     @Binding var currentColor: Color
