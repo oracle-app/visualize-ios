@@ -7,6 +7,7 @@
 
 import Foundation
 import Observation
+import FirebaseAuth
 
 // MARK: - Login ViewModel
 
@@ -45,9 +46,14 @@ class LoginViewModel {
     
     var emailError: String? = nil
     var passwordError: String? = nil
-    var errorMessage: String? = nil
     var isLoading: Bool = false
     var isLoggedIn: Bool = false
+    
+    // Toast
+    var currentToast: Toast? = nil
+
+    @ObservationIgnored
+    private var toastTask: Task<Void, Never>?
     
     // MARK: - Dependencies
     
@@ -59,10 +65,21 @@ class LoginViewModel {
         self.loginUseCase = loginUseCase
     }
     
+    // MARK: - Toast
+
+    func showToast(_ toast: Toast) {
+        toastTask?.cancel()
+        currentToast = toast
+        toastTask = Task {
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            currentToast = nil
+        }
+    }
+    
     // MARK: - Actions
     
     func login() {
-        errorMessage = nil
         
         let isEmailValid = validateEmail()
         let isPasswordValid = validatePassword()
@@ -89,8 +106,25 @@ class LoginViewModel {
                     self.passwordError = "Required fields cannot be left blank."
                 }
                 
-            } catch {
-                self.errorMessage = error.localizedDescription
+            } catch let error as NSError {
+                let code = AuthErrorCode(rawValue: error.code)
+                switch code {
+                case .wrongPassword, .invalidCredential, .userNotFound:
+                    showToast(Toast(
+                        message: "Incorrect email or password. Please try again.",
+                        type: .error
+                    ))
+                case .networkError:
+                    showToast(Toast(
+                        message: "Unable to connect. Check your internet connection.",
+                        type: .error
+                    ))
+                default:
+                    showToast(Toast(
+                        message: "Something went wrong. Please try again.",
+                        type: .error
+                    ))
+                }
             }
             
             isLoading = false

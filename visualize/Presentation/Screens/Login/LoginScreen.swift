@@ -146,6 +146,19 @@ struct Login: View {
             .ignoresSafeArea(edges: .bottom)
             .scrollDismissesKeyboard(.interactively)
         }
+        .overlay(alignment: .bottom) {
+            if let toast = viewModel.currentToast {
+                ToastView(toast: toast)
+                    .padding(.bottom, 32)
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                            removal: .opacity.combined(with: .scale(scale: 0.95))
+                        )
+                    )
+            }
+        }
+        .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
         .background(Color(Color.appTeal))
         .onChange(of: viewModel.isLoggedIn) { _, success in
             if success {
