@@ -41,7 +41,7 @@ struct FeedView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 10) {
                 headerView()
                 contentView()
             }

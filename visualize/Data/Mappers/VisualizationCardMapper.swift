@@ -11,7 +11,8 @@ extension VisualizationDTO {
     func toVisualizationCard(
             authorName: String,
             teamsSharedWith: [Team],
-            usersSharedWith: [AppUser]
+            usersSharedWith: [AppUser],
+            preParsedChart: ChartData? = nil
         ) -> VisualizationCard {
             var allUsersDict: [String: AppUser] = [:]
             for user in usersSharedWith {
@@ -26,8 +27,8 @@ extension VisualizationDTO {
             
             // Parse preview chart from previewJSON (reduced data) for feed card rendering.
             // FullScreenView parses configJSON directly to get all data points.
-            let previewString = self.previewJSON ?? self.configJSON
-            let parsedChart = ChartConfigParser.parse(from: previewString) ?? .unsupported(type: "Invalid JSON")
+            let previewString = self.previewJSON
+            let parsedChart = preParsedChart ?? ChartConfigParser.parse(from: previewString) ?? .unsupported(type: "Invalid JSON")
      
             let derivedChartType: ChartType
             switch parsedChart {

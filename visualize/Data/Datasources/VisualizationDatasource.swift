@@ -19,6 +19,7 @@ class VisualizationDatasource {
     private func getVisualizationsSharedWithUser(userID: String) async throws -> [VisualizationDTO] {
         let sharedWithUser = try await firebase.collection("visualizations")
             .whereField("sharedWithUsers", arrayContains: userID)
+            .order(by: "createdAt", descending: true)
             .getDocuments()
         return sharedWithUser.documents.compactMap {
             do {
@@ -35,10 +36,11 @@ class VisualizationDatasource {
         guard !teamIDs.isEmpty else {return []}
         let sharedWithTeams = try await firebase.collection("visualizations")
             .whereField("sharedWithTeams", arrayContainsAny: teamIDs)
+            .order(by: "createdAt", descending: true)
             .getDocuments()
         return sharedWithTeams.documents.compactMap {try? $0.data(as: VisualizationDTO.self)}
     }
-    func getAllSharedVisualizations(userID:String) async throws -> [VisualizationDTO] {
+    func getAllSharedVisualizations(userID: String) async throws -> [VisualizationDTO] {
         let sharedWithUser = try await getVisualizationsSharedWithUser(userID: userID)
         let sharedWithTeamsUserIsIn = try await getVisualizationsSharedWithTeamsUserIsIn(userID: userID)
         let sharedVisualizations = sharedWithUser + sharedWithTeamsUserIsIn
@@ -53,6 +55,7 @@ class VisualizationDatasource {
     func getAllPersonalVisualizations(userID: String) async throws -> [VisualizationDTO] {
         let snapshot = try await firebase.collection("visualizations")
             .whereField("authorID", isEqualTo: "\(userID)")
+            .order(by: "createdAt", descending: true)
             .getDocuments()
         let dtos = snapshot.documents.compactMap { document in
             try? document.data(as: VisualizationDTO.self)

@@ -86,7 +86,13 @@ class VisualizationRepositoryImpl: VisualizationRepository {
             let missingUsers = try await fetchUsersInChunks(ids: missingUserIDs)
             for user in missingUsers { usersDict[user.id] = user }
         }
-        return visibleDTOs.map { dto in
+        let jsonStringsToParse = visibleDTOs.map { $0.previewJSON }
+        let parsedCharts = await Task.detached(priority: .userInitiated) {
+            return jsonStringsToParse.map { jsonString in
+                return ChartConfigParser.parse(from: jsonString) ?? .unsupported(type: "Invalid JSON")
+            }
+        }.value
+        return zip(visibleDTOs, parsedCharts).map { (dto, parsedChart) in
             let authorName = usersDict[dto.authorID]?.username ?? "Unknown"
             let usersSharedWith = dto.sharedWithUsers.compactMap { usersDict[$0]?.toAppUser() }
             let teamsSharedWith: [Team] = dto.sharedWithTeams.compactMap { teamID in
@@ -97,7 +103,8 @@ class VisualizationRepositoryImpl: VisualizationRepository {
             return dto.toVisualizationCard(
                 authorName: authorName,
                 teamsSharedWith: teamsSharedWith,
-                usersSharedWith: usersSharedWith
+                usersSharedWith: usersSharedWith,
+                preParsedChart: parsedChart
             )
         }
     }

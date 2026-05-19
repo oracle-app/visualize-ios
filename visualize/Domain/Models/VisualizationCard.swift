@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct VisualizationCard: Identifiable, Hashable, Equatable{
+struct VisualizationCard: Identifiable, Hashable, Equatable, Sendable{
     let id: String
     let title: String
     let author: String
