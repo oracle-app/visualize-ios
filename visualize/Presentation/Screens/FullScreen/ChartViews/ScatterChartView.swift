@@ -20,8 +20,8 @@ struct ScatterChartView: UIViewRepresentable {
     let yValues: [Double]
     let xLabel: String
     let yLabel: String
-    var viewport: ChartViewport? = nil
-    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
+    var viewport: ChartViewport?
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
     
     // MARK: - Coordinator
     func makeCoordinator() -> ChartTooltipCoordinator {
@@ -49,10 +49,11 @@ struct ScatterChartView: UIViewRepresentable {
         let yAxis = SCINumericAxis()
         yAxis.axisTitle = yLabel
         yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        yAxis.visibleRange = SCIDoubleRange(min: -0.5, max: 1.5)
         yAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.5), thickness: 1.5)
         yAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         yAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
+        yAxis.autoRange = .always
+        yAxis.growBy = SCIDoubleRange(min: 0.2, max: 0.2)
 
         surface.xAxes.add(xAxis)
         surface.yAxes.add(yAxis)

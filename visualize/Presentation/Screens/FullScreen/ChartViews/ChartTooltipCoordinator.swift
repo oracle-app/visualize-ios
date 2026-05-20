@@ -39,8 +39,7 @@ class ChartTooltipCoordinator: NSObject {
         let location = gesture.location(in: seriesArea)
 
         for index in 0..<surface.renderableSeries.count {
-            guard let series = surface.renderableSeries.item(at: index) as? ISCIRenderableSeries
-            else { continue }
+            let series = surface.renderableSeries.item(at: index)
 
             let hitTestInfo = SCIHitTestInfo()
             series.hitTest(hitTestInfo, at: location)

@@ -40,15 +40,15 @@ final class FullScreenViewModel {
 
     /// Full chart JSON fetched from Firestore on demand.
     /// `nil` while loading or after a failed fetch.
-    var configJSON: String? = nil
+    var configJSON: String?
     /// `ChartData` parsed from `configJSON` once the fetch completes.
     /// `nil` while loading, or when the JSON is missing or malformed.
     /// `.unsupported` when the chart type is not yet renderable.
     /// The view consumes this directly — no parsing happens in the body.
-    var parsedChart: ChartData? = nil
+    var parsedChart: ChartData?
     var isLoadingConfig: Bool = true
     /// Non-nil when the configJSON fetch or parse fails.
-    var configError: String? = nil
+    var configError: String?
  
     // MARK: - Capture State
 
@@ -57,12 +57,12 @@ final class FullScreenViewModel {
     var showCaptureError: Bool = false
     /// Reference to the live chart's coordinator, set when the chart surface attaches.
     /// Used to read the current zoom/pan viewport at capture time.
-    var tooltipCoordinator: ChartTooltipCoordinator? = nil
+    var tooltipCoordinator: ChartTooltipCoordinator?
 
     // MARK: - Upload State
 
     var isUploading: Bool = false
-    var uploadError: String? = nil
+    var uploadError: String?
     var userName: String?
 
     // MARK: - Dependencies

@@ -23,8 +23,8 @@ struct AreaChartView: UIViewRepresentable {
     let series: [String: [Double]]
     let xLabel: String
     let yLabel: String
-    var viewport: ChartViewport? = nil
-    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
+    var viewport: ChartViewport?
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
 
     // MARK: - Private
 
@@ -39,7 +39,7 @@ struct AreaChartView: UIViewRepresentable {
 
     func makeCoordinator() -> ChartTooltipCoordinator {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
-        coordinator.xValues = categories.enumerated().map { idx, _ in Double(idx) }
+        coordinator.xValues = categories.indices.map { Double($0) }
         coordinator.yValues = series.sorted { $0.key < $1.key }.first?.value ?? []
         coordinator.isStackedChart = true
         return coordinator
