@@ -7,7 +7,6 @@
 
 import Foundation
 import Observation
-import FirebaseAuth
 
 // MARK: - Login ViewModel
 
@@ -80,6 +79,7 @@ class LoginViewModel {
     // MARK: - Actions
     
     func login() {
+        guard !isLoading else { return }
         
         let isEmailValid = validateEmail()
         let isPasswordValid = validatePassword()
@@ -104,29 +104,29 @@ class LoginViewModel {
                     self.emailError = "Please enter a valid email address."
                 case .passwordRequired:
                     self.passwordError = "Required fields cannot be left blank."
-                }
-                
-            } catch let error as NSError {
-                let code = AuthErrorCode(rawValue: error.code)
-                switch code {
-                case .wrongPassword, .invalidCredential, .userNotFound:
+                case .invalidCredentials:
                     showToast(Toast(
                         message: "Incorrect email or password. Please try again.",
                         type: .error
                     ))
-                case .networkError:
+                case .networkIssue:
                     showToast(Toast(
                         message: "Unable to connect. Check your internet connection.",
                         type: .error
                     ))
-                default:
+                case .unknown:
                     showToast(Toast(
                         message: "Something went wrong. Please try again.",
                         type: .error
                     ))
                 }
+                
+            } catch {
+                showToast(Toast(
+                    message: "Something went wrong. Please try again.",
+                    type: .error
+                ))
             }
-            
             isLoading = false
         }
     }

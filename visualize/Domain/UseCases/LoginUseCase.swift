@@ -14,6 +14,9 @@ enum LoginError: Error {
     case emailRequired
     case invalidEmail
     case passwordRequired
+    case invalidCredentials  
+    case networkIssue
+    case unknown
 }
 
 // MARK: - Login Use Case
