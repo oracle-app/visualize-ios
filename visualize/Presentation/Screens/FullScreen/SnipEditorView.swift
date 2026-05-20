@@ -68,6 +68,10 @@ struct SnipEditorView: View {
         )
     }
 
+    private var isCropInProgress: Bool {
+        model.activeTool == .crop && model.liveCropRect != nil
+    }
+
     // MARK: - Body
 
     var body: some View {
@@ -117,40 +121,14 @@ struct SnipEditorView: View {
                     .ignoresSafeArea()
             }
 
-            VStack(spacing: 0) {
-                Spacer()
-
-                HStack(alignment: .bottom, spacing: 0) {
-                    Spacer()
-
-                    if openPanel == .strokeWidth {
-                        SnipStrokeWidthPanelView(model: bindable)
-                            .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
-                    }
-
-                    Spacer()
-
-                    if openPanel == .shapes {
-                        SnipShapesPanelView(model: model) {
-                            withAnimation(.easeOut(duration: 0.15)) { openPanel = nil }
-                        }
-                        .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
-                        .padding(.trailing, 60)
-                    }
-                }
-                .padding(.bottom, 8)
-                .padding(.horizontal, 24)
-
-                SnipFloatingToolbar(
-                    selectedTool: $bindable.activeTool,
-                    currentColor: $bindable.pencilColor,
-                    openPanel: $openPanel
-                )
-                .padding(.horizontal, 20)
-                .padding(.bottom, 28)
-            }
-            .animation(.spring(duration: 0.22, bounce: 0.1), value: openPanel)
+            FloatingControls(model: model, openPanel: $openPanel, isCropInProgress: isCropInProgress)
         }
+        .onChange(of: isCropInProgress) { _, inProgress in
+            if inProgress {
+                withAnimation(.spring(duration: 0.22, bounce: 0.1)) { openPanel = nil }
+            }
+        }
+        .animation(.spring(duration: 0.22, bounce: 0.1), value: isCropInProgress)
         .ignoresSafeArea()
         .preferredColorScheme(.light)
         .toolbarBackground(.hidden, for: .navigationBar)
@@ -214,6 +192,53 @@ struct SnipEditorView: View {
             }
         }
         } // NavigationStack
+    }
+
+    private struct FloatingControls: View {
+        var model: SnipViewModel
+        @Binding var openPanel: ToolPanel?
+        let isCropInProgress: Bool
+
+        var body: some View {
+            @Bindable var bindable = model
+
+            if !isCropInProgress {
+                VStack(spacing: 0) {
+                    Spacer()
+
+                    HStack(alignment: .bottom, spacing: 0) {
+                        Spacer()
+
+                        if openPanel == .strokeWidth {
+                            SnipStrokeWidthPanelView(model: bindable)
+                                .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
+                        }
+
+                        Spacer()
+
+                        if openPanel == .shapes {
+                            SnipShapesPanelView(model: model) {
+                                withAnimation(.easeOut(duration: 0.15)) { openPanel = nil }
+                            }
+                            .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
+                            .padding(.trailing, 60)
+                        }
+                    }
+                    .padding(.bottom, 8)
+                    .padding(.horizontal, 24)
+
+                    SnipFloatingToolbar(
+                        selectedTool: $bindable.activeTool,
+                        currentColor: $bindable.pencilColor,
+                        openPanel: $openPanel
+                    )
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 28)
+                }
+                .animation(.spring(duration: 0.22, bounce: 0.1), value: openPanel)
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+        }
     }
 
     // MARK: - Export
