@@ -2,7 +2,7 @@
 //  ChartViewport.swift
 //  visualize
 //
-//  Created by SDD Apply on 13/05/26.
+//  Created by Nicolas Peralta on 13/05/26.
 //
 /// Captured X/Y visible ranges read from a live SCIChartSurface at snap time.
 /// Both fields are optional: a nil field means "use default axis range".

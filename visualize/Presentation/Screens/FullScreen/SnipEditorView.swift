@@ -1,5 +1,13 @@
+//
+//  SnipEditorView.swift
+//  visualize
+//
+//  Created by Nicolas Peralta on 15/05/26.
+//
+
 import SwiftUI
 
+/// Full-screen editor for cropping, annotating, and sharing a captured chart image.
 struct SnipEditorView: View {
 
     // MARK: - State properties
@@ -150,6 +158,7 @@ struct SnipEditorView: View {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Confirm", systemImage: "checkmark") { showPostAlert = true }
                     .tint(Color.primaryOrange)
+                    .disabled(model.isCropInProgress)
             }
 
             if model.activeTool == .crop, model.liveCropRect != nil {

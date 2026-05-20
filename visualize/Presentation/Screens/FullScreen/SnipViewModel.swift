@@ -1,8 +1,16 @@
+//
+//  SnipViewModel.swift
+//  visualize
+//
+//  Created by Nicolas Peralta on 15/05/26.
+//
+
 import SwiftUI
 import Observation
 
 // MARK: - SnipViewModel
 
+/// Manages drawing, text, shape, crop, erase, and undo state for the snipping editor.
 @Observable
 @MainActor
 final class SnipViewModel {
@@ -27,6 +35,8 @@ final class SnipViewModel {
 
     var cropRect: CGRect?
     var liveCropRect: CGRect?
+
+    var isCropInProgress: Bool { activeTool == .crop && liveCropRect != nil }
 
     private(set) var canUndo: Bool = false
     private(set) var canRedo: Bool = false
