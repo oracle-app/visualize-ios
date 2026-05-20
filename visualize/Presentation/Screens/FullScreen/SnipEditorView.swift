@@ -33,6 +33,41 @@ struct SnipEditorView: View {
         _model = State(initialValue: SnipViewModel())
     }
 
+    // MARK: - Crop Zoom (visual only)
+
+    private var cropZoomScale: CGFloat {
+        guard let rect = model.cropRect,
+              canvasSize.width > 0, canvasSize.height > 0,
+              rect.width > 0, rect.height > 0
+        else { return 1 }
+
+        return min(canvasSize.width / rect.width, canvasSize.height / rect.height)
+    }
+
+    private var cropZoomAnchor: UnitPoint {
+        guard let rect = model.cropRect,
+              canvasSize.width > 0, canvasSize.height > 0,
+              rect.width > 0, rect.height > 0
+        else { return .center }
+
+        return UnitPoint(
+            x: rect.midX / canvasSize.width,
+            y: rect.midY / canvasSize.height
+        )
+    }
+
+    private var cropZoomOffset: CGSize {
+        guard let rect = model.cropRect,
+              canvasSize.width > 0, canvasSize.height > 0,
+              rect.width > 0, rect.height > 0
+        else { return .zero }
+
+        return CGSize(
+            width: canvasSize.width / 2 - rect.midX,
+            height: canvasSize.height / 2 - rect.midY
+        )
+    }
+
     // MARK: - Body
 
     var body: some View {
@@ -64,6 +99,10 @@ struct SnipEditorView: View {
                             Rectangle()
                         }
                     }
+                    .scaleEffect(cropZoomScale, anchor: cropZoomAnchor)
+                    .offset(cropZoomOffset)
+                    .clipped()
+                    .animation(.spring(duration: 0.45, bounce: 0.18), value: model.cropRect)
                 }
 
             if openPanel != nil {
