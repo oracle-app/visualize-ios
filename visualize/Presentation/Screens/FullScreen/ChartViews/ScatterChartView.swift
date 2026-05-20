@@ -35,7 +35,6 @@ struct ScatterChartView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> SCIChartSurface {
         let surface = SCIChartSurface()
-        //SCIThemeManager.applyTheme(SCIChartTheme.expressionLight, to: surface)
         surface.backgroundColor = UIColor(Color.white)
         surface.renderableSeriesAreaBorderStyle = SCISolidPenStyle(color: .clear, thickness: 0)
 

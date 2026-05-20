@@ -69,7 +69,9 @@ struct FullScreenView: View {
                 FSHeaderView(
                     title: card.title,
                     members: card.allUsersSharedWith,
-                    onBack: { dismiss() }
+                    onBack: {
+                        viewModel.tooltipCoordinator?.removeTooltip()
+                        dismiss() }
                 )
 
                 // MARK: Snipping Tool
