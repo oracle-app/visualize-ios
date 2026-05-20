@@ -41,8 +41,9 @@ class VisualizationDatasource {
         return sharedWithTeams.documents.compactMap {try? $0.data(as: VisualizationDTO.self)}
     }
     func getAllSharedVisualizations(userID: String) async throws -> [VisualizationDTO] {
-        let sharedWithUser = try await getVisualizationsSharedWithUser(userID: userID)
-        let sharedWithTeamsUserIsIn = try await getVisualizationsSharedWithTeamsUserIsIn(userID: userID)
+        async let sharedWithUserTask = getVisualizationsSharedWithUser(userID: userID)
+        async let sharedWithTeamsTask = getVisualizationsSharedWithTeamsUserIsIn(userID: userID)
+        let (sharedWithUser, sharedWithTeamsUserIsIn) = try await (sharedWithUserTask, sharedWithTeamsTask)
         let sharedVisualizations = sharedWithUser + sharedWithTeamsUserIsIn
         var uniqueDict = [String: VisualizationDTO]()
         for dto in sharedVisualizations {
