@@ -10,6 +10,8 @@ import SwiftUI
 /// Full-screen editor for cropping, annotating, and sharing a captured chart image.
 struct SnipEditorView: View {
 
+    private static let maxCropZoomScale: CGFloat = 8
+
     // MARK: - State properties
 
     @State private var model: SnipViewModel
@@ -41,7 +43,8 @@ struct SnipEditorView: View {
               rect.width > 0, rect.height > 0
         else { return 1 }
 
-        return min(canvasSize.width / rect.width, canvasSize.height / rect.height)
+        let rawScale = min(canvasSize.width / rect.width, canvasSize.height / rect.height)
+        return min(rawScale, Self.maxCropZoomScale)
     }
 
     private var cropZoomAnchor: UnitPoint {
@@ -50,9 +53,11 @@ struct SnipEditorView: View {
               rect.width > 0, rect.height > 0
         else { return .center }
 
+        let x = min(max(rect.midX / canvasSize.width, 0), 1)
+        let y = min(max(rect.midY / canvasSize.height, 0), 1)
         return UnitPoint(
-            x: rect.midX / canvasSize.width,
-            y: rect.midY / canvasSize.height
+            x: x,
+            y: y
         )
     }
 
@@ -95,12 +100,12 @@ struct SnipEditorView: View {
                         canvasSize = newSize
                     }
                     .mask {
-                        if let rect = model.cropRect {
-                            Canvas { ctx, _ in
+                        Canvas { ctx, size in
+                            if let rect = model.cropRect {
                                 ctx.fill(Path(rect), with: .color(.black))
+                            } else {
+                                ctx.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black))
                             }
-                        } else {
-                            Rectangle()
                         }
                     }
                     .scaleEffect(cropZoomScale, anchor: cropZoomAnchor)
@@ -125,7 +130,7 @@ struct SnipEditorView: View {
         }
         .onChange(of: isCropInProgress) { _, inProgress in
             if inProgress {
-                withAnimation(.spring(duration: 0.22, bounce: 0.1)) { openPanel = nil }
+                openPanel = nil
             }
         }
         .animation(.spring(duration: 0.22, bounce: 0.1), value: isCropInProgress)
