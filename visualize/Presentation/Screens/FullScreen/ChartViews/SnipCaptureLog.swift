@@ -2,7 +2,7 @@
 //  SnipCaptureLog.swift
 //  visualize
 //
-//  Created by SDD Apply on 13/05/26.
+//  Created by Nicolas Peralta on 13/05/26.
 //
 
 import os.log

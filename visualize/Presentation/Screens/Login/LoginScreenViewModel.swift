@@ -45,9 +45,14 @@ class LoginViewModel {
     
     var emailError: String? = nil
     var passwordError: String? = nil
-    var errorMessage: String? = nil
     var isLoading: Bool = false
     var isLoggedIn: Bool = false
+    
+    // Toast
+    var currentToast: Toast? = nil
+
+    @ObservationIgnored
+    private var toastTask: Task<Void, Never>?
     
     // MARK: - Dependencies
     
@@ -59,10 +64,22 @@ class LoginViewModel {
         self.loginUseCase = loginUseCase
     }
     
+    // MARK: - Toast
+
+    func showToast(_ toast: Toast) {
+        toastTask?.cancel()
+        currentToast = toast
+        toastTask = Task {
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            currentToast = nil
+        }
+    }
+    
     // MARK: - Actions
     
     func login() {
-        errorMessage = nil
+        guard !isLoading else { return }
         
         let isEmailValid = validateEmail()
         let isPasswordValid = validatePassword()
@@ -87,12 +104,29 @@ class LoginViewModel {
                     self.emailError = "Please enter a valid email address."
                 case .passwordRequired:
                     self.passwordError = "Required fields cannot be left blank."
+                case .invalidCredentials:
+                    showToast(Toast(
+                        message: "Incorrect email or password. Please try again.",
+                        type: .error
+                    ))
+                case .networkIssue:
+                    showToast(Toast(
+                        message: "Unable to connect. Check your internet connection.",
+                        type: .error
+                    ))
+                case .unknown:
+                    showToast(Toast(
+                        message: "Something went wrong. Please try again.",
+                        type: .error
+                    ))
                 }
                 
             } catch {
-                self.errorMessage = error.localizedDescription
+                showToast(Toast(
+                    message: "Something went wrong. Please try again.",
+                    type: .error
+                ))
             }
-            
             isLoading = false
         }
     }

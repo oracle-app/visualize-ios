@@ -2,9 +2,12 @@
 //  CommentDatasource.swift
 //  visualize
 //
+//  Created by Nicolas Peralta on 15/05/26.
+//
 
 import FirebaseFirestore
 
+/// Firestore datasource responsible for creating snip comment documents.
 final class CommentDatasource {
 
     private let firebase: Firestore

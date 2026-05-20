@@ -2,9 +2,12 @@
 //  SnipRepositoryImpl.swift
 //  visualize
 //
+//  Created by Nicolas Peralta on 15/05/26.
+//
 
 import Foundation
 
+/// Concrete snip repository that delegates image upload operations to Firebase Storage.
 final class SnipRepositoryImpl: SnipRepository {
 
     // MARK: - Dependencies

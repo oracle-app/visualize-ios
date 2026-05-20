@@ -2,6 +2,8 @@
 //  SnipRepository.swift
 //  visualize
 //
+//  Created by Nicolas Peralta on 15/05/26.
+//
 
 /// Contract for snip upload operations.
 import Foundation
