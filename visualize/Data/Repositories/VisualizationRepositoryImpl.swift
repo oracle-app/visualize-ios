@@ -41,7 +41,11 @@ class VisualizationRepositoryImpl: VisualizationRepository {
             if let id = dto.id { uniqueDict[id] = dto }
         }
         
-        return try await fetchDetailsAndMapBatch(dtos: Array(uniqueDict.values), userID: userID)
+        let sortedDTOs = Array(uniqueDict.values).sorted {
+            $0.createdAt > $1.createdAt
+        }
+        
+        return try await fetchDetailsAndMapBatch(dtos: sortedDTOs, userID: userID)
     }
     
     private func fetchDetailsAndMapBatch(dtos: [VisualizationDTO], userID: String) async throws -> [VisualizationCard] {

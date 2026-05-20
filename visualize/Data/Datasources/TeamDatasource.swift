@@ -9,9 +9,11 @@ import FirebaseFirestore
 
 final class TeamDatasource {
     private let firebase: Firestore
+    
     init(firebase: Firestore = Firestore.firestore()) {
         self.firebase = firebase
     }
+    
     func getTeamsUserOwns(userID: String) async throws -> [TeamDTO] {
         do {
             let snapshot = try await firebase.collection("teams")
@@ -27,6 +29,7 @@ final class TeamDatasource {
             throw error
         }
     }
+    
     func getTeamsUserIsIn(userID: String) async throws -> [TeamDTO] {
         do {
             let snapshot = try await firebase.collection("teams")
@@ -42,6 +45,7 @@ final class TeamDatasource {
             throw error
         }
     }
+    
     func createTeam(newTeam: TeamDTO) async throws {
         do {
             try firebase.collection("teams").addDocument(from: newTeam)
@@ -49,6 +53,7 @@ final class TeamDatasource {
             throw error
         }
     }
+    
     func deleteTeam(teamID: String) async throws {
         do {
             try await firebase.collection("teams").document(teamID).delete()
@@ -56,6 +61,7 @@ final class TeamDatasource {
             throw error
         }
     }
+    
     func getTeams(byIDs ids: [String]) async throws -> [TeamDTO] {
         guard !ids.isEmpty else { return [] }
         /// Firebase has a limit of 30. For testing purposes,
