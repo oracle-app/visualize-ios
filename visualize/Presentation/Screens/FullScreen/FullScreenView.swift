@@ -204,40 +204,40 @@ struct FullScreenView: View {
  
 // MARK: - Preview
  
-#Preview("Scatter") {
-    FullScreenView(card: VisualizationCard(
-        id: "preview-id",
-        title: "Relative performance of major currencies against the dollar",
-        author: "Mariana Islas",
-        authorID: "1",
-        createdAt: Date(),
-        chart: .tile(title: "Preview", value: 100, label: "Test"),
-        chartType: .tile,
-        teamsSharedWith: [],
-        usersSharedWith: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria")
-        ],
-        allUsersSharedWith: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria")
-        ]
-    ))
-}
-
-#Preview("Error - JSON inválido") {
-    FullScreenView(card: VisualizationCard(
-        id: "preview-error",
-        title: "Gráfica rota",
-        author: "Mariana Islas",
-        authorID: "1",
-        createdAt: Date(),
-        chart: .unsupported(type: "Invalid JSON"),
-        chartType: .tile,
-        teamsSharedWith: [],
-        usersSharedWith: [],
-        allUsersSharedWith: []
-    ))
-}
+//#Preview("Scatter") {
+//    FullScreenView(card: VisualizationCard(
+//        id: "preview-id",
+//        title: "Relative performance of major currencies against the dollar",
+//        author: "Mariana Islas",
+//        authorID: "1",
+//        createdAt: Date(),
+//        chart: .tile(title: "Preview", value: 100, label: "Test"),
+//        chartType: .tile,
+//        teamsSharedWith: [],
+//        usersSharedWith: [
+//            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
+//            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
+//            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria")
+//        ],
+//        allUsersSharedWith: [
+//            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
+//            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
+//            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria")
+//        ]
+//    ))
+//}
+//
+//#Preview("Error - JSON inválido") {
+//    FullScreenView(card: VisualizationCard(
+//        id: "preview-error",
+//        title: "Gráfica rota",
+//        author: "Mariana Islas",
+//        authorID: "1",
+//        createdAt: Date(),
+//        chart: .unsupported(type: "Invalid JSON"),
+//        chartType: .tile,
+//        teamsSharedWith: [],
+//        usersSharedWith: [],
+//        allUsersSharedWith: []
+//    ))
+//}

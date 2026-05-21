@@ -13,8 +13,7 @@ struct VisualizationCard: Identifiable, Hashable, Equatable, Sendable{
     let author: String
     let authorID: String
     let createdAt: Date
-    let chart: ChartData
-    let chartType: ChartType
+    let previewJSON: String
     let teamsSharedWith: [Team]
     let usersSharedWith: [AppUser]
     let allUsersSharedWith: [AppUser]

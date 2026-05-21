@@ -80,14 +80,7 @@ class VisualizationRepositoryImpl: VisualizationRepository {
             for user in missingUsers { usersDict[user.id] = user }
         }
         
-        let jsonStringsToParse = visibleDTOs.map { $0.previewJSON }
-        let parsedCharts = await Task.detached(priority: .userInitiated) {
-            return jsonStringsToParse.map { jsonString in
-                return ChartConfigParser.parse(from: jsonString) ?? .unsupported(type: "Invalid JSON")
-            }
-        }.value
-        
-        return zip(visibleDTOs, parsedCharts).map { (dto, parsedChart) in
+        return visibleDTOs.map {dto in
             let authorName = usersDict[dto.authorID]?.username ?? "Unknown"
             let usersSharedWith = dto.sharedWithUsers.compactMap { usersDict[$0]?.toAppUser() }
             let teamsSharedWith: [Team] = dto.sharedWithTeams.compactMap { teamID in
@@ -99,7 +92,6 @@ class VisualizationRepositoryImpl: VisualizationRepository {
                 authorName: authorName,
                 teamsSharedWith: teamsSharedWith,
                 usersSharedWith: usersSharedWith,
-                preParsedChart: parsedChart
             )
         }
     }

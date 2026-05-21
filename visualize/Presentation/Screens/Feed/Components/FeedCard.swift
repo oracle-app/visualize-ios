@@ -14,10 +14,11 @@ import SwiftUI
 struct FeedCard: View {
     @State private var showAlert1 = false
     @State private var showAlert2 = false
+    @State private var chart: ChartData? = nil
+    var previewJSON: String
     var title: String
     var author: String
     var date: Date
-    var chart: ChartData
     var onShare: () -> Void
     var onTap: () -> Void
     var onHide: () -> Void
@@ -111,12 +112,32 @@ struct FeedCard: View {
                     Text("This will permanently remove the visualization from the feed for you and everyone you shared it with. This action cannot be undone.")
                 }
             }
-            ChartRendererView(chart: chart)
-                .allowsHitTesting(false)
-                .padding(15)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.white)
-                .clipShape(.rect(cornerRadius: 10))
+            ZStack {
+                if let chartData = chart {
+                    ChartRendererView(chart: chartData)
+                        .allowsHitTesting(false)
+                        .transition(.opacity)
+                } else {
+                    ProgressView()
+                }
+            }
+            .padding(15)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(minHeight: 200)
+            .background(Color.white)
+            .clipShape(.rect(cornerRadius: 10))
+            .task(id: previewJSON) {
+                guard chart == nil else { return }
+                let parsedChart = await Task.detached(priority: .background) {
+                    return ChartConfigParser.parse(from: previewJSON) ?? .unsupported(type: "Invalid JSON")
+                }.value
+                await MainActor.run {
+                    withAnimation(.easeIn(duration: 0.3)) {
+                        self.chart = parsedChart
+                    }
+                }
+            }
+            
             if let sharedWith, !sharedWith.isEmpty {
                 HStack(spacing: -20) {
                     let displayMembers = Array(sharedWith.prefix(maxAvatars))
