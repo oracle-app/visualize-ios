@@ -119,7 +119,8 @@ struct FeedCard: View {
                         .allowsHitTesting(false)
                         .transition(.opacity)
                 } else {
-                    ProgressView()
+                    RoundedRectangle(cornerRadius: 10)
+                        .skeletonEffect()
                 }
             }
             .padding(15)

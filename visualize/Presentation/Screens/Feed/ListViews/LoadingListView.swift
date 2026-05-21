@@ -8,20 +8,15 @@
 import SwiftUI
 
 struct LoadingListView: View {
-
     var body: some View {
-        VStack(spacing: 15) {
-            ProgressView("Loading Visualizations...")
-                .font(.body.bold())
-                .foregroundStyle(Color.appTeal)
-
-            Text("Fetching the latest visualizations for you.")
-                .foregroundStyle(.gray)
-                .padding(.horizontal, 80)
-                .padding(.bottom, 100)
-                .multilineTextAlignment(.center)
+        ScrollView {
+            LazyVStack(spacing: 12) {
+                ForEach(0..<3, id: \.self) { _ in
+                    SkeletonFeedCard()
+                }
+            }
+            .padding(.top, 10)
         }
-        .hCenter()
-        .padding(.top, 200)
+        .disabled(true)
     }
 }
