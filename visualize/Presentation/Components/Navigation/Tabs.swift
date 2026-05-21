@@ -12,5 +12,4 @@ enum Tabs {
     case create
     case teams
     case profile
-    case search
 }

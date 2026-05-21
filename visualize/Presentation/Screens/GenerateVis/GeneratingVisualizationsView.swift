@@ -7,20 +7,12 @@
 
 import SwiftUI
 
-private enum GeneratingVisualizationsStyle {
-    static let backgroundColor = Color(red: 245 / 255, green: 244 / 255, blue: 242 / 255)
-    static let titleColor = Color(red: 19 / 255, green: 33 / 255, blue: 44 / 255)
-    static let secondaryTextColor = Color(red: 89 / 255, green: 114 / 255, blue: 113 / 255)
-    static let accentColor = Color(red: 52 / 255, green: 121 / 255, blue: 124 / 255)
-    static let buttonBackgroundColor = Color.white
-}
-
 struct GeneratingVisualizationsView: View {
-    @StateObject private var viewModel = GeneratingVisualizationsViewModel()
+    @State private var viewModel = GeneratingVisualizationsViewModel()
+    @Environment(AppCoordinator.self) private var coordinator
 
     var body: some View {
         ZStack {
-            backgroundView
 
             VStack(spacing: 0) {
                 Spacer()
@@ -34,23 +26,26 @@ struct GeneratingVisualizationsView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 36)
         }
-    }
-
-    private var backgroundView: some View {
-        Color(Color.appBackground)
-            .ignoresSafeArea()
+        .task { await viewModel.startLoading()
+            // Navigate to VizReady once suggestions are ready.
+            // navigateToVizReady(with:) stores the suggestions and pushes the route in one call,
+            // so the route is never pushed without its data.
+            if !viewModel.suggestions.isEmpty {
+                coordinator.navigateToVizReady(with: viewModel.suggestions)
+            }
+        }
     }
 
     private var centerContent: some View {
         VStack(spacing: 0) {
             Text(viewModel.title)
                 .font(.title.weight(.bold))
-                .foregroundStyle(Color(red: 19 / 255, green: 33 / 255, blue: 44 / 255))
+                .foregroundStyle(Color.appNavy)
                 .multilineTextAlignment(.center)
 
             Text(viewModel.message)
                 .font(.body.weight(.regular))
-                .foregroundStyle(Color(red: 89 / 255, green: 114 / 255, blue: 113 / 255))
+                .foregroundStyle(Color.appSubtitle)
                 .multilineTextAlignment(.center)
                 .padding(.top, 20)
                 .padding(.horizontal, 10)
@@ -62,10 +57,18 @@ struct GeneratingVisualizationsView: View {
                     .scaleEffect(1.5)
                     .padding(.top, 30)
             }
+            
+            if let error = viewModel.errorMessage {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 12)
+            }
 
             Text(viewModel.footerMessage)
                 .font(.body.weight(.regular))
-                .foregroundStyle(Color(red: 89 / 255, green: 114 / 255, blue: 113 / 255))
+                .foregroundStyle(Color.appSubtitle)
                 .multilineTextAlignment(.center)
                 .padding(.top, 26)
         }
@@ -74,11 +77,12 @@ struct GeneratingVisualizationsView: View {
 
     private var cancelButtonSection: some View {
         Button {
-            viewModel.onCancelTapped()
+            // Pop back to CreateVisualization, discarding the generating screen.
+            coordinator.pop()
         } label: {
             Text("Cancel")
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(Color(red: 52 / 255, green: 121 / 255, blue: 124 / 255))
+                .foregroundStyle(Color.appTeal)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
                 .background(
@@ -94,7 +98,7 @@ struct GeneratingVisualizationsView: View {
                 )
                 .overlay(
                     Capsule()
-                        .stroke(Color(red: 52 / 255, green: 121 / 255, blue: 124 / 255), lineWidth: 1)
+                        .stroke(Color.appTeal, lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)
@@ -103,4 +107,5 @@ struct GeneratingVisualizationsView: View {
 
 #Preview {
     GeneratingVisualizationsView()
+        .environment(AppCoordinator())
 }

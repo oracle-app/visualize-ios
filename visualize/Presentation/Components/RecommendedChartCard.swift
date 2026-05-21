@@ -6,65 +6,58 @@
 //
 
 import SwiftUI
-
 /// Selectable card that displays a single chart visualization option.
-///
 /// The card is stateless regarding title ownership: it fires `onTitleChange`
 /// so the caller's ViewModel can validate and persist the new value.
 struct RecommendedChartCard: View {
-
     // MARK: - Input
     let title: String
+    /// Parsed chart model to render as a non-interactive preview inside the card.
+    /// Falls back to a white placeholder when `nil`.
+    var chart: ChartData? = nil
     var isSelected: Bool = false
     var onTap: (() -> Void)? = nil
     var onTitleChange: ((String) -> Void)? = nil
-
-    // MARK: - Private palette
-    private let orange     = Color(red: 255/255, green: 122/255, blue: 0/255)
-    private let teal       = Color(red: 52/255,  green: 121/255, blue: 124/255)
-    private let titleColor = Color(red: 26/255,  green: 47/255,  blue: 63/255)
-    private let bg         = Color(red: 230/255, green: 237/255, blue: 236/255)
-    private let btnBg      = Color(red: 235/255, green: 235/255, blue: 240/255)
-
+    
     // MARK: - Edit state
     @State private var isEditAlertPresented = false
     @State private var draft = ""
     private let charLimit = VizReadyViewModel.titleCharLimit
-
+    
     // MARK: - Body
     var body: some View {
         VStack(spacing: 12) {
             headerRow
-            chartPlaceholder
+            chartPreview
         }
         .padding(16)
-        .background(isSelected ? teal : bg)
+        .background(isSelected ? Color.appTeal : Color.appMint)
         .cornerRadius(10)
         .overlay(selectionBorder)
         .shadow(
-            color: isSelected ? orange.opacity(0.20) : Color.black.opacity(0.12),
-            radius: isSelected ? 5 : 6,
+            color: isSelected ? Color.appOrange.opacity(0.20) : Color.black.opacity(0.15),
+            radius: 5,
             x: 0,
-            y: isSelected ? 0 : 3
+            y: isSelected ? 0 : 2
         )
         .shadow(
-            color: isSelected ? orange.opacity(0.08) : .clear,
+            color: isSelected ? Color.appOrange.opacity(0.08) : .clear,
             radius: 10,
             x: 0, y: 0
         )
         .animation(.easeInOut(duration: 0.2), value: isSelected)
         .padding(.horizontal, 20)
+        .frame(height: 390)
         .contentShape(Rectangle())
         .onTapGesture { onTap?() }
     }
-
+    
     // MARK: - Subviews
-
     private var headerRow: some View {
         HStack(alignment: .top, spacing: 12) {
             Text(title)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(isSelected ? .white : titleColor)
+                .foregroundStyle(isSelected ? .white : Color.appCardTitle)
                 .minimumScaleFactor(0.5)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -72,19 +65,18 @@ struct RecommendedChartCard: View {
             editButton
         }
     }
-
     private var editButton: some View {
         Button {
             draft = title
             isEditAlertPresented = true
         } label: {
             Circle()
-                .fill(btnBg)
-                .frame(width: 44, height: 44)
+                .fill(Color.appButtonBackground)
+                .frame(width: 37, height: 37)
                 .overlay(
                     Image(systemName: "square.and.pencil")
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(teal)
+                        .foregroundStyle(Color.appTeal)
                 )
                 .shadow(color: .black.opacity(0.08), radius: 3, x: 0, y: 1)
         }
@@ -102,12 +94,25 @@ struct RecommendedChartCard: View {
             Text("Max \(charLimit) characters")
         }
     }
-
-    private var chartPlaceholder: some View {
-        RoundedRectangle(cornerRadius: 10)
-            .fill(Color.white)
-            .frame(maxWidth: .infinity)
-            .frame(height: 200)
+    /// Non-interactive chart preview rendered from the parsed chart model.
+    /// `allowsHitTesting(false)` disables zoom, pan, and tooltips in card context.
+    /// Falls back to a white rounded rectangle when no chart model is provided.
+    private var chartPreview: some View {
+        Group {
+            if let chart {
+                ChartRendererView(chart: chart)
+                    .allowsHitTesting(false)
+                    .padding(15)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.white)
+                    .clipShape(.rect(cornerRadius: 10))
+            } else {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipShape(.rect(cornerRadius: 10))
     }
 
     private var selectionBorder: some View {
@@ -118,6 +123,7 @@ struct RecommendedChartCard: View {
 }
 
 // MARK: - Preview
+#if DEBUG
 #Preview {
     ScrollView {
         VStack(spacing: 16) {
@@ -126,5 +132,5 @@ struct RecommendedChartCard: View {
         }
         .padding(.vertical, 24)
     }
-    .background(Color.appBackground)
 }
+#endif

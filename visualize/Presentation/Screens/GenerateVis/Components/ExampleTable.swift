@@ -4,6 +4,13 @@
 //
 //  Created by Libia Fv on 12/04/26.
 //
+// Description:
+// Example view that shows the required format for datasets.
+// Explains how the user should structure the table before uploading.
+// Displays a sample table with example columns and rows.
+// Includes headers and mock data to illustrate the expected format.
+// Provides recommendations on best practices (one row per record, avoid empty or merged cells).
+// Serves as a visual guide within the file upload flow.
 
 import SwiftUI
 
@@ -25,13 +32,13 @@ struct ExampleTable: View {
 
             Text("Upload a table-formatted dataset with column headers in the first row.")
                 .font(.system(size: 15))
-                .foregroundColor(Color(red: 89/255, green: 114/255, blue: 113/255))
+                .foregroundColor(Color.appSubtitle)
                 .lineSpacing(3)
                 .padding(.bottom, 14)
 
             Text("Example")
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Color(red: 52/255, green: 121/255, blue: 124/255))
+                .foregroundColor(Color.appTeal)
                 .padding(.bottom, 8)
 
             VStack(spacing: 0) {
@@ -56,7 +63,7 @@ struct ExampleTable: View {
                         ForEach(Array(row.enumerated()), id: \.offset) { _, cell in
                             Text(cell)
                                 .font(.system(size: 13))
-                                .foregroundColor(Color(red: 19/255, green: 33/255, blue: 44/255).opacity(0.6))
+                                .foregroundColor(.secondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.vertical, 9)
                                 .padding(.horizontal, 10)
@@ -71,6 +78,7 @@ struct ExampleTable: View {
                     }
                 }
             }
+            .background(Color(.systemBackground).opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
@@ -82,16 +90,14 @@ struct ExampleTable: View {
                 Text("Avoid empty rows or merged cells.")
             }
             .font(.system(size: 15))
-            .foregroundColor(Color(red: 89/255, green: 114/255, blue: 113/255))
+            .foregroundColor(Color.appSubtitle)
             .padding(.top, 14)
         }
+        .background(Color(.systemBackground))
     }
 }
 
 
-#Preview {
-    CreateVisualization()
-}
 
 
 

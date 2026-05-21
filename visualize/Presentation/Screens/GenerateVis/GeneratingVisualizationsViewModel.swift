@@ -6,17 +6,45 @@
 //
 
 import Foundation
-internal import Combine
+import Observation
 
 @MainActor
-final class GeneratingVisualizationsViewModel: ObservableObject {
+@Observable
+final class GeneratingVisualizationsViewModel {
+    
     let title = "Generating Visualizations"
     let message = "We’re analyzing your dataset and generating charts that best represent your data."
     let footerMessage = "This may take a moment..."
 
-    @Published var isLoading = true
-
-    func onCancelTapped() {
-        // TODO: Connect cancel action to navigation flow.
+    var isLoading = false
+    
+    
+    /// Chart suggestions returned by the repository; passed to `VizReadyView` on success.
+    var suggestions: [ChartSuggestion] = []
+ 
+    /// Non-nil when `startLoading` throws; displayed inline in the view.
+    var errorMessage: String? = nil
+ 
+    // MARK: - Dependencies
+    /// Source of chart suggestions. Defaults to the mock.
+    private let chartSuggestionsRepository: any ChartSuggestionsRepository
+ 
+    // MARK: - Init
+    init(chartSuggestionsRepository: any ChartSuggestionsRepository = MockChartSuggestionsRepositoryImpl()) {
+        self.chartSuggestionsRepository = chartSuggestionsRepository
+    }
+ 
+    // MARK: - Intents
+    /// Fetches chart suggestions from the repository.
+    /// The view reads `suggestions` after this returns and navigates via the coordinator.
+    func startLoading() async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            suggestions = try await chartSuggestionsRepository.getSuggestions()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
     }
 }

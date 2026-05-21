@@ -4,6 +4,13 @@
 //
 //  Created by Libia Fv on 14/04/26.
 //
+// Description:
+// Primary button for generating visualizations from the uploaded dataset.
+// Triggers an external action when tapped.
+// Features a capsule-shaped design with a color gradient and animated shimmer effect.
+// Includes a continuous animation for visual emphasis.
+// Uses shadows and borders to enhance depth and visibility.
+// Represents the final action in the data upload and preparation flow.
 
 import SwiftUI
 
