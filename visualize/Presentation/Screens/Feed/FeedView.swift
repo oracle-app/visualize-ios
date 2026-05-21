@@ -37,6 +37,7 @@ struct FeedView: View {
     @State private var selectedCard: VisualizationCard? = nil
     @State private var isScrolledPastHeader: Bool = false
     @State private var scrollProxy: ScrollViewProxy? = nil
+    @State private var isScrollDisabled: Bool = false
 
 
     var shouldLoad: Bool = true
@@ -46,7 +47,7 @@ struct FeedView: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 10) {
                     Color.clear
                             .frame(height: 0)
                             .id("top")
@@ -77,8 +78,9 @@ struct FeedView: View {
                                 
                             }
                             Task {
-                                try? await Task.sleep(for: .seconds(0.3))
-                                withAnimation(.smooth(duration: 0.2)) {
+                                try? await Task.sleep(for: .seconds(0.1))
+                                guard !viewModel.isSearchActive else { return }
+                                withAnimation {
                                     title = isScrolledPastHeader ? selectedFeed.title : nil
                                 }
                             }
@@ -90,10 +92,17 @@ struct FeedView: View {
                     .transition(.move(edge: .leading).combined(with: .opacity))
                 } else {
                     Button {
-                        withAnimation(.smooth(duration: 0.2)) {
-                            viewModel.isSearchActive = true
-                            title = nil
+                        Task { @MainActor in
                             
+                            title = nil
+                           
+                            withAnimation {
+                                scrollProxy?.scrollTo("top", anchor: .top)
+                            }
+
+                        }
+                        withAnimation{
+                            viewModel.isSearchActive = true
                         }
                     } label: {
                         Image(systemName: "magnifyingglass")
@@ -108,8 +117,14 @@ struct FeedView: View {
             } principal: {
                 if let title {
                     Button {
-                        withAnimation {
-                            scrollProxy?.scrollTo("top", anchor: .top)
+                        Task { @MainActor in
+                            
+                            isScrollDisabled = true
+                            
+                            withAnimation{
+                                scrollProxy?.scrollTo("top", anchor: .top)
+                            }
+                            isScrollDisabled = false
                         }
                     } label: {
                         Text(title)
@@ -130,6 +145,7 @@ struct FeedView: View {
                     viewModel.loadData()
                 }
             }
+            .scrollDisabled(isScrollDisabled)
         }
         .sheet(item: $sharePayload) { payload in
             let userDatasource = UserDatasource()
