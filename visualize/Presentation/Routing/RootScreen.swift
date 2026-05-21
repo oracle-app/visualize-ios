@@ -97,7 +97,7 @@ struct RootScreen: View {
                             // in NavBar's Create NavigationStack. They are listed here
                             // only to satisfy switch exhaustiveness, they are never
                             // pushed onto the auth path.
-                            case .generatingVisualizations, .vizReady:
+                            case .generatingVisualizations, .vizReady, .notifications:
                                 EmptyView()
                             }
                         }

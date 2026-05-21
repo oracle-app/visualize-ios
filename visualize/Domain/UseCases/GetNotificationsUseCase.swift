@@ -4,7 +4,7 @@
 //
 //  Created by SOPORTE on 20/05/26.
 
-Import Foundation
+import Foundation
 
 final class GetNotificationsUseCase {
     private let repository: NotificationRepository
