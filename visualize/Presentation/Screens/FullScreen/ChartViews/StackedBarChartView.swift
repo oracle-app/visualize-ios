@@ -22,8 +22,8 @@ struct StackedBarChartView: UIViewRepresentable {
     let categories: [String]
     let xLabel: String
     let yLabel: String
-    var viewport: ChartViewport? = nil
-    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
+    var viewport: ChartViewport?
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
 
     // MARK: - Private
     private let stackColors: [UIColor] = [

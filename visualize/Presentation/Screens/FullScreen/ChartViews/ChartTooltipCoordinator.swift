@@ -14,7 +14,8 @@ class ChartTooltipCoordinator: NSObject {
     // MARK: - Properties
 
     weak var surface: SCIChartSurface?
-    var tooltipLabel: UILabel?
+    private weak var tooltipLabel: UILabel?
+    private weak var tooltipArrow: UIView?
     let xLabel: String
     let yLabel: String
     var xValues: [Double] = []
@@ -38,8 +39,7 @@ class ChartTooltipCoordinator: NSObject {
         let location = gesture.location(in: seriesArea)
 
         for index in 0..<surface.renderableSeries.count {
-            guard let series = surface.renderableSeries.item(at: index) as? ISCIRenderableSeries
-            else { continue }
+            let series = surface.renderableSeries.item(at: index)
 
             let hitTestInfo = SCIHitTestInfo()
             series.hitTest(hitTestInfo, at: location)
@@ -47,40 +47,34 @@ class ChartTooltipCoordinator: NSObject {
             if hitTestInfo.isHit {
                 removeTooltip()
 
-                // MARK: Hit Detection
+                guard
+                    let xAxis = surface.xAxes.item(at: 0) as? SCINumericAxis,
+                    let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis
+                else { return }
+
+                let pointIndex = Int(hitTestInfo.pointSeriesIndex)
+
+                let xValue: Double
+                let yValue: Double
 
                 if isStackedChart {
-                    guard
-                        let xAxis = surface.xAxes.item(at: 0) as? SCINumericAxis,
-                        let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis
-                    else { return }
-
-                    let xCalc = xAxis.currentCoordinateCalculator
-                    let yCalc = yAxis.currentCoordinateCalculator
-
-                    let pointIndex = Int(hitTestInfo.pointSeriesIndex)
-                    let xValue = pointIndex >= 0 && pointIndex < xValues.count
+                    xValue = pointIndex >= 0 && pointIndex < xValues.count
                         ? xValues[pointIndex]
-                        : xCalc.getDataValue(Float(hitTestInfo.hitTestPoint.x))
-                    let yValue = yCalc.getDataValue(Float(hitTestInfo.hitTestPoint.y))
-
-                    showTooltip(
-                        at: gesture.location(in: surface),
-                        xValue: xValue,
-                        yValue: yValue,
-                        on: surface
-                    )
+                        : Double(xAxis.currentCoordinateCalculator.getDataValue(Float(hitTestInfo.hitTestPoint.x)))
+                    yValue = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(hitTestInfo.hitTestPoint.y)))
                 } else {
-                    let pointIndex = Int(hitTestInfo.pointSeriesIndex)
                     guard pointIndex >= 0 && pointIndex < xValues.count else { return }
-
-                    showTooltip(
-                        at: gesture.location(in: surface),
-                        xValue: xValues[pointIndex],
-                        yValue: yValues[pointIndex],
-                        on: surface
-                    )
+                    xValue = xValues[pointIndex]
+                    yValue = yValues[pointIndex]
                 }
+
+                // Derive the tooltip position from the data point's screen coordinate,
+                // not from the tap location — so the arrow always points to the exact point center
+                let pixelX = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(xValue))
+                let pixelY = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(yValue))
+                let pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
+
+                showTooltip(at: pointInSurface, xValue: xValue, yValue: yValue)
                 return
             }
         }
@@ -88,16 +82,28 @@ class ChartTooltipCoordinator: NSObject {
         removeTooltip()
     }
 
+    // Dismiss tooltip as soon as the user starts panning the chart
+    @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
+        if gesture.state == .began {
+            removeTooltip()
+        }
+    }
+
     // MARK: - Tooltip
 
-    func showTooltip(at point: CGPoint, xValue: Double, yValue: Double, on surface: SCIChartSurface) {
+    private func showTooltip(at point: CGPoint, xValue: Double, yValue: Double) {
+        removeTooltip()
+        guard let surface else { return }
+
+        let tooltipColor = UIColor(red: 0.05, green: 0.25, blue: 0.25, alpha: 0.92)
+
+        // MARK: Label
+
         let label = UILabel()
-        let xFormatted = String(format: "%.2f", xValue)
-        let yFormatted = String(format: "%.2f", yValue)
-        label.text = "  \(xLabel): \(xFormatted)  \(yLabel): \(yFormatted)  "
+        label.text = "  \(xLabel): \(String(format: "%.2f", xValue))  \(yLabel): \(String(format: "%.2f", yValue))  "
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .white
-        label.backgroundColor = UIColor(red: 0.05, green: 0.25, blue: 0.25, alpha: 0.92)
+        label.backgroundColor = tooltipColor
         label.layer.cornerRadius = 6
         label.layer.masksToBounds = true
         label.sizeToFit()
@@ -105,26 +111,69 @@ class ChartTooltipCoordinator: NSObject {
         let labelWidth = label.frame.width
         let labelHeight = label.frame.height
 
-        var originX = point.x - labelWidth / 2
-        var originY = point.y - labelHeight - 16
+        // MARK: Arrow
 
-        originX = max(8, min(originX, surface.bounds.width - labelWidth - 8))
-        if originY < 8 { originY = point.y + 16 }
+        let arrowSize = CGSize(width: 12, height: 7)
+        let arrowView = UIView(frame: CGRect(x: 0, y: 0, width: arrowSize.width, height: arrowSize.height))
+        arrowView.backgroundColor = .clear
 
-        if let window = surface.window {
-            let frameInWindow = surface.convert(
-                CGRect(x: originX, y: originY, width: labelWidth, height: labelHeight),
-                to: window
-            )
-            label.frame = frameInWindow
-            window.addSubview(label)
-            tooltipLabel = label
+        let arrowPath = UIBezierPath()
+        arrowPath.move(to: CGPoint(x: 0, y: 0))
+        arrowPath.addLine(to: CGPoint(x: arrowSize.width, y: 0))
+        arrowPath.addLine(to: CGPoint(x: arrowSize.width / 2, y: arrowSize.height))
+        arrowPath.close()
+
+        let arrowLayer = CAShapeLayer()
+        arrowLayer.path = arrowPath.cgPath
+        arrowLayer.fillColor = tooltipColor.cgColor
+        arrowView.layer.addSublayer(arrowLayer)
+
+        // MARK: Layout
+
+        let container = surface.subviews.last ?? surface
+
+        // Convert the tap point from surface space to container space
+        let containerPoint = surface.convert(point, to: container)
+
+        var labelOriginX = containerPoint.x - labelWidth / 2
+        var labelOriginY = containerPoint.y - labelHeight - arrowSize.height - 8
+
+        // Clamp horizontally within container bounds
+        labelOriginX = max(8, min(labelOriginX, container.bounds.width - labelWidth - 8))
+
+        let goesBelow = labelOriginY < 8
+        if goesBelow {
+            labelOriginY = containerPoint.y + arrowSize.height + 8
         }
+
+        let arrowOriginX = containerPoint.x - arrowSize.width / 2
+        let arrowOriginY = goesBelow
+            ? containerPoint.y + 8
+            : containerPoint.y - arrowSize.height - 8
+
+        if goesBelow {
+            arrowView.transform = CGAffineTransform(scaleX: 1, y: -1)
+        }
+
+        label.frame = CGRect(x: labelOriginX, y: labelOriginY, width: labelWidth, height: labelHeight)
+        arrowView.frame = CGRect(x: arrowOriginX, y: arrowOriginY, width: arrowSize.width, height: arrowSize.height)
+
+        // Add to the topmost subview of the surface so the tooltip renders above
+        // the chart canvas but stays within the screenshot preventer mask
+        container.addSubview(label)
+        container.addSubview(arrowView)
+
+        tooltipLabel = label
+        tooltipArrow = arrowView
     }
+
+    // MARK: - Remove
 
     func removeTooltip() {
         tooltipLabel?.removeFromSuperview()
         tooltipLabel = nil
+        tooltipArrow?.removeFromSuperview()
+        tooltipArrow = nil
     }
 
     // MARK: - Attach
@@ -153,9 +202,14 @@ class ChartTooltipCoordinator: NSObject {
         tap.numberOfTapsRequired = 1
         surface.addGestureRecognizer(tap)
 
+        // Pan gesture used only to dismiss the tooltip when the user starts dragging
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        pan.delegate = self
+        surface.addGestureRecognizer(pan)
+
         onAttach?(self)
     }
-    
+
     // MARK: - Viewport Snapshot
 
     /// Reads the current X/Y visible ranges from the live surface.
@@ -198,5 +252,18 @@ class ChartTooltipCoordinator: NSObject {
 
     deinit {
         removeTooltip()
+    }
+}
+
+// MARK: - UIGestureRecognizerDelegate
+
+extension ChartTooltipCoordinator: UIGestureRecognizerDelegate {
+    // Allow the pan gesture to run simultaneously with SciChart's own pan modifier
+    // so we can detect drag start without blocking chart interaction
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        return true
     }
 }

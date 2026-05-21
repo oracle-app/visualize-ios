@@ -16,106 +16,106 @@ struct ChartRendererView: View {
     /// The parsed chart model containing type and data.
     let chart: ChartData
     /// Optional viewport override applied to the fresh chart instance before snapshot.
-    var viewport: ChartViewport? = nil
+    var viewport: ChartViewport?
     /// Callback invoked once the coordinator attaches to the live surface.
-    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
     // MARK: - Body
     
     var body: some View {
         switch chart {
         // MARK: Scatter
-            case .scatter(_, let data, let fieldNames):
-                ScatterChartView(
-                    xValues: data.map { $0.x },
-                    yValues: data.map { $0.y },
-                    xLabel: fieldNames.first ?? "X",
-                    yLabel: fieldNames.last ?? "Y",
-                    viewport: viewport,
-                    onCoordinatorReady: onCoordinatorReady
-                )
-            
-            // MARK: Vertical Bar
-            case .verticalBar(_, let data, let fieldNames):
-                VerticalBarChartView(
-                    categories: sortedKeys(from: data),
-                    values: sortedValues(from: data),
-                    xLabel: fieldNames.first ?? "X",
-                    yLabel: fieldNames.last ?? "Y",
-                    viewport: viewport,
-                    onCoordinatorReady: onCoordinatorReady
-                )
-            
-            // MARK: Horizontal Bar
-            case .horizontalBar(_, let data, let fieldNames):
-                HorizontalBarChartView(
-                    categories: sortedKeys(from: data),
-                    values: sortedValues(from: data),
-                    xLabel: fieldNames.first ?? "X",
-                    yLabel: fieldNames.last ?? "Y",
-                    viewport: viewport,
-                    onCoordinatorReady: onCoordinatorReady
-                )
-            
-            // MARK: Stacked Bar
-            case .stackedBar(_, let data, let stackNames):
-                StackedBarChartView(
-                    data: data,
-                    categories: stackNames,
-                    xLabel: "Category",
-                    yLabel: "Count",
-                    viewport: viewport,
-                    onCoordinatorReady: onCoordinatorReady
-                )
-            
-            // MARK: Line
-            case .line(_, let data, let fieldNames):
-                LineChartView(
-                    data: data,
-                    xLabel: fieldNames.first ?? "X",
-                    yLabel: fieldNames.last ?? "Y",
-                    viewport: viewport,
-                    onCoordinatorReady: onCoordinatorReady
-                )
-            
-            // MARK: Pie
-            case .pie(_, let data, let fieldNames):
-                PieChartView(
-                    values: data,
-                    labels: fieldNames
-                )
-            
-            // MARK: Donut
-            case .donut(_, let data, let fieldNames):
-                DonutChartView(
-                    values: data,
-                    labels: fieldNames
-                )
-            
-            // MARK: Area
-            case .area(let title, let series, let categories):
-                AreaChartView(
-                    categories: categories,
-                    series: series,
-                    xLabel: "Category",
-                    yLabel: "Count",
-                    viewport: viewport,
-                    onCoordinatorReady: onCoordinatorReady
-                )
-     
-            // MARK: Tile
-            case .tile:
-                ContentUnavailableView(
-                    "Coming Soon",
-                    systemImage: "chart.xyaxis.line",
-                    description: Text("This chart type will be available soon.")
-                )
-            
-            // MARK: Unsupported
-            case .unsupported(let type):
-                ContentUnavailableView(
-                    "Type not supported: \(type)",
-                    systemImage: "chart.xyaxis.line"
+        case .scatter(_, let data, let fieldNames):
+            ScatterChartView(
+                xValues: data.map { $0.x },
+                yValues: data.map { $0.y },
+                xLabel: fieldNames.first ?? "X",
+                yLabel: fieldNames.last ?? "Y",
+                viewport: viewport,
+                onCoordinatorReady: onCoordinatorReady
             )
+        
+        // MARK: Vertical Bar
+        case .verticalBar(_, let data, let fieldNames):
+            VerticalBarChartView(
+                categories: sortedKeys(from: data),
+                values: sortedValues(from: data),
+                xLabel: fieldNames.first ?? "X",
+                yLabel: fieldNames.last ?? "Y",
+                viewport: viewport,
+                onCoordinatorReady: onCoordinatorReady
+            )
+        
+        // MARK: Horizontal Bar
+        case .horizontalBar(_, let data, let fieldNames):
+            HorizontalBarChartView(
+                categories: sortedKeys(from: data),
+                values: sortedValues(from: data),
+                xLabel: fieldNames.first ?? "X",
+                yLabel: fieldNames.last ?? "Y",
+                viewport: viewport,
+                onCoordinatorReady: onCoordinatorReady
+            )
+        
+        // MARK: Stacked Bar
+        case .stackedBar(_, let data, let stackNames):
+            StackedBarChartView(
+                data: data,
+                categories: stackNames,
+                xLabel: "Category",
+                yLabel: "Count",
+                viewport: viewport,
+                onCoordinatorReady: onCoordinatorReady
+            )
+        
+        // MARK: Line
+        case .line(_, let data, let fieldNames):
+            LineChartView(
+                data: data,
+                xLabel: fieldNames.first ?? "X",
+                yLabel: fieldNames.last ?? "Y",
+                viewport: viewport,
+                onCoordinatorReady: onCoordinatorReady
+            )
+        
+        // MARK: Pie
+        case .pie(_, let data, let fieldNames):
+            PieChartView(
+                values: data,
+                labels: fieldNames
+            )
+        
+        // MARK: Donut
+        case .donut(_, let data, let fieldNames):
+            DonutChartView(
+                values: data,
+                labels: fieldNames
+            )
+        
+        // MARK: Area
+        case .area(_, let series, let categories):
+            AreaChartView(
+                categories: categories,
+                series: series,
+                xLabel: "Category",
+                yLabel: "Count",
+                viewport: viewport,
+                onCoordinatorReady: onCoordinatorReady
+            )
+ 
+        // MARK: Tile
+        case .tile:
+            ContentUnavailableView(
+                "Coming Soon",
+                systemImage: "chart.xyaxis.line",
+                description: Text("This chart type will be available soon.")
+            )
+        
+        // MARK: Unsupported
+        case .unsupported(let type):
+            ContentUnavailableView(
+                "Type not supported: \(type)",
+                systemImage: "chart.xyaxis.line"
+        )
         }
     }
     
