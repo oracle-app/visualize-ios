@@ -2,97 +2,66 @@
 //  NotificationRow.swift
 //  visualize
 //
-//  Created by Miguel Degollado  on 22/04/26.
+//  Created by Miguel Degollado
 
 
 
 import SwiftUI
 
 struct NotificationRow: View {
-
-    // MARK: - Properties
-
-    let item: Notification
+    let item: NotificationDisplayItem
     let showSeparator: Bool
-
-    // MARK: - Body
+    var onTap: ((String) -> Void)? = nil
+    var onDelete: ((String) -> Void)? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(spacing: 0) {
             HStack(alignment: .top, spacing: 12) {
-                // Unread indicator dot
-                Circle()
-                    .fill(item.isRead ? Color.clear : Color(red: 0.93, green: 0.28, blue: 0.28))
-                    .frame(width: 9, height: 9)
-                    .padding(.top, 6)
-                    .accessibilityLabel(
-                        item.isRead
-                            ? ""
-                            : NSLocalizedString("notifications.unread.dot.accessibility", comment: "")
-                    )
+                NotificationAvatarView(
+                    initials: item.avatarInitials,
+                    color: item.avatarColor,
+                    size: 40,
+                    avatarURL: item.avatarURL
+                )
+                .padding(.top, 2)
 
-                VStack(alignment: .leading, spacing: 6) {
-                    // Notification type displayed as readable label
-                    Text(item.type.replacingOccurrences(of: "_", with: " ").capitalized)
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Color.appNavy)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    // Relative timestamp derived from createdAt
-                    Text(item.createdAt.relativeFormatted())
-                        .font(.system(size: 13))
+                VStack(alignment: .leading, spacing: 4) {
+                    // Timestamp top-right per Figma
+                    Text(item.timestamp)
+                        .font(.system(size: 12))
                         .foregroundStyle(Color.appSubtitle)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+
+                    (
+                        Text(item.boldPrefix).font(.system(size: 16, weight: .semibold)) +
+                        Text(item.message).font(.system(size: 16))
+                    )
+                    .foregroundStyle(Color.appNavy)
+                    .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .padding(.horizontal, 16)
             .padding(.vertical, 14)
+            .padding(.horizontal, 16)
 
             if showSeparator {
                 Divider()
-                    .background(Color(red: 0.90, green: 0.90, blue: 0.90))
-                    .padding(.leading, 37)
+                    .background(Color.appNavy.opacity(0.1))
+                    .padding(.leading, 68)
+                    .padding(.trailing, 16)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            guard !item.isRead else { return }
+            onTap?(item.id)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                onDelete?(item.id)
+            } label: {
+                Label("Delete", systemImage: "trash")
             }
         }
     }
 }
-
-// MARK: - Date helper
-
-private extension Date {
-    func relativeFormatted() -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        return formatter.localizedString(for: self, relativeTo: Date())
-    }
-}
-
-// MARK: - Preview
-
-#Preview("Unread row") {
-    NotificationRow(
-        item: Notification(
-            id: "p1",
-            userID: "u1",
-            isRead: false,
-            type: "thread_reply",
-            createdAt: Date().addingTimeInterval(-86_400)
-        ),
-        showSeparator: true
-    )
-    .background(Color.appMint)
-}
-
-#Preview("Read row – no separator") {
-    NotificationRow(
-        item: Notification(
-            id: "p2",
-            userID: "u1",
-            isRead: true,
-            type: "team_invite",
-            createdAt: Date().addingTimeInterval(-86_400)
-        ),
-        showSeparator: false
-    )
-    .background(Color.appMint)
-}
-
