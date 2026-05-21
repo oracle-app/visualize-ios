@@ -2,7 +2,6 @@
 //  NotificationGroupCard.swift
 //  visualize
 //
-//  Created by Miguel Degollado .
 
 import SwiftUI
 
@@ -17,7 +16,7 @@ struct NotificationGroupCard: View {
 
     var body: some View {
         ZStack(alignment: .leading) {
-            VStack(alignment: .leading, spacing: 0) {
+            List {
                 ForEach(Array(group.items.enumerated()), id: \.element.id) { index, item in
                     NotificationRow(
                         item: item,
@@ -25,13 +24,19 @@ struct NotificationGroupCard: View {
                         onTap: onTap,
                         onDelete: onDelete
                     )
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.appMint)
+                    .listRowSeparator(.hidden)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .listStyle(.plain)
+            .scrollDisabled(true)
+            // Altura dinámica según número de items
+            .frame(height: CGFloat(group.items.count) * 90)
             .background(Color.appMint)
             .clipShape(RoundedRectangle(cornerRadius: 26))
 
-            // Unread dot outside the card — fiel al Figma
+            // Unread dot outside card — fiel al Figma
             if hasUnread {
                 Circle()
                     .fill(Color.appRed)
