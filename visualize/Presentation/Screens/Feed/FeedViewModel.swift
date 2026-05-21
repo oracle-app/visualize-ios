@@ -55,7 +55,7 @@ class FeedViewModel {
     let deleteVisualizationUseCase: DeleteVisualizationUseCase
 
     private var allVisualizations: [VisualizationCard] = []
-    let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL"
+    let currentUserID: String = "rcONSHwWXHbUo3NsO6bhg0J4D8u2"
 //    let currentUserID: String = "oEJtQz0gdbRpTZ8ETPCy"
     var currentToast: Toast? = nil
 
