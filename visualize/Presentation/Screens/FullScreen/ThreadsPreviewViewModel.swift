@@ -7,8 +7,9 @@
 //  Drives the Threads Preview screen, the step shown right after the user
 //  confirms their edits in `SnipEditorView` and before publishing to Threads.
 //  - Holds the optional caption typed by the user
-//  - Tracks the loading / loaded / failed state of the preview image
-//  - Exposes the toggle for the "Share as new thread?" confirmation modal
+//  - Exposes a single `presentedAlert` so the view never tries to render
+//    two `.alert` modifiers at once (which can race when both flags flip
+//    in the same runloop tick).
 //
 //  The screen is presentation-only (no Threads publishing logic here);
 //  the actual upload is performed by the parent via the `onShare` callback
@@ -17,17 +18,16 @@
 import SwiftUI
 import Observation
 
-// MARK: - ImageLoadState
+// MARK: - AlertKind
 
-/// Lifecycle of the edited visualization image displayed in the preview.
-/// `SnipEditorView` already exports a `UIImage`, so the typical path is
-/// `.loaded` from the start. The `.loading` and `.failed` states are kept
-/// to cover the edge cases listed in the ticket (slow rendering, image
-/// fails to load) and any future asynchronous source.
-enum ImageLoadState: Equatable {
-    case loading
-    case loaded
-    case failed
+/// Identifies which confirmation alert the preview screen is currently showing.
+/// A single `Identifiable` enum is used so the view binds to one `.alert(item:)`
+/// instead of two independent boolean alerts that could race each other.
+enum ThreadsPreviewAlert: Identifiable {
+    case discard
+    case share
+
+    var id: Self { self }
 }
 
 // MARK: - ThreadsPreviewViewModel
@@ -38,67 +38,66 @@ final class ThreadsPreviewViewModel {
 
     // MARK: - Caption
 
-    /// Optional caption typed in the multiline input area.
-    /// Trimmed, length-clamped accessors are provided below.
-    var caption: String = ""
+    /// Optional caption typed in the multiline input area. The setter is the
+    /// single source of truth for length clamping: whenever the view binds
+    /// to `caption` and the user types or pastes text, the setter ensures
+    /// the value never exceeds `captionLimit`. This avoids the double-write
+    /// problem that produces cursor jumps in `TextEditor`.
+    var caption: String = "" {
+        didSet {
+            if caption.count > captionLimit {
+                caption = String(caption.prefix(captionLimit))
+            }
+        }
+    }
 
     /// Hard cap on caption length. Matches the "Comment exceeds expected length"
-    /// edge case from the ticket: input is clipped at the view layer using this value.
+    /// edge case from the ticket.
     let captionLimit: Int = 500
 
     /// Whether the caption is empty after trimming whitespace and newlines.
-    /// Used by the view to decide if the placeholder should be shown.
+    /// The view uses this same rule to decide if the placeholder should be
+    /// shown — keeping placeholder visibility and "empty" semantics aligned.
     var isCaptionEmpty: Bool {
-        caption.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        trimmedCaption.isEmpty
     }
 
     /// Caption value the parent receives when the user confirms the share.
     /// Returns `nil` for an empty caption so downstream callers can treat
-    /// "no caption" distinctly from "empty string".
+    /// "no caption" distinctly from "empty string". When non-nil, the value
+    /// is trimmed so trailing whitespace or newlines never leak downstream.
     var captionForShare: String? {
-        isCaptionEmpty ? nil : caption
+        isCaptionEmpty ? nil : trimmedCaption
     }
 
-    // MARK: - Image state
-
-    /// Current load state for the edited visualization image.
-    /// Defaults to `.loaded` because the image is passed in synchronously
-    /// from `SnipEditorView`; callers may override via `setImageState(_:)`
-    /// when sourcing the image asynchronously.
-    private(set) var imageState: ImageLoadState = .loaded
-
-    // MARK: - Modal state
-
-    /// Toggles the "Share as new thread?" confirmation modal.
-    /// The view binds this to `.alert(isPresented:)`.
-    var showShareConfirmation: Bool = false
-
-    // MARK: - Init
-
-    init(initialImageState: ImageLoadState = .loaded) {
-        self.imageState = initialImageState
+    /// Caption with leading/trailing whitespace and newlines removed.
+    /// Exposed for the view so placeholder visibility uses the same rule.
+    var trimmedCaption: String {
+        caption.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    // MARK: - Alert state
+
+    /// Currently presented alert, if any. The view binds this to a single
+    /// `.alert(item:)` so discard and share confirmations can never overlap.
+    var presentedAlert: ThreadsPreviewAlert?
 
     // MARK: - Public Methods
 
-    /// Updates the image load state. Called by the view when the image
-    /// finishes rendering or fails to load.
-    func setImageState(_ state: ImageLoadState) {
-        imageState = state
-    }
-
-    /// Clamps the caption to `captionLimit` characters.
-    /// Called from the view's `onChange(of: caption)` so the input area
-    /// never exceeds the expected length, covering the edge case where
-    /// the user pastes a long block of text.
-    func clampCaptionIfNeeded() {
-        if caption.count > captionLimit {
-            caption = String(caption.prefix(captionLimit))
-        }
-    }
-
-    /// Opens the confirmation modal. Invoked by the share toolbar button.
+    /// Opens the "Share as new thread?" confirmation modal. Invoked by the
+    /// share toolbar button.
     func requestShare() {
-        showShareConfirmation = true
+        presentedAlert = .share
+    }
+
+    /// Opens the "Discard changes?" confirmation modal. Invoked by the
+    /// back toolbar button.
+    func requestDiscard() {
+        presentedAlert = .discard
+    }
+
+    /// Dismisses any currently-presented alert.
+    func dismissAlert() {
+        presentedAlert = nil
     }
 }

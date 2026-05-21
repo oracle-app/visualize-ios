@@ -5,15 +5,12 @@
 //  Created by Ruben Castro on 20/05/26.
 //
 //  Container that displays the edited visualization inside the Threads
-//  Preview screen, with explicit handling for the three image edge cases
-//  called out in the ticket:
-//  - Loading state (slow image rendering)
-//  - Failed state (image fails to load)
-//  - Loaded state (the happy path coming straight from SnipEditorView)
-//
-//  Layout follows the design: a short "Preview of the edited visualization"
-//  caption above the image, the image itself centered and aspect-fit so
-//  large image dimensions never break the layout.
+//  Preview screen. The previous version exposed a three-state load machine
+//  (`loading` / `loaded` / `failed`) but nothing in the flow ever drove the
+//  state away from `.loaded`, so the gating was theatre. The component now
+//  branches on a simple optional: an image is rendered when present, and a
+//  failure layout is rendered when the caller supplies `nil`. Large image
+//  dimensions are handled by `scaledToFit` so they cannot break the layout.
 
 import SwiftUI
 
@@ -24,20 +21,23 @@ struct ThreadsPreviewImageContainer: View {
     /// The edited image exported from `SnipEditorView`. Optional so the
     /// container can render the failure state without a value.
     let image: UIImage?
-    let state: ImageLoadState
+
+    // Dynamic Type-aware sizing for the header label.
+    @ScaledMetric(relativeTo: .footnote) private var headerFontSize: CGFloat = 13
+    @ScaledMetric(relativeTo: .body) private var minContainerHeight: CGFloat = 220
 
     // MARK: - Body
 
     var body: some View {
         VStack(spacing: 12) {
             Text("Preview of the edited visualization")
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: headerFontSize, weight: .semibold))
                 .foregroundStyle(Color.appNavy)
                 .frame(maxWidth: .infinity, alignment: .center)
 
             content
                 .frame(maxWidth: .infinity)
-                .frame(minHeight: 220)
+                .frame(minHeight: minContainerHeight)
                 .background(Color.appBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
@@ -45,45 +45,23 @@ struct ThreadsPreviewImageContainer: View {
 
     // MARK: - Private views
 
-    /// Branches on `state` so the container behaves correctly for every
-    /// edge case listed in the ticket. Kept as a `@ViewBuilder` rather than
-    /// three separate views because the surrounding chrome (background,
-    /// border, sizing) is identical for all three states.
+    /// Renders the image when present, or a failure layout when `nil`.
+    /// Wrapped in `@ViewBuilder` because the surrounding chrome (background,
+    /// sizing) is identical for both states.
     @ViewBuilder
     private var content: some View {
-        switch state {
-        case .loading:
-            loadingState
-        case .failed:
+        if let image {
+            Image(uiImage: image)
+                .resizable()
+                // `scaledToFit` is intentional: large image dimensions
+                // (one of the listed edge cases) should never push the
+                // layout off-screen — the image shrinks instead.
+                .scaledToFit()
+                .padding(8)
+                .accessibilityLabel("Preview of the edited visualization")
+        } else {
             failedState
-        case .loaded:
-            if let image {
-                Image(uiImage: image)
-                    .resizable()
-                    // `scaledToFit` is intentional: large image dimensions
-                    // (one of the listed edge cases) should never push the
-                    // layout off-screen — the image shrinks instead.
-                    .scaledToFit()
-                    .padding(8)
-            } else {
-                // Defensive: state says `.loaded` but no image was provided.
-                // Treat it as a failure so the user gets a clear signal
-                // instead of an empty container.
-                failedState
-            }
         }
-    }
-
-    private var loadingState: some View {
-        VStack(spacing: 10) {
-            ProgressView()
-                .controlSize(.regular)
-                .tint(Color.appTeal)
-            Text("Loading preview…")
-                .font(.system(size: 13))
-                .foregroundStyle(Color.appSubtitle)
-        }
-        .frame(maxWidth: .infinity, minHeight: 220)
     }
 
     private var failedState: some View {
@@ -100,26 +78,21 @@ struct ThreadsPreviewImageContainer: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
         }
-        .frame(maxWidth: .infinity, minHeight: 220)
+        .frame(maxWidth: .infinity, minHeight: minContainerHeight)
+        .accessibilityElement(children: .combine)
     }
 }
 
 // MARK: - Preview
 
 #Preview("Loaded") {
-    ThreadsPreviewImageContainer(image: UIImage(systemName: "chart.xyaxis.line"), state: .loaded)
-        .padding()
-        .background(Color.appBackground)
-}
-
-#Preview("Loading") {
-    ThreadsPreviewImageContainer(image: nil, state: .loading)
+    ThreadsPreviewImageContainer(image: UIImage(systemName: "chart.xyaxis.line"))
         .padding()
         .background(Color.appBackground)
 }
 
 #Preview("Failed") {
-    ThreadsPreviewImageContainer(image: nil, state: .failed)
+    ThreadsPreviewImageContainer(image: nil)
         .padding()
         .background(Color.appBackground)
 }
