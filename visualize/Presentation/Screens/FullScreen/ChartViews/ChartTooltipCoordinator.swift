@@ -47,29 +47,34 @@ class ChartTooltipCoordinator: NSObject {
             if hitTestInfo.isHit {
                 removeTooltip()
 
-                if isStackedChart {
-                    guard
-                        let xAxis = surface.xAxes.item(at: 0) as? SCINumericAxis,
-                        let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis
-                    else { return }
+                guard
+                    let xAxis = surface.xAxes.item(at: 0) as? SCINumericAxis,
+                    let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis
+                else { return }
 
-                    let pointIndex = Int(hitTestInfo.pointSeriesIndex)
-                    let xValue = pointIndex >= 0 && pointIndex < xValues.count
+                let pointIndex = Int(hitTestInfo.pointSeriesIndex)
+
+                let xValue: Double
+                let yValue: Double
+
+                if isStackedChart {
+                    xValue = pointIndex >= 0 && pointIndex < xValues.count
                         ? xValues[pointIndex]
                         : Double(xAxis.currentCoordinateCalculator.getDataValue(Float(hitTestInfo.hitTestPoint.x)))
-                    let yValue = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(hitTestInfo.hitTestPoint.y)))
-
-                    showTooltip(at: gesture.location(in: surface), xValue: xValue, yValue: yValue)
+                    yValue = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(hitTestInfo.hitTestPoint.y)))
                 } else {
-                    let pointIndex = Int(hitTestInfo.pointSeriesIndex)
                     guard pointIndex >= 0 && pointIndex < xValues.count else { return }
-
-                    showTooltip(
-                        at: gesture.location(in: surface),
-                        xValue: xValues[pointIndex],
-                        yValue: yValues[pointIndex]
-                    )
+                    xValue = xValues[pointIndex]
+                    yValue = yValues[pointIndex]
                 }
+
+                // Derive the tooltip position from the data point's screen coordinate,
+                // not from the tap location — so the arrow always points to the exact point center
+                let pixelX = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(xValue))
+                let pixelY = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(yValue))
+                let pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
+
+                showTooltip(at: pointInSurface, xValue: xValue, yValue: yValue)
                 return
             }
         }
