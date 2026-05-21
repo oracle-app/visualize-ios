@@ -199,31 +199,40 @@ extension Color {
     }
 }
 
-/*
- #Preview("Con usuarios compartidos") {
-     FeedCard(
-         title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time",
-         author: "Mariana Islas",
-         date: Date(),
-         onShare: { print("share tapped") },
-         onTap: { print("card tapped") },
-         sharedWith: [
-             AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-             AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-             AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria"),
-             AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos"),
-         ]
-     )
- }
+#Preview("Con usuarios compartidos") {
+    FeedCard(
+        visualizationID: "preview-id-1",
+        previewJSON: "{}",
+        title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time",
+        author: "Mariana Islas",
+        date: Date(),
+        onShare: { print("share tapped") },
+        onTap: { print("card tapped") },
+        onHide: { print("hide tapped") },
+        onDelete: { print("delete tapped") },
+        sharedWith: [
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
+            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria"),
+            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos")
+        ],
+        isOwner: true
+    )
+}
 
- #Preview("Sin usuarios compartidos") {
-     FeedCard(
-         title: "Total Transactions by Category",
-         author: "Mariana Islas",
-         date: Date(),
-         onShare: { print("share tapped") },
-         onTap: { print("card tapped") },
-         sharedWith: nil
-     )
- }
- */
+#Preview("Sin usuarios compartidos") {
+    FeedCard(
+        visualizationID: "preview-id-2",
+        previewJSON: "{}",
+        title: "Total Transactions by Category",
+        author: "Mariana Islas",
+        date: Date(),
+        onShare: { print("share tapped") },
+        onTap: { print("card tapped") },
+        onHide: { print("hide tapped") },
+        onDelete: { print("delete tapped") },
+        sharedWith: nil,
+        isOwner: false
+    )
+}
+ 
