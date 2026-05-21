@@ -2,8 +2,8 @@
 //  PushNotificationService.swift
 //  visualize
 //
-//  Created by Miguel Degollado 
-//
+//  Created by Miguel Degollado on 20/05/26.
+
 
 import UIKit
 import UserNotifications
@@ -70,4 +70,3 @@ extension PushNotificationService: MessagingDelegate {
         persistToken(fcmToken)
     }
 }
-EOF

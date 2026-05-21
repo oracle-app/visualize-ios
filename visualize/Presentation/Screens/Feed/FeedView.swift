@@ -35,6 +35,7 @@ struct FeedView: View {
     @State private var sharePayload: SharePayload?
     @State private var usersToShare: [AppUser] = []
     @State private var selectedCard: VisualizationCard? = nil
+    @StateObject private var unreadVM = UnreadNotificationsViewModel()
     var shouldLoad: Bool = true
 
     // MARK: - Body
@@ -85,7 +86,18 @@ struct FeedView: View {
             }
         } trailing: {
             HStack(spacing: 15) {
-                Button("Notifications", systemImage: "bell") {
+                Button {
+                    coordinator.push(.notifications)
+                } label: {
+                    Image(systemName: "bell.fill")
+                        .overlay(alignment: .topTrailing) {
+                            if unreadVM.hasUnread {
+                                Circle()
+                                    .fill(Color.appRed)
+                                    .frame(width: 8, height: 8)
+                                    .offset(x: 4, y: -4)
+                            }
+                        }
                 }
             }
         } principal: {
