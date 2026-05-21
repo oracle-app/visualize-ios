@@ -9,12 +9,12 @@ import SwiftUI
 struct NotificationsEmptyView: View {
     var body: some View {
         VStack(spacing: 6) {
-            Text(NSLocalizedString("notifications.empty.title", comment: ""))
+            Text("No notifications yet")
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(Color.appTeal)
                 .multilineTextAlignment(.center)
 
-            Text(NSLocalizedString("notifications.empty.subtitle", comment: ""))
+            Text("We'll notify you when there's something new.")
                 .font(.system(size: 17))
                 .foregroundStyle(Color.appSubtitle)
                 .multilineTextAlignment(.center)
