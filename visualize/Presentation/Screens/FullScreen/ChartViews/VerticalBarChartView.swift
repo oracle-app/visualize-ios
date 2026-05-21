@@ -21,8 +21,8 @@ struct VerticalBarChartView: UIViewRepresentable {
     let values: [Double]
     let xLabel: String
     let yLabel: String
-    var viewport: ChartViewport? = nil
-    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
+    var viewport: ChartViewport?
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
     // MARK: - Coordinator
     func makeCoordinator() -> ChartTooltipCoordinator {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)

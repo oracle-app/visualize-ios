@@ -20,8 +20,8 @@ struct LineChartView: UIViewRepresentable {
     let data: [Double: Double]
     let xLabel: String
     let yLabel: String
-    var viewport: ChartViewport? = nil
-    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
+    var viewport: ChartViewport?
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
     
     // MARK: - Coordinator
         func makeCoordinator() -> ChartTooltipCoordinator {

@@ -22,8 +22,8 @@ struct HorizontalBarChartView: UIViewRepresentable {
     let values: [Double]
     let xLabel: String
     let yLabel: String
-    var viewport: ChartViewport? = nil
-    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
+    var viewport: ChartViewport?
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
 
     // MARK: - Coordinator
 
@@ -68,7 +68,7 @@ struct HorizontalBarChartView: UIViewRepresentable {
         let xData = SCIDoubleValues()
         let yData = SCIDoubleValues()
 
-        for (index, _) in categories.enumerated() {
+        for index in categories.indices {
             guard index < values.count else { break }
             xData.add(Double(index))
             yData.add(values[index])
