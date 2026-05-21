@@ -3,6 +3,7 @@
 //  visualize
 //
 //  Created by Kimberly Marquez on 4/15/26.
+//
 
 import SwiftUI
 
@@ -52,12 +53,20 @@ struct NavBar: View {
         @Bindable var coordinator = coordinator
 
         TabView(selection: $coordinator.selectedTab) {
+            // Feed
             NavigationStack(path: $coordinator.feedPath) {
                 FeedView(viewModel: feedViewModel)
+                    .navigationDestination(for: AppRoute.self) { route in
+                        if case .notifications = route {
+                            NotificationsScreen()
+                                .navigationBarBackButtonHidden(true)
+                        }
+                    }
             }
             .tabItem { Label("", systemImage: "house") }
             .tag(Tabs.feed)
 
+            // Create
             NavigationStack(path: $coordinator.createPath) {
                 CreateVisualization()
                     .navigationDestination(for: AppRoute.self) { route in
@@ -65,11 +74,9 @@ struct NavBar: View {
                         case .generatingVisualizations:
                             GeneratingVisualizationsView()
                                 .navigationBarBackButtonHidden(true)
-
                         case .vizReady:
                             VizReadyView(suggestions: coordinator.pendingSuggestions)
                                 .navigationBarBackButtonHidden(true)
-
                         default:
                             EmptyView()
                         }
@@ -78,12 +85,14 @@ struct NavBar: View {
             .tabItem { Label("", systemImage: "plus") }
             .tag(Tabs.create)
 
+            // Teams
             NavigationStack(path: $coordinator.teamsPath) {
                 Color.green.ignoresSafeArea()
             }
             .tabItem { Label("", systemImage: "person.2") }
             .tag(Tabs.teams)
 
+            // Profile
             NavigationStack(path: $coordinator.profilePath) {
                 ProfileScreenView(
                     logoutUseCase: logoutUseCase,
