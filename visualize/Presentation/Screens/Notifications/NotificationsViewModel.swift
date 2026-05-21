@@ -2,105 +2,133 @@
 //  NotificationsViewModel.swift
 //  visualize
 //
-//  Created by Miguel Degollado Ramirez on 22/04/26.
 
 import Foundation
+import Combine
+import SwiftUI
+import FirebaseAuth
 
-
+@MainActor
 final class NotificationsViewModel: ObservableObject {
-
-    // MARK: - State
 
     enum NotificationsState: Equatable {
         case loading
-        case loaded([NotificationsGroup])
+        case loaded([NotificationDisplayGroup])
         case empty
         case error(String)
 
         static func == (lhs: NotificationsState, rhs: NotificationsState) -> Bool {
             switch (lhs, rhs) {
-            case (.loading, .loading): return true
-            case (.empty, .empty): return true
-            case (.error(let a), .error(let b)): return a == b
-            case (.loaded(let a), .loaded(let b)):
-                return a.map(\.id) == b.map(\.id)
-            default: return false
+            case (.loading, .loading), (.empty, .empty): return true
+            case (.error(let a), .error(let b)):         return a == b
+            case (.loaded(let a), .loaded(let b)):       return a.map(\.id) == b.map(\.id)
+            default:                                     return false
             }
         }
     }
 
     @Published private(set) var state: NotificationsState = .loading
+    private var pendingReadIDs: Set<String> = []
 
-    // MARK: - Init
+    private let getNotificationsUseCase: GetNotificationsUseCase
+    private let markNotificationReadUseCase: MarkNotificationReadUseCase
+    private let markAllNotificationsReadUseCase: MarkAllNotificationsReadUseCase
+    private let deleteNotificationUseCase: DeleteNotificationUseCase
+    private var listenerTask: Task<Void, Never>?
 
-    init() {}
+    init(
+        getNotificationsUseCase: GetNotificationsUseCase,
+        markNotificationReadUseCase: MarkNotificationReadUseCase,
+        markAllNotificationsReadUseCase: MarkAllNotificationsReadUseCase,
+        deleteNotificationUseCase: DeleteNotificationUseCase
+    ) {
+        self.getNotificationsUseCase = getNotificationsUseCase
+        self.markNotificationReadUseCase = markNotificationReadUseCase
+        self.markAllNotificationsReadUseCase = markAllNotificationsReadUseCase
+        self.deleteNotificationUseCase = deleteNotificationUseCase
+    }
 
-    // MARK: - Public API
+    convenience init() {
+        let repo = NotificationRepositoryImpl()
+        self.init(
+            getNotificationsUseCase: GetNotificationsUseCase(repository: repo),
+            markNotificationReadUseCase: MarkNotificationReadUseCase(repository: repo),
+            markAllNotificationsReadUseCase: MarkAllNotificationsReadUseCase(repository: repo),
+            deleteNotificationUseCase: DeleteNotificationUseCase(repository: repo)
+        )
+    }
+
+    deinit { listenerTask?.cancel() }
 
     func loadNotifications() {
+        guard let userID = Auth.auth().currentUser?.uid else { state = .empty; return }
         state = .loading
-
-        // TODO: Replace with actual GetNotificationsUseCase call
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
-            guard let self else { return }
-
-            let now = Date()
-
-            let todayItems: [Notification] = [
-                Notification(id: "n1", userID: "u1", isRead: false, type: "generic",      createdAt: now),
-                Notification(id: "n2", userID: "u1", isRead: false, type: "generic",      createdAt: now.addingTimeInterval(-1_200)),
-                Notification(id: "n3", userID: "u1", isRead: false, type: "thread_reply", createdAt: now.addingTimeInterval(-3_600)),
-                Notification(id: "n4", userID: "u1", isRead: false, type: "thread_reply", createdAt: now.addingTimeInterval(-14_400))
-            ]
-
-            let yesterdayItems: [Notification] = [
-                Notification(id: "n5", userID: "u1", isRead: false, type: "thread_reply", createdAt: now.addingTimeInterval(-86_400)),
-                Notification(id: "n6", userID: "u1", isRead: true,  type: "team_invite",  createdAt: now.addingTimeInterval(-86_400))
-            ]
-
-            let last30DaysItems: [Notification] = [
-                Notification(id: "n7", userID: "u1", isRead: true, type: "chart_shared",  createdAt: now.addingTimeInterval(-432_000)),
-                Notification(id: "n8", userID: "u1", isRead: true, type: "thread_reply",  createdAt: now.addingTimeInterval(-1_555_200))
-            ]
-
-            let groups: [NotificationsGroup] = [
-                NotificationsGroup(
-                    id: NSLocalizedString("notifications.section.today", comment: ""),
-                    notifications: todayItems
-                ),
-                NotificationsGroup(
-                    id: NSLocalizedString("notifications.section.yesterday", comment: ""),
-                    notifications: yesterdayItems
-                ),
-                NotificationsGroup(
-                    id: NSLocalizedString("notifications.section.last30days", comment: ""),
-                    notifications: last30DaysItems
-                )
-            ]
-
-            let allEmpty = groups.allSatisfy { $0.notifications.isEmpty }
-            self.state = allEmpty ? .empty : .loaded(groups)
+        listenerTask?.cancel()
+        listenerTask = Task {
+            for await groups in getNotificationsUseCase.execute(for: userID) {
+                guard !Task.isCancelled else { break }
+                let corrected = applyPendingReads(to: groups)
+                state = corrected.allSatisfy({ $0.items.isEmpty }) ? .empty : .loaded(corrected)
+            }
         }
     }
 
     func markAsRead(id: String) {
-        guard case .loaded(let groups) = state else { return }
-
-        let updated = groups.map { group in
-            let updatedNotifications = group.notifications.map { item in
-                item.id == id
-                    ? Notification(
-                        id: item.id,
-                        userID: item.userID,
-                        isRead: true,
-                        type: item.type,
-                        createdAt: item.createdAt
-                      )
-                    : item
-            }
-            return NotificationsGroup(id: group.id, notifications: updatedNotifications)
+        pendingReadIDs.insert(id)
+        applyOptimisticRead(id: id)
+        guard let userID = Auth.auth().currentUser?.uid else { pendingReadIDs.remove(id); return }
+        Task {
+            try? await markNotificationReadUseCase.execute(notificationID: id, userID: userID)
+            pendingReadIDs.remove(id)
         }
-
-        state = .loaded(updated)
     }
+
+    func markAllAsRead() {
+        guard case .loaded(let groups) = state else { return }
+        state = .loaded(groups.map { group in
+            NotificationDisplayGroup(id: group.id, items: group.items.map {
+                NotificationDisplayItem(id: $0.id, boldPrefix: $0.boldPrefix, message: $0.message,
+                    timestamp: $0.timestamp, isRead: true,
+                    avatarInitials: $0.avatarInitials, avatarColor: $0.avatarColor, avatarURL: $0.avatarURL)
+            })
+        })
+        guard let userID = Auth.auth().currentUser?.uid else { return }
+        Task { try? await markAllNotificationsReadUseCase.execute(userID: userID) }
+    }
+
+    func delete(id: String) {
+        guard case .loaded(let groups) = state else { return }
+        let updated = groups.map { NotificationDisplayGroup(id: $0.id, items: $0.items.filter { $0.id != id }) }
+        state = updated.allSatisfy({ $0.items.isEmpty }) ? .empty : .loaded(updated)
+        guard let userID = Auth.auth().currentUser?.uid else { return }
+        Task { try? await deleteNotificationUseCase.execute(notificationID: id, userID: userID) }
+    }
+
+    private func applyPendingReads(to groups: [NotificationDisplayGroup]) -> [NotificationDisplayGroup] {
+        guard !pendingReadIDs.isEmpty else { return groups }
+        return groups.map { group in
+            NotificationDisplayGroup(id: group.id, items: group.items.map { item in
+                guard pendingReadIDs.contains(item.id) else { return item }
+                return NotificationDisplayItem(id: item.id, boldPrefix: item.boldPrefix, message: item.message,
+                    timestamp: item.timestamp, isRead: true,
+                    avatarInitials: item.avatarInitials, avatarColor: item.avatarColor, avatarURL: item.avatarURL)
+            })
+        }
+    }
+
+    private func applyOptimisticRead(id: String) {
+        guard case .loaded(let groups) = state else { return }
+        state = .loaded(groups.map { group in
+            NotificationDisplayGroup(id: group.id, items: group.items.map { item in
+                guard item.id == id else { return item }
+                return NotificationDisplayItem(id: item.id, boldPrefix: item.boldPrefix, message: item.message,
+                    timestamp: item.timestamp, isRead: true,
+                    avatarInitials: item.avatarInitials, avatarColor: item.avatarColor, avatarURL: item.avatarURL)
+            })
+        })
+    }
+
+    #if DEBUG
+    func forceState(_ newState: NotificationsState) { state = newState }
+    #endif
 }
