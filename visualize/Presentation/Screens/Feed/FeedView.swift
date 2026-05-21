@@ -35,74 +35,114 @@ struct FeedView: View {
     @State private var sharePayload: SharePayload?
     @State private var usersToShare: [AppUser] = []
     @State private var selectedCard: VisualizationCard? = nil
+    @State private var isScrolledPastHeader: Bool = false
+    @State private var scrollProxy: ScrollViewProxy? = nil
+    @State private var isScrollDisabled: Bool = false
+
+
     var shouldLoad: Bool = true
 
     // MARK: - Body
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                headerView()
-                contentView()
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    Color.clear
+                            .frame(height: 0)
+                            .id("top")
+                    headerView()
+                    contentView()
+                }
+                .padding(0)
             }
-            .padding(0)
-        }
-        .navigationDestination(item: $selectedCard) { card in
-            FullScreenView(card: card)
-                .navigationBarBackButtonHidden(true)
-        }
-        .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
-            if viewModel.isSearchActive {
-                HStack(spacing: 8) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundStyle(.secondary)
-                        .font(.body)
-                    TextField("Search visualizations...", text: $viewModel.searchQuery)
-                        .textFieldStyle(.plain)
-                        .font(.body)
-                        .frame(width: 180)
-                        .submitLabel(.search)
+            .navigationDestination(item: $selectedCard) { card in
+                FullScreenView(card: card)
+                    .navigationBarBackButtonHidden(true)
+            }
+            .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
+                if viewModel.isSearchActive {
+                    HStack(spacing: 8) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                            .font(.body)
+                        TextField("Search visualizations...", text: $viewModel.searchQuery)
+                            .textFieldStyle(.plain)
+                            .font(.body)
+                            .frame(width: 220)
+                            .submitLabel(.search)
+                        Button {
+                            withAnimation(.smooth(duration: 0.2)) {
+                                viewModel.isSearchActive = false
+                                viewModel.clearSearch()
+                                
+                            }
+                            Task {
+                                try? await Task.sleep(for: .seconds(0.1))
+                                guard !viewModel.isSearchActive else { return }
+                                withAnimation {
+                                    title = isScrolledPastHeader ? selectedFeed.title : nil
+                                }
+                            }
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+                } else {
                     Button {
-                        withAnimation(.smooth(duration: 0.2)) {
-                            viewModel.isSearchActive = false
-                            viewModel.clearSearch()
+                        Task { @MainActor in
+                            title = nil
+                            withAnimation {
+                                scrollProxy?.scrollTo("top", anchor: .top)
+                            }
+                        }
+                        withAnimation{
+                            viewModel.isSearchActive = true
                         }
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
+                        Image(systemName: "magnifyingglass")
+                    }
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+                }
+            } trailing: {
+                HStack(spacing: 15) {
+                    Button("Notifications", systemImage: "bell") {
                     }
                 }
-                .transition(.move(edge: .leading).combined(with: .opacity))
-            } else {
-                Button {
-                    withAnimation(.smooth(duration: 0.2)) {
-                        viewModel.isSearchActive = true
+            } principal: {
+                if let title {
+                    Button {
+                        Task { @MainActor in
+                            
+                            isScrollDisabled = true
+                            
+                            withAnimation{
+                                scrollProxy?.scrollTo("top", anchor: .top)
+                            }
+                            isScrollDisabled = false
+                        }
+                    } label: {
+                        Text(title)
+                            .fontWeight(.semibold)
                     }
-                } label: {
-                    Image(systemName: "magnifyingglass")
-                }
-                .transition(.move(edge: .leading).combined(with: .opacity))
-            }
-        } trailing: {
-            HStack(spacing: 15) {
-                Button("Notifications", systemImage: "bell") {
-                }
-            }
-        } principal: {
-            if let title {
-                Text(title)
-                    .fontWeight(.semibold)
                     .transition(.offset(y: 10).combined(with: AnyTransition(.blurReplace)))
+                }
+            } primaryAction: {
             }
-        } primaryAction: {
-        }
-        .refreshable {
-            viewModel.loadData(forceRefresh: true)
-        }
-        .onAppear {
-            if shouldLoad {
-                viewModel.loadData()
+            .refreshable {
+                try? await Task.sleep(for: .seconds(0.3))
+                viewModel.loadData(forceRefresh: true)
+                
             }
+            .onAppear {
+                scrollProxy = proxy
+                if shouldLoad {
+                    viewModel.loadData()
+                }
+            }
+            .scrollDisabled(isScrollDisabled)
         }
         .sheet(item: $sharePayload) { payload in
             let userDatasource = UserDatasource()
@@ -200,6 +240,7 @@ struct FeedView: View {
                             let offset = $0.frame(in: .named("scroll")).minY
                             return -offset > height
                         } action: { newValue in
+                            isScrolledPastHeader = newValue
                             withAnimation(.smooth(duration: 0.10)) {
                                 title = newValue ? selectedFeed.title : nil
                             }
@@ -212,6 +253,8 @@ struct FeedView: View {
                 }
                 .hLeading()
                 .padding(.leading, 35)
+                .opacity(isScrolledPastHeader ? 0 : 1)
+                .animation(.smooth(duration: 0.10), value: isScrolledPastHeader)
             }
         }
     }
