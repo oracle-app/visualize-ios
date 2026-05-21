@@ -2,31 +2,24 @@
 //  NotificationsEmptyView.swift
 //  visualize
 //
-//  Created by Miguel Degollado Ramirez on 22/04/26.
-
+//  Created by Miguel Degollado
 
 import SwiftUI
 
 struct NotificationsEmptyView: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(spacing: 6) {
             Text(NSLocalizedString("notifications.empty.title", comment: ""))
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(Color.appTeal)
+                .multilineTextAlignment(.center)
 
             Text(NSLocalizedString("notifications.empty.subtitle", comment: ""))
                 .font(.system(size: 17))
                 .foregroundStyle(Color.appSubtitle)
+                .multilineTextAlignment(.center)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 32)
     }
-}
-
-// MARK: - Preview
-
-#Preview {
-    NotificationsEmptyView()
-        .padding()
-        .background(Color.appBackground)
 }
