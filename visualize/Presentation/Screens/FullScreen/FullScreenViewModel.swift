@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import FirebaseAuth
 import Observation
 import SwiftUI
 
@@ -70,22 +69,40 @@ final class FullScreenViewModel {
     private let teamRepository: any TeamRepository
     /// Repository used to fetch `configJSON` on demand for full-screen rendering.
     private let visualizationRepository: any VisualizationRepository
+    private let authRepository: any AuthRepository
+    private let userRepository: any UserRepository
     private let uploadSnipUseCase: UploadSnipUseCase
     private let postSnipCommentUseCase: PostSnipCommentUseCase
-    private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
+    private(set) var userID: String = ""
 
     // MARK: - Init
 
     init(
         teamRepository: any TeamRepository,
         visualizationRepository: any VisualizationRepository,
+        authRepository: any AuthRepository,
+        userRepository: any UserRepository,
         uploadSnipUseCase: UploadSnipUseCase,
         postSnipCommentUseCase: PostSnipCommentUseCase
     ) {
         self.teamRepository = teamRepository
         self.visualizationRepository = visualizationRepository
+        self.authRepository = authRepository
+        self.userRepository = userRepository
         self.uploadSnipUseCase = uploadSnipUseCase
         self.postSnipCommentUseCase = postSnipCommentUseCase
+        Task {
+            await initializeUser()
+        }
+    }
+    
+    // MARK: - Auth Initialization
+    private func initializeUser() async {
+        do {
+            self.userID = try await authRepository.getCurrentUserID()
+        } catch {
+            self.error = "No se pudo obtener la sesión del usuario."
+        }
     }
 
     // MARK: - Data Loading
@@ -160,7 +177,6 @@ final class FullScreenViewModel {
                 if parsedChart == nil {
                     configError = "Chart data could not be parsed."
                 }
-                // .unsupported is a valid parse result — the view renders errorState for it.
             } else {
                 configError = "Chart data not found."
             }
@@ -211,8 +227,9 @@ final class FullScreenViewModel {
                 userID: userID,
                 visualizationID: visualizationID
             )
-            let name = Auth.auth().currentUser?.displayName ?? ""
-            userName = name
+            let domainUser = try await userRepository.getUserByID(userID: userID)
+            let name = domainUser.username
+            self.userName = name
             try await postSnipCommentUseCase.execute(
                 visualizationID: visualizationID,
                 authorID: userID,

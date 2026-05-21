@@ -53,10 +53,10 @@ class FeedViewModel {
     let searchVisualizationsUseCase: SearchVisualizationsUseCase
     let hideVisualizationUseCase: HideVisualizationUseCase
     let deleteVisualizationUseCase: DeleteVisualizationUseCase
+    let authRepository: any AuthRepository
 
     private var allVisualizations: [VisualizationCard] = []
-    let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL"
-//    let currentUserID: String = "oEJtQz0gdbRpTZ8ETPCy"
+    private(set) var currentUserID: String = ""
     var currentToast: Toast? = nil
 
     /// Search task used for debounce — ignored by @Observable to avoid tracking issues.
@@ -65,15 +65,31 @@ class FeedViewModel {
     private var toastTask: Task<Void, Never>?
 
     // MARK: - Initialization
-    init(loadVisualizationsUseCase: LoadVisualizationsUseCase,
-         searchVisualizationsUseCase: SearchVisualizationsUseCase,
-         hideVisualizationUseCase: HideVisualizationUseCase,
-         deleteVisualizationUseCase: DeleteVisualizationUseCase) {
+    init(
+        loadVisualizationsUseCase: LoadVisualizationsUseCase,
+        searchVisualizationsUseCase: SearchVisualizationsUseCase,
+        hideVisualizationUseCase: HideVisualizationUseCase,
+        deleteVisualizationUseCase: DeleteVisualizationUseCase,
+        authRepository: any AuthRepository
+    ) {
         self.loadVisualizationsUseCase = loadVisualizationsUseCase
         self.searchVisualizationsUseCase = searchVisualizationsUseCase
         self.hideVisualizationUseCase = hideVisualizationUseCase
         self.deleteVisualizationUseCase = deleteVisualizationUseCase
+        self.authRepository = authRepository
         self.visualizationFilter = .all
+        Task {
+            await initializeUser()
+        }
+    }
+    
+    private func initializeUser() async {
+        do {
+            self.currentUserID = try await authRepository.getCurrentUserID()
+            self.loadData(forceRefresh: false)
+        } catch {
+            self.state = .error
+        }
     }
 
     // MARK: - Filter
@@ -174,7 +190,10 @@ class FeedViewModel {
 
     /// Loads data on first appear without forcing a refresh.
     func fetchInitialData() {
-        loadData(forceRefresh: false)
+        if !allVisualizations.isEmpty { return }
+        if !currentUserID.isEmpty {
+            loadData(forceRefresh: false)
+        }
     }
     
     // MARK: - Delete Actions
@@ -214,6 +233,7 @@ extension FeedViewModel {
     static var preview: FeedViewModel {
         let userDS = UserDatasource()
         let teamDS = TeamDatasource()
+        let authDS = AuthFirebaseDatasource()
         let visualizationDS = VisualizationDatasource(userDatasource: userDS, teamsDatasource: teamDS)
         let repo = VisualizationRepositoryImpl(
             userDatasource: userDS,
@@ -221,11 +241,13 @@ extension FeedViewModel {
             teamsDatasource: teamDS
         )
         let userRepo = UserRepositoryImpl(userDatasource: userDS)
+        let authRepo = AuthRepositoryImpl(source: authDS)
         return FeedViewModel(
             loadVisualizationsUseCase: LoadVisualizationsUseCase(visualizationRepository: repo),
             searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
             hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
-            deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo)
+            deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo),
+            authRepository: authRepo
         )
     }
 }

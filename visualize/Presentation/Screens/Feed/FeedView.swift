@@ -147,6 +147,7 @@ struct FeedView: View {
         .sheet(item: $sharePayload) { payload in
             let userDatasource = UserDatasource()
             let teamsDatasource = TeamDatasource()
+            let authDatasource = AuthFirebaseDatasource()
             let visualizationDatasource = VisualizationDatasource(
                 userDatasource: userDatasource,
                 teamsDatasource: teamsDatasource
@@ -160,6 +161,9 @@ struct FeedView: View {
                 teamDatasource: teamsDatasource,
                 userDatasource: userDatasource
             )
+            let authRepository = AuthRepositoryImpl(
+                source: authDatasource
+            )
             NavigationStack {
                 ShareTeammatesScreen(
                     viewModel: ShareTeammatesViewModel(
@@ -167,6 +171,7 @@ struct FeedView: View {
                             userDatasource: userDatasource
                         ),
                         teamRepository: teamRepository,
+                        authRepository: authRepository,
                         updateSharingUseCase: UpdateSharingUseCase(
                             visualizationRepository: visualizationRepository,
                             userRepository: UserRepositoryImpl(userDatasource: userDatasource)

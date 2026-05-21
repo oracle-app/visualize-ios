@@ -38,12 +38,19 @@ struct FullScreenView: View {
         self.card = card
         let userDatasource = UserDatasource()
         let teamDatasource = TeamDatasource()
+        let authDatasource = AuthFirebaseDatasource()
         let vizDatasource = VisualizationDatasource(
             userDatasource: userDatasource,
             teamsDatasource: teamDatasource
         )
         let storageDatasource = StorageDatasource()
         let commentDatasource = CommentDatasource()
+        let authRepository = AuthRepositoryImpl(
+            source: authDatasource
+        )
+        let userRepository = UserRepositoryImpl(
+            userDatasource: userDatasource
+        )
         self._viewModel = State(initialValue: FullScreenViewModel(
             teamRepository: TeamRepositoryImpl(
                 teamDatasource: teamDatasource,
@@ -54,6 +61,8 @@ struct FullScreenView: View {
                 visualizationDatasource: vizDatasource,
                 teamsDatasource: teamDatasource
             ),
+            authRepository: authRepository,
+            userRepository: userRepository,
             uploadSnipUseCase: UploadSnipUseCase(
                 snipRepository: SnipRepositoryImpl(storageDatasource: storageDatasource)
             ),

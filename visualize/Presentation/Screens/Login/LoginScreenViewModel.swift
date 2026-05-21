@@ -119,6 +119,11 @@ class LoginViewModel {
                         message: "Something went wrong. Please try again.",
                         type: .error
                     ))
+                case .notFound:
+                    showToast(Toast(
+                        message: "User not found.",
+                        type: .error
+                    ))
                 }
                 
             } catch {

@@ -173,7 +173,11 @@ struct VizReadyView: View {
             visualizationDatasource: vizDatasource,
             teamsDatasource: teamDatasource
         )
+        let authDatasource = AuthFirebaseDatasource()
         let suggestion = viewModel.selectedSuggestion
+        let authRepository = AuthRepositoryImpl(
+            source: authDatasource
+        )
  
         return NavigationStack {
             ShareSheet(
@@ -183,6 +187,7 @@ struct VizReadyView: View {
                         userDatasource: userDatasource
                     ),
                     userRepository: UserRepositoryImpl(userDatasource: userDatasource),
+                    authRepository: authRepository,
                     createVisualizationUseCase: CreateVisualizationUseCase(
                         visualizationRepository: vizRepository
                     ),

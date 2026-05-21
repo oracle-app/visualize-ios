@@ -14,6 +14,7 @@
 /// - Delegating authentication operations to `AuthFirebaseDatasource`
 /// - Mapping Firebase models into domain models (`AuthUser`)
 /// - Keeping the domain layer independent from Firebase SDK
+
 class AuthRepositoryImpl: AuthRepository {
     
     // MARK: - Properties
@@ -87,5 +88,15 @@ class AuthRepositoryImpl: AuthRepository {
     /// - Throws: An error if the operation fails.
     func sendPasswordReset(to email: String) async throws {
         try await source.sendPasswordReset(to: email)
+    }
+    
+    func getCurrentUserID() async throws -> String {
+        let currentUser = source.getCurrentUser()?.toDomain()
+        
+        guard let id = currentUser?.uid else {
+            throw LoginError.notFound
+        }
+        
+        return id
     }
 }

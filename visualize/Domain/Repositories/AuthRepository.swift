@@ -50,4 +50,7 @@ protocol AuthRepository {
     
     /// Sends a password reset email to the given address.
     func sendPasswordReset(to email: String) async throws
+    
+    /// Gets the ID of the logged in user.
+    func getCurrentUserID() async throws -> String
 }

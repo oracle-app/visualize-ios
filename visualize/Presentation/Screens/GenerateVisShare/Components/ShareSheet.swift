@@ -314,10 +314,12 @@ struct ShareSheet: View {
 #Preview {
     let userDatasource = UserDatasource()
     let teamDatasource = TeamDatasource()
+    let authDatasource = AuthFirebaseDatasource()
     let vizDatasource = VisualizationDatasource(
         userDatasource: userDatasource,
         teamsDatasource: teamDatasource
     )
+    let authRepository = AuthRepositoryImpl(source: authDatasource)
     NavigationStack {
         ShareSheet(
             viewModel: ShareSheetViewModel(
@@ -326,6 +328,7 @@ struct ShareSheet: View {
                     userDatasource: userDatasource
                 ),
                 userRepository: UserRepositoryImpl(userDatasource: userDatasource),
+                authRepository: authRepository,
                 createVisualizationUseCase: CreateVisualizationUseCase(
                     visualizationRepository: VisualizationRepositoryImpl(
                         userDatasource: userDatasource,
