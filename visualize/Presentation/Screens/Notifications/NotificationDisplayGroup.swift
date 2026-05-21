@@ -2,7 +2,7 @@
 //  NotificationDisplayGroup.swift
 //  visualize
 //
-//  Created by Miguel Degollado on 20/05/26.
+//  Created by Miguel Degollado 
 //
 
 import Foundation
