@@ -34,7 +34,7 @@ struct FeedCard: View {
             Color.random(from: user.id)
         }
     }
-    //var colors: [Color] = [Color.random(from: "oEJtQz0gdbRpTZ8ETPCy")]
+    
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top) {
@@ -43,7 +43,6 @@ struct FeedCard: View {
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(Color.primaryText)
                         .minimumScaleFactor(0.5)
-                        //.frame(height: 50, alignment: .center)
                     HStack(spacing: 12) {
                         Text("by \(isOwner ? "me" : author)")
                         Text("•")
