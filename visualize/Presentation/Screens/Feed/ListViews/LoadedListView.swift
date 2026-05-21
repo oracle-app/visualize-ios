@@ -22,6 +22,7 @@ struct LoadedListView: View {
         LazyVStack(spacing: 12) {
             ForEach(items, id: \.id) { item in
                 FeedCard(
+                    visualizationID: item.id,
                     previewJSON: item.previewJSON,
                     title: item.title,
                     author: item.author,

@@ -15,6 +15,7 @@ struct FeedCard: View {
     @State private var showAlert1 = false
     @State private var showAlert2 = false
     @State private var chart: ChartData? = nil
+    var visualizationID: String
     var previewJSON: String
     var title: String
     var author: String
@@ -126,11 +127,18 @@ struct FeedCard: View {
             .frame(minHeight: 200)
             .background(Color.white)
             .clipShape(.rect(cornerRadius: 10))
-            .task(id: previewJSON) {
-                guard chart == nil else { return }
+            .task(id: visualizationID) {
+                if let cachedChart = ChartCacheManager.shared.getChart(for: visualizationID) {
+                    self.chart = cachedChart
+                    return
+                }
+                
                 let parsedChart = await Task.detached(priority: .background) {
                     return ChartConfigParser.parse(from: previewJSON) ?? .unsupported(type: "Invalid JSON")
                 }.value
+                
+                ChartCacheManager.shared.saveChart(parsedChart, for: visualizationID)
+                
                 await MainActor.run {
                     withAnimation(.easeIn(duration: 0.3)) {
                         self.chart = parsedChart
