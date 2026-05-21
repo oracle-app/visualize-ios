@@ -93,13 +93,10 @@ struct FeedView: View {
                 } else {
                     Button {
                         Task { @MainActor in
-                            
                             title = nil
-                           
                             withAnimation {
                                 scrollProxy?.scrollTo("top", anchor: .top)
                             }
-
                         }
                         withAnimation{
                             viewModel.isSearchActive = true
