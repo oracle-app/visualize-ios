@@ -72,7 +72,7 @@ final class FullScreenViewModel {
     private let visualizationRepository: any VisualizationRepository
     private let uploadSnipUseCase: UploadSnipUseCase
     private let postSnipCommentUseCase: PostSnipCommentUseCase
-    private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
+    private let userID = "rcONSHwWXHbUo3NsO6bhg0J4D8u2"
 
     // MARK: - Init
 

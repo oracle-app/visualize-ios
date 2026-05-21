@@ -55,8 +55,7 @@ class FeedViewModel {
     let deleteVisualizationUseCase: DeleteVisualizationUseCase
 
     private var allVisualizations: [VisualizationCard] = []
-    let currentUserID: String = "e9Nk8XrxHJAtwN3Hf2FL"
-//    let currentUserID: String = "oEJtQz0gdbRpTZ8ETPCy"
+    let currentUserID: String = "rcONSHwWXHbUo3NsO6bhg0J4D8u2"
     var currentToast: Toast? = nil
 
     /// Search task used for debounce — ignored by @Observable to avoid tracking issues.
@@ -155,9 +154,12 @@ class FeedViewModel {
         if forceRefresh {
             allVisualizations.removeAll()
         }
-        if allVisualizations.isEmpty {
-            state = .loading
+        
+        guard allVisualizations.isEmpty else {
+            return
         }
+        state = .loading
+        
         Task {
             do {
                 let items = try await loadVisualizationsUseCase.execute(
@@ -166,7 +168,6 @@ class FeedViewModel {
                 self.allVisualizations = items
                 applyLocalFilter()
             } catch {
-                print(error)
                 state = .error
             }
         }

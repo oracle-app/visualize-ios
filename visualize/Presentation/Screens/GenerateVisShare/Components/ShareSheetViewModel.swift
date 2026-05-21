@@ -31,7 +31,7 @@ final class ShareSheetViewModel {
     private let createVisualizationUseCase: CreateVisualizationUseCase
 
     // Temporary hardcoded user ID, will be replaced with authenticated session value.
-    private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
+    private let userID = "rcONSHwWXHbUo3NsO6bhg0J4D8u2"
     
     // MARK: - Chart Data
  
