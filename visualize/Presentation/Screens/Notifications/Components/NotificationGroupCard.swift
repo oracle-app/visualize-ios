@@ -2,44 +2,42 @@
 //  NotificationGroupCard.swift
 //  visualize
 //
-//  Created by Miguel Degollado Ramirez on 22/04/26.
+//  Created by Miguel Degollado .
 
 import SwiftUI
 
 struct NotificationGroupCard: View {
+    let group: NotificationDisplayGroup
+    var onTap: ((String) -> Void)? = nil
+    var onDelete: ((String) -> Void)? = nil
 
-    // MARK: - Properties
-
-    let group: NotificationsGroup
-
-    // MARK: - Body
+    private var hasUnread: Bool {
+        group.items.contains { !$0.isRead }
+    }
 
     var body: some View {
-        VStack(spacing: 0) {
-            ForEach(Array(group.notifications.enumerated()), id: \.element.id) { index, item in
-                NotificationRow(
-                    item: item,
-                    showSeparator: index < group.notifications.count - 1
-                )
+        ZStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(group.items.enumerated()), id: \.element.id) { index, item in
+                    NotificationRow(
+                        item: item,
+                        showSeparator: index < group.items.count - 1,
+                        onTap: onTap,
+                        onDelete: onDelete
+                    )
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.appMint)
+            .clipShape(RoundedRectangle(cornerRadius: 26))
+
+            // Unread dot outside the card — fiel al Figma
+            if hasUnread {
+                Circle()
+                    .fill(Color.appRed)
+                    .frame(width: 8, height: 8)
+                    .offset(x: -16)
             }
         }
-        .background(Color.appMint)
-        .clipShape(RoundedRectangle(cornerRadius: 26))
     }
-}
-
-// MARK: - Preview
-
-#Preview {
-    NotificationGroupCard(
-        group: NotificationsGroup(
-            id: "Yesterday",
-            notifications: [
-                Notification(id: "p1", userID: "u1", isRead: false, type: "thread_reply", createdAt: Date().addingTimeInterval(-86_400)),
-                Notification(id: "p2", userID: "u1", isRead: true,  type: "team_invite",  createdAt: Date().addingTimeInterval(-86_400))
-            ]
-        )
-    )
-    .padding()
-    .background(Color.appBackground)
 }
