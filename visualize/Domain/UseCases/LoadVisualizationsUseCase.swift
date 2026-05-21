@@ -12,6 +12,6 @@ struct LoadVisualizationsUseCase {
     func execute(userID: String) async throws -> [VisualizationCard] {
         async let shared = visualizationRepository.getSharedVisualizations(userID: userID)
         async let personal = visualizationRepository.getPersonalVisualizations(userID: userID)
-        return try await shared + personal
+        return try await (shared + personal).sorted { $0.createdAt > $1.createdAt }
     }
 }
