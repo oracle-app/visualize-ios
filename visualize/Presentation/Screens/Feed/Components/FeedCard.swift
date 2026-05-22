@@ -128,7 +128,9 @@ struct FeedCard: View {
             .background(Color.white)
             .clipShape(.rect(cornerRadius: 10))
             .task(id: visualizationID) {
-                if let cachedChart = ChartCacheManager.shared.getChart(for: visualizationID) {
+                let cacheKey = "\(visualizationID)-\(previewJSON.hash)"
+                
+                if let cachedChart = ChartCacheManager.shared.getChart(for: cacheKey) {
                     self.chart = cachedChart
                     return
                 }
@@ -137,7 +139,7 @@ struct FeedCard: View {
                     return ChartConfigParser.parse(from: previewJSON) ?? .unsupported(type: "Invalid JSON")
                 }.value
                 
-                ChartCacheManager.shared.saveChart(parsedChart, for: visualizationID)
+                ChartCacheManager.shared.saveChart(parsedChart, for: cacheKey)
                 
                 await MainActor.run {
                     withAnimation(.easeIn(duration: 0.3)) {

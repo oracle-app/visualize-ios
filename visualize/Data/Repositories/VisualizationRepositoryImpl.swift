@@ -96,33 +96,6 @@ class VisualizationRepositoryImpl: VisualizationRepository {
         }
     }
     
-    private func fetchDetailsAndMap(dtos: [VisualizationDTO]) async throws -> [VisualizationCard] {
-        var cards: [VisualizationCard] = []
-        for dto in dtos {
-            let authorDTO = try await userDatasource.getUserByID(userID: dto.authorID)
-            let authorName = authorDTO.username
-            let usersDTOs = try await userDatasource.getUsers(byIDs: dto.sharedWithUsers)
-            let usersSharedWith: [AppUser] = usersDTOs.map {$0.toAppUser()}
-            let teamsDTOs = try await teamsDatasource.getTeams(byIDs: dto.sharedWithTeams)
-            let uniqueMemberIDs = Array(Set(teamsDTOs.flatMap(\.membersIDs)))
-            let membersDTOs = try await userDatasource.getUsers(byIDs: uniqueMemberIDs)
-            let allMembers = membersDTOs.map { $0.toAppUser() }
-            let teamsSharedWith: [Team] = teamsDTOs.map { teamDTO in
-                let specificTeamMembers = allMembers.filter { member in
-                    teamDTO.membersIDs.contains(member.id)
-                }
-                return teamDTO.toTeam(members: specificTeamMembers)
-            }
-            let card = dto.toVisualizationCard(
-                authorName: authorName,
-                teamsSharedWith: teamsSharedWith,
-                usersSharedWith: usersSharedWith,
-            )
-            cards.append(card)
-        }
-        return cards
-    }
-    
     private func fetchUsersInChunks(ids: [String]) async throws -> [UserDTO] {
         var allUsers: [UserDTO] = []
         let chunkSize = 30
@@ -149,7 +122,7 @@ class VisualizationRepositoryImpl: VisualizationRepository {
     
     func searchVisualizations(userID: String, query: String) async throws -> [VisualizationCard] {
         let dtos = try await visualizationDatasource.searchVisualizations(userID: userID, query: query)
-        return try await fetchDetailsAndMap(dtos: dtos)
+        return try await fetchDetailsAndMapBatch(dtos: dtos, userID: userID)
     }
     
     func deleteVisualization(visualizationID: String) async throws {
