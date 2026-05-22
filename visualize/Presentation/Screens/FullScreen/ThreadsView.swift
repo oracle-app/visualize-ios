@@ -109,7 +109,7 @@ struct ThreadsView: View {
 
     private func fetchCurrentUser() async {
         currentUser = AppUser(
-            id: "e9Nk8XrxHJAtw-N3Hf2FL",
+            id: "rcONSHwWXHbUo3NsO6bhg0J4D8u2",
             email: "test@test.com",
             profilePictureURL: nil,
             username: "Kimberly Marquez"

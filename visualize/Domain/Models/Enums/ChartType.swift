@@ -16,7 +16,7 @@ enum ChartType: String {
     case area = "Area"
     case tile = "Tile"
 
-    static func from(_ typeName: String) -> ChartType? {
+    nonisolated static func from(_ typeName: String) -> ChartType? {
         ChartType(rawValue: typeName)
     }
 }

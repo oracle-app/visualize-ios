@@ -103,6 +103,12 @@ struct HorizontalBarChartView: UIViewRepresentable {
     func updateUIView(_ uiView: SCIChartSurface, context: Context) {}
     
     static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: ChartTooltipCoordinator) {
+        uiView.suspendUpdates()
+        uiView.renderableSeries.clear()
+        uiView.chartModifiers.clear()
+        uiView.xAxes.clear()
+        uiView.yAxes.clear()
+        uiView.annotations.clear()
         coordinator.cleanup()
     }
 }

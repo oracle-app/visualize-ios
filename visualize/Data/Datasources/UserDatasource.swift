@@ -7,7 +7,7 @@
 
 import FirebaseFirestore
 
-class UserDatasource{
+class UserDatasource {
     private let firebase: Firestore
     init(firebase: Firestore = Firestore.firestore()) {
         self.firebase = firebase

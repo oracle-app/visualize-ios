@@ -14,10 +14,12 @@ import SwiftUI
 struct FeedCard: View {
     @State private var showAlert1 = false
     @State private var showAlert2 = false
+    @State private var chart: ChartData? = nil
+    var visualizationID: String
+    var previewJSON: String
     var title: String
     var author: String
     var date: Date
-    var chart: ChartData
     var onShare: () -> Void
     var onTap: () -> Void
     var onHide: () -> Void
@@ -32,7 +34,7 @@ struct FeedCard: View {
             Color.random(from: user.id)
         }
     }
-    //var colors: [Color] = [Color.random(from: "oEJtQz0gdbRpTZ8ETPCy")]
+    
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top) {
@@ -41,7 +43,6 @@ struct FeedCard: View {
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(Color.primaryText)
                         .minimumScaleFactor(0.5)
-                        //.frame(height: 50, alignment: .center)
                     HStack(spacing: 12) {
                         Text("by \(isOwner ? "me" : author)")
                         Text("•")
@@ -111,12 +112,42 @@ struct FeedCard: View {
                     Text("This will permanently remove the visualization from the feed for you and everyone you shared it with. This action cannot be undone.")
                 }
             }
-            ChartRendererView(chart: chart)
-                .allowsHitTesting(false)
-                .padding(15)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.white)
-                .clipShape(.rect(cornerRadius: 10))
+            ZStack {
+                if let chartData = chart {
+                    ChartRendererView(chart: chartData)
+                        .allowsHitTesting(false)
+                        .transition(.opacity)
+                } else {
+                    RoundedRectangle(cornerRadius: 10)
+                        .skeletonEffect()
+                }
+            }
+            .padding(15)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(minHeight: 200)
+            .background(Color.white)
+            .clipShape(.rect(cornerRadius: 10))
+            .task(id: visualizationID) {
+                let cacheKey = "\(visualizationID)-\(previewJSON.hash)"
+                
+                if let cachedChart = ChartCacheManager.shared.getChart(for: cacheKey) {
+                    self.chart = cachedChart
+                    return
+                }
+                
+                let parsedChart = await Task.detached(priority: .background) {
+                    return ChartConfigParser.parse(from: previewJSON) ?? .unsupported(type: "Invalid JSON")
+                }.value
+                
+                ChartCacheManager.shared.saveChart(parsedChart, for: cacheKey)
+                
+                await MainActor.run {
+                    withAnimation(.easeIn(duration: 0.3)) {
+                        self.chart = parsedChart
+                    }
+                }
+            }
+            
             if let sharedWith, !sharedWith.isEmpty {
                 HStack(spacing: -20) {
                     let displayMembers = Array(sharedWith.prefix(maxAvatars))
@@ -170,31 +201,40 @@ extension Color {
     }
 }
 
-/*
- #Preview("Con usuarios compartidos") {
-     FeedCard(
-         title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time",
-         author: "Mariana Islas",
-         date: Date(),
-         onShare: { print("share tapped") },
-         onTap: { print("card tapped") },
-         sharedWith: [
-             AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-             AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-             AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria"),
-             AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos"),
-         ]
-     )
- }
+#Preview("Con usuarios compartidos") {
+    FeedCard(
+        visualizationID: "preview-id-1",
+        previewJSON: "{}",
+        title: "Detailed Breakdown of Revenue, Transaction Volume, and User Engagement Trends Over Time",
+        author: "Mariana Islas",
+        date: Date(),
+        onShare: { print("share tapped") },
+        onTap: { print("card tapped") },
+        onHide: { print("hide tapped") },
+        onDelete: { print("delete tapped") },
+        sharedWith: [
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
+            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria"),
+            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos")
+        ],
+        isOwner: true
+    )
+}
 
- #Preview("Sin usuarios compartidos") {
-     FeedCard(
-         title: "Total Transactions by Category",
-         author: "Mariana Islas",
-         date: Date(),
-         onShare: { print("share tapped") },
-         onTap: { print("card tapped") },
-         sharedWith: nil
-     )
- }
- */
+#Preview("Sin usuarios compartidos") {
+    FeedCard(
+        visualizationID: "preview-id-2",
+        previewJSON: "{}",
+        title: "Total Transactions by Category",
+        author: "Mariana Islas",
+        date: Date(),
+        onShare: { print("share tapped") },
+        onTap: { print("card tapped") },
+        onHide: { print("hide tapped") },
+        onDelete: { print("delete tapped") },
+        sharedWith: nil,
+        isOwner: false
+    )
+}
+ 

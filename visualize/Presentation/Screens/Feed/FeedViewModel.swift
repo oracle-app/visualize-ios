@@ -171,9 +171,12 @@ class FeedViewModel {
         if forceRefresh {
             allVisualizations.removeAll()
         }
-        if allVisualizations.isEmpty {
-            state = .loading
+        
+        guard allVisualizations.isEmpty else {
+            return
         }
+        state = .loading
+        
         Task {
             do {
                 let items = try await loadVisualizationsUseCase.execute(
@@ -182,7 +185,6 @@ class FeedViewModel {
                 self.allVisualizations = items
                 applyLocalFilter()
             } catch {
-                print(error)
                 state = .error
             }
         }

@@ -223,15 +223,14 @@ struct FullScreenView: View {
 
 // MARK: - Preview
 
-#Preview("Scatter") {
+#Preview("Tile") {
     FullScreenView(card: VisualizationCard(
         id: "preview-id",
         title: "Relative performance of major currencies against the dollar",
         author: "Mariana Islas",
         authorID: "1",
         createdAt: Date(),
-        chart: .tile(title: "Preview", value: 100, label: "Test"),
-        chartType: .tile,
+        previewJSON: testPreviewJSON,
         teamsSharedWith: [],
         usersSharedWith: [
             AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
@@ -253,10 +252,27 @@ struct FullScreenView: View {
         author: "Mariana Islas",
         authorID: "1",
         createdAt: Date(),
-        chart: .unsupported(type: "Invalid JSON"),
-        chartType: .tile,
+        previewJSON: "{}",
         teamsSharedWith: [],
         usersSharedWith: [],
         allUsersSharedWith: []
     ))
 }
+
+let testPreviewJSON = """
+{
+"chartIndex": 9,
+"chartName": "Survival Trend by Age",
+"chartType": "Area",
+"data": {
+    "field1": ["0-19","20-39","40-59","60+"],
+    "field2": {
+        "98": ["64","164","75","16"],
+        "92":     ["69","169","66","30"]œ
+    }
+},
+"metrics": { "field1": "Age Group", "field2": "Count", "field3": "Outcome" },
+"page": 0, "pageSize": 100, "preview": true,
+"status": "COMPLETED", "totalPages": 1, "totalPoints": 4
+}
+"""
