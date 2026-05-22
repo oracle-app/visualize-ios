@@ -173,6 +173,13 @@ class FeedViewModel {
         }
         
         guard allVisualizations.isEmpty else {
+            Task {
+                do {
+                    let items = try await loadVisualizationsUseCase.execute(userID: currentUserID)
+                    applyDiff(newItems: items)
+                } catch {
+                }
+            }
             return
         }
         state = .loading
@@ -189,7 +196,32 @@ class FeedViewModel {
             }
         }
     }
+    
 
+    private func applyDiff(newItems: [VisualizationCard]) {
+        let newIDs = newItems.map(\.id)
+        let oldIDs = allVisualizations.map(\.id)
+
+        allVisualizations.removeAll { !newIDs.contains($0.id) }
+
+        for new in newItems {
+            if let idx = allVisualizations.firstIndex(where: { $0.id == new.id }) {
+                if allVisualizations[idx] != new {   //
+                    allVisualizations[idx] = new
+                }
+            }
+        }
+
+        for (offset, new) in newItems.enumerated() {
+            if !oldIDs.contains(new.id) {
+                let insertAt = min(offset, allVisualizations.count)
+                allVisualizations.insert(new, at: insertAt)
+            }
+        }
+
+        applyLocalFilter()
+    }
+    
     /// Loads data on first appear without forcing a refresh.
     func fetchInitialData() {
         if !allVisualizations.isEmpty { return }

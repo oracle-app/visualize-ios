@@ -94,13 +94,16 @@ struct FeedView: View {
                     Button {
                         Task { @MainActor in
                             title = nil
-                            withAnimation {
+                            isScrollDisabled = true
+                            withAnimation{
                                 scrollProxy?.scrollTo("top", anchor: .top)
                             }
-                        }
-                        withAnimation{
+                            isScrollDisabled = false
+                            
+                            try? await Task.sleep(for: .seconds(0.2))
                             viewModel.isSearchActive = true
                         }
+                        
                     } label: {
                         Image(systemName: "magnifyingglass")
                     }
@@ -132,8 +135,8 @@ struct FeedView: View {
             } primaryAction: {
             }
             .refreshable {
-                try? await Task.sleep(for: .seconds(0.3))
-                viewModel.loadData(forceRefresh: true)
+                try? await Task.sleep(for: .seconds(0.2))
+                viewModel.loadData(forceRefresh: false)
                 
             }
             .onAppear {
