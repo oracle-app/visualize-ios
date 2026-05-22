@@ -7,6 +7,11 @@
 //
 /// Central router that receives a ChartData model and renders
 /// the corresponding SciChart view based on the chart type.
+/// Reads the active colour theme from AppStorage and stamps each
+/// UIViewRepresentable with `.id(themeRaw)` so SwiftUI tears down
+/// and recreates the SCIChart surface whenever the theme changes —
+/// this is necessary because all chart views leave `updateUIView`
+/// empty; only `makeUIView` applies colours.
 /// Add new chart type cases here as they are implemented.
 
 import SwiftUI
@@ -43,6 +48,7 @@ struct ChartRendererView: View {
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )
+            .id(themeRaw)
             
             // MARK: Vertical Bar
         case .verticalBar(_, let data, let fieldNames):
@@ -55,6 +61,7 @@ struct ChartRendererView: View {
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )
+            .id(themeRaw)
             
             // MARK: Horizontal Bar
         case .horizontalBar(_, let data, let fieldNames):
@@ -67,6 +74,7 @@ struct ChartRendererView: View {
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )
+            .id(themeRaw)
         
         // MARK: Stacked Bar
         case .stackedBar(_, let data, let stackNames):
@@ -79,6 +87,7 @@ struct ChartRendererView: View {
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )
+            .id(themeRaw)
         
         // MARK: Line
         case .line(_, let data, let fieldNames):
@@ -90,6 +99,7 @@ struct ChartRendererView: View {
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )
+            .id(themeRaw)
         
         // MARK: Pie
         case .pie(_, let data, let fieldNames):
@@ -98,6 +108,7 @@ struct ChartRendererView: View {
                 labels: fieldNames,
                 theme: theme
             )
+            .id(themeRaw)
         
         // MARK: Donut
         case .donut(_, let data, let fieldNames):
@@ -106,6 +117,7 @@ struct ChartRendererView: View {
                 labels: fieldNames,
                 theme: theme
             )
+            .id(themeRaw)
         
         // MARK: Area
         case .area(_, let series, let categories):
@@ -118,6 +130,7 @@ struct ChartRendererView: View {
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )
+            .id(themeRaw)
  
         // MARK: Tile
         case .tile:
