@@ -81,7 +81,7 @@ private struct ThemePaletteView: View {
 
 private enum Metrics {
     static let sectionSpacing: CGFloat = 14
-    static let paletteHeight: CGFloat = 27
+    static let paletteHeight: CGFloat = 33
     static let themeCornerRadius: CGFloat = 10
     static let selectedBorderWidth: CGFloat = 2
     static let selectionPadding: CGFloat = 3
