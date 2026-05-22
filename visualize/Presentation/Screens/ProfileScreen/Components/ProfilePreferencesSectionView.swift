@@ -25,7 +25,7 @@ struct ProfilePreferencesSectionView: View {
                     Button {
                         selectThemeAction(theme)
                     } label: {
-                        ThemePaletteView(colors: colors(for: theme))
+                        ThemePaletteView(colors: theme.swiftUIColors)
                             .frame(maxWidth: .infinity)
                             .frame(height: Metrics.paletteHeight)
                             .clipShape(.rect(cornerRadius: Metrics.themeCornerRadius))
@@ -56,24 +56,6 @@ struct ProfilePreferencesSectionView: View {
             GridItem(.flexible(), spacing: Metrics.columnSpacing),
             GridItem(.flexible(), spacing: Metrics.columnSpacing)
         ]
-    }
-
-    // MARK: - Private methods
-
-    /// Returns the visual color palette for a chart theme.
-    /// - Parameter theme: The chart color theme to render.
-    /// - Returns: The SwiftUI colors associated with the selected theme.
-    private func colors(for theme: ChartColorTheme) -> [Color] {
-        switch theme {
-        case .aqua:
-            [.paletteAqua1, .paletteAqua2, .paletteAqua3, .paletteAqua4, .paletteAqua5]
-        case .iris:
-            [.paletteIris1, .paletteIris2, .paletteIris3, .paletteIris4, .paletteIris5]
-        case .autumn:
-            [.paletteAutumn1, .paletteAutumn2, .paletteAutumn3, .paletteAutumn4, .paletteAutumn5]
-        case .blossom:
-            [.paletteBlossom1, .paletteBlossom2, .paletteBlossom3, .paletteBlossom4, .paletteBlossom5]
-        }
     }
 }
 

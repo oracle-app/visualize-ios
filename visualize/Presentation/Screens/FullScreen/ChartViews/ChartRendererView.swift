@@ -19,39 +19,51 @@ struct ChartRendererView: View {
     var viewport: ChartViewport?
     /// Callback invoked once the coordinator attaches to the live surface.
     var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
+    
+    // MARK: - Private
+
+    @AppStorage("selectedChartTheme") private var themeRaw: String = ChartColorTheme.aqua.rawValue
+
+    private var theme: ChartColorTheme {
+        ChartColorTheme(rawValue: themeRaw) ?? .aqua
+    }
+    
     // MARK: - Body
     
     var body: some View {
         switch chart {
-        // MARK: Scatter
+            // MARK: Scatter
         case .scatter(_, let data, let fieldNames):
             ScatterChartView(
                 xValues: data.map { $0.x },
                 yValues: data.map { $0.y },
                 xLabel: fieldNames.first ?? "X",
                 yLabel: fieldNames.last ?? "Y",
+                theme: theme,
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )
-        
-        // MARK: Vertical Bar
+            
+            // MARK: Vertical Bar
         case .verticalBar(_, let data, let fieldNames):
             VerticalBarChartView(
                 categories: sortedKeys(from: data),
                 values: sortedValues(from: data),
                 xLabel: fieldNames.first ?? "X",
                 yLabel: fieldNames.last ?? "Y",
+                theme: theme,
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )
-        
-        // MARK: Horizontal Bar
+            
+            // MARK: Horizontal Bar
         case .horizontalBar(_, let data, let fieldNames):
             HorizontalBarChartView(
                 categories: sortedKeys(from: data),
                 values: sortedValues(from: data),
                 xLabel: fieldNames.first ?? "X",
                 yLabel: fieldNames.last ?? "Y",
+                theme: theme,
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )
@@ -63,6 +75,7 @@ struct ChartRendererView: View {
                 categories: stackNames,
                 xLabel: "Category",
                 yLabel: "Count",
+                theme: theme,
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )
@@ -73,6 +86,7 @@ struct ChartRendererView: View {
                 data: data,
                 xLabel: fieldNames.first ?? "X",
                 yLabel: fieldNames.last ?? "Y",
+                theme: theme,
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )
@@ -81,14 +95,16 @@ struct ChartRendererView: View {
         case .pie(_, let data, let fieldNames):
             PieChartView(
                 values: data,
-                labels: fieldNames
+                labels: fieldNames,
+                theme: theme
             )
         
         // MARK: Donut
         case .donut(_, let data, let fieldNames):
             DonutChartView(
                 values: data,
-                labels: fieldNames
+                labels: fieldNames,
+                theme: theme
             )
         
         // MARK: Area
@@ -98,6 +114,7 @@ struct ChartRendererView: View {
                 series: series,
                 xLabel: "Category",
                 yLabel: "Count",
+                theme: theme,
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
             )

@@ -21,6 +21,7 @@ struct VerticalBarChartView: UIViewRepresentable {
     let values: [Double]
     let xLabel: String
     let yLabel: String
+    let theme: ChartColorTheme
     var viewport: ChartViewport?
     var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
     // MARK: - Coordinator
@@ -36,19 +37,22 @@ struct VerticalBarChartView: UIViewRepresentable {
         let surface = SCIChartSurface()
         surface.backgroundColor = UIColor(Color.white)
         surface.renderableSeriesAreaBorderStyle = SCISolidPenStyle(color: .clear, thickness: 0)
+        
+        let primaryColor = theme.uiColors[0]
+        let gridLineColor = primaryColor.withAlphaComponent(0.2)
  
         // MARK: Axes
         let xAxis = SCINumericAxis()
         xAxis.axisTitle = xLabel
-        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        xAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.2), thickness: 1)
+        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        xAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1)
         xAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         xAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
  
         let yAxis = SCINumericAxis()
         yAxis.axisTitle = yLabel
-        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        yAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.2), thickness: 1)
+        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        yAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1)
         yAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         yAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
         yAxis.growBy = SCIDoubleRange(min: 0, max: 0.1)
@@ -71,8 +75,8 @@ struct VerticalBarChartView: UIViewRepresentable {
         // MARK: Series
         let renderSeries = SCIFastColumnRenderableSeries()
         renderSeries.dataSeries = dataSeries
-        renderSeries.fillBrushStyle = SCISolidBrushStyle(color: UIColor(Color.appTeal))
-        renderSeries.strokeStyle = SCISolidPenStyle(color: UIColor(Color.appNavy), thickness: 0.5)
+        renderSeries.fillBrushStyle = SCISolidBrushStyle(color: primaryColor)
+        renderSeries.strokeStyle = SCISolidPenStyle(color: theme.uiColors[1], thickness: 0.5)
         renderSeries.dataPointWidth = 0.7
  
         surface.renderableSeries.add(renderSeries)

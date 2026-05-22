@@ -22,6 +22,7 @@ struct HorizontalBarChartView: UIViewRepresentable {
     let values: [Double]
     let xLabel: String
     let yLabel: String
+    let theme: ChartColorTheme
     var viewport: ChartViewport?
     var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
 
@@ -40,14 +41,17 @@ struct HorizontalBarChartView: UIViewRepresentable {
         let surface = SCIChartSurface()
         surface.backgroundColor = UIColor(Color.white)
         surface.renderableSeriesAreaBorderStyle = SCISolidPenStyle(color: .clear, thickness: 0)
+        
+        let primaryColor = theme.uiColors[0]
+        let gridLineColor = primaryColor.withAlphaComponent(0.2)
 
         // MARK: Axes
         let xAxis = SCINumericAxis()
         xAxis.axisTitle = xLabel
         xAxis.axisAlignment = .left
         xAxis.flipCoordinates = true
-        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        xAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.2), thickness: 1)
+        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        xAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1)
         xAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         xAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
 
@@ -55,8 +59,8 @@ struct HorizontalBarChartView: UIViewRepresentable {
         yAxis.axisTitle = yLabel
         yAxis.axisAlignment = .bottom
         yAxis.flipCoordinates = true
-        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        yAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.2), thickness: 1)
+        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        yAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1)
         yAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         yAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
         yAxis.growBy = SCIDoubleRange(min: 0, max: 0.1)
@@ -83,7 +87,7 @@ struct HorizontalBarChartView: UIViewRepresentable {
 
         let stackedSeries = SCIStackedColumnRenderableSeries()
         stackedSeries.dataSeries = dataSeries
-        stackedSeries.fillBrushStyle = SCISolidBrushStyle(color: UIColor(Color.appTeal))
+        stackedSeries.fillBrushStyle = SCISolidBrushStyle(color: primaryColor)
         stackedSeries.strokeStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         stackedSeries.dataPointWidth = 0.7
 

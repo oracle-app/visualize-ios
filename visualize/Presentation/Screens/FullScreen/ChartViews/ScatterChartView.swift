@@ -20,6 +20,7 @@ struct ScatterChartView: UIViewRepresentable {
     let yValues: [Double]
     let xLabel: String
     let yLabel: String
+    let theme: ChartColorTheme
     var viewport: ChartViewport?
     var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
     
@@ -37,19 +38,23 @@ struct ScatterChartView: UIViewRepresentable {
         let surface = SCIChartSurface()
         surface.backgroundColor = UIColor(Color.white)
         surface.renderableSeriesAreaBorderStyle = SCISolidPenStyle(color: .clear, thickness: 0)
-
+        
+        let primaryColor = theme.uiColors[0]
+        let secondaryColor = theme.uiColors[1]
+        let gridLineColor = primaryColor.withAlphaComponent(0.5)
+        
         // MARK: Axes
         let xAxis = SCINumericAxis()
         xAxis.axisTitle = xLabel
-        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        xAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.5), thickness: 1.5)
+        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        xAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1.5)
         xAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         xAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
 
         let yAxis = SCINumericAxis()
         yAxis.axisTitle = yLabel
-        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        yAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.5), thickness: 1.5)
+        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        yAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1.5)
         yAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         yAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
         yAxis.autoRange = .always
@@ -76,8 +81,8 @@ struct ScatterChartView: UIViewRepresentable {
         renderSeries.pointMarker = {
             let marker = SCIEllipsePointMarker()
             marker.size = CGSize(width: 8, height: 8)
-            marker.fillStyle = SCISolidBrushStyle(color: UIColor(Color.primaryOrange))
-            marker.strokeStyle = SCISolidPenStyle(color: UIColor(Color.appNavy), thickness: 1.5)
+            marker.fillStyle = SCISolidBrushStyle(color: secondaryColor)
+            marker.strokeStyle = SCISolidPenStyle(color: primaryColor, thickness: 1.5)
             return marker
         }()
 
