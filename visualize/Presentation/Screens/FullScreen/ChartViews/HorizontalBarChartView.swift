@@ -9,10 +9,34 @@
 /// X axis holds the bar lengths (values), Y axis holds the category indices.
 /// Wraps SCIChartSurface in a UIViewRepresentable with zoom on Y axis,
 /// and tap tooltip modifiers for full-screen interactivity.
+/// Individual bar colours are applied via `BarFillPaletteProvider`, cycling
+/// through the active `ChartColorTheme` palette per data point.
 
 import SwiftUI
 import SciChart
 import os.log
+
+// MARK: - Palette Provider
+
+/// Supplies a unique fill colour per data-point index, cycling through
+/// the provided palette. Used to colour each horizontal bar individually
+/// within a single `SCIStackedColumnRenderableSeries`.
+private final class BarFillPaletteProvider: SCIPaletteProviderBase<SCIStackedColumnRenderableSeries>,
+                                             ISCIFillPaletteProvider,
+                                             ISCIStrokePaletteProvider {
+    var fillColors = SCIUnsignedIntegerValues()
+    var strokeColors = SCIUnsignedIntegerValues()
+
+    init(colors: [UIColor]) {
+        for color in colors {
+            fillColors.add(color.colorARGBCode())
+            strokeColors.add(UIColor.clear.colorARGBCode())
+        }
+        super.init(renderableSeriesType: SCIStackedColumnRenderableSeries.self)
+    }
+}
+
+// MARK: - View
 
 struct HorizontalBarChartView: UIViewRepresentable {
 
@@ -81,14 +105,16 @@ struct HorizontalBarChartView: UIViewRepresentable {
         let dataSeries = SCIXyDataSeries(xType: .double, yType: .double)
         dataSeries.acceptsUnsortedData = true
         dataSeries.append(x: xData, y: yData)
-
+        
+        // MARK: Palette — cycles theme colours per bar
+        let paletteColors = categories.indices.map { theme.uiColors[$0 % theme.uiColors.count] }
+        
         // MARK: Series
         let stackedCollection = SCIHorizontallyStackedColumnsCollection()
 
         let stackedSeries = SCIStackedColumnRenderableSeries()
         stackedSeries.dataSeries = dataSeries
-        stackedSeries.fillBrushStyle = SCISolidBrushStyle(color: primaryColor)
-        stackedSeries.strokeStyle = SCISolidPenStyle(color: .clear, thickness: 0)
+        stackedSeries.paletteProvider = BarFillPaletteProvider(colors: paletteColors)
         stackedSeries.dataPointWidth = 0.7
 
         stackedCollection.add(stackedSeries)

@@ -8,10 +8,34 @@
 import SwiftUI
 import SciChart
 import os.log
+
+// MARK: - Palette Provider
+
+/// Supplies a unique fill colour per data-point index, cycling through
+/// the provided palette. Used to colour each vertical bar individually
+/// within a single `SCIFastColumnRenderableSeries`.
+private final class BarFillPaletteProvider: SCIPaletteProviderBase<SCIFastColumnRenderableSeries>,
+                                             ISCIFillPaletteProvider,
+                                             ISCIStrokePaletteProvider {
+    var fillColors = SCIUnsignedIntegerValues()
+    var strokeColors = SCIUnsignedIntegerValues()
+
+    init(colors: [UIColor]) {
+        for color in colors {
+            fillColors.add(color.colorARGBCode())
+            strokeColors.add(UIColor.clear.colorARGBCode())
+        }
+        super.init(renderableSeriesType: SCIFastColumnRenderableSeries.self)
+    }
+}
  
+// MARK: - View
+
 /// SciChart-based vertical bar (column) chart renderer.
 /// Wraps `SCIChartSurface` in a `UIViewRepresentable` with zoom, pan,
 /// and rollover tooltip modifiers for full-screen interactivity.
+/// Individual bar colours are applied via `BarFillPaletteProvider`, cycling
+/// through the active `ChartColorTheme` palette per data point.
 struct VerticalBarChartView: UIViewRepresentable {
  
     // MARK: - Properties
@@ -71,12 +95,14 @@ struct VerticalBarChartView: UIViewRepresentable {
  
         let dataSeries = SCIXyDataSeries(xType: .double, yType: .double)
         dataSeries.append(x: xData, y: yData)
- 
+        
+        // MARK: Palette — cycles theme colours per bar
+        let paletteColors = categories.indices.map { theme.uiColors[$0 % theme.uiColors.count] }
+        
         // MARK: Series
         let renderSeries = SCIFastColumnRenderableSeries()
         renderSeries.dataSeries = dataSeries
-        renderSeries.fillBrushStyle = SCISolidBrushStyle(color: primaryColor)
-        renderSeries.strokeStyle = SCISolidPenStyle(color: theme.uiColors[1], thickness: 0.5)
+        renderSeries.paletteProvider = BarFillPaletteProvider(colors: paletteColors)
         renderSeries.dataPointWidth = 0.7
  
         surface.renderableSeries.add(renderSeries)
