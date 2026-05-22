@@ -69,6 +69,12 @@ struct PieChartView: UIViewRepresentable {
         segment.strokeStyle = SCISolidPenStyle(color: UIColor(Color.white), thickness: 2)
         return segment
     }
+    
+    static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: Coordinator) {
+        uiView.suspendUpdates()
+        uiView.renderableSeries.clear()
+        uiView.chartModifiers.clear()
+    }
 }
  
 // MARK: - Preview
