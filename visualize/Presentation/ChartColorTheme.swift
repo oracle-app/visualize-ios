@@ -8,32 +8,32 @@
 import SwiftUI
 
 enum ChartColorTheme: String, CaseIterable, Identifiable {
-    case aqua
-    case iris
-    case autumn
-    case blossom
+    case lagoon
+    case sunset
+    case harvest
+    case petal
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
-        case .aqua: "Aqua"
-        case .iris: "Iris"
-        case .autumn: "Autumn"
-        case .blossom: "Blossom"
+        case .lagoon: "Lagoon"
+        case .sunset: "Sunset"
+        case .harvest: "Harvest"
+        case .petal: "Petal"
         }
     }
 
     var swiftUIColors: [Color] {
         switch self {
-        case .aqua:
-            [.paletteAqua1, .paletteAqua2, .paletteAqua3, .paletteAqua4, .paletteAqua5]
-        case .iris:
-            [.paletteIris1, .paletteIris2, .paletteIris3, .paletteIris4, .paletteIris5]
-        case .autumn:
-            [.paletteAutumn1, .paletteAutumn2, .paletteAutumn3, .paletteAutumn4, .paletteAutumn5]
-        case .blossom:
-            [.paletteBlossom1, .paletteBlossom2, .paletteBlossom3, .paletteBlossom4, .paletteBlossom5]
+        case .lagoon:
+            [.paletteLagoon1, .paletteLagoon2, .paletteLagoon3, .paletteLagoon4, .paletteLagoon5]
+        case .sunset:
+            [.paletteSunset1, .paletteSunset2, .paletteSunset3, .paletteSunset4, .paletteSunset5]
+        case .harvest:
+            [.paletteHarvest1, .paletteHarvest2, .paletteHarvest3, .paletteHarvest4, .paletteHarvest5]
+        case .petal:
+            [.palettePetal1, .palettePetal2, .palettePetal3, .palettePetal4, .palettePetal5]
         }
     }
 

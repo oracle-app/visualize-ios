@@ -13,7 +13,7 @@ struct ProfileScreenView: View {
     @Environment(AppCoordinator.self) private var coordinator
     @State private var viewModel: ProfileScreenViewModel
 
-    @AppStorage("selectedChartTheme") private var selectedThemeRaw: String = ChartColorTheme.aqua.rawValue
+    @AppStorage("selectedChartTheme") private var selectedThemeRaw: String = ChartColorTheme.lagoon.rawValue
     @State private var activeToast: Toast?
 
     // MARK: - Initialization
@@ -31,7 +31,7 @@ struct ProfileScreenView: View {
     // MARK: - Private
 
     private var selectedTheme: ChartColorTheme {
-        ChartColorTheme(rawValue: selectedThemeRaw) ?? .aqua
+        ChartColorTheme(rawValue: selectedThemeRaw) ?? .lagoon
     }
 
     // MARK: - Body

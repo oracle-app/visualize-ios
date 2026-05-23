@@ -27,10 +27,10 @@ struct ChartRendererView: View {
     
     // MARK: - Private
 
-    @AppStorage("selectedChartTheme") private var themeRaw: String = ChartColorTheme.aqua.rawValue
+    @AppStorage("selectedChartTheme") private var themeRaw: String = ChartColorTheme.lagoon.rawValue
 
     private var theme: ChartColorTheme {
-        ChartColorTheme(rawValue: themeRaw) ?? .aqua
+        ChartColorTheme(rawValue: themeRaw) ?? .lagoon
     }
     
     // MARK: - Body

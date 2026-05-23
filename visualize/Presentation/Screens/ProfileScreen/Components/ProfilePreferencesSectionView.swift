@@ -85,8 +85,8 @@ private enum Metrics {
     static let themeCornerRadius: CGFloat = 10
     static let selectedBorderWidth: CGFloat = 2
     static let selectionPadding: CGFloat = 3
-    static let rowSpacing: CGFloat = 6
-    static let columnSpacing: CGFloat = 6
+    static let rowSpacing: CGFloat = 8
+    static let columnSpacing: CGFloat = 8
 }
 
 #Preview {
@@ -96,7 +96,7 @@ private enum Metrics {
 
         ProfilePreferencesSectionView(
             availableThemes: ChartColorTheme.allCases,
-            selectedTheme: .aqua
+            selectedTheme: .lagoon
         ) { _ in
             // Preview action
         }
