@@ -41,7 +41,6 @@ struct FeedView: View {
     @State private var searchPressed: Bool = false
 
 
-
     var shouldLoad: Bool = true
 
     // MARK: - Body
@@ -222,6 +221,7 @@ struct FeedView: View {
         } action: { newValue in
             safeArea = newValue
         }
+        .appBackground()
     }
 
     // MARK: - Header
