@@ -41,7 +41,7 @@ class UserRepositoryImpl: UserRepository {
             email: user.email,
             profilePictureURL: user.profilePictureURL ?? "",
             themePreference: "",
-            userType: "ADMIN",
+            userType: user.role.rawValue,
             username: user.username,
             hiddenVisualizations: []
         )
