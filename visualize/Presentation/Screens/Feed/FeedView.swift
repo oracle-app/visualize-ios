@@ -36,8 +36,10 @@ struct FeedView: View {
     @State private var usersToShare: [AppUser] = []
     @State private var selectedCard: VisualizationCard? = nil
     @State private var isScrolledPastHeader: Bool = false
-    @State private var scrollProxy: ScrollViewProxy? = nil
     @State private var isScrollDisabled: Bool = false
+    @State private var scrollPosition: ScrollPosition = .init(idType: String.self)
+    @State private var searchPressed: Bool = false
+
 
 
     var shouldLoad: Bool = true
@@ -45,105 +47,117 @@ struct FeedView: View {
     // MARK: - Body
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    Color.clear
-                            .frame(height: 0)
-                            .id("top")
-                    headerView()
-                    contentView()
-                }
-                .padding(0)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                Color.clear
+                        .frame(height: 0)
+                        .id("top")
+                headerView()
+                contentView()
             }
-            .navigationDestination(item: $selectedCard) { card in
-                FullScreenView(card: card)
-                    .navigationBarBackButtonHidden(true)
-            }
-            .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
-                if viewModel.isSearchActive {
-                    HStack(spacing: 8) {
-                        Image(systemName: "magnifyingglass")
+            .padding(0)
+        }
+        .navigationDestination(item: $selectedCard) { card in
+            FullScreenView(card: card)
+                .navigationBarBackButtonHidden(true)
+        }
+        .customToolBar(isPrimaryActionVisible: isPrimaryActionVisible, title: title) {
+            if viewModel.isSearchActive {
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+                        .font(.body)
+                    TextField("Search visualizations...", text: $viewModel.searchQuery)
+                        .textFieldStyle(.plain)
+                        .font(.body)
+                        .frame(width: 220)
+                        .submitLabel(.search)
+                    Button {
+                        withAnimation(.smooth(duration: 0.2)) {
+                            viewModel.isSearchActive = false
+                            viewModel.clearSearch()
+                            
+                        }
+                        Task {
+                            try? await Task.sleep(for: .seconds(0.1))
+                            guard !viewModel.isSearchActive else { return }
+                            withAnimation {
+                                title = isScrolledPastHeader ? selectedFeed.title : nil
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.secondary)
-                            .font(.body)
-                        TextField("Search visualizations...", text: $viewModel.searchQuery)
-                            .textFieldStyle(.plain)
-                            .font(.body)
-                            .frame(width: 220)
-                            .submitLabel(.search)
-                        Button {
-                            withAnimation(.smooth(duration: 0.2)) {
-                                viewModel.isSearchActive = false
-                                viewModel.clearSearch()
-                                
-                            }
-                            Task {
-                                try? await Task.sleep(for: .seconds(0.1))
-                                guard !viewModel.isSearchActive else { return }
-                                withAnimation {
-                                    title = isScrolledPastHeader ? selectedFeed.title : nil
-                                }
-                            }
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.secondary)
+                    }
+                }
+                .transition(.move(edge: .leading).combined(with: .opacity))
+            } else {
+                Button {
+                    
+                    if isScrolledPastHeader {
+                        searchPressed = true
+                        isScrollDisabled = true
+                        title = nil
+                        withAnimation(.smooth(duration: 0.3)) {
+                            scrollPosition.scrollTo(id: "top", anchor: .top)
+                        }
+                        isScrollDisabled = false
+
+                        Task { @MainActor in
+                            try? await Task.sleep(for: .seconds(0.25))
+                            viewModel.isSearchActive = true
+                            searchPressed = false
                         }
                     }
-                    .transition(.move(edge: .leading).combined(with: .opacity))
-                } else {
-                    Button {
-                        Task { @MainActor in
-                            title = nil
-                            withAnimation {
-                                scrollProxy?.scrollTo("top", anchor: .top)
-                            }
+                    else {
+                        searchPressed = true
+                        title = nil
+                        withAnimation {
+                            scrollPosition.scrollTo(id: "top", anchor: .top)
                         }
-                        withAnimation{
+                        withAnimation {
                             viewModel.isSearchActive = true
                         }
-                    } label: {
-                        Image(systemName: "magnifyingglass")
+                        searchPressed = false
                     }
-                    .transition(.move(edge: .leading).combined(with: .opacity))
+                } label: {
+                    Image(systemName: "magnifyingglass")
                 }
-            } trailing: {
-                HStack(spacing: 15) {
-                    Button("Notifications", systemImage: "bell") {
-                    }
-                }
-            } principal: {
-                if let title {
-                    Button {
-                        Task { @MainActor in
-                            
-                            isScrollDisabled = true
-                            
-                            withAnimation{
-                                scrollProxy?.scrollTo("top", anchor: .top)
-                            }
-                            isScrollDisabled = false
-                        }
-                    } label: {
-                        Text(title)
-                            .fontWeight(.semibold)
-                    }
-                    .transition(.offset(y: 10).combined(with: AnyTransition(.blurReplace)))
-                }
-            } primaryAction: {
+                .transition(.move(edge: .leading).combined(with: .opacity))
             }
-            .refreshable {
-                try? await Task.sleep(for: .seconds(0.3))
-                viewModel.loadData(forceRefresh: true)
-                
-            }
-            .onAppear {
-                scrollProxy = proxy
-                if shouldLoad {
-                    viewModel.loadData()
+        } trailing: {
+            HStack(spacing: 15) {
+                Button("Notifications", systemImage: "bell") {
                 }
             }
-            .scrollDisabled(isScrollDisabled)
+        } principal: {
+            if let title {
+                Button {
+                    isScrollDisabled = true
+                    withAnimation(.smooth(duration: 0.3)) {
+                        scrollPosition.scrollTo(id: "top", anchor: .top)
+                    }
+                    isScrollDisabled = false
+                } label: {
+                    Text(title)
+                        .fontWeight(.semibold)
+                }
+                .transition(.offset(y: 10).combined(with: AnyTransition(.blurReplace)))
+            }
+        } primaryAction: {
         }
+        .refreshable {
+            try? await Task.sleep(for: .seconds(0.2))
+            viewModel.loadData(forceRefresh: false)
+            
+        }
+        .onAppear {
+            if shouldLoad {
+                viewModel.loadData()
+            }
+        }
+        .scrollDisabled(isScrollDisabled)
+        .scrollPosition($scrollPosition)
         .sheet(item: $sharePayload) { payload in
             let userDatasource = UserDatasource()
             let teamsDatasource = TeamDatasource()
@@ -215,7 +229,7 @@ struct FeedView: View {
     /// Builds the feed header with a menu to switch between All, Personal, and Shared filters.
     @ViewBuilder
     func headerView() -> some View {
-        if !viewModel.isSearchActive {
+        if !viewModel.isSearchActive && !searchPressed {
             Menu {
                 Button {
                     selectedFeed = .all
@@ -269,12 +283,28 @@ struct FeedView: View {
     /// Builds the content area based on the current feed state, including search results.
     @ViewBuilder
     func contentView() -> some View {
-        if viewModel.isSearchActive {
-            if viewModel.searchQuery.count < 2 {
-                switch viewModel.state {
-                case .loaded(let items):
+        switch viewModel.state {
+        case .loading:
+            if !viewModel.isSearchActive { LoadingListView() }
+        case .empty:
+            if !viewModel.isSearchActive { EmptyListView { viewModel.loadData() } }
+        case .error:
+            if !viewModel.isSearchActive { ErrorListView { viewModel.loadData() } }
+        case .loaded(let items):
+            if viewModel.isSearchActive && viewModel.searchQuery.count >= 2 {
+                if viewModel.searchResults.isEmpty {
+                    VStack {
+                        Text("No results for \"\(viewModel.searchQuery)\"")
+                            .font(.body.bold())
+                            .foregroundStyle(Color.appTeal)
+                        Text("Try a different search term")
+                            .foregroundStyle(.gray)
+                    }
+                    .hCenter()
+                    .padding(.top, 300)
+                } else {
                     LoadedListView(
-                        items: items,
+                        items: viewModel.searchResults,
                         onShare: { visualizationID, allUsers, editableUsers, teamIDs in
                             sharePayload = SharePayload(
                                 visualizationID: visualizationID,
@@ -288,49 +318,8 @@ struct FeedView: View {
                         onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
                         currentUserID: viewModel.currentUserID
                     )
-                default:
-                    EmptyView()
                 }
-            } else if viewModel.searchResults.isEmpty {
-                VStack {
-                    Text("No results for \"\(viewModel.searchQuery)\"")
-                        .font(.body.bold())
-                        .foregroundStyle(Color.appTeal)
-                    Text("Try a different search term")
-                        .foregroundStyle(.gray)
-                }
-                .hCenter()
-                .padding(.top, 300)
             } else {
-                LoadedListView(
-                    items: viewModel.searchResults,
-                    onShare: { visualizationID, allUsers, editableUsers, teamIDs in
-                        sharePayload = SharePayload(
-                            visualizationID: visualizationID,
-                            allUsers: allUsers,
-                            editableUsers: editableUsers,
-                            initialTeamIDs: teamIDs
-                        )
-                    },
-                    onTap: { card in selectedCard = card },
-                    onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
-                    onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
-                    currentUserID: viewModel.currentUserID
-                )
-            }
-        } else {
-            switch viewModel.state {
-            case .loading:
-                LoadingListView()
-            case .empty:
-                EmptyListView {
-                    viewModel.loadData()
-                }
-            case .error:
-                ErrorListView {
-                    viewModel.loadData()
-                }
-            case .loaded(let items):
                 LoadedListView(
                     items: items,
                     onShare: { visualizationID, allUsers, editableUsers, teamIDs in

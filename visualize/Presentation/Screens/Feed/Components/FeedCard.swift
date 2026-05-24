@@ -35,6 +35,20 @@ struct FeedCard: View {
         }
     }
     
+    private var formattedDate: String {
+        let interval = Date().timeIntervalSince(date)
+        
+        if interval < 3600 {
+            let minutes = Int(interval / 60)
+            return minutes <= 1 ? "Just now" : "\(minutes) minutes ago"
+        } else if interval < 86400 {
+            let hours = Int(interval / 3600)
+            return hours == 1 ? "1 hour ago" : "\(hours) hours ago"
+        } else {
+            return date.formatted(date: .abbreviated, time: .omitted)
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top) {
@@ -46,7 +60,7 @@ struct FeedCard: View {
                     HStack(spacing: 12) {
                         Text("by \(isOwner ? "me" : author)")
                         Text("•")
-                        Text(date.formatted(date: .abbreviated, time: .omitted))
+                        Text(formattedDate)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.system(size: 13, weight: .regular))
