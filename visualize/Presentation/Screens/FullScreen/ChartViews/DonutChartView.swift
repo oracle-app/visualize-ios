@@ -18,16 +18,7 @@ struct DonutChartView: UIViewRepresentable {
  
     let values: [Double]
     let labels: [String]
- 
-    // MARK: - Private
- 
-    private let segmentColors: [UIColor] = [
-        UIColor(Color.appTeal),
-        UIColor(Color.primaryOrange),
-        UIColor(Color.appLightTeal),
-        UIColor(Color.appMint),
-        UIColor(Color.appChartGray)
-    ]
+    let theme: ChartColorTheme
  
     // MARK: - UIViewRepresentable
  
@@ -39,13 +30,14 @@ struct DonutChartView: UIViewRepresentable {
  
         let donutSeries = SCIDonutRenderableSeries()
         donutSeries.drawLabels = true
- 
+
+        let themeColors = theme.uiColors
         for (index, value) in values.enumerated() {
             donutSeries.segmentsCollection.add(
                 makeSegment(
                     value: value,
                     title: index < labels.count ? labels[index] : "",
-                    color: segmentColors[index % segmentColors.count]
+                    color: themeColors[index % themeColors.count]
                 )
             )
         }
