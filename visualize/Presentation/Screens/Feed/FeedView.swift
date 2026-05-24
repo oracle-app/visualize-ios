@@ -322,36 +322,6 @@ struct FeedView: View {
                 }
             } else {
                 LoadedListView(
-                    items: viewModel.searchResults,
-                    onShare: { visualizationID, allUsers, editableUsers, teamIDs in
-                        sharePayload = SharePayload(
-                            visualizationID: visualizationID,
-                            allUsers: allUsers,
-                            editableUsers: editableUsers,
-                            initialTeamIDs: teamIDs
-                        )
-                    },
-                    onTap: { card in selectedCard = card },
-                    onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
-                    onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
-                    currentUserID: viewModel.currentUserID,
-                    currentUserRole: viewModel.currentUserRole
-                )
-            }
-        } else {
-            switch viewModel.state {
-            case .loading:
-                LoadingListView()
-            case .empty:
-                EmptyListView {
-                    viewModel.loadData()
-                }
-            case .error:
-                ErrorListView {
-                    viewModel.loadData()
-                }
-            case .loaded(let items):
-                LoadedListView(
                     items: items,
                     onShare: { visualizationID, allUsers, editableUsers, teamIDs in
                         sharePayload = SharePayload(
