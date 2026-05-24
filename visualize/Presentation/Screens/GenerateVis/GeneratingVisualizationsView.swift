@@ -41,7 +41,7 @@ struct GeneratingVisualizationsView: View {
         VStack(spacing: 0) {
             Text(viewModel.title)
                 .font(.title.weight(.bold))
-                .foregroundStyle(Color.appNavy)
+                .foregroundStyle(Color.primaryText)
                 .multilineTextAlignment(.center)
 
             Text(viewModel.message)

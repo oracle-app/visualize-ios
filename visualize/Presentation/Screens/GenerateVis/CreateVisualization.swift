@@ -40,13 +40,13 @@ struct CreateVisualization: View {
 
                     Image(systemName: "chart.bar.xaxis")
                         .font(.system(size: 36))
-                        .foregroundColor(.primary)
+                        .foregroundStyle(Color.primaryText)
                         .padding(.top, 14)
                         .padding(.bottom, 16)
 
                     Text("Create data visualizations")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.primary)
+                        .foregroundStyle(Color.primaryText)
                         .padding(.bottom, 10)
 
                     Group {
