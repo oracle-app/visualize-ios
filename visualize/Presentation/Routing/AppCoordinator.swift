@@ -25,6 +25,7 @@ final class AppCoordinator {
     // MARK: - Auth State
 
     var isAuthenticated: Bool = false
+    var currentUser: AppUser? = nil
     var path: [AppRoute] = []
     var root: RootRoute = .landing
     
@@ -134,13 +135,15 @@ final class AppCoordinator {
 
     // MARK: - Session
 
-    func login() {
+    func login(user: AppUser) {
+        self.currentUser = user
         path.removeAll()
         isAuthenticated = true
     }
 
     func logout() {
         isAuthenticated = false
+        self.currentUser = nil
         path.removeAll()
         feedPath.removeAll()
         resetCreateFlow(shouldResetUpload: false)

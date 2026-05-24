@@ -61,26 +61,28 @@ struct NavBar: View {
             }
             .tabItem { Label("", systemImage: "house") }
             .tag(Tabs.feed)
+            
+            if coordinator.currentUser?.role != .consumer {
+                NavigationStack(path: $coordinator.createPath) {
+                    CreateVisualization()
+                        .navigationDestination(for: AppRoute.self) { route in
+                            switch route {
+                            case .generatingVisualizations:
+                                GeneratingVisualizationsView()
+                                    .navigationBarBackButtonHidden(true)
 
-            NavigationStack(path: $coordinator.createPath) {
-                CreateVisualization()
-                    .navigationDestination(for: AppRoute.self) { route in
-                        switch route {
-                        case .generatingVisualizations:
-                            GeneratingVisualizationsView()
-                                .navigationBarBackButtonHidden(true)
+                            case .vizReady:
+                                VizReadyView(suggestions: coordinator.pendingSuggestions)
+                                    .navigationBarBackButtonHidden(true)
 
-                        case .vizReady:
-                            VizReadyView(suggestions: coordinator.pendingSuggestions)
-                                .navigationBarBackButtonHidden(true)
-
-                        default:
-                            EmptyView()
+                            default:
+                                EmptyView()
+                            }
                         }
-                    }
+                }
+                .tabItem { Label("", systemImage: "plus") }
+                .tag(Tabs.create)
             }
-            .tabItem { Label("", systemImage: "plus") }
-            .tag(Tabs.create)
 
             NavigationStack(path: $coordinator.teamsPath) {
                 Color.green.ignoresSafeArea()

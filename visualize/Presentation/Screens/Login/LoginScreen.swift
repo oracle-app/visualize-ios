@@ -160,9 +160,9 @@ struct Login: View {
         }
         .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
         .background(Color(Color.appTeal))
-        .onChange(of: viewModel.isLoggedIn) { _, success in
-            if success {
-                coordinator.login()
+        .onChange(of: viewModel.loggedInUser) { _, user in
+            if let authenticatedUser = user {
+                coordinator.login(user: authenticatedUser)
             }
         }
     }
@@ -174,7 +174,8 @@ struct Login: View {
     let repo = AuthRepositoryImpl(source: AuthFirebaseDatasource())
     Login(
         viewModel: LoginViewModel(
-            loginUseCase: LoginUseCase(repository: repo)
+            loginUseCase: LoginUseCase(repository: repo),
+            userRepository: UserRepositoryImpl(userDatasource: UserDatasource())
         )
     )
     .environment(AppCoordinator())

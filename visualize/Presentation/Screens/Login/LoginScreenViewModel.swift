@@ -47,6 +47,7 @@ class LoginViewModel {
     var passwordError: String? = nil
     var isLoading: Bool = false
     var isLoggedIn: Bool = false
+    var loggedInUser: AppUser? = nil
     
     // Toast
     var currentToast: Toast? = nil
@@ -57,11 +58,16 @@ class LoginViewModel {
     // MARK: - Dependencies
     
     private let loginUseCase: LoginUseCase
+    private let userRepository: any UserRepository
     
     // MARK: - Initialization
     
-    init(loginUseCase: LoginUseCase) {
+    init(
+        loginUseCase: LoginUseCase,
+        userRepository: any UserRepository
+    ) {
         self.loginUseCase = loginUseCase
+        self.userRepository = userRepository
     }
     
     // MARK: - Toast
@@ -95,8 +101,11 @@ class LoginViewModel {
                     password: password
                 )
                 
+                let appUser = try await userRepository.getUserByID(userID: user.uid)
+                
                 print("Login success: \(user)")
                 isLoggedIn = true
+                self.loggedInUser = appUser
                 
             } catch let error as LoginError {
                 switch error {
