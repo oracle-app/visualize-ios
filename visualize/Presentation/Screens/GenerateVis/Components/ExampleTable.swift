@@ -78,7 +78,7 @@ struct ExampleTable: View {
                     }
                 }
             }
-            .background(Color(.systemBackground).opacity(0.3))
+            .background(Color.appBackground.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
@@ -93,7 +93,6 @@ struct ExampleTable: View {
             .foregroundColor(Color.appSubtitle)
             .padding(.top, 14)
         }
-        .background(Color(.systemBackground))
     }
 }
 

@@ -28,67 +28,63 @@ struct ProfileScreenView: View {
     // MARK: - Internal properties
 
     var body: some View {
-        ZStack {
-            Color.appBackground
-                .ignoresSafeArea()
+        ScrollView {
+            VStack(spacing: Metrics.sectionSpacing) {
+                ProfileHeaderView(profilePictureURL: viewModel.profilePictureURL) {
+                    viewModel.editProfilePhoto()
+                }
 
-            ScrollView {
-                VStack(spacing: Metrics.sectionSpacing) {
-                    ProfileHeaderView(profilePictureURL: viewModel.profilePictureURL) {
-                        viewModel.editProfilePhoto()
+                VStack(spacing: Metrics.contentSpacing) {
+                    ProfileUserInfoView(
+                        username: viewModel.username,
+                        email: viewModel.email
+                    )
+
+                    Divider()
+                        .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
+
+                    ProfilePreferencesSectionView(
+                        availableThemes: viewModel.availableChartThemes,
+                        selectedTheme: viewModel.selectedChartTheme
+                    ) { theme in
+                        viewModel.selectChartTheme(theme)
                     }
 
-                    VStack(spacing: Metrics.contentSpacing) {
-                        ProfileUserInfoView(
-                            username: viewModel.username,
-                            email: viewModel.email
-                        )
+                    Divider()
+                        .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
 
-                        Divider()
-                            .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
+                    ProfileAboutSectionView(items: viewModel.aboutItems)
 
-                        ProfilePreferencesSectionView(
-                            availableThemes: viewModel.availableChartThemes,
-                            selectedTheme: viewModel.selectedChartTheme
-                        ) { theme in
-                            viewModel.selectChartTheme(theme)
+                    Button("Log out", action: viewModel.logOut)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.red)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, Metrics.buttonVerticalPadding)
+                        .background {
+                            Capsule()
+                                .fill(Color.appBackground)
+                                .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
                         }
-
-                        Divider()
-                            .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
-
-                        ProfileAboutSectionView(items: viewModel.aboutItems)
-
-                        Button("Log out", action: viewModel.logOut)
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(.red)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, Metrics.buttonVerticalPadding)
-                            .background {
-                                Capsule()
-                                    .fill(Color.appBackground)
-                                    .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
-                            }
-                            .overlay {
-                                Capsule()
-                                    .strokeBorder(.red, lineWidth: Metrics.borderWidth)
-                            }
-                    }
-                    .padding(.horizontal, Metrics.horizontalPadding)
+                        .overlay {
+                            Capsule()
+                                .strokeBorder(.red, lineWidth: Metrics.borderWidth)
+                        }
                 }
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal, Metrics.horizontalPadding)
             }
-            .scrollIndicators(.hidden)
-            .ignoresSafeArea(edges: .top)
-            .onAppear {
-                viewModel.loadProfile()
-            }
-            .onChange(of: viewModel.isLoggedOut) { _, loggedOut in
-                if loggedOut {
-                    coordinator.logout()
-                }
+            .frame(maxWidth: .infinity)
+        }
+        .scrollIndicators(.hidden)
+        .ignoresSafeArea(edges: .top)
+        .onAppear {
+            viewModel.loadProfile()
+        }
+        .onChange(of: viewModel.isLoggedOut) { _, loggedOut in
+            if loggedOut {
+                coordinator.logout()
             }
         }
+        .appBackground()
     }
 }
 

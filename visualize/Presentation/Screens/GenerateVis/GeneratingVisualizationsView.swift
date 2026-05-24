@@ -25,6 +25,7 @@ struct GeneratingVisualizationsView: View {
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 36)
+            .appBackground()
         }
         .task { await viewModel.startLoading()
             // Navigate to VizReady once suggestions are ready.
