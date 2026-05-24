@@ -26,7 +26,8 @@ struct NavBar: View {
             searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
             hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
             deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo),
-            authRepository: authRepository
+            authRepository: authRepository,
+            userRepository: userRepo
         )
     }()
 

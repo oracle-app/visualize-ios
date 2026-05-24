@@ -112,7 +112,8 @@ struct ThreadsView: View {
             id: "rcONSHwWXHbUo3NsO6bhg0J4D8u2",
             email: "test@test.com",
             profilePictureURL: nil,
-            username: "Kimberly Marquez"
+            username: "Kimberly Marquez",
+            role: .admin
         )
     }
 

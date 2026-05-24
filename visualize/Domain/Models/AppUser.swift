@@ -12,4 +12,5 @@ struct AppUser: Identifiable, Sendable, Hashable, Codable {
     let email: String
     let profilePictureURL: String?
     let username: String
+    let role: Role
 }

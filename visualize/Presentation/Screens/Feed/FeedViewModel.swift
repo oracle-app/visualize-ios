@@ -54,9 +54,11 @@ class FeedViewModel {
     let hideVisualizationUseCase: HideVisualizationUseCase
     let deleteVisualizationUseCase: DeleteVisualizationUseCase
     let authRepository: any AuthRepository
+    let userRepository: any UserRepository
 
     private var allVisualizations: [VisualizationCard] = []
     private(set) var currentUserID: String = ""
+    private(set) var currentUserRole: Role = .consumer
     var currentToast: Toast? = nil
 
     /// Search task used for debounce — ignored by @Observable to avoid tracking issues.
@@ -70,13 +72,15 @@ class FeedViewModel {
         searchVisualizationsUseCase: SearchVisualizationsUseCase,
         hideVisualizationUseCase: HideVisualizationUseCase,
         deleteVisualizationUseCase: DeleteVisualizationUseCase,
-        authRepository: any AuthRepository
+        authRepository: any AuthRepository,
+        userRepository: any UserRepository
     ) {
         self.loadVisualizationsUseCase = loadVisualizationsUseCase
         self.searchVisualizationsUseCase = searchVisualizationsUseCase
         self.hideVisualizationUseCase = hideVisualizationUseCase
         self.deleteVisualizationUseCase = deleteVisualizationUseCase
         self.authRepository = authRepository
+        self.userRepository = userRepository
         self.visualizationFilter = .all
         Task {
             await initializeUser()
@@ -86,6 +90,8 @@ class FeedViewModel {
     private func initializeUser() async {
         do {
             self.currentUserID = try await authRepository.getCurrentUserID()
+            let currentUser = try await userRepository.getUserByID(userID: currentUserID)
+            self.currentUserRole = currentUser.role
             self.loadData(forceRefresh: false)
         } catch {
             self.state = .error
@@ -249,7 +255,8 @@ extension FeedViewModel {
             searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
             hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
             deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo),
-            authRepository: authRepo
+            authRepository: authRepo,
+            userRepository: userRepo
         )
     }
 }

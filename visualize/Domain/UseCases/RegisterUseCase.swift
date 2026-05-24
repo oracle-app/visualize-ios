@@ -113,7 +113,8 @@ class RegisterUseCase {
             id: authUser.uid,
             email: authUser.email,
             profilePictureURL: nil,
-            username: username
+            username: username,
+            role: .writer
         )
         
         // MARK: Database Persistence
