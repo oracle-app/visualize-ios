@@ -8,31 +8,6 @@
 import Foundation
 import Observation
 
-/// Defines the available chart color themes for the profile screen.
-enum ChartColorTheme: String, CaseIterable, Identifiable {
-    case aqua
-    case iris
-    case autumn
-    case blossom
-
-    var id: String {
-        rawValue
-    }
-
-    var title: String {
-        switch self {
-        case .aqua:
-            "Aqua"
-        case .iris:
-            "Iris"
-        case .autumn:
-            "Autumn"
-        case .blossom:
-            "Blossom"
-        }
-    }
-}
-
 /// Manages the state and user actions for the profile screen.
 @MainActor
 @Observable
@@ -42,12 +17,9 @@ final class ProfileScreenViewModel {
     private(set) var username: String = ""
     private(set) var email: String = ""
     private(set) var profilePictureURL: URL?
-    private(set) var selectedChartTheme: ChartColorTheme = .aqua
     private(set) var isLoadingProfile: Bool = false
     private(set) var profileError: String?
     private(set) var logoutError: String?
-
-    let availableChartThemes: [ChartColorTheme] = ChartColorTheme.allCases
 
     var aboutItems: [AboutItem] {
         [
@@ -97,12 +69,6 @@ final class ProfileScreenViewModel {
             }
             isLoadingProfile = false
         }
-    }
-
-    /// Updates the selected chart color theme.
-    /// - Parameter theme: The chart color theme selected by the user.
-    func selectChartTheme(_ theme: ChartColorTheme) {
-        selectedChartTheme = theme
     }
 
     /// Handles the profile photo edit action.
