@@ -73,10 +73,6 @@ struct SnipEditorView: View {
         )
     }
 
-    private var isCropInProgress: Bool {
-        model.activeTool == .crop && model.liveCropRect != nil
-    }
-
     // MARK: - Body
 
     var body: some View {
@@ -126,14 +122,14 @@ struct SnipEditorView: View {
                     .ignoresSafeArea()
             }
 
-            FloatingControls(model: model, openPanel: $openPanel, isCropInProgress: isCropInProgress)
+            FloatingControls(model: model, openPanel: $openPanel, isCropInProgress: model.isCropInProgress)
         }
-        .onChange(of: isCropInProgress) { _, inProgress in
+        .onChange(of: model.isCropInProgress) { _, inProgress in
             if inProgress {
                 openPanel = nil
             }
         }
-        .animation(.spring(duration: 0.22, bounce: 0.1), value: isCropInProgress)
+        .animation(.spring(duration: 0.22, bounce: 0.1), value: model.isCropInProgress)
         .ignoresSafeArea()
         .preferredColorScheme(.light)
         .toolbarBackground(.hidden, for: .navigationBar)
