@@ -96,6 +96,15 @@ struct ProfileScreenView: View {
             .onAppear {
                 viewModel.loadProfile()
             }
+            .onAppear {
+                AppDelegate.orientationLock = .portrait
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                    windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+                }
+            }
+            .onDisappear {
+                AppDelegate.orientationLock = .all
+            }
             .onChange(of: viewModel.isLoggedOut) { _, loggedOut in
                 if loggedOut {
                     coordinator.logout()
