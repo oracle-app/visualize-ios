@@ -67,7 +67,8 @@ struct TeamSwipeRow: View {
             }
 
             Spacer()
-
+            
+            StackedAvatars(members: team.members, maxAvatars: maxAvatars)
         }
         .padding(.vertical, 4)
         .listRowBackground(Color.appMint)

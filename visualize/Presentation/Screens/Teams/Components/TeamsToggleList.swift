@@ -33,6 +33,10 @@ struct TeamToggleRow: View {
                 }
 
                 Spacer()
+                
+                if !isExpanded {
+                    StackedAvatars(members: team.members, maxAvatars: 3)
+                }
 
                 Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                     .font(.subheadline)
