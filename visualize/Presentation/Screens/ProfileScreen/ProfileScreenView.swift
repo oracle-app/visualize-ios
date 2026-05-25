@@ -88,6 +88,7 @@ struct ProfileScreenView: View {
             .frame(maxWidth: .infinity)
         }
         .scrollIndicators(.hidden)
+        .appBackground()
         .ignoresSafeArea(edges: .top)
         .onAppear {
             viewModel.loadProfile()
@@ -105,7 +106,6 @@ struct ProfileScreenView: View {
             }
         }
         .animation(.spring(duration: 0.4), value: activeToast)
-        .appBackground()
     }
 }
 
