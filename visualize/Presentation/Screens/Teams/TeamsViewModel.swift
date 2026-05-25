@@ -74,4 +74,11 @@ final class TeamsScreenViewModel {
             teamPendingDelete = nil
         }
     }
+    
+    // MARK: - Edit
+
+    /// Placeholder for navigation or sheet presentation to edit a team.
+    func beginEditing(_ team: Team) {
+        // TODO: Present edit sheet for team
+    }
 }
