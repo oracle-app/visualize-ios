@@ -4,7 +4,7 @@ import SwiftUI
 struct AppBackgroundModifier: ViewModifier {
     func body(content: Content) -> some View {
         ZStack {
-            Color.appBackground
+            Color("AppBackground")
                 .ignoresSafeArea()
             content
         }
@@ -23,7 +23,6 @@ extension Color {
     static let appMint = AppColors.UI.background
     static let appTeal = AppColors.Text.teriary
     static let appSubtitle = AppColors.Text.secondary
-    static let appBackground = AppColors.UI.appBackground
     static let appNavy = AppColors.Text.primary
 
     static let appAmber      = Color(red: 232/255, green: 160/255, blue: 32/255)  // #E8A020
@@ -75,6 +74,6 @@ enum AppColors {
     enum UI {
         static let background = Color("ComponentBackground")
         static let cardShare = Color("CardShare")
-        static let appBackground = Color("AppBackground")
+        static let screenBackground = Color("AppBackground")
     }
 }
