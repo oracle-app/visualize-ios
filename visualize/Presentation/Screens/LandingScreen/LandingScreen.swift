@@ -122,7 +122,7 @@ struct LandingScreen: View {
                     .padding(.bottom, 55)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(red: 245/255, green: 244/255, blue: 242/255))
+            .background(Color.appBackground)
             .clipShape(RoundedRectangle(cornerRadius: 30))
             .ignoresSafeArea(edges: .bottom)
         }

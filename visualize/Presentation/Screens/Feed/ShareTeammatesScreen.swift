@@ -199,9 +199,9 @@ struct ShareTeammatesScreen: View {
             withAnimation { isExpanded.wrappedValue.toggle() }
         } label: {
             HStack {
-                Text(title).foregroundStyle(.black)
+                Text(title).foregroundStyle(Color.primaryText)
                 Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color.primaryText)
             }
         }
     }

@@ -41,7 +41,6 @@ struct FeedView: View {
     @State private var searchPressed: Bool = false
 
 
-
     var shouldLoad: Bool = true
 
     // MARK: - Body
@@ -222,6 +221,7 @@ struct FeedView: View {
         } action: { newValue in
             safeArea = newValue
         }
+        .appBackground()
     }
 
     // MARK: - Header
@@ -253,7 +253,7 @@ struct FeedView: View {
                 HStack(spacing: 10) {
                     Text(selectedFeed.title)
                         .font(.title.bold())
-                        .foregroundStyle(Color(red: 19/255, green: 33/255, blue: 44/255))
+                        .foregroundStyle(Color.primaryText)
                         .onGeometryChange(for: Bool.self) {
                             let height = $0.size.height
                             let offset = $0.frame(in: .named("scroll")).minY
@@ -266,7 +266,7 @@ struct FeedView: View {
                         }
                     Image(systemName: "control")
                         .font(.body.bold())
-                        .foregroundColor(.black)
+                        .foregroundStyle(Color.primaryText)
                         .rotationEffect(.degrees(180))
                         .padding(.trailing, 10)
                 }
