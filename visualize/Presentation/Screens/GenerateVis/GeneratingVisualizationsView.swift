@@ -25,6 +25,7 @@ struct GeneratingVisualizationsView: View {
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 36)
+            .appBackground()
         }
         .task { await viewModel.startLoading()
             // Navigate to VizReady once suggestions are ready.
@@ -40,7 +41,7 @@ struct GeneratingVisualizationsView: View {
         VStack(spacing: 0) {
             Text(viewModel.title)
                 .font(.title.weight(.bold))
-                .foregroundStyle(Color.appNavy)
+                .foregroundStyle(Color.primaryText)
                 .multilineTextAlignment(.center)
 
             Text(viewModel.message)
