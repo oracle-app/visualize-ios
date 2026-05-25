@@ -18,6 +18,9 @@ final class TeamsScreenViewModel {
     private(set) var joinedTeams: [Team] = []
     private(set) var isLoading = false
     private(set) var error: String?
+    
+    var showDeleteConfirmation = false
+    private(set) var teamPendingDelete: Team?
 
     // MARK: - Dependencies
 
@@ -49,6 +52,26 @@ final class TeamsScreenViewModel {
             joinedTeams = try await joinedRequest
         } catch {
             self.error = "Failed to load teams."
+        }
+    }
+    
+    // MARK: - Delete
+
+    func deleteTeam(_ team: Team) {
+        teamPendingDelete = team
+        showDeleteConfirmation = true
+    }
+
+    func confirmDelete() {
+        guard let team = teamPendingDelete else { return }
+        Task {
+            do {
+                try await teamRepository.deleteTeam(teamID: team.id)
+                myTeams.removeAll { $0.id == team.id }
+            } catch {
+                self.error = "Failed to delete team."
+            }
+            teamPendingDelete = nil
         }
     }
 }
