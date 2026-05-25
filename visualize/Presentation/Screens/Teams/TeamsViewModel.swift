@@ -31,4 +31,24 @@ final class TeamsScreenViewModel {
         self.teamRepository = teamRepository
         self.authRepository = authRepository
     }
+    
+    // MARK: - Loading
+
+    func loadTeams() async {
+        isLoading = true
+        error = nil
+        defer { isLoading = false }
+
+        do {
+            userID = try await authRepository.getCurrentUserID()
+
+            async let ownedRequest = teamRepository.getTeamsUserOwns(userID: userID)
+            async let joinedRequest = teamRepository.getTeamsUserIsIn(userID: userID)
+
+            myTeams = try await ownedRequest
+            joinedTeams = try await joinedRequest
+        } catch {
+            self.error = "Failed to load teams."
+        }
+    }
 }
