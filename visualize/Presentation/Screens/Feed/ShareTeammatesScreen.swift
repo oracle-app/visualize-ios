@@ -201,7 +201,7 @@ struct ShareTeammatesScreen: View {
             HStack {
                 Text(title).foregroundStyle(Color.primaryText)
                 Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color.primaryText)
             }
         }
     }
