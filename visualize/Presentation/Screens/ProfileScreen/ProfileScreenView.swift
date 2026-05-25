@@ -13,6 +13,9 @@ struct ProfileScreenView: View {
     @Environment(AppCoordinator.self) private var coordinator
     @State private var viewModel: ProfileScreenViewModel
 
+    @AppStorage("selectedChartTheme") private var selectedThemeRaw: String = ChartColorTheme.lagoon.rawValue
+    @State private var activeToast: Toast?
+
     // MARK: - Initialization
 
     init(
@@ -25,7 +28,13 @@ struct ProfileScreenView: View {
         ))
     }
 
-    // MARK: - Internal properties
+    // MARK: - Private
+
+    private var selectedTheme: ChartColorTheme {
+        ChartColorTheme(rawValue: selectedThemeRaw) ?? .lagoon
+    }
+
+    // MARK: - Body
 
     var body: some View {
         ScrollView {
@@ -44,10 +53,14 @@ struct ProfileScreenView: View {
                         .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
 
                     ProfilePreferencesSectionView(
-                        availableThemes: viewModel.availableChartThemes,
-                        selectedTheme: viewModel.selectedChartTheme
+                        availableThemes: ChartColorTheme.allCases,
+                        selectedTheme: selectedTheme
                     ) { theme in
-                        viewModel.selectChartTheme(theme)
+                        selectedThemeRaw = theme.rawValue
+                        activeToast = Toast(
+                            message: "\(theme.title) theme applied",
+                            type: .success
+                        )
                     }
 
                     Divider()
@@ -84,6 +97,14 @@ struct ProfileScreenView: View {
                 coordinator.logout()
             }
         }
+        .overlay(alignment: .bottom) {
+            if let toast = activeToast {
+                ToastView(toast: toast)
+                    .padding(.bottom, Metrics.toastBottomPadding)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(duration: 0.4), value: activeToast)
         .appBackground()
     }
 }
@@ -100,6 +121,8 @@ private enum Metrics {
     static let shadowOpacity: CGFloat = 0.25
     static let shadowRadius: CGFloat = 5
     static let shadowY: CGFloat = 2
+    static let toastBottomPadding: CGFloat = 24
+    static let toastDuration: TimeInterval = 2.5
 }
 
 #Preview {

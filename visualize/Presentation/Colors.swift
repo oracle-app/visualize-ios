@@ -38,29 +38,29 @@ extension Color {
     static let appThreadsPrimary = Color(red: 148/255, green: 182/255, blue: 182/255) // #94B6B6
     static let appThreadsReply = Color(red: 253/255, green: 242/255, blue: 229/255) // #RDF2E5
 
-    static let paletteAqua1 = Color(red: 0/255, green: 53/255, blue: 102/255) // #003566
-    static let paletteAqua2 = Color(red: 0/255, green: 150/255, blue: 199/255) // #0096C7
-    static let paletteAqua3 = Color(red: 15/255, green: 238/255, blue: 208/255) // #0FEED0
-    static let paletteAqua4 = Color(red: 0/255, green: 191/255, blue: 216/255) // #00BFD78
-    static let paletteAqua5 = Color(red: 82/255, green: 225/255, blue: 255/255) // #52E1FF
+    static let paletteLagoon1 = Color(red: 0/255, green: 191/255, blue: 216/255) // #00BFD8
+    static let paletteLagoon2 = Color(red: 68/255, green: 235/255, blue: 182/255) // #44EBB6
+    static let paletteLagoon3 = Color(red: 30/255, green: 169/255, blue: 215/255) // #1EA9D7
+    static let paletteLagoon4 = Color(red: 140/255, green: 237/255, blue: 143/255) // #8CED8F
+    static let paletteLagoon5 = Color(red: 84/255, green: 207/255, blue: 255/255) // #54CFFF
 
-    static let paletteIris1 = Color(red: 74/255, green: 127/255, blue: 247/255) // #4A7FF7
-    static let paletteIris2 = Color(red: 174/255, green: 141/255, blue: 245/255) // #AE8DF5
-    static let paletteIris3 = Color(red: 243/255, green: 184/255, blue: 107/255) // #F3B86B
-    static let paletteIris4 = Color(red: 46/255, green: 196/255, blue: 182/255) // #2EC4B6
-    static let paletteIris5 = Color(red: 66/255, green: 66/255, blue: 66/255) // #42423E
+    static let paletteSunset1 = Color(red: 109/255, green: 149/255, blue: 255/255) // #6D95FF
+    static let paletteSunset2 = Color(red: 176/255, green: 165/255, blue: 255/255) // #B0A5FF
+    static let paletteSunset3 = Color(red: 243/255, green: 114/255, blue: 173/255) // #F372AD
+    static let paletteSunset4 = Color(red: 251/255, green: 119/255, blue: 56/255) // #FB7738
+    static let paletteSunset5 = Color(red: 243/255, green: 179/255, blue: 64/255) // #F3B340
 
-    static let paletteAutumn1 = Color(red: 202/255, green: 77/255, blue: 60/255) // #CA4D3C
-    static let paletteAutumn2 = Color(red: 65/255, green: 144/255, blue: 172/255) // #4190AC
-    static let paletteAutumn3 = Color(red: 235/255, green: 150/255, blue: 50/255) // #EB9632
-    static let paletteAutumn4 = Color(red: 76/255, green: 130/255, blue: 92/255) // #4C825C
-    static let paletteAutumn5 = Color(red: 168/255, green: 144/255, blue: 182/255) // #A890B6
+    static let paletteHarvest1 = Color(red: 247/255, green: 109/255, blue: 90/255) // #F76D5A
+    static let paletteHarvest2 = Color(red: 70/255, green: 170/255, blue: 205/255) // #46AACD
+    static let paletteHarvest3 = Color(red: 235/255, green: 150/255, blue: 50/255) // #EB9632
+    static let paletteHarvest4 = Color(red: 97/255, green: 167/255, blue: 118/255) // #61A776
+    static let paletteHarvest5 = Color(red: 211/255, green: 126/255, blue: 177/255) // #D37EB1
 
-    static let paletteBlossom1 = Color(red: 201/255, green: 24/255, blue: 74/255) // #C9184A
-    static let paletteBlossom2 = Color(red: 255/255, green: 77/255, blue: 109/255) // #FF4D6D
-    static let paletteBlossom3 = Color(red: 255/255, green: 133/255, blue: 161/255) // #FF85A1
-    static let paletteBlossom4 = Color(red: 255/255, green: 153/255, blue: 200/255) // #FF99C8
-    static let paletteBlossom5 = Color(red: 247/255, green: 37/255, blue: 133/255) // #F72585
+    static let palettePetal1 = Color(red: 255/255, green: 129/255, blue: 152/255) // #FF8198
+    static let palettePetal2 = Color(red: 255/255, green: 198/255, blue: 214/255) // #FFC6D6
+    static let palettePetal3 = Color(red: 255/255, green: 185/255, blue: 120/255) // #FFB978
+    static let palettePetal4 = Color(red: 255/255, green: 153/255, blue: 200/255) // #FF99C8
+    static let palettePetal5 = Color(red: 255/255, green: 99/255, blue: 167/255) // #FF63A7
 }
 
 enum AppColors {
