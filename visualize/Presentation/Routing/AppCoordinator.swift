@@ -136,11 +136,13 @@ final class AppCoordinator {
 
     func login() {
         path.removeAll()
+        selectedTab = .feed
         isAuthenticated = true
     }
 
     func logout() {
         isAuthenticated = false
+        selectedTab = .feed
         path.removeAll()
         feedPath.removeAll()
         resetCreateFlow(shouldResetUpload: false)
