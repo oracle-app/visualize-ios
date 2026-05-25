@@ -82,7 +82,17 @@ struct NavBar: View {
             .tag(Tabs.create)
 
             NavigationStack(path: $coordinator.teamsPath) {
-                Color.green.ignoresSafeArea()
+                TeamsScreen(
+                    viewModel: TeamsScreenViewModel(
+                        teamRepository: TeamRepositoryImpl(
+                            teamDatasource: TeamDatasource(),
+                            userDatasource: UserDatasource()
+                        ),
+                        authRepository: AuthRepositoryImpl(
+                            source: AuthFirebaseDatasource()
+                        )
+                    )
+                )
             }
             .tabItem { Label("", systemImage: "person.2") }
             .tag(Tabs.teams)
