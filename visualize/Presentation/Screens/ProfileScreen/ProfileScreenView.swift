@@ -128,6 +128,14 @@ struct ProfileScreenView: View {
                                 selectedItem = nil
                                 showImageEditor = true
                             }
+                        } else {
+                            await MainActor.run {
+                                selectedItem = nil
+                                activeToast = Toast(
+                                    message: "Could not load the selected photo",
+                                    type: .error
+                                )
+                            }
                         }
                     }
                 }

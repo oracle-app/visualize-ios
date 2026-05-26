@@ -31,13 +31,9 @@ class UploadProfilePhotoUseCase {
     /// - Parameter image: The UIImage captured from camera or gallery.
     /// - Returns: The updated photo URL (or whatever your backend returns).
     /// - Throws: `UploadProfilePhotoError.noSession` if user is not logged in.
-    func execute(image: UIImage) async throws -> URL {
+    func execute(imageData: Data) async throws -> URL {
         guard let authUser = authRepository.getCurrentUser() else {
             throw UploadProfilePhotoError.noSession
-        }
-
-        guard let imageData = image.jpegData(compressionQuality: 0.1) else {
-            throw UploadProfilePhotoError.invalidImage
         }
 
         let url = try await userRepository.uploadProfileImage(

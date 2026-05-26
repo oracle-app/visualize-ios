@@ -7,7 +7,6 @@
 
 import SwiftUI
 import PhotosUI
-import FirebaseAuth
 
 // MARK: - Active Sheet
 

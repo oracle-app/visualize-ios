@@ -5,7 +5,7 @@
 //  Created by Carlos Amador on 25/04/26.
 //
 
-import UIKit
+import Foundation
 
 protocol UserRepository {
     /// Retrieves a user by their unique identifier.
