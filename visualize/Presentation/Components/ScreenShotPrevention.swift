@@ -41,26 +41,34 @@ struct ScreenShotPreventer: UIViewRepresentable {
 }
 
 // MARK: - Modifier
+// MARK: - Modifier actualizado
 struct ScreenShotPreventerModifier: ViewModifier {
+    var isActive: Bool = true
+
     func body(content: Content) -> some View {
-        content
-            .mask {
-                ScreenShotPreventer()
-                    .ignoresSafeArea()
-            }
-            .background {
-                ContentUnavailableView(
-                    "Not Allowed",
-                    systemImage: "iphone.slash",
-                    description: Text("Taking screenshots is not allowed for security reasons")
-                )
-            }
+        if isActive {
+            content
+                .mask {
+                    ScreenShotPreventer()
+                        .ignoresSafeArea()
+                }
+                .background {
+                    ContentUnavailableView(
+                        "Not Allowed",
+                        systemImage: "iphone.slash",
+                        description: Text("Taking screenshots is not allowed for security reasons")
+                    )
+                }
+        } else {
+            content
+        }
     }
 }
 
+
 // MARK: - Extension
 extension View {
-    func preventScreenShot() -> some View {
-        self.modifier(ScreenShotPreventerModifier())
+    func preventScreenShot(isActive: Bool = true) -> some View {
+        self.modifier(ScreenShotPreventerModifier(isActive: isActive))
     }
 }
