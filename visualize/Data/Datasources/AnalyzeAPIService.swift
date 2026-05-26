@@ -8,9 +8,10 @@
 /// HTTP datasource for the analyze microservice.
 ///
 /// Three endpoints:
-/// - `POST /analyzeData` , multipart upload of the dataset file.
-/// - `GET  /results/{taskId}` , overview of all generated charts (preview payloads).
-/// - `GET  /results/{taskId}?chart=N&page=N` , single chart at full detail.
+/// - `POST /analyzeData` — multipart upload of the dataset file.
+/// - `GET  /results/{taskId}` — task status check (202 while processing, 200 when complete).
+/// - `GET  /results/{taskId}?chart=N&preview=true` — single chart, 100-point preview payload.
+/// - `GET  /results/{taskId}?chart=N&page=N` — single chart, 5 000-point paged payload.
 ///
 /// The base URL is injected at init time so the same service can point to
 /// Simulator, a staging host, or production without recompiling. See `AppConfig.analyzeMicroserviceURL`.
@@ -60,6 +61,22 @@ struct AnalyzeAPIService {
         try validate(response: response)
  
         return try JSONDecoder().decode(AnalyzeTaskResponseDTO.self, from: data).taskId
+    }
+    
+    /// Fetches the current processing status of a task via `GET /results/{taskId}`.
+    ///
+    /// The endpoint returns 202 while the task is queued or processing, and 200 when complete.
+    /// HTTP status validation is intentionally skipped here because 202 is an expected response during processing, not an error.
+    ///
+    /// - Parameter taskId: The task identifier from upload.
+    /// - Returns: The status string from the response body (`"COMPLETED"`, `"PROCESSING"`,
+    ///   `"QUEUED"`), or `"PROCESSING"` if the response cannot be decoded.
+    func fetchTaskStatus(taskId: String) async throws -> String {
+        let endpoint = baseURL
+            .appendingPathComponent("results")
+            .appendingPathComponent(taskId)
+        let (data, _) = try await session.data(from: endpoint)
+        return (try? JSONDecoder().decode(TaskStatusDTO.self, from: data))?.status ?? "PROCESSING"
     }
  
     /// Fetches a single chart at preview size via `GET /results/{taskId}?chart=N&preview=true`.

@@ -10,6 +10,7 @@
 /// # Endpoint map
 /// ```
 /// POST /analyzeData -> AnalyzeTaskResponseDTO (contains task_id)
+/// /// GET  /results/{taskId} -> TaskStatusDTO            (status check only)
 /// GET  /results/{taskId}?chart=N&preview=true -> ChartResponseDTO (single chart, preview)
 /// GET  /results/{taskId}?chart=N&page=N -> ChartResponseDTO (single chart, full detail)
 /// ```
@@ -33,6 +34,15 @@ struct AnalyzeTaskResponseDTO: Decodable {
     }
 }
  
+// MARK: - TaskStatusDTO
+ 
+/// Minimal decode of `GET /results/{taskId}` used only to read the task status.
+/// The endpoint returns 202 while processing and 200 when complete.
+/// `APIChartSuggestionsRepositoryImpl` polls this until `status == "COMPLETED"`.
+struct TaskStatusDTO: Decodable {
+    let status: String?
+}
+
 // MARK: - ChartResponseDTO
  
 /// A single chart entry returned by the microservice.
@@ -128,10 +138,10 @@ extension ChartResponseDTO {
     /// - Returns: A compact JSON string, or `nil` if serialisation fails.
     func toJSONString() -> String? {
         var obj: [String: Any] = ["chartType": chartType]
-        if let chartIndex   { obj["chartIndex"]   = chartIndex   }
-        if let chartName    { obj["chartName"]    = chartName    }
-        if let page         { obj["page"]         = page         }
-        if let preview      { obj["preview"]      = preview      }
+        if let chartIndex { obj["chartIndex"] = chartIndex }
+        if let chartName { obj["chartName"] = chartName }
+        if let page { obj["page"] = page }
+        if let preview { obj["preview"]      = preview      }
         if let status       { obj["status"]       = status       }
         if let totalPages   { obj["totalPages"]   = totalPages   }
         if let totalPoints  { obj["totalPoints"]  = totalPoints  }
