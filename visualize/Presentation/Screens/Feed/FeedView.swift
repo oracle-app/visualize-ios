@@ -155,6 +155,7 @@ struct FeedView: View {
                 viewModel.loadData()
             }
         }
+        .portraitOrientationLock()
         .scrollDisabled(isScrollDisabled)
         .scrollPosition($scrollPosition)
         .sheet(item: $sharePayload) { payload in

@@ -93,6 +93,7 @@ struct ProfileScreenView: View {
         .onAppear {
             viewModel.loadProfile()
         }
+        .portraitOrientationLock()
         .onChange(of: viewModel.isLoggedOut) { _, loggedOut in
             if loggedOut {
                 coordinator.logout()

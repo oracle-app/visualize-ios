@@ -127,6 +127,7 @@ struct CheckEmailView: View {
             .clipShape(RoundedRectangle(cornerRadius: 30))
             .frame(maxHeight: .infinity)
             .ignoresSafeArea(edges: .bottom)
+            .portraitOrientationLock()
         }
     }
 }

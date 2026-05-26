@@ -195,6 +195,7 @@ struct SignUp: View {
                 coordinator.replace(path: [.login])
             }
         }
+        .portraitOrientationLock()
     }
 }
 
