@@ -2,39 +2,60 @@
 //  NotificationMapper.swift
 //  visualize
 //
-//  Created by Miguel Degollado on 20/05/26.
-//
+// created By Miguel Degollado
+
 import SwiftUI
 
+// MARK: - DTO → Domain
+
 extension NotificationDTO {
-    func toDisplayItem() -> NotificationDisplayItem {
-        let avatarURL: String? = actorPhotoURL.isEmpty ? nil : actorPhotoURL
-        let resolved = type.resolvedMessage(actorName: actorName, context: contextLabel)
-        return NotificationDisplayItem(
+    func toDomain() -> Notification {
+        Notification(
             id: id ?? UUID().uuidString,
-            boldPrefix: resolved.boldPrefix,
-            message: resolved.message,
-            timestamp: createdAt.relativeFormatted(),
+            userID: userID,
             isRead: isRead,
-            avatarInitials: actorName.initials,
-            avatarColor: type.avatarColor,
-            avatarURL: avatarURL
+            type: type,
+            createdAt: createdAt,
+            actorName: actorName.isEmpty ? nil : actorName,
+            actorPhotoURL: actorPhotoURL.isEmpty ? nil : actorPhotoURL,
+            contextLabel: contextLabel.isEmpty ? nil : contextLabel
         )
     }
 }
 
+// MARK: - Domain → Display
+
+extension Notification {
+    func toDisplayItem() -> NotificationDisplayItem {
+        let resolved = type.resolvedMessage(actorName: actorName, context: contextLabel)
+        return NotificationDisplayItem(
+            id: id,
+            boldPrefix: resolved.boldPrefix,
+            message: resolved.message,
+            timestamp: createdAt.relativeFormatted(),
+            isRead: isRead,
+            avatarInitials: (actorName ?? "").initials,
+            avatarColor: type.avatarColor,
+            avatarURL: actorPhotoURL
+        )
+    }
+}
+
+// MARK: - Type resolution
+
 private struct ResolvedMessage { let boldPrefix: String; let message: String }
 
 private extension String {
-    func resolvedMessage(actorName: String, context: String) -> ResolvedMessage {
-        let actor = actorName.isEmpty ? "Someone" : actorName
+    func resolvedMessage(actorName: String?, context: String?) -> ResolvedMessage {
+        let actor = actorName ?? "Someone"
+        let ctx = context ?? ""
         switch self {
         case "thread_reply":
-            return ResolvedMessage(boldPrefix: "\(actor) ", message: "replied to your thread on \u{201C}\(context)\u{201D}")
+            return ResolvedMessage(boldPrefix: "\(actor) ", message: "replied to your thread on \u{201C}\(ctx)\u{201D}")
         case "team_invite":
-            return ResolvedMessage(boldPrefix: "\(actor) ", message: "added you to the team \u{201C}\(context)\u{201D}.")
+            return ResolvedMessage(boldPrefix: "\(actor) ", message: "added you to the team \u{201C}\(ctx)\u{201D}.")
         case "chart_shared":
-            return ResolvedMessage(boldPrefix: "\(actor) ", message: "shared a new chart called \u{201C}\(context)\u{201D}.")
+            return ResolvedMessage(boldPrefix: "\(actor) ", message: "shared a new chart called \u{201C}\(ctx)\u{201D}.")
         default:
             return ResolvedMessage(boldPrefix: "", message: "You have a new notification.")
         }
@@ -50,7 +71,8 @@ private extension String {
     }
 
     var initials: String {
-        let parts = split(separator: " ").prefix(2)
-        return parts.compactMap { $0.first.map(String.init) }.joined().uppercased()
+        split(separator: " ").prefix(2)
+            .compactMap { $0.first.map(String.init) }
+            .joined().uppercased()
     }
 }
