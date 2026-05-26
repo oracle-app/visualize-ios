@@ -63,7 +63,7 @@ struct NavBar: View {
 
             NavigationStack(path: $coordinator.createPath) {
                 CreateVisualization()
-                    .navigationDestination(for: AppRoute.self) { route in
+                    .navigationDestination(for: CreateRoute.self) { route in
                         switch route {
                         case .generatingVisualizations:
                             GeneratingVisualizationsView()
@@ -72,9 +72,6 @@ struct NavBar: View {
                         case .vizReady:
                             VizReadyView(suggestions: coordinator.pendingSuggestions)
                                 .navigationBarBackButtonHidden(true)
-
-                        default:
-                            EmptyView()
                         }
                     }
             }

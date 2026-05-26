@@ -27,7 +27,14 @@ struct GeneratingVisualizationsView: View {
             .padding(.bottom, 36)
             .appBackground()
         }
-        .task { await viewModel.startLoading()
+        .task {
+            guard let fileURL = coordinator.pendingFileURL else {
+                viewModel.errorMessage = "No dataset to analyze. Please go back and select a file."
+                return
+            }
+
+            await viewModel.startLoading(fileURL: fileURL)
+            
             // Navigate to VizReady once suggestions are ready.
             // navigateToVizReady(with:) stores the suggestions and pushes the route in one call,
             // so the route is never pushed without its data.

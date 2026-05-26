@@ -4,14 +4,14 @@
 //
 //  Created by Libia Fv on 12/04/26.
 //
-// Description:
-// Main view for creating data visualizations.
-// Allows the user to upload files in CSV or Excel format.
-// Displays the upload process state (uploading, completed, or idle).
-// Once the dataset is uploaded, it enables visualization generation.
-// Handles file selection using fileImporter.
-// Integrates a ViewModel to manage state logic.
-// Shows error messages when file selection or upload fails.
+/// Description:
+/// Main view for creating data visualizations.
+/// Allows the user to upload files in CSV or Excel format.
+/// Displays the upload process state (uploading, completed, or idle).
+/// Once the dataset is uploaded, it enables visualization generation.
+/// Handles file selection using fileImporter.
+/// Integrates a ViewModel to manage state logic.
+/// Shows error messages when file selection or upload fails.
 
 import SwiftUI
 import UniformTypeIdentifiers
@@ -35,9 +35,7 @@ struct CreateVisualization: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
 
-            ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-
                     Image(systemName: "chart.bar.xaxis")
                         .font(.system(size: 36))
                         .foregroundStyle(Color.primaryText)
@@ -96,13 +94,16 @@ struct CreateVisualization: View {
                     }
                 }
                 .padding(.horizontal, 20)
-            }
 
             VStack(alignment: .leading, spacing: 0) {
                 if viewModel.isUploadComplete {
                     GenerateVisButton {
-                        // TODO: Remove this mock trigger — replace with real generation call when microservice is connected
-                        coordinator.push(.generatingVisualizations)
+                        guard let fileURL = viewModel.pickedFileURL else {
+                            viewModel.errorMessage = "Could not read the selected file."
+                            return
+                        }
+                        // Stores pendingFileURL and pushes .generatingVisualizations atomically.
+                        coordinator.startGeneration(with: fileURL)
                     }
                     .padding(.bottom, 43)
                 } else {
@@ -111,6 +112,8 @@ struct CreateVisualization: View {
                 }
             }
             .padding(.horizontal, 20)
+            
+            Spacer()
         }
         .onChange(of: coordinator.createFlowResetID) { _, _ in
             viewModel.resetFile()
@@ -136,7 +139,6 @@ struct CreateVisualization: View {
         .background(Color.appBackground.ignoresSafeArea())
     }
 }
-
 // MARK: - Preview
 
 #Preview {

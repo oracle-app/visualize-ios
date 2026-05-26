@@ -7,8 +7,8 @@
 
 // MARK: - App Route
 
-/// Defines all possible navigation destinations
-/// within the main navigation stack.
+/// Auth-flow navigation destinations, pushed onto `AppCoordinator.path`
+/// while the user is not authenticated.
 ///
 /// Used by `AppCoordinator` to push and replace
 /// screens via SwiftUI's `NavigationStack`.
@@ -17,8 +17,6 @@ enum AppRoute: Hashable {
     case signUp
     case resetPassword
     case checkEmail(email: String)
-    case generatingVisualizations
-    case vizReady
 }
 
 // MARK: - Root Route
