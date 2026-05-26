@@ -199,9 +199,9 @@ struct ShareTeammatesScreen: View {
             withAnimation { isExpanded.wrappedValue.toggle() }
         } label: {
             HStack {
-                Text(title).foregroundStyle(.black)
+                Text(title).foregroundStyle(Color.primaryText)
                 Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color.primaryText)
             }
         }
     }
@@ -212,9 +212,13 @@ extension ShareTeammatesViewModel {
     static var previewWithUsers: ShareTeammatesViewModel {
         let userDatasource = UserDatasource()
         let teamDatasource = TeamDatasource()
+        let authDatasource = AuthFirebaseDatasource()
         let visualizationDatasource = VisualizationDatasource(
             userDatasource: userDatasource,
             teamsDatasource: teamDatasource
+        )
+        let authRepository = AuthRepositoryImpl(
+            source: authDatasource
         )
         return ShareTeammatesViewModel(
             userRepository: UserRepositoryImpl(
@@ -223,7 +227,7 @@ extension ShareTeammatesViewModel {
             teamRepository: TeamRepositoryImpl(
                 teamDatasource: teamDatasource,
                 userDatasource: userDatasource
-            ),
+            ), authRepository: authRepository,
             updateSharingUseCase: UpdateSharingUseCase(
                 visualizationRepository: VisualizationRepositoryImpl(
                     userDatasource: userDatasource,

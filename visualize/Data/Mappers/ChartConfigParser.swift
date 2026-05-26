@@ -20,7 +20,7 @@ struct ChartConfigParser {
     /// Parses a JSON string into a `ChartData` model.
     /// Returns `nil` if the JSON is malformed or missing required fields.
     /// Returns `.unsupported` if the chart type is not recognized.
-    static func parse(from jsonString: String) -> ChartData? {
+    nonisolated static func parse(from jsonString: String) -> ChartData? {
         guard let data = jsonString.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let chartTypeString = json["chartType"] as? String,
@@ -110,7 +110,7 @@ struct ChartConfigParser {
     ///   - previewJSON: Reduced JSON with fewer data points for fast card rendering.
     /// - Returns: A fully populated `ChartSuggestion`, or `nil` if malformed or unsupported.
     ///
-    static func parseSuggestion(configJSON: String, previewJSON: String) -> ChartSuggestion? {
+    nonisolated static func parseSuggestion(configJSON: String, previewJSON: String) -> ChartSuggestion? {
         guard
             let data = configJSON.data(using: .utf8),
             let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],

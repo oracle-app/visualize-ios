@@ -16,6 +16,7 @@ enum LoginError: Error {
     case passwordRequired
     case invalidCredentials  
     case networkIssue
+    case notFound
     case unknown
 }
 

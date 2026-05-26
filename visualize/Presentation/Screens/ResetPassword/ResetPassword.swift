@@ -123,6 +123,7 @@ struct ResetPasswordView: View {
                 coordinator.push(.checkEmail(email: viewModel.email))
             }
         }
+        .portraitOrientationLock()
     }
 }
 

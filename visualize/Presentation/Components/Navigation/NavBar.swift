@@ -13,18 +13,21 @@ struct NavBar: View {
     @State private var feedViewModel: FeedViewModel = {
         let userDS = UserDatasource()
         let teamsDS = TeamDatasource()
+        let authDS = AuthFirebaseDatasource()
         let visualizationDS = VisualizationDatasource(userDatasource: userDS, teamsDatasource: teamsDS)
         let repo = VisualizationRepositoryImpl(
             userDatasource: userDS,
             visualizationDatasource: visualizationDS,
             teamsDatasource: teamsDS
         )
+        let authRepository = AuthRepositoryImpl(source: authDS)
         let userRepo = UserRepositoryImpl(userDatasource: userDS)
         return FeedViewModel(
             loadVisualizationsUseCase: LoadVisualizationsUseCase(visualizationRepository: repo),
             searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
             hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
-            deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo)
+            deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo),
+            authRepository: authRepository
         )
     }()
 

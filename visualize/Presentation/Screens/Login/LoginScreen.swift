@@ -141,7 +141,7 @@ struct Login: View {
                 .scrollTargetLayout()
                 .padding(.horizontal, 24)
             }
-            .background(Color(red: 245/255, green: 244/255, blue: 242/255))
+            .background(Color.appBackground)
             .clipShape(RoundedRectangle(cornerRadius: 30))
             .ignoresSafeArea(edges: .bottom)
             .scrollDismissesKeyboard(.interactively)
@@ -165,6 +165,7 @@ struct Login: View {
                 coordinator.login()
             }
         }
+        .portraitOrientationLock()
     }
 }
 

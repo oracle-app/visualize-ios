@@ -78,12 +78,3 @@ fileprivate struct  CustomToolBarModifier<Leading: View, Trailing: View, Princip
     }
     
 }
-    
-
-    
-    
-    
-    
-    
-    
-

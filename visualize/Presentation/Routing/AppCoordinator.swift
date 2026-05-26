@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import FirebaseAuth
 
 // MARK: - App Coordinator
 
@@ -138,20 +137,15 @@ final class AppCoordinator {
     // MARK: - Session
 
     func login() {
-        path.removeAll()
+        clearAllPaths()
+        selectedTab = .feed
         isAuthenticated = true
     }
 
     func logout() {
-        if let userID = Auth.auth().currentUser?.uid, let useCase = removeFCMTokenUseCase {
-            Task { try? await useCase.execute(userID: userID) }
-        }
         isAuthenticated = false
-        path.removeAll()
-        feedPath.removeAll()
-        resetCreateFlow(shouldResetUpload: false)
-        teamsPath.removeAll()
-        profilePath.removeAll()
+        selectedTab = .feed
+        clearAllPaths()
     }
     
     /// Clears the create flow's navigation and transient state explicitly.
@@ -177,10 +171,13 @@ final class AppCoordinator {
         pendingSuggestions = suggestions
         push(.vizReady)
     }
-
-    func navigateToNotifications() {
-        selectedTab = .feed
+    // MARK: Helpers
+    
+    private func clearAllPaths() {
+        path.removeAll()
         feedPath.removeAll()
-        push(.notifications)
+        teamsPath.removeAll()
+        profilePath.removeAll()
+        resetCreateFlow(shouldResetUpload: true)
     }
 }

@@ -23,25 +23,22 @@ struct AreaChartView: UIViewRepresentable {
     let series: [String: [Double]]
     let xLabel: String
     let yLabel: String
-    var viewport: ChartViewport? = nil
-    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
-
-    // MARK: - Private
-
-    private let seriesColors: [UIColor] = [
-        UIColor(Color.appTeal),
-        UIColor(Color.primaryOrange),
-        UIColor(Color.appNavy),
-        UIColor(Color.appMint)
-    ]
+    let theme: ChartColorTheme
+    var viewport: ChartViewport?
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
 
     // MARK: - Coordinator
 
     func makeCoordinator() -> ChartTooltipCoordinator {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
-        coordinator.xValues = categories.enumerated().map { idx, _ in Double(idx) }
-        coordinator.yValues = series.sorted { $0.key < $1.key }.first?.value ?? []
-        coordinator.isStackedChart = true
+        let sortedSeries = series.sorted { $0.key < $1.key }
+        coordinator.areaSeriesData = sortedSeries.map { key, values in
+            ChartTooltipCoordinator.AreaSeriesEntry(
+                xValues: values.indices.map { Double($0) },
+                yValues: values,
+                label: key
+            )
+        }
         return coordinator
     }
 
@@ -52,27 +49,60 @@ struct AreaChartView: UIViewRepresentable {
         surface.backgroundColor = UIColor(Color.white)
         surface.renderableSeriesAreaBorderStyle = SCISolidPenStyle(color: .clear, thickness: 0)
 
-        // MARK: Axes
+        setupAxes(on: surface)
+        setupSeries(on: surface)
+
+        context.coordinator.attach(to: surface)
+        onCoordinatorReady?(context.coordinator)
+        surface.applyViewport(viewport)
+
+        return surface
+    }
+
+    func updateUIView(_ uiView: SCIChartSurface, context: Context) {}
+
+    static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: ChartTooltipCoordinator) {
+        uiView.suspendUpdates()
+        uiView.renderableSeries.clear()
+        uiView.chartModifiers.clear()
+        uiView.xAxes.clear()
+        uiView.yAxes.clear()
+        uiView.annotations.clear()
+        coordinator.cleanup()
+    }
+    
+}
+
+// MARK: - Private Helpers
+
+private extension AreaChartView {
+
+    func setupAxes(on surface: SCIChartSurface) {
+        let primaryColor = theme.uiColors[0]
+        let gridLineColor = primaryColor.withAlphaComponent(0.2)
+
         let xAxis = SCINumericAxis()
         xAxis.axisTitle = xLabel
-        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        xAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.2), thickness: 1)
+        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        xAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1)
         xAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         xAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
 
         let yAxis = SCINumericAxis()
         yAxis.axisTitle = yLabel
-        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        yAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.2), thickness: 1)
+        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        yAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1)
         yAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         yAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
         yAxis.growBy = SCIDoubleRange(min: 0.05, max: 0.1)
 
         surface.xAxes.add(xAxis)
         surface.yAxes.add(yAxis)
+    }
 
-        // MARK: Data
+    func setupSeries(on surface: SCIChartSurface) {
         let sortedSeries = series.sorted { $0.key < $1.key }
+        let themeColors = theme.uiColors
 
         for (seriesIndex, (_, values)) in sortedSeries.enumerated() {
             let xData = SCIDoubleValues()
@@ -86,29 +116,13 @@ struct AreaChartView: UIViewRepresentable {
             let dataSeries = SCIXyDataSeries(xType: .double, yType: .double)
             dataSeries.append(x: xData, y: yData)
 
-            // MARK: Series
-            let color = seriesColors[seriesIndex % seriesColors.count]
+            let color = themeColors[seriesIndex % themeColors.count]
             let renderSeries = SCIFastMountainRenderableSeries()
             renderSeries.dataSeries = dataSeries
             renderSeries.strokeStyle = SCISolidPenStyle(color: color, thickness: 2)
             renderSeries.areaStyle = SCISolidBrushStyle(color: color.withAlphaComponent(0.3))
             surface.renderableSeries.add(renderSeries)
         }
-
-        // MARK: Interactivity
-        context.coordinator.attach(to: surface)
-        onCoordinatorReady?(context.coordinator)
-
-        // MARK: Viewport override
-        surface.applyViewport(viewport)
-
-        return surface
-    }
-
-    func updateUIView(_ uiView: SCIChartSurface, context: Context) {}
-    
-    static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: ChartTooltipCoordinator) {
-        coordinator.cleanup()
     }
 }
 

@@ -43,6 +43,7 @@ struct VizReadyView: View {
                 cards
             }
         }
+        .appBackground()
         .scrollIndicators(.hidden)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -97,6 +98,7 @@ struct VizReadyView: View {
         .sheet(isPresented: $showShareSheet) {
             shareSheet
         }
+        .portraitOrientationLock()
     }
  
     // MARK: - Private views
@@ -173,7 +175,11 @@ struct VizReadyView: View {
             visualizationDatasource: vizDatasource,
             teamsDatasource: teamDatasource
         )
+        let authDatasource = AuthFirebaseDatasource()
         let suggestion = viewModel.selectedSuggestion
+        let authRepository = AuthRepositoryImpl(
+            source: authDatasource
+        )
  
         return NavigationStack {
             ShareSheet(
@@ -183,6 +189,7 @@ struct VizReadyView: View {
                         userDatasource: userDatasource
                     ),
                     userRepository: UserRepositoryImpl(userDatasource: userDatasource),
+                    authRepository: authRepository,
                     createVisualizationUseCase: CreateVisualizationUseCase(
                         visualizationRepository: vizRepository
                     ),

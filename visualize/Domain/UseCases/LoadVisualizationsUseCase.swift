@@ -10,8 +10,6 @@ import Foundation
 struct LoadVisualizationsUseCase {
     let visualizationRepository: any VisualizationRepository
     func execute(userID: String) async throws -> [VisualizationCard] {
-        async let shared = visualizationRepository.getSharedVisualizations(userID: userID)
-        async let personal = visualizationRepository.getPersonalVisualizations(userID: userID)
-        return try await shared + personal
+        return try await visualizationRepository.getAllVisualizations(userID: userID)
     }
 }

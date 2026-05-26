@@ -16,9 +16,11 @@ class VisualizationDatasource {
         self.userDatasource = userDatasource
         self.teamsDatasource = teamsDatasource
     }
+    
     private func getVisualizationsSharedWithUser(userID: String) async throws -> [VisualizationDTO] {
         let sharedWithUser = try await firebase.collection("visualizations")
             .whereField("sharedWithUsers", arrayContains: userID)
+            .order(by: "createdAt", descending: true)
             .getDocuments()
         return sharedWithUser.documents.compactMap {
             do {
@@ -29,18 +31,22 @@ class VisualizationDatasource {
             }
         }
     }
+    
     private func getVisualizationsSharedWithTeamsUserIsIn(userID: String) async throws -> [VisualizationDTO] {
         let userTeams = try await teamsDatasource.getTeamsUserIsIn(userID: userID)
         let teamIDs = userTeams.compactMap {$0.id}
         guard !teamIDs.isEmpty else {return []}
         let sharedWithTeams = try await firebase.collection("visualizations")
             .whereField("sharedWithTeams", arrayContainsAny: teamIDs)
+            .order(by: "createdAt", descending: true)
             .getDocuments()
         return sharedWithTeams.documents.compactMap {try? $0.data(as: VisualizationDTO.self)}
     }
-    func getAllSharedVisualizations(userID:String) async throws -> [VisualizationDTO] {
-        let sharedWithUser = try await getVisualizationsSharedWithUser(userID: userID)
-        let sharedWithTeamsUserIsIn = try await getVisualizationsSharedWithTeamsUserIsIn(userID: userID)
+    
+    func getAllSharedVisualizations(userID: String) async throws -> [VisualizationDTO] {
+        async let sharedWithUserTask = getVisualizationsSharedWithUser(userID: userID)
+        async let sharedWithTeamsTask = getVisualizationsSharedWithTeamsUserIsIn(userID: userID)
+        let (sharedWithUser, sharedWithTeamsUserIsIn) = try await (sharedWithUserTask, sharedWithTeamsTask)
         let sharedVisualizations = sharedWithUser + sharedWithTeamsUserIsIn
         var uniqueDict = [String: VisualizationDTO]()
         for dto in sharedVisualizations {
@@ -50,15 +56,18 @@ class VisualizationDatasource {
         }
         return Array(uniqueDict.values)
     }
+    
     func getAllPersonalVisualizations(userID: String) async throws -> [VisualizationDTO] {
         let snapshot = try await firebase.collection("visualizations")
             .whereField("authorID", isEqualTo: "\(userID)")
+            .order(by: "createdAt", descending: true)
             .getDocuments()
         let dtos = snapshot.documents.compactMap { document in
             try? document.data(as: VisualizationDTO.self)
         }
         return dtos
     }
+    
     func getAllUsersVisualizationIsSharedWith(visualizationID: String) async throws -> [UserDTO] {
         let vizRef = firebase.collection("visualizations").document(visualizationID)
         let snapshot = try await vizRef.getDocument()

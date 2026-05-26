@@ -26,13 +26,13 @@
 		053BF01C2F8C7462008A3D6B /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01B2F8C7462008A3D6B /* FirebaseRemoteConfig */; };
 		053BF01E2F8C7462008A3D6B /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01D2F8C7462008A3D6B /* FirebaseStorage */; };
 		053BF0202F8C7462008A3D6B /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01F2F8C7462008A3D6B /* FirebaseStorageCombine-Community */; };
-		DE3856102FAD7B2C00BAED1C /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DE38560F2FAD7B2C00BAED1C /* Config.xcconfig */; };
+		DE99AC462FBD178F0090E343 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DE99AC452FBD178F0090E343 /* Config.xcconfig */; };
 		E46E46BF2FA9937000E87EF6 /* SciChart in Frameworks */ = {isa = PBXBuildFile; productRef = E46E46BE2FA9937000E87EF6 /* SciChart */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		053BEF1B2F8AEC41008A3D6B /* visualize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = visualize.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE38560F2FAD7B2C00BAED1C /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		DE99AC452FBD178F0090E343 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -90,7 +90,7 @@
 		053BEF122F8AEC41008A3D6B = {
 			isa = PBXGroup;
 			children = (
-				DE38560F2FAD7B2C00BAED1C /* Config.xcconfig */,
+				DE99AC452FBD178F0090E343 /* Config.xcconfig */,
 				053BEF1D2F8AEC41008A3D6B /* visualize */,
 				053BEF1C2F8AEC41008A3D6B /* Products */,
 			);
@@ -115,6 +115,7 @@
 				053BEF182F8AEC41008A3D6B /* Frameworks */,
 				053BEF192F8AEC41008A3D6B /* Resources */,
 				26B2AA8F2FA16BFE000D9D11 /* Run Script */,
+				DE6CE3532FBDB87B00F34FF1 /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -193,7 +194,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE3856102FAD7B2C00BAED1C /* Config.xcconfig in Resources */,
+				DE99AC462FBD178F0090E343 /* Config.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -218,6 +219,24 @@
 			shellPath = /bin/sh;
 			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\n\nif command -v swiftlint >/dev/null 2>&1; then\n  swiftlint lint --quiet\n  swiftlint lint --reporter html --output \"${SRCROOT}/swiftlint_report.html\" || true\nelse\n  echo \"warning: SwiftLint not found\"\nfi\n";
 		};
+		DE6CE3532FBDB87B00F34FF1 /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport PATH=\":/opt/homebrew/bin\"\n\nif command -v swiftlint >/dev/null 2>&1; then\n  swiftlint lint --quiet\n  swiftlint lint --reporter html --output \"${SRCROOT}/swiftlint_report.html\" || true\nelse\n  echo \"warning: SwiftLint not found\"\nfi\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -233,7 +252,7 @@
 /* Begin XCBuildConfiguration section */
 		053BEF242F8AEC43008A3D6B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DE38560F2FAD7B2C00BAED1C /* Config.xcconfig */;
+			baseConfigurationReference = DE99AC452FBD178F0090E343 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -291,13 +310,14 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		053BEF252F8AEC43008A3D6B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DE38560F2FAD7B2C00BAED1C /* Config.xcconfig */;
+			baseConfigurationReference = DE99AC452FBD178F0090E343 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -348,6 +368,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -359,7 +380,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = YV66BAJPYZ;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = visualize/Info.plist;
@@ -394,7 +415,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = YV66BAJPYZ;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = visualize/Info.plist;

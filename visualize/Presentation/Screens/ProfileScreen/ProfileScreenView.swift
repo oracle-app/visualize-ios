@@ -9,12 +9,15 @@ import SwiftUI
 
 struct ProfileScreenView: View {
     // MARK: - State properties
-
+    
     @Environment(AppCoordinator.self) private var coordinator
     @State private var viewModel: ProfileScreenViewModel
-
+    
+    @AppStorage("selectedChartTheme") private var selectedThemeRaw: String = ChartColorTheme.lagoon.rawValue
+    @State private var activeToast: Toast?
+    
     // MARK: - Initialization
-
+    
     init(
         logoutUseCase: LogoutUseCase,
         getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase
@@ -24,71 +27,86 @@ struct ProfileScreenView: View {
             getCurrentUserProfileUseCase: getCurrentUserProfileUseCase
         ))
     }
-
-    // MARK: - Internal properties
-
+    
+    // MARK: - Private
+    
+    private var selectedTheme: ChartColorTheme {
+        ChartColorTheme(rawValue: selectedThemeRaw) ?? .lagoon
+    }
+    
+    // MARK: - Body
+    
     var body: some View {
-        ZStack {
-            Color.appBackground
-                .ignoresSafeArea()
+        ScrollView {
+            VStack(spacing: Metrics.sectionSpacing) {
+                ProfileHeaderView(profilePictureURL: viewModel.profilePictureURL) {
+                    viewModel.editProfilePhoto()
+                }
 
-            ScrollView {
-                VStack(spacing: Metrics.sectionSpacing) {
-                    ProfileHeaderView(profilePictureURL: viewModel.profilePictureURL) {
-                        viewModel.editProfilePhoto()
-                    }
+                VStack(spacing: Metrics.contentSpacing) {
+                    ProfileUserInfoView(
+                        username: viewModel.username,
+                        email: viewModel.email
+                    )
 
-                    VStack(spacing: Metrics.contentSpacing) {
-                        ProfileUserInfoView(
-                            username: viewModel.username,
-                            email: viewModel.email
+                    Divider()
+                        .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
+
+                    ProfilePreferencesSectionView(
+                        availableThemes: ChartColorTheme.allCases,
+                        selectedTheme: selectedTheme
+                    ) { theme in
+                        selectedThemeRaw = theme.rawValue
+                        activeToast = Toast(
+                            message: "\(theme.title) theme applied",
+                            type: .success
                         )
-
-                        Divider()
-                            .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
-
-                        ProfilePreferencesSectionView(
-                            availableThemes: viewModel.availableChartThemes,
-                            selectedTheme: viewModel.selectedChartTheme
-                        ) { theme in
-                            viewModel.selectChartTheme(theme)
-                        }
-
-                        Divider()
-                            .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
-
-                        ProfileAboutSectionView(items: viewModel.aboutItems)
-
-                        Button("Log out", action: viewModel.logOut)
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(.red)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, Metrics.buttonVerticalPadding)
-                            .background {
-                                Capsule()
-                                    .fill(Color.appBackground)
-                                    .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
-                            }
-                            .overlay {
-                                Capsule()
-                                    .strokeBorder(.red, lineWidth: Metrics.borderWidth)
-                            }
                     }
-                    .padding(.horizontal, Metrics.horizontalPadding)
+
+                    Divider()
+                        .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
+
+                    ProfileAboutSectionView(items: viewModel.aboutItems)
+
+                    Button("Log out", action: viewModel.logOut)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.red)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, Metrics.buttonVerticalPadding)
+                        .background {
+                            Capsule()
+                                .fill(Color.appBackground)
+                                .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
+                        }
+                        .overlay {
+                            Capsule()
+                                .strokeBorder(.red, lineWidth: Metrics.borderWidth)
+                        }
                 }
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal, Metrics.horizontalPadding)
             }
-            .scrollIndicators(.hidden)
-            .ignoresSafeArea(edges: .top)
-            .onAppear {
-                viewModel.loadProfile()
-            }
-            .onChange(of: viewModel.isLoggedOut) { _, loggedOut in
-                if loggedOut {
-                    coordinator.logout()
-                }
+            .frame(maxWidth: .infinity)
+        }
+        .scrollIndicators(.hidden)
+        .appBackground()
+        .ignoresSafeArea(edges: .top)
+        .onAppear {
+            viewModel.loadProfile()
+        }
+        .portraitOrientationLock()
+        .onChange(of: viewModel.isLoggedOut) { _, loggedOut in
+            if loggedOut {
+                coordinator.logout()
             }
         }
+        .overlay(alignment: .bottom) {
+            if let toast = activeToast {
+                ToastView(toast: toast)
+                    .padding(.bottom, Metrics.toastBottomPadding)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(duration: 0.4), value: activeToast)
     }
 }
 
@@ -104,6 +122,8 @@ private enum Metrics {
     static let shadowOpacity: CGFloat = 0.25
     static let shadowRadius: CGFloat = 5
     static let shadowY: CGFloat = 2
+    static let toastBottomPadding: CGFloat = 24
+    static let toastDuration: TimeInterval = 2.5
 }
 
 #Preview {
