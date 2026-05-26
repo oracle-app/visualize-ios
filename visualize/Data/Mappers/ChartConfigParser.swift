@@ -10,92 +10,130 @@
 ///   for rendering in `FullScreenView`.
 /// - `parseSuggestion(configJSON:previewJSON:)`, builds a `ChartSuggestion` for VizReady.
 ///   The `ChartData` used for card previews is parsed from `previewJSON` (reduced data).
-///   Both raw strings are preserved so they can be saved separately to Firestore on confirmation.
 
 import Foundation
-
+ 
+// MARK: - DTO
+ 
+/// Mirrors the JSON shape returned by the microservice for a single chart.
+private struct ChartConfigDTO: Decodable {
+    let chartIndex: Int?
+    let chartName: String?
+    let chartType: String
+    let data: ChartDataDTO?
+    let metrics: [String: String]?
+}
+ 
+/// Mirrors the `data` sub-object, which contains `field1` and `field2`.
+private struct ChartDataDTO: Decodable {
+    let field1: AnyField?
+    let field2: AnyField?
+}
+ 
+// MARK: - AnyField
+ 
+/// Polymorphic decoder for the `field1` and `field2` values in the chart `data` block.
+///
+/// The microservice returns these in several shapes depending on chart type:
+/// - `[String]` , category labels used by vertical bar, horizontal bar, pie, donut.
+/// - `[Double]` , numeric axis values used by scatter and line.
+/// - `[String: [Double]]` , stacked series keyed by series name, used by stacked bar and area.
+///   String-array variant (`[String: [String]]`) is also accepted and converted to doubles.
+///
+/// The enum tries each shape in order and throws only if none match.
+private enum AnyField: Decodable {
+    case strings([String])
+    case numbers([Double])
+    case stackedSeries([String: [Double]])
+ 
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+ 
+        if let numbers = try? container.decode([Double].self) {
+            self = .numbers(numbers)
+            return
+        }
+        if let strings = try? container.decode([String].self) {
+            self = .strings(strings)
+            return
+        }
+        if let dict = try? container.decode([String: [Double]].self) {
+            self = .stackedSeries(dict)
+            return
+        }
+        if let dict = try? container.decode([String: [String]].self) {
+            self = .stackedSeries(dict.mapValues { $0.compactMap { Double($0) } })
+            return
+        }
+        throw DecodingError.typeMismatch(
+            AnyField.self,
+            DecodingError.Context(
+                codingPath: container.codingPath,
+                debugDescription: "AnyField: could not decode as strings, numbers, or stacked dict."
+            )
+        )
+    }
+ 
+    // MARK: Convenience Accessors
+ 
+    /// Returns the value as `[String]`. Numbers are converted to their string representation.
+    var asStrings: [String] {
+        switch self {
+        case .strings(let s):
+            return s
+        case .numbers(let n):
+            return n.map { String($0) }
+        case .stackedSeries:
+            return []
+        }
+    }
+ 
+    /// Returns the value as `[Double]`. String values are parsed via `Double(_:)`.
+    var asDoubles: [Double] {
+        switch self {
+        case .strings(let s):
+            return s.compactMap { Double($0) }
+        case .numbers(let n):
+            return n
+        case .stackedSeries:
+            return []
+        }
+    }
+ 
+    /// Returns the value as `[String: [Double]]`. Empty dict for non-stacked types.
+    var asStackedSeries: [String: [Double]] {
+        if case .stackedSeries(let d) = self {
+            return d
+        }
+        return [:]
+    }
+}
+ 
+// MARK: - Parser
+ 
 struct ChartConfigParser {
+ 
     // MARK: - Parse
-    
+ 
     /// Parses a JSON string into a `ChartData` model.
     /// Returns `nil` if the JSON is malformed or missing required fields.
     /// Returns `.unsupported` if the chart type is not recognized.
-    nonisolated static func parse(from jsonString: String) -> ChartData? {
-        guard let data = jsonString.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let chartTypeString = json["chartType"] as? String,
-              let chartName = json["chartName"] as? String,
-              let metrics = json["metrics"] as? [String: String],
-              let dataDict = json["data"] as? [String: Any] else {
-            print("ChartConfigParser: invalid JSON or missing required fields")
+    static func parse(from jsonString: String) -> ChartData? {
+        guard let data = jsonString.data(using: .utf8) else {
+            print("ChartConfigParser: could not encode JSON string as UTF-8")
             return nil
         }
-        guard let chartType = ChartType.from(chartTypeString) else {
-            return .unsupported(type: chartTypeString)
-        }
-        
-        // MARK: Field Extraction
-        
-        let field1Label = metrics["field1"] ?? "X"
-        let field2Label = metrics["field2"] ?? "Y"
-        let field1Raw = dataDict["field1"] as? [String] ?? []
-        let field2Raw = dataDict["field2"] as? [String] ?? []
-        let field1Values = field1Raw.compactMap { Double($0) }
-        let field2Values = field2Raw.compactMap { Double($0) }
-
-        // MARK: Chart Type Routing
-        
-        switch chartType {
-        case .scatter:
-            let points = zip(field1Values, field2Values).map { ScatterPoint(x: $0, y: $1) }
-            return .scatter(title: chartName, data: points, fieldNames: [field1Label, field2Label])
-        case .line:
-            var lineData: [Double: Double] = [:]
-            zip(field1Values, field2Values).forEach { lineData[$0] = $1 }
-            return .line(title: chartName, data: lineData, fieldNames: [field1Label, field2Label])
-        case .verticalBar:
-            var barData: [String: Double] = [:]
-            zip(field1Raw, field2Values).forEach { barData[$0] = $1 }
-            return .verticalBar(title: chartName, data: barData, fieldNames: [field1Label, field2Label])
-        case .horizontalBar:
-            var barData: [String: Double] = [:]
-            zip(field1Raw, field2Values).forEach { barData[$0] = $1 }
-            return .horizontalBar(title: chartName, data: barData, fieldNames: [field1Label, field2Label])
-        case .stackedBar:
-            var stackedData: [String: [Double]] = [:]
-            if let field2Dict = dataDict["field2"] as? [String: Any] {
-                for (key, rawValue) in field2Dict {
-                    if let strArr = rawValue as? [String] {
-                        stackedData[key] = strArr.compactMap { Double($0) }
-                    } else if let numArr = rawValue as? [NSNumber] {
-                        stackedData[key] = numArr.map { $0.doubleValue }
-                    }
-                }
-            }
-            return .stackedBar(title: chartName, data: stackedData, stackNames: field1Raw)
-        case .pie:
-            return .pie(title: chartName, data: field2Values, fieldNames: field1Raw)
-        case .donut:
-            return .donut(title: chartName, data: field2Values, fieldNames: field1Raw)
-        case .area:
-            var areaData: [String: [Double]] = [:]
-            if let field2Dict = dataDict["field2"] as? [String: Any] {
-                for (key, rawValue) in field2Dict {
-                    if let strArr = rawValue as? [String] {
-                        areaData[key] = strArr.compactMap { Double($0) }
-                    } else if let numArr = rawValue as? [NSNumber] {
-                        areaData[key] = numArr.map { $0.doubleValue }
-                    }
-                }
-            }
-            return .area(title: chartName, data: areaData, stackNames: field1Raw)
-        case .tile:
-            let value = field1Values.first ?? 0
-            return .tile(title: chartName, value: value, label: field1Label)
+        do {
+            let dto = try JSONDecoder().decode(ChartConfigDTO.self, from: data)
+            return chartData(from: dto)
+        } catch {
+            print("ChartConfigParser: decode error — \(error)")
+            return nil
         }
     }
-    
+ 
     // MARK: - Parse Suggestion
+ 
     /// Builds a `ChartSuggestion` from a config/preview JSON pair.
     /// - The `ChartData` used for card rendering in VizReady is parsed from `previewJSON`
     ///   (reduced data, fewer points).
@@ -109,21 +147,94 @@ struct ChartConfigParser {
     ///   - configJSON: Full JSON from the microservice with all data points.
     ///   - previewJSON: Reduced JSON with fewer data points for fast card rendering.
     /// - Returns: A fully populated `ChartSuggestion`, or `nil` if malformed or unsupported.
-    ///
-    nonisolated static func parseSuggestion(configJSON: String, previewJSON: String) -> ChartSuggestion? {
-        guard
-            let data = configJSON.data(using: .utf8),
-            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-            let chartIndex = json["chartIndex"] as? Int,
-            let chartTypeString = json["chartType"] as? String,
-            let chartType = ChartType.from(chartTypeString),
-            // Parse ChartData from previewJSON, this is what gets rendered on the card
-            let chart = parse(from: previewJSON)
-        else {
-            print("ChartConfigParser.parseSuggestion: invalid JSON, missing chartIndex, or unsupported type")
+    static func parseSuggestion(configJSON: String, previewJSON: String) -> ChartSuggestion? {
+        guard let configData = configJSON.data(using: .utf8) else { return nil }
+ 
+        do {
+            let dto = try JSONDecoder().decode(ChartConfigDTO.self, from: configData)
+            guard
+                let chartIndex = dto.chartIndex,
+                let chartType = ChartType.from(dto.chartType),
+                // Parse ChartData from previewJSON, this is what gets rendered on the card
+                let chart = parse(from: previewJSON)
+            else {
+                print("ChartConfigParser.parseSuggestion: missing chartIndex or unsupported type")
+                return nil
+            }
+            let chartName = dto.chartName ?? "Chart \(chartIndex)"
+            return ChartSuggestion(
+                id: chartIndex,
+                name: chartName,
+                chartType: chartType,
+                chart: chart,
+                previewJSON: previewJSON,
+                configJSON: configJSON
+            )
+        } catch {
+            print("ChartConfigParser.parseSuggestion: decode error — \(error)")
             return nil
         }
-        let chartName: String = (json["chartName"] as? String) ?? "Chart \(chartIndex)"
-        return ChartSuggestion(id: chartIndex, name: chartName, chartType: chartType, chart: chart, previewJSON: previewJSON, configJSON: configJSON)
+    }
+ 
+    // MARK: - DTO to ChartData
+ 
+    /// Maps a decoded `ChartConfigDTO` to the appropriate `ChartData` case.
+    /// Returns `.unsupported` for unknown type strings.
+    private static func chartData(from dto: ChartConfigDTO) -> ChartData? {
+        guard let chartType = ChartType.from(dto.chartType) else {
+            return .unsupported(type: dto.chartType)
+        }
+ 
+        let chartName = dto.chartName ?? "Chart"
+        let metrics = dto.metrics ?? [:]
+        let field1Label = metrics["field1"] ?? "X"
+        let field2Label = metrics["field2"] ?? "Y"
+ 
+        // Field Extraction
+ 
+        let field1Strings = dto.data?.field1?.asStrings ?? []
+        let field1Doubles = dto.data?.field1?.asDoubles ?? []
+        let field2Doubles = dto.data?.field2?.asDoubles ?? []
+ 
+        // Chart Type Routing
+ 
+        switch chartType {
+        case .scatter:
+            let points = zip(field1Doubles, field2Doubles).map { ScatterPoint(x: $0, y: $1) }
+            return .scatter(title: chartName, data: points, fieldNames: [field1Label, field2Label])
+ 
+        case .line:
+            var lineData: [Double: Double] = [:]
+            zip(field1Doubles, field2Doubles).forEach { lineData[$0] = $1 }
+            return .line(title: chartName, data: lineData, fieldNames: [field1Label, field2Label])
+ 
+        case .verticalBar:
+            var barData: [String: Double] = [:]
+            zip(field1Strings, field2Doubles).forEach { barData[$0] = $1 }
+            return .verticalBar(title: chartName, data: barData, fieldNames: [field1Label, field2Label])
+ 
+        case .horizontalBar:
+            var barData: [String: Double] = [:]
+            zip(field1Strings, field2Doubles).forEach { barData[$0] = $1 }
+            return .horizontalBar(title: chartName, data: barData, fieldNames: [field1Label, field2Label])
+ 
+        case .stackedBar:
+            let stackedData = dto.data?.field2?.asStackedSeries ?? [:]
+            return .stackedBar(title: chartName, data: stackedData, stackNames: field1Strings)
+ 
+        case .pie:
+            return .pie(title: chartName, data: field2Doubles, fieldNames: field1Strings)
+ 
+        case .donut:
+            return .donut(title: chartName, data: field2Doubles, fieldNames: field1Strings)
+ 
+        case .area:
+            let areaData = dto.data?.field2?.asStackedSeries ?? [:]
+            return .area(title: chartName, data: areaData, stackNames: field1Strings)
+ 
+        case .tile:
+            let value = field1Doubles.first ?? 0
+            return .tile(title: chartName, value: value, label: field1Label)
+        }
     }
 }
