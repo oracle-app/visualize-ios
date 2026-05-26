@@ -33,6 +33,8 @@ final class MockTeamRepository: TeamRepository {
     }
 
     func createTeam(name: String, ownerID: String, initialMembers: [String]) async throws {}
+    
+    func updateTeamMembers(teamID: String, membersIDs: [String]) async throws {}
 
     func deleteTeam(teamID: String) async throws {}
 }

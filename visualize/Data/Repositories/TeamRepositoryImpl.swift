@@ -8,10 +8,12 @@
 class TeamRepositoryImpl: TeamRepository {
     private let teamDatasource: TeamDatasource
     private let userDatasource: UserDatasource
+    
     init(teamDatasource: TeamDatasource, userDatasource: UserDatasource) {
         self.teamDatasource = teamDatasource
         self.userDatasource = userDatasource
     }
+    
     func getTeamsUserOwns(userID: String) async throws -> [Team] {
         let teamsDTOs = try await teamDatasource.getTeamsUserOwns(userID: userID)
         let allMemberIDs = Set(teamsDTOs.flatMap { $0.membersIDs + [$0.ownerID] })
@@ -23,6 +25,7 @@ class TeamRepositoryImpl: TeamRepository {
             return teamDTO.toTeam(members: members)
         }
     }
+    
     func getTeamsUserIsIn(userID: String) async throws -> [Team] {
         let teamsDTOs = try await teamDatasource.getTeamsUserIsIn(userID: userID)
         let allMemberIDs = Set(teamsDTOs.flatMap { $0.membersIDs })
@@ -33,6 +36,7 @@ class TeamRepositoryImpl: TeamRepository {
             return teamDTO.toTeam(members: members)
         }
     }
+    
     func createTeam(name: String, ownerID: String, initialMembers: [String]) async throws {
         let newTeam = TeamDTO(
             name: name,
@@ -45,6 +49,15 @@ class TeamRepositoryImpl: TeamRepository {
             throw error
         }
     }
+    
+    func updateTeamMembers(teamID: String, membersIDs: [String]) async throws {
+        do {
+            try await teamDatasource.updateTeamMembers(teamID: teamID, membersIDs: membersIDs)
+        } catch {
+            throw error
+        }
+    }
+    
     func deleteTeam(teamID: String) async throws {
         do {
             try await teamDatasource.deleteTeam(teamID: teamID)
