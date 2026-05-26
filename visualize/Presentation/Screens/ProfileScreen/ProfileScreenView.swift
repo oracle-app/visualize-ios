@@ -90,6 +90,9 @@ struct ProfileScreenView: View {
         .scrollIndicators(.hidden)
         .appBackground()
         .ignoresSafeArea(edges: .top)
+        .onAppear {
+            viewModel.loadProfile()
+        }
         .portraitOrientationLock()
         .onChange(of: viewModel.isLoggedOut) { _, loggedOut in
             if loggedOut {

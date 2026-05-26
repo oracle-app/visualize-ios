@@ -135,7 +135,7 @@ final class AppCoordinator {
     // MARK: - Session
 
     func login() {
-        path.removeAll()
+        clearAllPaths()
         selectedTab = .feed
         isAuthenticated = true
     }
@@ -143,11 +143,7 @@ final class AppCoordinator {
     func logout() {
         isAuthenticated = false
         selectedTab = .feed
-        path.removeAll()
-        feedPath.removeAll()
-        resetCreateFlow(shouldResetUpload: false)
-        teamsPath.removeAll()
-        profilePath.removeAll()
+        clearAllPaths()
     }
     
     /// Clears the create flow's navigation and transient state explicitly.
@@ -172,5 +168,14 @@ final class AppCoordinator {
     func navigateToVizReady(with suggestions: [ChartSuggestion]) {
         pendingSuggestions = suggestions
         push(.vizReady)
+    }
+    // MARK: Helpers
+    
+    private func clearAllPaths() {
+        path.removeAll()
+        feedPath.removeAll()
+        teamsPath.removeAll()
+        profilePath.removeAll()
+        resetCreateFlow(shouldResetUpload: true)
     }
 }
