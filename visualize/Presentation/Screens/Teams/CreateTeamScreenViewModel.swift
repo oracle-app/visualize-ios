@@ -236,8 +236,10 @@ class CreateTeamViewModel {
 
         // Cancel previous pending search.
         searchTask?.cancel()
+        
+        let query = searchEmail
 
-        guard searchEmail.count >= 3 else {
+        guard query.count >= 3 else {
             searchResults = []
             return
         }
@@ -249,13 +251,13 @@ class CreateTeamViewModel {
 
             guard !Task.isCancelled else { return }
 
-            await executeSearch()
+            await executeSearch(query: query)
         }
     }
 
     /// Executes the actual user search request.
     @MainActor
-    private func executeSearch() async {
+    private func executeSearch(query: String) async {
 
         isLoading = true
         defer { isLoading = false }
@@ -264,7 +266,9 @@ class CreateTeamViewModel {
 
             let results =
                 try await userRepository
-                    .getUserSuggestionsByEmail(email: searchEmail)
+                    .getUserSuggestionsByEmail(email: query)
+            
+            guard searchEmail == query else { return }
 
             // Remove already selected members.
             searchResults = results.filter { candidate in
@@ -272,6 +276,7 @@ class CreateTeamViewModel {
             }
 
         } catch {
+            guard searchEmail == query else { return }
             self.error = "Search failed. Please try again."
         }
     }
@@ -316,7 +321,7 @@ class CreateTeamViewModel {
     private func validateTeamName() -> Bool {
 
         if teamName
-            .trimmingCharacters(in: .whitespaces)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
             .isEmpty {
 
             teamNameError =
@@ -343,12 +348,14 @@ class CreateTeamViewModel {
         guard validateTeamName() else {
             return false
         }
+        
+        // Exclude owner from member list.
+        let memberIDs = members.dropFirst().map(\.id)
+        
+        guard !memberIDs.isEmpty else { return false }
 
         isLoading = true
         defer { isLoading = false }
-
-        // Exclude owner from member list.
-        let memberIDs = members.dropFirst().map(\.id)
 
         do {
 

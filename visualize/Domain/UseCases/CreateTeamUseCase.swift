@@ -15,6 +15,8 @@ enum CreateTeamError: Error {
     /// Thrown when the provided team name is empty
     /// after trimming whitespaces.
     case teamNameEmpty
+    /// Thrown when the team has no non-owner members.
+    case teamMembersEmpty
 }
 
 // MARK: - Create Team Use Case
@@ -66,13 +68,16 @@ class CreateTeamUseCase {
     ) async throws {
 
         // Remove leading/trailing whitespaces.
-        let trimmedName = name.trimmingCharacters(in: .whitespaces)
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
 
         // Validate team name.
         guard !trimmedName.isEmpty else {
             throw CreateTeamError.teamNameEmpty
         }
-
+        
+        guard !memberIDs.isEmpty else {
+            throw CreateTeamError.teamMembersEmpty
+        }
         // MARK: - Build Member List
 
         /// Owner is always included.
