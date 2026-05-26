@@ -2,23 +2,26 @@
 //  NotificationDTO.swift
 //  visualize
 //
-//  Created by Miguel Degollado on 20/05/26.
-//
 
 import Foundation
 import FirebaseFirestore
 
 struct NotificationDTO: Codable {
     @DocumentID var id: String?
-    let userID: String
-    var isRead: Bool
-    let type: String
+    let body: String
     let createdAt: Date
-    let actorName: String
-    let actorPhotoURL: String
-    let contextLabel: String
+    var isRead: Bool
+    let receiverID: String
+    let senderProfilePictureURL: String
+    let type: String
 
     enum CodingKeys: String, CodingKey {
-        case id, userID, isRead, type, createdAt, actorName, actorPhotoURL, contextLabel
+        case id
+        case body
+        case createdAt
+        case isRead
+        case receiverID
+        case senderProfilePictureURL
+        case type
     }
 }
