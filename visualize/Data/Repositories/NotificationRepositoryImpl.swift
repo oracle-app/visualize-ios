@@ -5,6 +5,7 @@
 //  Created by Miguel Degollado on 20/05/26.
 //
 
+
 import Foundation
 
 final class NotificationRepositoryImpl: NotificationRepository {
@@ -15,16 +16,30 @@ final class NotificationRepositoryImpl: NotificationRepository {
         self.datasource = datasource
     }
 
-    func notificationsStream(for userID: String) -> AsyncStream<[NotificationDisplayGroup]> {
+    // MARK: - NotificationRepository
+
+
+    func notificationsStream(for userID: String) -> AsyncStream<[Notification]> {
         let raw = datasource.notificationsStream(for: userID)
         return AsyncStream { continuation in
-            Task {
-                for await dtos in raw {
-                    continuation.yield(Self.group(dtos))
+            let task = Task {
+                for await result in raw {
+                    guard !Task.isCancelled else { break }
+                    switch result {
+                    case .success(let dtos):
+                        continuation.yield(dtos.map { $0.toDomain() })
+                    case .failure:
+                        continuation.yield([])
+                    }
                 }
                 continuation.finish()
             }
+            continuation.onTermination = { _ in task.cancel() }
         }
+    }
+
+    func unreadStream(for userID: String) -> AsyncStream<Bool> {
+        datasource.unreadStream(for: userID)
     }
 
     func markAsRead(notificationID: String, userID: String) async throws {
@@ -33,42 +48,5 @@ final class NotificationRepositoryImpl: NotificationRepository {
 
     func markAllAsRead(userID: String) async throws {
         try await datasource.markAllAsRead(userID: userID)
-    }
-
-    func delete(notificationID: String, userID: String) async throws {
-        try await datasource.delete(notificationID: notificationID, userID: userID)
-    }
-
-    func saveFCMToken(_ token: String, for userID: String) async throws {
-        try await datasource.saveFCMToken(token, for: userID)
-    }
-
-    func removeFCMToken(for userID: String) async throws {
-        try await datasource.removeFCMToken(for: userID)
-    }
-
-    private static func group(_ dtos: [NotificationDTO]) -> [NotificationDisplayGroup] {
-        let calendar = Calendar.current
-        let now = Date()
-        var today: [NotificationDisplayItem] = []
-        var yesterday: [NotificationDisplayItem] = []
-        var last30: [NotificationDisplayItem] = []
-
-        for dto in dtos {
-            let item = dto.toDisplayItem()
-            if calendar.isDateInToday(dto.createdAt) {
-                today.append(item)
-            } else if calendar.isDateInYesterday(dto.createdAt) {
-                yesterday.append(item)
-            } else if let days = calendar.dateComponents([.day], from: dto.createdAt, to: now).day, days <= 30 {
-                last30.append(item)
-            }
-        }
-
-        return [
-            NotificationDisplayGroup(id: "Today",        items: today),
-            NotificationDisplayGroup(id: "Yesterday",    items: yesterday),
-            NotificationDisplayGroup(id: "Last 30 days", items: last30)
-        ]
     }
 }
