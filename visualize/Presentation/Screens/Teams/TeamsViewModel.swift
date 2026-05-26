@@ -5,6 +5,12 @@
 //  Created by Diana Escalante on 18/05/26.
 //
 
+//
+/// ViewModel for TeamsScreen.
+/// Handles loading, deleting, and editing teams.
+/// Separates teams owned by the user from teams the user belongs to.
+//
+
 import SwiftUI
 import Observation
 
@@ -80,5 +86,12 @@ final class TeamsScreenViewModel {
     /// Placeholder for navigation or sheet presentation to edit a team.
     func beginEditing(_ team: Team) {
         // TODO: Present edit sheet for team
+    }
+    
+    // MARK: - Create
+
+    /// Placeholder for navigation or sheet presentation to create a team.
+    func beginCreating() {
+        // TODO: Navigate to create new team screen
     }
 }

@@ -94,6 +94,18 @@ struct TeamsScreen: View {
         .listStyle(.insetGrouped)
         .navigationTitle("Teams")
         .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.beginCreating()
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 15, weight: .medium))
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.primaryOrange)
+            }
+        }
         .task {
             await viewModel.loadTeams()
         }
