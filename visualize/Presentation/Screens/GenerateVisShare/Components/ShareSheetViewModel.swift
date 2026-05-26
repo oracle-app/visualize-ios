@@ -20,8 +20,9 @@ import Foundation
 /// - Loads teams owned by and joined by the current user.
 /// - Coordinates search, selection, and confirm-share actions.
 ///
-@Observable
+
 @MainActor
+@Observable
 final class ShareSheetViewModel {
 
     // MARK: - Dependencies
@@ -31,7 +32,6 @@ final class ShareSheetViewModel {
     private let authRepository: any AuthRepository
     private let createVisualizationUseCase: CreateVisualizationUseCase
 
-    // Temporary hardcoded user ID, will be replaced with authenticated session value.
     private(set) var userID: String = ""
     
     // MARK: - Chart Data
