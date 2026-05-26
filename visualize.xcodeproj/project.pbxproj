@@ -26,13 +26,11 @@
 		053BF01C2F8C7462008A3D6B /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01B2F8C7462008A3D6B /* FirebaseRemoteConfig */; };
 		053BF01E2F8C7462008A3D6B /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01D2F8C7462008A3D6B /* FirebaseStorage */; };
 		053BF0202F8C7462008A3D6B /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01F2F8C7462008A3D6B /* FirebaseStorageCombine-Community */; };
-		DE99AC462FBD178F0090E343 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DE99AC452FBD178F0090E343 /* Config.xcconfig */; };
 		E46E46BF2FA9937000E87EF6 /* SciChart in Frameworks */ = {isa = PBXBuildFile; productRef = E46E46BE2FA9937000E87EF6 /* SciChart */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		053BEF1B2F8AEC41008A3D6B /* visualize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = visualize.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE99AC452FBD178F0090E343 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -90,7 +88,6 @@
 		053BEF122F8AEC41008A3D6B = {
 			isa = PBXGroup;
 			children = (
-				DE99AC452FBD178F0090E343 /* Config.xcconfig */,
 				053BEF1D2F8AEC41008A3D6B /* visualize */,
 				053BEF1C2F8AEC41008A3D6B /* Products */,
 			);
@@ -194,7 +191,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE99AC462FBD178F0090E343 /* Config.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,7 +248,6 @@
 /* Begin XCBuildConfiguration section */
 		053BEF242F8AEC43008A3D6B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DE99AC452FBD178F0090E343 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -317,7 +312,6 @@
 		};
 		053BEF252F8AEC43008A3D6B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DE99AC452FBD178F0090E343 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
