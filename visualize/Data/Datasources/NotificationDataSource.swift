@@ -19,7 +19,6 @@ final class NotificationDatasource {
     init(db: Firestore = Firestore.firestore()) { self.db = db }
 
     // MARK: - Notifications stream
-    // Queries the root-level notifications collection filtered by receiverID
 
     func notificationsStream(for userID: String) -> AsyncStream<Result<[NotificationDTO], Error>> {
         let box = ListenerBox()
