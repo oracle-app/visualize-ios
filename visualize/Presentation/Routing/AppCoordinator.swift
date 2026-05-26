@@ -45,7 +45,6 @@ final class AppCoordinator {
     var teamsPath: [AppRoute] = []
     var profilePath: [AppRoute] = []
 
-    var removeFCMTokenUseCase: RemoveFCMTokenUseCase?
 
     // MARK: - Navigation
 
