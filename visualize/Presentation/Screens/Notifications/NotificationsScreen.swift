@@ -1,20 +1,15 @@
 //
-//  NotificationScreen.swift
+//  NotificationsScreen.swift
 //  visualize
 //
-//  Created by Miguel Degollado 
+
 
 import SwiftUI
 
 @MainActor
 struct NotificationsScreen: View {
 
-    @Environment(AppCoordinator.self) private var coordinator
-    @StateObject private var viewModel: NotificationsViewModel
-
-    init(viewModel: NotificationsViewModel? = nil) {
-        _viewModel = StateObject(wrappedValue: viewModel ?? NotificationsViewModel())
-    }
+    @ObservedObject var viewModel: NotificationsViewModel
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -26,14 +21,7 @@ struct NotificationsScreen: View {
         .background(Color.appBackground)
         .navigationTitle("Notifications")
         .navigationBarTitleDisplayMode(.large)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button { coordinator.pop() } label: {
-                    Image(systemName: "bell.fill")
-                }
-            }
-        }
+        .navigationBarBackButtonHidden(false)
         .tint(Color.appNavy)
         .onAppear {
             NotificationCenter.default.post(name: .notificationsScreenDidAppear, object: nil)
@@ -99,8 +87,7 @@ struct NotificationsScreen: View {
                         } else {
                             NotificationGroupCard(
                                 group: group,
-                                onTap: { id in viewModel.markAsRead(id: id) },
-                                onDelete: { id in viewModel.delete(id: id) }
+                                onTap: { id in viewModel.markAsRead(id: id) }
                             )
                             .padding(.horizontal, 24)
                         }
@@ -117,14 +104,5 @@ struct NotificationsScreen: View {
                     .padding(.top, 12)
             }
         }
-    }
-}
-
-// MARK: - Preview
-
-#Preview {
-    NavigationStack {
-        NotificationsScreen()
-            .environment(AppCoordinator())
     }
 }
