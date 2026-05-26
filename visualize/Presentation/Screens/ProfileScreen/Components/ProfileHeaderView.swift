@@ -6,12 +6,39 @@
 //
 
 import SwiftUI
+import PhotosUI
+import FirebaseAuth
+
+// MARK: - Active Sheet
+
+private enum ActiveSheet: Identifiable {
+    case camera
+    case editor
+
+    var id: Int { hashValue }
+}
+
+// MARK: - Profile Header View
 
 struct ProfileHeaderView: View {
+    // MARK: - State properties
+
+    @State private var isShowingPhotoOptions = false
+    @State private var showDeleteAlert = false
+    @State private var cameraImage: UIImage?
+    @State private var activeSheet: ActiveSheet?
+
     // MARK: - Internal properties
 
+    let onPickerRequested: () -> Void
+    let onDelete: () -> Void
     let profilePictureURL: URL?
-    let editProfilePhotoAction: () -> Void
+    let onUpload: (UIImage) -> Void
+    let isUploading: Bool
+    @Binding var pendingImage: UIImage?
+    @Binding var showImageEditor: Bool
+
+    // MARK: - Body
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -23,6 +50,37 @@ struct ProfileHeaderView: View {
         .frame(maxWidth: .infinity)
         .frame(height: Metrics.headerHeight, alignment: .top)
         .ignoresSafeArea(edges: .top)
+        .fullScreenCover(item: $activeSheet) { sheet in
+            switch sheet {
+            case .camera:
+                CameraPickerView(image: $cameraImage)
+                    .ignoresSafeArea()
+            case .editor:
+                EditProfilePhotoView(
+                    image: pendingImage ?? UIImage(),
+                    onCancel: {
+                        activeSheet = nil
+                        pendingImage = nil
+                        showImageEditor = false
+                    },
+                    onSave: { image in
+                        activeSheet = nil
+                        pendingImage = nil
+                        showImageEditor = false
+                        onUpload(image)
+                    }
+                )
+            }
+        }
+        .onChange(of: showImageEditor) { _, show in
+            if show { activeSheet = .editor }
+        }
+        .onChange(of: cameraImage) { _, img in
+            if let img {
+                pendingImage = img
+                activeSheet = .editor
+            }
+        }
     }
 
     // MARK: - Private properties
@@ -39,18 +97,23 @@ struct ProfileHeaderView: View {
 
     private var profileAvatar: some View {
         ZStack(alignment: .bottomTrailing) {
-            Group {
-                if let url = profilePictureURL {
+            // Avatar circle
+            ZStack {
+                if isUploading {
+                    Color.appGray
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.white)
+                        .scaleEffect(1.5)
+                } else if let url = profilePictureURL {
                     AsyncImage(url: url) { phase in
                         switch phase {
                         case .success(let image):
-                            image
-                                .resizable()
-                                .scaledToFill()
+                            image.resizable().scaledToFill()
                         case .failure:
                             avatarPlaceholder
                         case .empty:
-                            ProgressView()
+                            Color.gray.opacity(0.2)
                         @unknown default:
                             avatarPlaceholder
                         }
@@ -67,17 +130,36 @@ struct ProfileHeaderView: View {
                     .strokeBorder(.white, lineWidth: Metrics.avatarBorderWidth)
             }
 
-            Button("Edit profile photo", systemImage: "pencil", action: editProfilePhotoAction)
-                .labelStyle(.iconOnly)
-                .bold()
-                .foregroundStyle(.white)
-                .frame(width: Metrics.editButtonSize, height: Metrics.editButtonSize)
-                .background(Color.appTeal)
-                .clipShape(.circle)
-                .overlay {
-                    Circle()
-                        .strokeBorder(.white, lineWidth: Metrics.editButtonBorderWidth)
-                }
+            // Edit button
+            Button {
+                isShowingPhotoOptions = true
+            } label: {
+                Image(systemName: "pencil")
+            }
+            .labelStyle(.iconOnly)
+            .bold()
+            .foregroundStyle(.white)
+            .frame(width: Metrics.editButtonSize, height: Metrics.editButtonSize)
+            .background(Color.appTeal)
+            .clipShape(.circle)
+            .overlay {
+                Circle()
+                    .strokeBorder(.white, lineWidth: Metrics.editButtonBorderWidth)
+            }
+            .confirmationDialog(
+                "Profile Photo",
+                isPresented: $isShowingPhotoOptions
+            ) {
+                Button("Take photo") { activeSheet = .camera }
+                Button("Choose from library") { onPickerRequested() }
+                Button("Delete photo", role: .destructive) { showDeleteAlert = true }
+            }
+            .alert("Delete photo", isPresented: $showDeleteAlert) {
+                Button("Delete", role: .destructive) { onDelete() }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("This action cannot be undone.")
+            }
         }
     }
 
@@ -131,5 +213,16 @@ private enum Metrics {
 }
 
 #Preview {
-    ProfileHeaderView(profilePictureURL: nil) {}
+    @Previewable @State var pending: UIImage?
+    @Previewable @State var showEditor: Bool = false
+
+    ProfileHeaderView(
+        onPickerRequested: { },
+        onDelete: { },
+        profilePictureURL: nil,
+        onUpload: { _ in },
+        isUploading: false,
+        pendingImage: $pending,
+        showImageEditor: $showEditor
+    )
 }

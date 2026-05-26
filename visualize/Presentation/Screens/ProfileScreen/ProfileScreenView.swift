@@ -6,90 +6,133 @@
 //
 
 import SwiftUI
+import _PhotosUI_SwiftUI
 
 struct ProfileScreenView: View {
     // MARK: - State properties
-    
+
     @Environment(AppCoordinator.self) private var coordinator
     @State private var viewModel: ProfileScreenViewModel
-    
     @AppStorage("selectedChartTheme") private var selectedThemeRaw: String = ChartColorTheme.lagoon.rawValue
     @State private var activeToast: Toast?
-    
+    @State private var showPhotoPicker = false
+    @State private var selectedItem: PhotosPickerItem?
+    @State private var pendingImage: UIImage?
+    @State private var showImageEditor = false
+
     // MARK: - Initialization
-    
+
     init(
         logoutUseCase: LogoutUseCase,
-        getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase
+        getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase,
+        uploadProfilePhotoUseCase: UploadProfilePhotoUseCase,
+        deleteProfilePhotoUseCase: DeleteProfilePhotoUseCase
     ) {
         _viewModel = State(initialValue: ProfileScreenViewModel(
             logoutUseCase: logoutUseCase,
-            getCurrentUserProfileUseCase: getCurrentUserProfileUseCase
+            getCurrentUserProfileUseCase: getCurrentUserProfileUseCase,
+            uploadProfilePhotoUseCase: uploadProfilePhotoUseCase,
+            deleteProfilePhotoUseCase: deleteProfilePhotoUseCase
         ))
     }
-    
+
     // MARK: - Private
-    
+
     private var selectedTheme: ChartColorTheme {
         ChartColorTheme(rawValue: selectedThemeRaw) ?? .lagoon
     }
-    
-    // MARK: - Body
-    
-    var body: some View {
-        ScrollView {
-            VStack(spacing: Metrics.sectionSpacing) {
-                ProfileHeaderView(profilePictureURL: viewModel.profilePictureURL) {
-                    viewModel.editProfilePhoto()
-                }
 
-                VStack(spacing: Metrics.contentSpacing) {
-                    ProfileUserInfoView(
-                        username: viewModel.username,
-                        email: viewModel.email
+    // MARK: - Body
+
+    var body: some View {
+        ZStack {
+            Color.appBackground
+                .ignoresSafeArea()
+
+            ScrollView {
+                VStack(spacing: Metrics.sectionSpacing) {
+                    ProfileHeaderView(
+                        onPickerRequested: { showPhotoPicker = true },
+                        onDelete: {
+                            viewModel.deleteProfileImage()
+                        },
+                        profilePictureURL: viewModel.profilePictureURL,
+                        onUpload: { image in
+                            viewModel.uploadProfileImage(image: image)
+                        },
+                        isUploading: viewModel.isUploadingPhoto,
+                        pendingImage: $pendingImage,
+                        showImageEditor: $showImageEditor
                     )
 
-                    Divider()
-                        .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
-
-                    ProfilePreferencesSectionView(
-                        availableThemes: ChartColorTheme.allCases,
-                        selectedTheme: selectedTheme
-                    ) { theme in
-                        selectedThemeRaw = theme.rawValue
-                        activeToast = Toast(
-                            message: "\(theme.title) theme applied",
-                            type: .success
+                    VStack(spacing: Metrics.contentSpacing) {
+                        ProfileUserInfoView(
+                            username: viewModel.username,
+                            email: viewModel.email
                         )
+
+                        Divider()
+                            .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
+
+                        ProfilePreferencesSectionView(
+                            availableThemes: ChartColorTheme.allCases,
+                            selectedTheme: selectedTheme
+                        ) { theme in
+                            selectedThemeRaw = theme.rawValue
+                            activeToast = Toast(
+                                message: "\(theme.title) theme applied",
+                                type: .success
+                            )
+                        }
+
+                        Divider()
+                            .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
+
+                        ProfileAboutSectionView(items: viewModel.aboutItems)
+
+                        Button("Log out", action: viewModel.logOut)
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(.red)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, Metrics.buttonVerticalPadding)
+                            .background {
+                                Capsule()
+                                    .fill(Color.appBackground)
+                                    .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
+                            }
+                            .overlay {
+                                Capsule()
+                                    .strokeBorder(.red, lineWidth: Metrics.borderWidth)
+                            }
                     }
-
-                    Divider()
-                        .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
-
-                    ProfileAboutSectionView(items: viewModel.aboutItems)
-
-                    Button("Log out", action: viewModel.logOut)
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(.red)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Metrics.buttonVerticalPadding)
-                        .background {
-                            Capsule()
-                                .fill(Color.appBackground)
-                                .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
-                        }
-                        .overlay {
-                            Capsule()
-                                .strokeBorder(.red, lineWidth: Metrics.borderWidth)
-                        }
+                    .padding(.horizontal, Metrics.horizontalPadding)
                 }
-                .padding(.horizontal, Metrics.horizontalPadding)
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity)
+            .scrollIndicators(.hidden)
+            .ignoresSafeArea(edges: .top)
+
+            Color.clear
+                .photosPicker(
+                    isPresented: $showPhotoPicker,
+                    selection: $selectedItem,
+                    matching: .images
+                )
+                .onChange(of: selectedItem) { _, newItem in
+                    guard let newItem else { return }
+                    Task {
+                        if let data = try? await newItem.loadTransferable(type: Data.self),
+                           let uiImage = UIImage(data: data) {
+                            await MainActor.run {
+                                pendingImage = uiImage
+                                selectedItem = nil
+                                showImageEditor = true
+                            }
+                        }
+                    }
+                }
         }
-        .scrollIndicators(.hidden)
         .appBackground()
-        .ignoresSafeArea(edges: .top)
         .onAppear {
             viewModel.loadProfile()
         }
@@ -129,9 +172,18 @@ private enum Metrics {
 #Preview {
     let authRepo = AuthRepositoryImpl(source: AuthFirebaseDatasource())
     let userRepo = UserRepositoryImpl(userDatasource: UserDatasource())
+
     ProfileScreenView(
         logoutUseCase: LogoutUseCase(repository: authRepo),
         getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase(
+            authRepository: authRepo,
+            userRepository: userRepo
+        ),
+        uploadProfilePhotoUseCase: UploadProfilePhotoUseCase(
+            authRepository: authRepo,
+            userRepository: userRepo
+        ),
+        deleteProfilePhotoUseCase: DeleteProfilePhotoUseCase(
             authRepository: authRepo,
             userRepository: userRepo
         )
