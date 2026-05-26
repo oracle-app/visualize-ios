@@ -12,13 +12,12 @@ extension NotificationDTO {
     func toDomain() -> Notification {
         Notification(
             id: id ?? UUID().uuidString,
-            userID: userID,
-            isRead: isRead,
-            type: type,
+            body: body,
             createdAt: createdAt,
-            actorName: actorName.isEmpty ? nil : actorName,
-            actorPhotoURL: actorPhotoURL.isEmpty ? nil : actorPhotoURL,
-            contextLabel: contextLabel.isEmpty ? nil : contextLabel
+            isRead: isRead,
+            receiverID: receiverID,
+            senderProfilePictureURL: senderProfilePictureURL.isEmpty ? nil : senderProfilePictureURL,
+            type: type
         )
     }
 }
@@ -27,46 +26,44 @@ extension NotificationDTO {
 
 extension Notification {
     func toDisplayItem() -> NotificationDisplayItem {
-        let resolved = type.resolvedMessage(actorName: actorName, context: contextLabel)
+
+        let senderName = body.extractSenderName()
+
         return NotificationDisplayItem(
             id: id,
-            boldPrefix: resolved.boldPrefix,
-            message: resolved.message,
+            boldPrefix: senderName.isEmpty ? "" : "\(senderName) ",
+            message: senderName.isEmpty ? body : String(body.dropFirst(senderName.count + 1)),
             timestamp: createdAt.relativeFormatted(),
             isRead: isRead,
-            avatarInitials: (actorName ?? "").initials,
+            avatarInitials: senderName.initials,
             avatarColor: type.avatarColor,
-            avatarURL: actorPhotoURL
+            avatarURL: senderProfilePictureURL
         )
     }
 }
 
-// MARK: - Type resolution
-
-private struct ResolvedMessage { let boldPrefix: String; let message: String }
+// MARK: - Helpers
 
 private extension String {
-    func resolvedMessage(actorName: String?, context: String?) -> ResolvedMessage {
-        let actor = actorName ?? "Someone"
-        let ctx = context ?? ""
-        switch self {
-        case "thread_reply":
-            return ResolvedMessage(boldPrefix: "\(actor) ", message: "replied to your thread on \u{201C}\(ctx)\u{201D}")
-        case "team_invite":
-            return ResolvedMessage(boldPrefix: "\(actor) ", message: "added you to the team \u{201C}\(ctx)\u{201D}.")
-        case "chart_shared":
-            return ResolvedMessage(boldPrefix: "\(actor) ", message: "shared a new chart called \u{201C}\(ctx)\u{201D}.")
-        default:
-            return ResolvedMessage(boldPrefix: "", message: "You have a new notification.")
+
+    /// Extracts the sender name from the body string.
+    /// Example: "Pedro Perez shared..." → "Pedro Perez"
+    func extractSenderName() -> String {
+        let verbs = [" shared ", " replied ", " added ", " commented "]
+        for verb in verbs {
+            if let range = range(of: verb) {
+                return String(self[startIndex..<range.lowerBound])
+            }
         }
+        return ""
     }
 
     var avatarColor: Color {
         switch self {
-        case "thread_reply": return Color(red: 0.40, green: 0.62, blue: 0.95)
-        case "team_invite":  return Color(red: 0.95, green: 0.58, blue: 0.40)
-        case "chart_shared": return Color(red: 0.40, green: 0.80, blue: 0.65)
-        default:             return Color(red: 0.80, green: 0.45, blue: 0.75)
+        case "visualization_shared": return Color(red: 0.40, green: 0.62, blue: 0.95)
+        case "thread_reply":         return Color(red: 0.95, green: 0.58, blue: 0.40)
+        case "team_invite":          return Color(red: 0.40, green: 0.80, blue: 0.65)
+        default:                     return Color(red: 0.80, green: 0.45, blue: 0.75)
         }
     }
 
