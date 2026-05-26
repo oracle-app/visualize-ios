@@ -7,6 +7,7 @@
 
 import SwiftUI
 import _PhotosUI_SwiftUI
+import AVFoundation
 
 struct ProfileScreenView: View {
     // MARK: - State properties
@@ -19,6 +20,7 @@ struct ProfileScreenView: View {
     @State private var selectedItem: PhotosPickerItem?
     @State private var pendingImage: UIImage?
     @State private var showImageEditor = false
+    @State private var isCameraActive = false
 
     // MARK: - Initialization
 
@@ -41,7 +43,7 @@ struct ProfileScreenView: View {
     private var selectedTheme: ChartColorTheme {
         ChartColorTheme(rawValue: selectedThemeRaw) ?? .lagoon
     }
-
+    
     // MARK: - Body
 
     var body: some View {
@@ -53,16 +55,13 @@ struct ProfileScreenView: View {
                 VStack(spacing: Metrics.sectionSpacing) {
                     ProfileHeaderView(
                         onPickerRequested: { showPhotoPicker = true },
-                        onDelete: {
-                            viewModel.deleteProfileImage()
-                        },
+                        onDelete: { viewModel.deleteProfileImage() },
                         profilePictureURL: viewModel.profilePictureURL,
-                        onUpload: { image in
-                            viewModel.uploadProfileImage(image: image)
-                        },
+                        onUpload: { image in viewModel.uploadProfileImage(image: image) },
                         isUploading: viewModel.isUploadingPhoto,
                         pendingImage: $pendingImage,
-                        showImageEditor: $showImageEditor
+                        showImageEditor: $showImageEditor,
+                        isCameraActive: $isCameraActive 
                     )
 
                     VStack(spacing: Metrics.contentSpacing) {
@@ -136,7 +135,7 @@ struct ProfileScreenView: View {
         .onAppear {
             viewModel.loadProfile()
         }
-        .portraitOrientationLock()
+        .portraitOrientationLock(!isCameraActive)
         .onChange(of: viewModel.isLoggedOut) { _, loggedOut in
             if loggedOut {
                 coordinator.logout()

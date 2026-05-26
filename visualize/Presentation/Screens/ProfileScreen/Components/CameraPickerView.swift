@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import AVFoundation
 
 // MARK: - Camera Picker View
 
@@ -22,6 +23,8 @@ struct CameraPickerView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.sourceType = .camera
+        picker.cameraDevice = .rear
+        picker.cameraCaptureMode = .photo
         picker.delegate = context.coordinator
         return picker
     }
@@ -52,7 +55,11 @@ struct CameraPickerView: UIViewControllerRepresentable {
             _ picker: UIImagePickerController,
             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
         ) {
-            parent.image = info[.originalImage] as? UIImage
+            guard let uiImage = info[.originalImage] as? UIImage else {
+                parent.dismiss()
+                return
+            }
+            parent.image = uiImage
             parent.dismiss()
         }
 

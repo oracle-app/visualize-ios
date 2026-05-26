@@ -14,7 +14,7 @@ import FirebaseAuth
 private enum ActiveSheet: Identifiable {
     case camera
     case editor
-
+    
     var id: Int { hashValue }
 }
 
@@ -22,14 +22,15 @@ private enum ActiveSheet: Identifiable {
 
 struct ProfileHeaderView: View {
     // MARK: - State properties
-
+    
     @State private var isShowingPhotoOptions = false
     @State private var showDeleteAlert = false
     @State private var cameraImage: UIImage?
     @State private var activeSheet: ActiveSheet?
-
+    @State private var editorID = UUID()
+    
     // MARK: - Internal properties
-
+    
     let onPickerRequested: () -> Void
     let onDelete: () -> Void
     let profilePictureURL: URL?
@@ -37,13 +38,14 @@ struct ProfileHeaderView: View {
     let isUploading: Bool
     @Binding var pendingImage: UIImage?
     @Binding var showImageEditor: Bool
-
+    @Binding var isCameraActive: Bool
+    
     // MARK: - Body
-
+    
     var body: some View {
         ZStack(alignment: .top) {
             headerBackground
-
+            
             profileAvatar
                 .padding(.top, Metrics.avatarTopPadding)
         }
@@ -55,6 +57,8 @@ struct ProfileHeaderView: View {
             case .camera:
                 CameraPickerView(image: $cameraImage)
                     .ignoresSafeArea()
+                    .onAppear { isCameraActive = true }  
+                    .onDisappear { isCameraActive = false }
             case .editor:
                 EditProfilePhotoView(
                     image: pendingImage ?? UIImage(),
@@ -62,29 +66,33 @@ struct ProfileHeaderView: View {
                         activeSheet = nil
                         pendingImage = nil
                         showImageEditor = false
+                        cameraImage = nil
                     },
                     onSave: { image in
                         activeSheet = nil
                         pendingImage = nil
                         showImageEditor = false
+                        cameraImage = nil
                         onUpload(image)
                     }
                 )
+                .id(editorID)
             }
         }
         .onChange(of: showImageEditor) { _, show in
             if show { activeSheet = .editor }
         }
         .onChange(of: cameraImage) { _, img in
-            if let img {
-                pendingImage = img
+            guard let img else { return }
+            pendingImage = img
+            editorID = UUID()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 activeSheet = .editor
             }
-        }
-    }
-
+        }    }
+    
     // MARK: - Private properties
-
+    
     private var headerBackground: some View {
         Image("AuthBackground")
             .resizable()
@@ -94,10 +102,9 @@ struct ProfileHeaderView: View {
             .clipShape(ProfileHeaderShape())
             .clipped()
     }
-
+    
     private var profileAvatar: some View {
         ZStack(alignment: .bottomTrailing) {
-            // Avatar circle
             ZStack {
                 if isUploading {
                     Color.appGray
@@ -129,8 +136,6 @@ struct ProfileHeaderView: View {
                 Circle()
                     .strokeBorder(.white, lineWidth: Metrics.avatarBorderWidth)
             }
-
-            // Edit button
             Button {
                 isShowingPhotoOptions = true
             } label: {
@@ -162,7 +167,7 @@ struct ProfileHeaderView: View {
             }
         }
     }
-
+    
     private var avatarPlaceholder: some View {
         Image(systemName: "person.fill")
             .font(.system(size: Metrics.avatarIconSize, weight: .semibold))
@@ -177,7 +182,7 @@ private struct ProfileHeaderShape: Shape {
         var path = Path()
         let curveStartY = rect.height * 0.68
         let curveControlY = rect.height * 1.08
-
+        
         path.move(to: .zero)
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
         path.addLine(to: CGPoint(x: rect.maxX, y: curveStartY))
@@ -186,7 +191,7 @@ private struct ProfileHeaderShape: Shape {
             control: CGPoint(x: rect.midX, y: curveControlY)
         )
         path.closeSubpath()
-
+        
         return path
     }
 }
@@ -198,15 +203,15 @@ private enum Metrics {
     static let avatarSize: CGFloat = 175
     static let avatarIconSize: CGFloat = 57
     static let avatarOverlap: CGFloat = 92
-
+    
     static var avatarTopPadding: CGFloat {
         backgroundHeight - avatarOverlap
     }
-
+    
     static var headerHeight: CGFloat {
         avatarTopPadding + avatarSize
     }
-
+    
     static let avatarBorderWidth: CGFloat = 2
     static let editButtonSize: CGFloat = 44
     static let editButtonBorderWidth: CGFloat = 2
@@ -215,6 +220,7 @@ private enum Metrics {
 #Preview {
     @Previewable @State var pending: UIImage?
     @Previewable @State var showEditor: Bool = false
+    @Previewable @State var isCameraActive: Bool = false
 
     ProfileHeaderView(
         onPickerRequested: { },
@@ -223,6 +229,7 @@ private enum Metrics {
         onUpload: { _ in },
         isUploading: false,
         pendingImage: $pending,
-        showImageEditor: $showEditor
+        showImageEditor: $showEditor,
+        isCameraActive: $isCameraActive
     )
 }

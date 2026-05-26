@@ -25,6 +25,7 @@ struct EditProfilePhotoView: View {
     @State private var offset: CGSize = .zero
     @State private var scale: CGFloat = 1.0
     @State private var rotation: Angle = .zero
+    @State private var isReady = false
 
     @GestureState private var dragDelta: CGSize = .zero
     @GestureState private var scaleDelta: CGFloat = 1.0
@@ -43,48 +44,53 @@ struct EditProfilePhotoView: View {
     }
 
     // MARK: - Body
-
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                Text("Move and Scale")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .padding(.top, 16)
+            if isReady {
+                VStack(spacing: 0) {
+                    Text("Move and Scale")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .padding(.top, 16)
 
-                Spacer()
+                    Spacer()
 
-                ZStack {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .scaleEffect(effectiveScale)
-                        .rotationEffect(rotation)
-                        .offset(effectiveOffset)
-                        .frame(width: circleSize, height: circleSize)
+                    ZStack {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .scaleEffect(effectiveScale)
+                            .rotationEffect(rotation)
+                            .offset(effectiveOffset)
+                            .frame(width: circleSize, height: circleSize)
 
-                    CircleCutoutOverlay(size: circleSize)
-                        .allowsHitTesting(false)
+                        CircleCutoutOverlay(size: circleSize)
+                            .allowsHitTesting(false)
 
-                    Circle()
-                        .strokeBorder(.white.opacity(0.8), lineWidth: 1)
-                        .frame(width: circleSize, height: circleSize)
-                        .allowsHitTesting(false)
+                        Circle()
+                            .strokeBorder(.white.opacity(0.8), lineWidth: 1)
+                            .frame(width: circleSize, height: circleSize)
+                            .allowsHitTesting(false)
+                    }
+                    .frame(width: circleSize, height: circleSize)
+                    .clipped()
+                    .gesture(dragGesture)
+                    .gesture(magnifyGesture)
+
+                    Spacer()
+
+                    bottomBar
+                        .padding(.bottom, 32)
                 }
-                .frame(width: circleSize, height: circleSize)
-                .clipped()
-                .gesture(dragGesture)
-                .gesture(magnifyGesture)
-
-                Spacer()
-
-                bottomBar
-                    .padding(.bottom, 32)
             }
         }
-        .preferredColorScheme(.dark)
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isReady = true
+            }
+        }
     }
 
     // MARK: - Gestures
@@ -109,7 +115,7 @@ struct EditProfilePhotoView: View {
                 state = value
             }
             .onEnded { value in
-                scale = max(1.0, scale * value)
+                scale = min(4.0, max(1.0, scale * value))
                 let maxOff = maxAllowedOffset(for: scale)
                 offset = CGSize(
                     width:  min(max(offset.width,  -maxOff.width),  maxOff.width),
