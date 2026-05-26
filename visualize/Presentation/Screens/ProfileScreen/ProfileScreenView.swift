@@ -59,9 +59,10 @@ struct ProfileScreenView: View {
                         profilePictureURL: viewModel.profilePictureURL,
                         onUpload: { image in viewModel.uploadProfileImage(image: image) },
                         isUploading: viewModel.isUploadingPhoto,
+                        username: viewModel.username,
                         pendingImage: $pendingImage,
                         showImageEditor: $showImageEditor,
-                        isCameraActive: $isCameraActive 
+                        isCameraActive: $isCameraActive
                     )
 
                     VStack(spacing: Metrics.contentSpacing) {

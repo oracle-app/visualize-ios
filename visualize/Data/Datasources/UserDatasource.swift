@@ -84,18 +84,13 @@ class UserDatasource {
     }
     
     func updateProfilePictureURL(userID: String, url: URL?) async throws {
-        if let url {
-            try await firebase.collection("users").document(userID)
-                .updateData([
-                    "profilePictureURL": url.absoluteString
-                ])
-        } else {
-            try await firebase.collection("users").document(userID)
-                .updateData([
-                    "profilePictureURL": FieldValue.delete()
-                ])
-        }
+        let value: Any = url?.absoluteString ?? ""
+        try await firebase.collection("users").document(userID)
+            .updateData([
+                "profilePictureURL": value
+            ])
     }
+    
     func deleteProfileImage(userID: String) async throws {
         let storage = Storage.storage()
         let ref = storage.reference()

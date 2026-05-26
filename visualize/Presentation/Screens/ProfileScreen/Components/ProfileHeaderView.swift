@@ -36,6 +36,7 @@ struct ProfileHeaderView: View {
     let profilePictureURL: URL?
     let onUpload: (UIImage) -> Void
     let isUploading: Bool
+    let username: String
     @Binding var pendingImage: UIImage?
     @Binding var showImageEditor: Bool
     @Binding var isCameraActive: Bool
@@ -57,7 +58,7 @@ struct ProfileHeaderView: View {
             case .camera:
                 CameraPickerView(image: $cameraImage)
                     .ignoresSafeArea()
-                    .onAppear { isCameraActive = true }  
+                    .onAppear { isCameraActive = true }
                     .onDisappear { isCameraActive = false }
             case .editor:
                 EditProfilePhotoView(
@@ -89,7 +90,8 @@ struct ProfileHeaderView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 activeSheet = .editor
             }
-        }    }
+        }
+    }
     
     // MARK: - Private properties
     
@@ -101,6 +103,15 @@ struct ProfileHeaderView: View {
             .frame(height: Metrics.backgroundHeight)
             .clipShape(ProfileHeaderShape())
             .clipped()
+    }
+    
+    private var fallbackAvatar: some View {
+        ZStack {
+            Color.appGray
+            Text(String(username.prefix(1)).uppercased())
+                .font(.system(size: Metrics.avatarIconSize * 1, weight: .semibold))
+                .foregroundStyle(.white)
+        }
     }
     
     private var profileAvatar: some View {
@@ -118,15 +129,15 @@ struct ProfileHeaderView: View {
                         case .success(let image):
                             image.resizable().scaledToFill()
                         case .failure:
-                            avatarPlaceholder
+                            fallbackAvatar
                         case .empty:
                             Color.gray.opacity(0.2)
                         @unknown default:
-                            avatarPlaceholder
+                            fallbackAvatar
                         }
                     }
                 } else {
-                    avatarPlaceholder
+                    fallbackAvatar
                 }
             }
             .frame(width: Metrics.avatarSize, height: Metrics.avatarSize)
@@ -136,6 +147,7 @@ struct ProfileHeaderView: View {
                 Circle()
                     .strokeBorder(.white, lineWidth: Metrics.avatarBorderWidth)
             }
+
             Button {
                 isShowingPhotoOptions = true
             } label: {
@@ -166,12 +178,6 @@ struct ProfileHeaderView: View {
                 Text("This action cannot be undone.")
             }
         }
-    }
-    
-    private var avatarPlaceholder: some View {
-        Image(systemName: "person.fill")
-            .font(.system(size: Metrics.avatarIconSize, weight: .semibold))
-            .foregroundStyle(Color.appSubtitle)
     }
 }
 
@@ -228,6 +234,7 @@ private enum Metrics {
         profilePictureURL: nil,
         onUpload: { _ in },
         isUploading: false,
+        username: "Mariana",
         pendingImage: $pending,
         showImageEditor: $showEditor,
         isCameraActive: $isCameraActive
