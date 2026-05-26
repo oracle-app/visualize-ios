@@ -22,20 +22,12 @@ class CreateVisualizationViewModel {
 
     var selectedFileName: String? = nil
     var errorMessage: String? = nil
-
-    var isUploading: Bool = false
-    var uploadProgress: Double = 0.0
     var isUploadComplete: Bool = false
-
     var fileSize: String = "0 MB"
-    
     var pickedFileURL: URL? = nil
-
-    private var timer: Timer?
 
     private let validateFileUseCase = ValidateFileUseCase()
     private let checkFileSizeUseCase = CheckFileSizeUseCase()
-
 
     func handleFile(url: URL) {
 
@@ -67,63 +59,26 @@ class CreateVisualizationViewModel {
             return
         }
 
-        let mb = Double(size) / (1024 * 1024)
+        let kb = Double(size) / 1024
+        let mb = kb / 1024
 
-        fileSize = String(
-            format: "%.0f MB",
-            mb < 1 ? 1 : mb
-        )
+        if mb >= 1 {
+            fileSize = String(format: "%.1f MB", mb)
+        } else {
+            fileSize = String(format: "%.0f KB", kb)
+        }
 
         selectedFileName = url.lastPathComponent
         pickedFileURL = dest
         errorMessage = nil
-        startUpload()
-    }
-
-    func startUpload() {
-
-        isUploading = true
-        isUploadComplete = false
-        uploadProgress = 0.0
-
-        timer = Timer.scheduledTimer(
-            withTimeInterval: 0.05,
-            repeats: true
-        ) { timer in
-
-            if self.uploadProgress < 1.0 {
-
-                self.uploadProgress += 0.02
-
-            } else {
-
-                timer.invalidate()
-
-                self.isUploading = false
-                self.isUploadComplete = true
-            }
-        }
-    }
-
-    func cancelUpload() {
-
-        timer?.invalidate()
-
-        isUploading = false
-        isUploadComplete = false
-
-        uploadProgress = 0.0
-        selectedFileName = nil
-        
-        removeTempFile()
-        pickedFileURL = nil
+        isUploadComplete = true
     }
 
     func resetFile() {
 
         isUploadComplete = false
         selectedFileName = nil
-        uploadProgress = 0.0
+        fileSize = "0 MB"
         removeTempFile()
         pickedFileURL = nil
     }

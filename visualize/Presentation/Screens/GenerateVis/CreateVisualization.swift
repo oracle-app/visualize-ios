@@ -48,9 +48,7 @@ struct CreateVisualization: View {
                         .padding(.bottom, 10)
 
                     Group {
-                        if viewModel.isUploading {
-                            Text("Uploading your dataset...")
-                        } else if viewModel.isUploadComplete {
+                        if viewModel.isUploadComplete {
                             Text("Your dataset is ready! Generate visualizations to explore your data.")
                         } else {
                             Text("Upload a dataset and we'll generate the best visualizations to help you understand your data.")
@@ -62,14 +60,7 @@ struct CreateVisualization: View {
                     .padding(.bottom, 20)
 
                     ZStack {
-                        if viewModel.isUploading {
-                            UploadingFileCard(
-                                fileName: viewModel.selectedFileName ?? "",
-                                fileSize: viewModel.fileSize,
-                                progress: viewModel.uploadProgress,
-                                onCancel: { viewModel.cancelUpload() }
-                            )
-                        } else if viewModel.isUploadComplete {
+                        if viewModel.isUploadComplete {
                             CompletedFileCard(
                                 fileName: viewModel.selectedFileName ?? "",
                                 fileSize: viewModel.fileSize,
@@ -84,6 +75,8 @@ struct CreateVisualization: View {
                             .buttonStyle(.plain)
                         }
                     }
+                    .frame(minHeight: 160, alignment: .top)
+                    .animation(.easeInOut(duration: 0.2), value: viewModel.isUploadComplete)
                     .padding(.bottom, 8)
 
                     if let error = viewModel.errorMessage {
@@ -94,6 +87,8 @@ struct CreateVisualization: View {
                     }
                 }
                 .padding(.horizontal, 20)
+            
+            Spacer()
 
             VStack(alignment: .leading, spacing: 0) {
                 if viewModel.isUploadComplete {
@@ -112,8 +107,7 @@ struct CreateVisualization: View {
                 }
             }
             .padding(.horizontal, 20)
-            
-            Spacer()
+        
         }
         .onChange(of: coordinator.createFlowResetID) { _, _ in
             viewModel.resetFile()
