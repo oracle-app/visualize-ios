@@ -1,8 +1,8 @@
 //
 //  NotificationsViewModel.swift
+//  visualize
 //
-// created by Miguel Degollado
-
+// Created By Miguel Degollado
 
 import Foundation
 import Combine
@@ -41,8 +41,6 @@ final class NotificationsViewModel: ObservableObject {
     private var listenerTask: Task<Void, Never>?
 
     // MARK: - Init
-    // No convenience init — concrete dependencies injected from NavBar
-    // to keep the ViewModel decoupled from data implementations.
 
     init(
         authRepository: AuthRepository,
@@ -62,40 +60,33 @@ final class NotificationsViewModel: ObservableObject {
 
     func loadNotifications() {
         guard let userID = authRepository.getCurrentUser()?.uid else {
-            print("[NotificationsVM] ❌ No authenticated user found")
             state = .empty
             return
         }
-        print("[NotificationsVM] ✅ Loading for userID: \(userID)")
+        print("[NotificationsVM] My userID: \(userID)")
+
         state = .loading
         listenerTask?.cancel()
         listenerTask = Task {
             for await notifications in getNotificationsUseCase.execute(for: userID) {
                 guard !Task.isCancelled else { break }
-                print("[NotificationsVM] 📦 Received \(notifications.count) notifications from Firestore")
                 let groups = group(notifications)
-                let totalItems = groups.flatMap(\.items).count
-                print("[NotificationsVM] 📁 Grouped into \(groups.count) sections, \(totalItems) total items")
                 let corrected = applyPendingReads(to: groups)
-                let newState = corrected.allSatisfy({ $0.items.isEmpty }) ? NotificationsState.empty : .loaded(corrected)
-                print("[NotificationsVM] 🎯 Setting state: \(newState)")
-                state = newState
+                state = corrected.allSatisfy({ $0.items.isEmpty }) ? .empty : .loaded(corrected)
             }
         }
     }
-    // MARK: - Mark as read (single)
+
+    // MARK: - Mark as read
 
     func markAsRead(id: String) {
-        guard let userID = authRepository.getCurrentUser()?.uid else { return }
         pendingReadIDs.insert(id)
         applyOptimisticRead(id: id)
         Task {
-            try? await markNotificationReadUseCase.execute(notificationID: id, userID: userID)
+            try? await markNotificationReadUseCase.execute(notificationID: id)
             pendingReadIDs.remove(id)
         }
     }
-
-    // MARK: - Mark all as read
 
     func markAllAsRead() {
         guard case .loaded(let groups) = state,
@@ -110,7 +101,7 @@ final class NotificationsViewModel: ObservableObject {
         Task { try? await markAllNotificationsReadUseCase.execute(userID: userID) }
     }
 
-    // MARK: - Grouping (moved from Repository per PR feedback)
+    // MARK: - Grouping
 
     private func group(_ notifications: [Notification]) -> [NotificationDisplayGroup] {
         let calendar = Calendar.current
