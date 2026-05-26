@@ -33,6 +33,7 @@ struct NavBar: View {
 
     private let logoutUseCase: LogoutUseCase
     private let getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase
+    private let notificationsViewModel: NotificationsViewModel
 
     init() {
         let authSource = AuthFirebaseDatasource()
@@ -42,6 +43,13 @@ struct NavBar: View {
         self.getCurrentUserProfileUseCase = GetCurrentUserProfileUseCase(
             authRepository: authRepo,
             userRepository: userRepo
+        )
+        let notifRepo = NotificationRepositoryImpl()
+        self.notificationsViewModel = NotificationsViewModel(
+            authRepository: authRepo,
+            getNotificationsUseCase: GetNotificationsUseCase(repository: notifRepo),
+            markNotificationReadUseCase: MarkNotificationReadUseCase(repository: notifRepo),
+            markAllNotificationsReadUseCase: MarkAllNotificationsReadUseCase(repository: notifRepo)
         )
 
         let appearance = UITabBarAppearance()
@@ -61,8 +69,7 @@ struct NavBar: View {
                 FeedView(viewModel: feedViewModel)
                     .navigationDestination(for: AppRoute.self) { route in
                         if case .notifications = route {
-                            NotificationsScreen()
-                                .navigationBarBackButtonHidden(true)
+                            NotificationsScreen(viewModel: notificationsViewModel)
                         }
                     }
             }
