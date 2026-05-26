@@ -22,6 +22,26 @@ private struct ChartConfigDTO: Decodable {
     let chartType: String
     let data: ChartDataDTO?
     let metrics: [String: String]?
+
+    private enum CodingKeys: String, CodingKey {
+        case chartIndex, chartName, chartType, data, metrics
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        // chartIndex can be Int or String depending on how old the Firestore document is.
+        if let intValue = try? container.decodeIfPresent(Int.self, forKey: .chartIndex) {
+            chartIndex = intValue
+        } else if let stringValue = try? container.decodeIfPresent(String.self, forKey: .chartIndex) {
+            chartIndex = Int(stringValue)
+        } else {
+            chartIndex = nil
+        }
+        chartName = try container.decodeIfPresent(String.self, forKey: .chartName)
+        chartType = try container.decode(String.self, forKey: .chartType)
+        data      = try container.decodeIfPresent(ChartDataDTO.self, forKey: .data)
+        metrics   = try container.decodeIfPresent([String: String].self, forKey: .metrics)
+    }
 }
  
 /// Mirrors the `data` sub-object, which contains `field1` and `field2`.
