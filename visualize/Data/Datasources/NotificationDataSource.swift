@@ -3,6 +3,7 @@
 //
 //  created by Miguel Degollado on 26/05/2026
 
+
 import Foundation
 import FirebaseFirestore
 
@@ -18,12 +19,15 @@ final class NotificationDatasource {
     init(db: Firestore = Firestore.firestore()) { self.db = db }
 
     // MARK: - Notifications stream
+    // Queries the root-level notifications collection filtered by receiverID
 
     func notificationsStream(for userID: String) -> AsyncStream<Result<[NotificationDTO], Error>> {
         let box = ListenerBox()
         return AsyncStream { continuation in
-            let query = db.collection("users").document(userID)
-                .collection("notifications").order(by: "createdAt", descending: true)
+            let query = db
+                .collection("notifications")
+                .whereField("receiverID", isEqualTo: userID)
+                .order(by: "createdAt", descending: true)
 
             box.registration = query.addSnapshotListener { snapshot, error in
                 if let error {
@@ -45,8 +49,8 @@ final class NotificationDatasource {
         let box = ListenerBox()
         return AsyncStream { continuation in
             box.registration = db
-                .collection("users").document(userID)
                 .collection("notifications")
+                .whereField("receiverID", isEqualTo: userID)
                 .whereField("isRead", isEqualTo: false)
                 .addSnapshotListener { snapshot, _ in
                     continuation.yield((snapshot?.documents.count ?? 0) > 0)
@@ -57,18 +61,24 @@ final class NotificationDatasource {
 
     // MARK: - Mark as read
 
-    func markAsRead(notificationID: String, userID: String) async throws {
-        try await db.collection("users").document(userID)
-            .collection("notifications").document(notificationID)
+    func markAsRead(notificationID: String) async throws {
+        try await db
+            .collection("notifications")
+            .document(notificationID)
             .updateData(["isRead": true])
     }
 
     func markAllAsRead(userID: String) async throws {
-        let snapshot = try await db.collection("users").document(userID)
-            .collection("notifications").whereField("isRead", isEqualTo: false).getDocuments()
+        let snapshot = try await db
+            .collection("notifications")
+            .whereField("receiverID", isEqualTo: userID)
+            .whereField("isRead", isEqualTo: false)
+            .getDocuments()
         guard !snapshot.documents.isEmpty else { return }
         let batch = db.batch()
-        snapshot.documents.forEach { batch.updateData(["isRead": true], forDocument: $0.reference) }
+        snapshot.documents.forEach {
+            batch.updateData(["isRead": true], forDocument: $0.reference)
+        }
         try await batch.commit()
     }
 }
