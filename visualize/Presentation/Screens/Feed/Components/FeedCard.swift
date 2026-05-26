@@ -40,10 +40,10 @@ struct FeedCard: View {
         
         if interval < 3600 {
             let minutes = Int(interval / 60)
-            return minutes <= 1 ? "Just now" : "\(minutes) minutes ago"
+            return minutes <= 1 ? String(localized: "Just now") : String(localized: "\(minutes) minutes ago")
         } else if interval < 86400 {
             let hours = Int(interval / 3600)
-            return hours == 1 ? "1 hour ago" : "\(hours) hours ago"
+            return hours == 1 ? String(localized: "1 hour ago") : String(localized: "\(hours) hours ago")
         } else {
             return date.formatted(date: .abbreviated, time: .omitted)
         }
@@ -58,7 +58,7 @@ struct FeedCard: View {
                         .foregroundStyle(Color.primaryText)
                         .minimumScaleFactor(0.5)
                     HStack(spacing: 12) {
-                        Text("by \(isOwner ? "me" : author)")
+                        Text(String(localized: "by \(isOwner ? "me" : author)"))
                         Text("•")
                         Text(formattedDate)
                     }

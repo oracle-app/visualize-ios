@@ -58,7 +58,7 @@ struct ProfileScreenView: View {
                     ) { theme in
                         selectedThemeRaw = theme.rawValue
                         activeToast = Toast(
-                            message: "\(theme.title) theme applied",
+                            message: String(localized: "\(theme.title) theme applied"),
                             type: .success
                         )
                     }

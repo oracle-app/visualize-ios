@@ -84,7 +84,7 @@ struct ResetPasswordView: View {
                 // MARK: - Email Input
                 
                 InputField(
-                    placeholder: "Email",
+                    placeholder: String(localized: "Email"),
                     text: $viewModel.email,
                     errorMessage: viewModel.emailError,
                     keyboardType: .emailAddress

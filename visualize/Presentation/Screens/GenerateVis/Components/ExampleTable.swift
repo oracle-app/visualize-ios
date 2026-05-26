@@ -24,19 +24,19 @@ struct ExampleTable: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Dataset format requirements")
+            Text(String(localized: "Dataset format requirements"))
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(Color.primaryText)
                 .padding(.bottom, 8)
                 .padding(.top, 20)
 
-            Text("Upload a table-formatted dataset with column headers in the first row.")
+            Text(String(localized: "Upload a table-formatted dataset with column headers in the first row."))
                 .font(.system(size: 15))
                 .foregroundColor(Color.appSubtitle)
                 .lineSpacing(3)
                 .padding(.bottom, 14)
 
-            Text("Example")
+            Text(String(localized: "Example"))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(Color.appTeal)
                 .padding(.bottom, 8)
@@ -86,8 +86,8 @@ struct ExampleTable: View {
             )
 
             VStack(alignment: .leading, spacing: 3) {
-                Text("Each row should represent a single data entry.")
-                Text("Avoid empty rows or merged cells.")
+                Text(String(localized: "Each row should represent a single data entry."))
+                Text(String(localized: "Avoid empty rows or merged cells."))
             }
             .font(.system(size: 15))
             .foregroundColor(Color.appSubtitle)

@@ -47,7 +47,7 @@ struct ReplyField: View {
     /// Capsule-shaped text field with a microphone button on the trailing side.
     private var textInput: some View {
         HStack {
-            TextField("Reply . . .", text: $text)
+            TextField(String(localized: "Reply . . ."), text: $text)
                 .foregroundStyle(.black)
                 .font(.system(size: 20))
                 .focused($focused)

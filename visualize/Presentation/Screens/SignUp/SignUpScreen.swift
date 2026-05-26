@@ -72,7 +72,7 @@ struct SignUp: View {
                     // MARK: Name Field
                     
                     InputField(
-                        placeholder: "Name",
+                        placeholder: String(localized: "Name"),
                         text: $viewModel.name,
                         errorMessage: viewModel.nameError
                     )
@@ -81,7 +81,7 @@ struct SignUp: View {
                     // MARK: Email Field
                     
                     InputField(
-                        placeholder: "Email",
+                        placeholder: String(localized: "Email"),
                         text: $viewModel.email,
                         errorMessage: viewModel.emailError,
                         keyboardType: .emailAddress
@@ -91,7 +91,7 @@ struct SignUp: View {
                     // MARK: Password Field
                     
                     PasswordField(
-                        placeholder: "Password",
+                        placeholder: String(localized: "Password"),
                         text: $viewModel.password,
                         isVisible: $isPasswordVisible,
                         errorMessage: viewModel.passwordError
@@ -113,7 +113,7 @@ struct SignUp: View {
                     // MARK: Confirm Password Field
                     
                     PasswordField(
-                        placeholder: "Confirm password",
+                        placeholder: String(localized: "Confirm password"),
                         text: $viewModel.confirmPassword,
                         isVisible: $isConfirmPasswordVisible,
                         errorMessage: viewModel.confirmPasswordError
