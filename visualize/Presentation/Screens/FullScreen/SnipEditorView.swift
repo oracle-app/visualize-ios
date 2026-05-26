@@ -10,6 +10,8 @@ import SwiftUI
 /// Full-screen editor for cropping, annotating, and sharing a captured chart image.
 struct SnipEditorView: View {
 
+    private static let maxCropZoomScale: CGFloat = 8
+
     // MARK: - State properties
 
     @State private var model: SnipViewModel
@@ -31,6 +33,44 @@ struct SnipEditorView: View {
         self.onPost = onPost
         self.onDismiss = onDismiss
         _model = State(initialValue: SnipViewModel())
+    }
+
+    // MARK: - Crop Zoom (visual only)
+
+    private var cropZoomScale: CGFloat {
+        guard let rect = model.cropRect,
+              canvasSize.width > 0, canvasSize.height > 0,
+              rect.width > 0, rect.height > 0
+        else { return 1 }
+
+        let rawScale = min(canvasSize.width / rect.width, canvasSize.height / rect.height)
+        return min(rawScale, Self.maxCropZoomScale)
+    }
+
+    private var cropZoomAnchor: UnitPoint {
+        guard let rect = model.cropRect,
+              canvasSize.width > 0, canvasSize.height > 0,
+              rect.width > 0, rect.height > 0
+        else { return .center }
+
+        let x = min(max(rect.midX / canvasSize.width, 0), 1)
+        let y = min(max(rect.midY / canvasSize.height, 0), 1)
+        return UnitPoint(
+            x: x,
+            y: y
+        )
+    }
+
+    private var cropZoomOffset: CGSize {
+        guard let rect = model.cropRect,
+              canvasSize.width > 0, canvasSize.height > 0,
+              rect.width > 0, rect.height > 0
+        else { return .zero }
+
+        return CGSize(
+            width: canvasSize.width / 2 - rect.midX,
+            height: canvasSize.height / 2 - rect.midY
+        )
     }
 
     // MARK: - Body
@@ -56,14 +96,18 @@ struct SnipEditorView: View {
                         canvasSize = newSize
                     }
                     .mask {
-                        if let rect = model.cropRect {
-                            Canvas { ctx, _ in
+                        Canvas { ctx, size in
+                            if let rect = model.cropRect {
                                 ctx.fill(Path(rect), with: .color(.black))
+                            } else {
+                                ctx.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black))
                             }
-                        } else {
-                            Rectangle()
                         }
                     }
+                    .scaleEffect(cropZoomScale, anchor: cropZoomAnchor)
+                    .offset(cropZoomOffset)
+                    .clipped()
+                    .animation(.spring(duration: 0.45, bounce: 0.18), value: model.cropRect)
                 }
 
             if openPanel != nil {
@@ -78,40 +122,14 @@ struct SnipEditorView: View {
                     .ignoresSafeArea()
             }
 
-            VStack(spacing: 0) {
-                Spacer()
-
-                HStack(alignment: .bottom, spacing: 0) {
-                    Spacer()
-
-                    if openPanel == .strokeWidth {
-                        SnipStrokeWidthPanelView(model: bindable)
-                            .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
-                    }
-
-                    Spacer()
-
-                    if openPanel == .shapes {
-                        SnipShapesPanelView(model: model) {
-                            withAnimation(.easeOut(duration: 0.15)) { openPanel = nil }
-                        }
-                        .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
-                        .padding(.trailing, 60)
-                    }
-                }
-                .padding(.bottom, 8)
-                .padding(.horizontal, 24)
-
-                SnipFloatingToolbar(
-                    selectedTool: $bindable.activeTool,
-                    currentColor: $bindable.pencilColor,
-                    openPanel: $openPanel
-                )
-                .padding(.horizontal, 20)
-                .padding(.bottom, 28)
-            }
-            .animation(.spring(duration: 0.22, bounce: 0.1), value: openPanel)
+            FloatingControls(model: model, openPanel: $openPanel, isCropInProgress: model.isCropInProgress)
         }
+        .onChange(of: model.isCropInProgress) { _, inProgress in
+            if inProgress {
+                openPanel = nil
+            }
+        }
+        .animation(.spring(duration: 0.22, bounce: 0.1), value: model.isCropInProgress)
         .ignoresSafeArea()
         .preferredColorScheme(.light)
         .toolbarBackground(.hidden, for: .navigationBar)
@@ -175,6 +193,53 @@ struct SnipEditorView: View {
             }
         }
         } // NavigationStack
+    }
+
+    private struct FloatingControls: View {
+        var model: SnipViewModel
+        @Binding var openPanel: ToolPanel?
+        let isCropInProgress: Bool
+
+        var body: some View {
+            @Bindable var bindable = model
+
+            if !isCropInProgress {
+                VStack(spacing: 0) {
+                    Spacer()
+
+                    HStack(alignment: .bottom, spacing: 0) {
+                        Spacer()
+
+                        if openPanel == .strokeWidth {
+                            SnipStrokeWidthPanelView(model: bindable)
+                                .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
+                        }
+
+                        Spacer()
+
+                        if openPanel == .shapes {
+                            SnipShapesPanelView(model: model) {
+                                withAnimation(.easeOut(duration: 0.15)) { openPanel = nil }
+                            }
+                            .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
+                            .padding(.trailing, 60)
+                        }
+                    }
+                    .padding(.bottom, 8)
+                    .padding(.horizontal, 24)
+
+                    SnipFloatingToolbar(
+                        selectedTool: $bindable.activeTool,
+                        currentColor: $bindable.pencilColor,
+                        openPanel: $openPanel
+                    )
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 28)
+                }
+                .animation(.spring(duration: 0.22, bounce: 0.1), value: openPanel)
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+        }
     }
 
     // MARK: - Export
