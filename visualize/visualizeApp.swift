@@ -8,7 +8,6 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseAppCheck
-import FirebaseMessaging
 import SciChart
 
 class AppDelegate: NSObject, UIApplicationDelegate {
