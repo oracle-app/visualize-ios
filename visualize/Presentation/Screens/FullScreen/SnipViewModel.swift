@@ -129,12 +129,21 @@ final class SnipViewModel {
     /// Saves a snapshot before erasing begins so the operation can be undone.
     func beginErase() { saveSnapshot() }
 
-    /// Removes strokes, shapes, and text annotations near the given point.
+    /// Removes the portions of strokes within the eraser radius and clears any
+    /// shapes or text annotations whose anchor falls inside the erase area.
+    ///
+    /// For strokes, the eraser performs a segment-level erase: each stroke is
+    /// scanned point-by-point and split into one or more sub-strokes around the
+    /// erased region, preserving the unaffected segments. Shapes and text are
+    /// still removed as a whole when hit (see follow-up changes for parametric
+    /// shape splitting).
     ///
     /// - Parameters:
     ///   - point: The canvas coordinate used as the centre of the erase radius.
     func erase(at point: CGPoint) {
-        strokes.removeAll { $0.hits(point: point, radius: eraserRadius) }
+        strokes = strokes.flatMap { stroke -> [DrawingStroke] in
+            splitStroke(stroke, erasingAround: point, radius: eraserRadius)
+        }
         shapeAnnotations.removeAll {
             let mid = CGPoint(x: ($0.startPoint.x + $0.endPoint.x) / 2,
                               y: ($0.startPoint.y + $0.endPoint.y) / 2)
@@ -147,6 +156,91 @@ final class SnipViewModel {
             let deltaY = $0.position.y - point.y
             return deltaX * deltaX + deltaY * deltaY <= eraserRadius * eraserRadius * 4
         }
+    }
+
+    /// Splits a stroke into the sub-strokes that survive an erase pass.
+    ///
+    /// Walks the stroke's points in order; any point falling inside the erase
+    /// circle is dropped and acts as a cut, ending the current sub-stroke and
+    /// starting a new one. Sub-strokes are preserved as long as they have at
+    /// least one surviving point so single-point dots remain visible.
+    ///
+    /// - Parameters:
+    ///   - stroke: The stroke being scanned.
+    ///   - point: The centre of the erase circle in canvas coordinates.
+    ///   - radius: The erase radius in points.
+    /// - Returns: Zero or more sub-strokes that inherit the original stroke's
+    ///   colour and line width.
+    private func splitStroke(_ stroke: DrawingStroke,
+                             erasingAround point: CGPoint,
+                             radius: CGFloat) -> [DrawingStroke] {
+        let radiusSquared = radius * radius
+        var result: [DrawingStroke] = []
+        var segment: [CGPoint] = []
+
+        func flushSegment() {
+            guard !segment.isEmpty else { return }
+            result.append(DrawingStroke(points: segment,
+                                        color: stroke.color,
+                                        lineWidth: stroke.lineWidth))
+            segment = []
+        }
+
+        func squaredDistance(from p: CGPoint, toSegment a: CGPoint, b: CGPoint) -> CGFloat {
+            let abX = b.x - a.x
+            let abY = b.y - a.y
+            let apX = p.x - a.x
+            let apY = p.y - a.y
+
+            let abLen2 = abX * abX + abY * abY
+            if abLen2 == 0 {
+                return apX * apX + apY * apY
+            }
+
+            let t = max(0, min(1, (apX * abX + apY * abY) / abLen2))
+            let closestX = a.x + t * abX
+            let closestY = a.y + t * abY
+            let dx = p.x - closestX
+            let dy = p.y - closestY
+            return dx * dx + dy * dy
+        }
+
+        let points = stroke.points
+        guard !points.isEmpty else { return [] }
+
+        for index in points.indices {
+            let candidate = points[index]
+            let deltaX = candidate.x - point.x
+            let deltaY = candidate.y - point.y
+            let isInside = deltaX * deltaX + deltaY * deltaY <= radiusSquared
+
+            if index == points.startIndex {
+                if !isInside {
+                    segment = [candidate]
+                }
+                continue
+            }
+
+            let prev = points[points.index(before: index)]
+            let segmentIntersects = squaredDistance(from: point, toSegment: prev, b: candidate) <= radiusSquared
+
+            if isInside || segmentIntersects {
+                // Cut the stroke here and ensure we don't keep the visual bridge across the erased segment.
+                flushSegment()
+                if !isInside {
+                    segment = [candidate]
+                }
+            } else {
+                if segment.isEmpty {
+                    segment = [candidate]
+                } else {
+                    segment.append(candidate)
+                }
+            }
+        }
+        flushSegment()
+
+        return result
     }
 
     // MARK: - Shape
