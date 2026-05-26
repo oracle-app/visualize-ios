@@ -43,6 +43,7 @@ struct VizReadyView: View {
                 cards
             }
         }
+        .appBackground()
         .scrollIndicators(.hidden)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

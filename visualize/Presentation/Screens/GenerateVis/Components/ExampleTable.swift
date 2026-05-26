@@ -26,7 +26,7 @@ struct ExampleTable: View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Dataset format requirements")
                 .font(.system(size: 20, weight: .bold))
-                .foregroundColor(.primary)
+                .foregroundStyle(Color.primaryText)
                 .padding(.bottom, 8)
                 .padding(.top, 20)
 
@@ -46,7 +46,7 @@ struct ExampleTable: View {
                     ForEach(columns, id: \.self) { col in
                         Text(col)
                             .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.primary)
+                            .foregroundStyle(Color.primaryText)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.vertical, 10)
                             .padding(.horizontal, 10)
@@ -78,7 +78,7 @@ struct ExampleTable: View {
                     }
                 }
             }
-            .background(Color(.systemBackground).opacity(0.3))
+            .background(Color.appBackground.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
@@ -93,7 +93,6 @@ struct ExampleTable: View {
             .foregroundColor(Color.appSubtitle)
             .padding(.top, 14)
         }
-        .background(Color(.systemBackground))
     }
 }
 
