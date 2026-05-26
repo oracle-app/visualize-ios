@@ -6,7 +6,7 @@
 //
 
 protocol TeamRepository {
-    func getTeamsUserIsIn(userID: String) async throws ->[Team]
+    func getTeamsUserIsIn(userID: String) async throws -> [Team]
     
     func getTeamsUserOwns(userID: String) async throws -> [Team]
     

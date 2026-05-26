@@ -92,6 +92,7 @@ struct TeamsScreen: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
         .navigationTitle("Teams")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
@@ -115,6 +116,7 @@ struct TeamsScreen: View {
         } message: {
             Text("Are you sure you want to delete \"\(viewModel.teamPendingDelete?.name ?? "")\"? This action cannot be undone.")
         }
+        .appBackground()
     }
 
     // MARK: Helpers
