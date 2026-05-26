@@ -339,6 +339,7 @@ struct CreateTeamScreen: View {
                 value: vm.currentToast
             )
         }
+        .portraitOrientationLock()
 
         // MARK: - Navigation
         
