@@ -2,57 +2,62 @@
 //  UnreadNotificationsViewModel.swift
 //  visualize
 //
-//  Created by Miguel Degollado 
-
+//  Fix PR #2: removed FirebaseAuth and FirebaseFirestore imports.
+//  Unread listener logic moved behind ObserveUnreadNotificationsUseCase.
+//
 
 import Foundation
 import Combine
-import FirebaseAuth
-import FirebaseFirestore
 
 @MainActor
 final class UnreadNotificationsViewModel: ObservableObject {
 
     @Published private(set) var hasUnread: Bool = false
 
-    private var listenerRegistration: ListenerRegistration?
+    private let authRepository: AuthRepository
+    private let observeUnreadUseCase: ObserveUnreadNotificationsUseCase
+    private var listenerTask: Task<Void, Never>?
     private var notificationObservers: [NSObjectProtocol] = []
     private var isPaused: Bool = false
 
-    init() {
+    init(authRepository: AuthRepository, observeUnreadUseCase: ObserveUnreadNotificationsUseCase) {
+        self.authRepository = authRepository
+        self.observeUnreadUseCase = observeUnreadUseCase
         setupScreenObservers()
         startListening()
     }
 
     deinit {
-        listenerRegistration?.remove()
+        listenerTask?.cancel()
         notificationObservers.forEach { NotificationCenter.default.removeObserver($0) }
     }
 
+    // MARK: - Listener lifecycle
+
     private func startListening() {
-        guard !isPaused, let userID = Auth.auth().currentUser?.uid else { return }
-        listenerRegistration?.remove()
-        listenerRegistration = Firestore.firestore()
-            .collection("users").document(userID)
-            .collection("notifications")
-            .whereField("isRead", isEqualTo: false)
-            .addSnapshotListener { [weak self] snapshot, _ in
-                guard let self else { return }
-                let count = snapshot?.documents.count ?? 0
-                Task { @MainActor [weak self] in self?.hasUnread = count > 0 }
+        guard !isPaused,
+              let userID = authRepository.getCurrentUser()?.uid else { return }
+        listenerTask?.cancel()
+        listenerTask = Task {
+            for await hasUnread in observeUnreadUseCase.execute(for: userID) {
+                guard !Task.isCancelled else { break }
+                self.hasUnread = hasUnread
             }
+        }
     }
 
     private func pause() {
         isPaused = true
-        listenerRegistration?.remove()
-        listenerRegistration = nil
+        listenerTask?.cancel()
+        listenerTask = nil
     }
 
     private func resume() {
         isPaused = false
         startListening()
     }
+
+    // MARK: - Screen coordination
 
     private func setupScreenObservers() {
         notificationObservers = [
