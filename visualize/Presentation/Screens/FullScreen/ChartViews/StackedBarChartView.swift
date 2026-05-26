@@ -14,7 +14,7 @@ import os.log
 /// Wraps `SCIChartSurface` in a `UIViewRepresentable` with zoom, pan,
 /// and rollover tooltip modifiers for full-screen interactivity.
 struct StackedBarChartView: UIViewRepresentable {
- 
+    
     // MARK: - Properties
     /// Stack key -> values per category. Keys are rendered in ascending order.
     let data: [String: [Double]]
@@ -29,15 +29,13 @@ struct StackedBarChartView: UIViewRepresentable {
     // MARK: - Coordinator
     func makeCoordinator() -> ChartTooltipCoordinator {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
-
         coordinator.xValues = categories.enumerated().map { idx, cat in
             Double(cat) ?? Double(idx)
         }
-
-        coordinator.isStackedChart = true
-
+        coordinator.stackKeys = data.keys.sorted()
         return coordinator
     }
+    
     // MARK: - UIViewRepresentable
     func makeUIView(context: Context) -> SCIChartSurface {
         let surface = SCIChartSurface()
@@ -93,6 +91,7 @@ struct StackedBarChartView: UIViewRepresentable {
             stackedSeries.dataPointWidth = 0.7
  
             stackedCollection.add(stackedSeries)
+            context.coordinator.stackedSubSeries.append(stackedSeries)
         }
  
         surface.renderableSeries.add(stackedCollection)

@@ -56,6 +56,7 @@ struct HorizontalBarChartView: UIViewRepresentable {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
         coordinator.xValues = categories.indices.map { Double($0) }
         coordinator.yValues = Array(values.prefix(categories.count))
+        coordinator.isHorizontalChart = true
         return coordinator
     }
 
