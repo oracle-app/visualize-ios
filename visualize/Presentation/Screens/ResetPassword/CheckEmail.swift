@@ -127,15 +127,7 @@ struct CheckEmailView: View {
             .clipShape(RoundedRectangle(cornerRadius: 30))
             .frame(maxHeight: .infinity)
             .ignoresSafeArea(edges: .bottom)
-            .onAppear {
-                AppDelegate.orientationLock = .portrait
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                    windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
-                }
-            }
-            .onDisappear {
-                AppDelegate.orientationLock = .all
-            }
+            .portraitOrientationLock()
         }
     }
 }

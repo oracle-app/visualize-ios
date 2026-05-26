@@ -98,15 +98,7 @@ struct VizReadyView: View {
         .sheet(isPresented: $showShareSheet) {
             shareSheet
         }
-        .onAppear {
-            AppDelegate.orientationLock = .portrait
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
-            }
-        }
-        .onDisappear {
-            AppDelegate.orientationLock = .all
-        }
+        .portraitOrientationLock()
     }
  
     // MARK: - Private views

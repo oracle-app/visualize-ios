@@ -165,15 +165,7 @@ struct Login: View {
                 coordinator.login()
             }
         }
-        .onAppear {
-            AppDelegate.orientationLock = .portrait
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
-            }
-        }
-        .onDisappear {
-            AppDelegate.orientationLock = .all
-        }
+        .portraitOrientationLock()
     }
 }
 
