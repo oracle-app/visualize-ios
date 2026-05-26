@@ -16,9 +16,6 @@ final class NotificationRepositoryImpl: NotificationRepository {
         self.datasource = datasource
     }
 
-    // MARK: - NotificationRepository
-
-
     func notificationsStream(for userID: String) -> AsyncStream<[Notification]> {
         let raw = datasource.notificationsStream(for: userID)
         return AsyncStream { continuation in
@@ -42,8 +39,8 @@ final class NotificationRepositoryImpl: NotificationRepository {
         datasource.unreadStream(for: userID)
     }
 
-    func markAsRead(notificationID: String, userID: String) async throws {
-        try await datasource.markAsRead(notificationID: notificationID, userID: userID)
+    func markAsRead(notificationID: String) async throws {
+        try await datasource.markAsRead(notificationID: notificationID)
     }
 
     func markAllAsRead(userID: String) async throws {
