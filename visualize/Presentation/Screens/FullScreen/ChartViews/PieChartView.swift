@@ -63,7 +63,7 @@ struct PieChartView: UIViewRepresentable {
         return segment
     }
     
-    static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: Coordinator) {
+    static func dismantleUIView(_ uiView: SCIPieChartSurface, coordinator: Coordinator) {
         uiView.suspendUpdates()
         uiView.renderableSeries.clear()
         uiView.chartModifiers.clear()
