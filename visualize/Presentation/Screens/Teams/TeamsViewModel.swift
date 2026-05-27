@@ -50,6 +50,18 @@ final class TeamsScreenViewModel {
         self.userRepository = userRepository
     }
     
+    // MARK: - User Initialization
+
+    /// Loads the authenticated user
+    @MainActor
+    private func initializeUser() async {
+        do {
+            self.userID = try await authRepository.getCurrentUserID()
+        } catch {
+            self.error = "Failed to authenticate user."
+        }
+    }
+    
     // MARK: - Loading
 
     func loadTeams() async {
@@ -59,10 +71,12 @@ final class TeamsScreenViewModel {
             isLoading = false
             hasLoadedOnce = true
         }
+        
+        await initializeUser()
+
+        guard error == nil else { return }
 
         do {
-            userID = try await authRepository.getCurrentUserID()
-
             async let ownedRequest = teamRepository.getTeamsUserOwns(userID: userID)
             async let joinedRequest = teamRepository.getTeamsUserIsIn(userID: userID)
 
