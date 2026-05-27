@@ -95,7 +95,7 @@ struct ThreadReplyRow: View {
         .padding(.trailing, 14)
         .padding(.vertical, 4)
         .contextMenu {
-            if isAuthor, let replyID = reply.id {
+            if isAuthor, reply.id != nil {
                 Button(role: .destructive) {
                     showDeleteAlert = true
                 } label: {

@@ -42,7 +42,7 @@ final class CommentRepositoryImpl: CommentRepository {
                         commentID: dto.id ?? ""
                     )
                     let (authorName, avatarURL) = await self.resolveUserInfo(userID: dto.authorID, storedName: dto.authorName)
-                    return dto.toComment(threads: threads, resolvedAuthorName: authorName, resolvedAvatarURL: avatarURL)
+                    return await dto.toComment(threads: threads, resolvedAuthorName: authorName, resolvedAvatarURL: avatarURL)
                 }
             }
             for await comment in group {

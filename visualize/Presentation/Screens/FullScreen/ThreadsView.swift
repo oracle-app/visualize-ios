@@ -105,10 +105,8 @@ struct ThreadsView: View {
                 await fetchCurrentUser()
                 await viewModel.loadComments()
             }
-            .safeAreaInset(edge: .bottom) {
-                if !isCollapsed {
-                    replyInputBar
-                }
+            if !isCollapsed {
+                replyInputBar
             }
         }
         .animation(.easeInOut(duration: 0.2), value: activeCommentID)
@@ -145,7 +143,6 @@ struct ThreadsView: View {
                 }
                 .padding(.horizontal, 48)
                 .padding(.vertical, 8)
-                .background()
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
             

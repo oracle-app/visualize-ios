@@ -52,28 +52,18 @@ struct ReplyField: View {
     /// Capsule-shaped text field with a microphone button on the trailing side.
     private var textInput: some View {
         HStack (alignment: .bottom){
-            ZStack(alignment: .leading) {
-                if text.isEmpty {
-                    Text(placeholder)
-                        .foregroundStyle(.gray.opacity(0.6))
-                        .font(.system(size: 17))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 8)
-                }
-                TextEditor(text: $text)
-                    .focused($focused)
-                    .font(.system(size: 17))
-                    .foregroundStyle(Color.primaryText)
-                    .scrollContentBackground(.hidden)
-                    .frame(minHeight: minHeight, maxHeight: maxHeight)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .clipped()
-                    .padding(.horizontal, 2)
-                    .padding(.vertical, 4)
-            }
+            TextField(placeholder, text: $text, axis: .vertical)
+                .focused($focused)
+                .font(.system(size: 17))
+                .foregroundStyle(Color.primaryText)
+                .lineLimit(1...4)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 8)
+                .background(Color.clear)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 6)
+        .background(Color.clear)
         .background(
             Capsule()
                 .fill(.ultraThinMaterial)

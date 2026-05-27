@@ -34,19 +34,19 @@ class ThreadsViewModel {
     init(
         visualizationID: String,
         isPreview: Bool = false,
-        loadCommentsUseCase: LoadCommentsUseCase = LoadCommentsUseCase(),
-        postCommentUseCase: PostCommentUseCase = PostCommentUseCase(),
-        postReplyUseCase: PostReplyUseCase = PostReplyUseCase(),
-        deleteCommentUseCase: DeleteCommentUseCase = DeleteCommentUseCase(),
-        deleteReplyUseCase: DeleteReplyUseCase = DeleteReplyUseCase()
+        loadCommentsUseCase: LoadCommentsUseCase? = nil,
+        postCommentUseCase: PostCommentUseCase? = nil,
+        postReplyUseCase: PostReplyUseCase? = nil,
+        deleteCommentUseCase: DeleteCommentUseCase? = nil,
+        deleteReplyUseCase: DeleteReplyUseCase? = nil
     ) {
         self.visualizationID = visualizationID
         self.isPreview = isPreview
-        self.loadCommentsUseCase = loadCommentsUseCase
-        self.postCommentUseCase = postCommentUseCase
-        self.postReplyUseCase = postReplyUseCase
-        self.deleteCommentUseCase = deleteCommentUseCase
-        self.deleteReplyUseCase = deleteReplyUseCase
+        self.loadCommentsUseCase = loadCommentsUseCase ?? LoadCommentsUseCase()
+        self.postCommentUseCase = postCommentUseCase ?? PostCommentUseCase()
+        self.postReplyUseCase = postReplyUseCase ?? PostReplyUseCase()
+        self.deleteCommentUseCase = deleteCommentUseCase ?? DeleteCommentUseCase()
+        self.deleteReplyUseCase = deleteReplyUseCase ?? DeleteReplyUseCase()
     }
 
     #if DEBUG
