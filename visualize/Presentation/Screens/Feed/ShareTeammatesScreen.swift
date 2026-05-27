@@ -42,7 +42,6 @@ struct ShareTeammatesScreen: View {
                         .foregroundStyle(Color.primaryText)
                 }
                 contentView
-                Spacer()
             }
             .padding(.horizontal, 16)
             if isFocused && vm.email.count >= 3 {
