@@ -53,18 +53,18 @@ struct ThreadsView: View {
                 .foregroundStyle(Color.appTeal)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 25)
-
+            
             ScrollView {
                 VStack(spacing: 16) {
                     if viewModel.isLoading {
                         ProgressView()
                             .padding(.top, 40)
                     } else if viewModel.comments.isEmpty {
-                        Text("No threads yet")
+                        Text(String(localized: "No threads yet"))
                             .font(.system(size: 20, weight: .bold))
                             .foregroundStyle(Color.appTeal)
                             .padding(.top, 80)
-                        Text("Start a new thread or wait for conversations to appear here.")
+                        Text(String(localized: "Start a new thread or wait for conversations to appear here."))
                             .foregroundStyle(.secondary)
                             .padding(.top, 5)
                             .padding(.horizontal, 30)

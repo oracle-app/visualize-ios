@@ -35,7 +35,7 @@ struct ResetPasswordView: View {
     // MARK: - Body
     
     var body: some View {
-        VStack(spacing: 0){
+        VStack(spacing: 0) {
             
             // MARK: - Header Image
             
@@ -48,7 +48,7 @@ struct ResetPasswordView: View {
             
             // MARK: - Content
             
-            VStack(spacing: 0){
+            VStack(spacing: 0) {
                 
                 // MARK: - Back Button
                 
@@ -84,7 +84,7 @@ struct ResetPasswordView: View {
                 // MARK: - Email Input
                 
                 InputField(
-                    placeholder: "Email",
+                    placeholder: String(localized: "Email"),
                     text: $viewModel.email,
                     errorMessage: viewModel.emailError,
                     keyboardType: .emailAddress
@@ -113,7 +113,7 @@ struct ResetPasswordView: View {
             
             // MARK: - Background Styling
             
-            .background(Color(red: 245/255, green: 244/255, blue: 242/255))
+            .background(Color.appBackground)
             .clipShape(RoundedRectangle(cornerRadius: 30))
             .frame(maxHeight: .infinity)
             .ignoresSafeArea(edges: .bottom)

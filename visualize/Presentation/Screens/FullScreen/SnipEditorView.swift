@@ -147,7 +147,7 @@ struct SnipEditorView: View {
             Text("This edited visualization will be shared as a new thread.")
         }
         .alert("Add text annotation", isPresented: $bindable.showTextInput) {
-            TextField("Type something…", text: $bindable.draftText)
+            TextField(String(localized: "Type something…"), text: $bindable.draftText)
                 .onChange(of: bindable.draftText) { _, new in
                     if new.count > 100 { bindable.draftText = String(new.prefix(100)) }
                 }

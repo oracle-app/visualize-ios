@@ -74,19 +74,19 @@ class SignUpViewModel {
     // MARK: - UI Error State
     
     /// Validation error for the name field.
-    var nameError: String? = nil
+    var nameError: String?
     
     /// Validation error for the email field.
-    var emailError: String? = nil
+    var emailError: String?
     
     /// Validation error for the password field.
-    var passwordError: String? = nil
+    var passwordError: String?
     
     /// Validation error for the confirm password field.
-    var confirmPasswordError: String? = nil
+    var confirmPasswordError: String?
     
     /// Generic error message for unexpected failures.
-    var errorMessage: String? = nil
+    var errorMessage: String?
     
     /// Indicates whether a registration request is currently running.
     var isLoading: Bool = false
@@ -148,10 +148,10 @@ class SignUpViewModel {
                 
                 switch error {
                 case .emailAlreadyInUse:
-                    self.emailError = "This email is already registered."
+                    self.emailError = String(localized: "This email is already registered.")
                 case .invalidEmail:
-                    self.emailError = "This email is invalid."
-                    
+                    self.emailError = String(localized: "This email is invalid.")
+
                 default:
                     self.errorMessage = error.localizedDescription
                 }
@@ -176,11 +176,11 @@ class SignUpViewModel {
     private func validateName() -> Bool {
         
         if name.trimmingCharacters(in: .whitespaces).isEmpty {
-            nameError = "Required fields cannot be left blank."
+            nameError = String(localized: "Required fields cannot be left blank.")
             return false
             
         } else if name.count < 2 {
-            nameError = "Name must be at least 2 characters."
+            nameError = String(localized: "Name must be at least 2 characters.")
             return false
         }
         
@@ -198,7 +198,7 @@ class SignUpViewModel {
     private func validateEmail() -> Bool {
         
         if email.trimmingCharacters(in: .whitespaces).isEmpty {
-            emailError = "Required fields cannot be left blank."
+            emailError = String(localized: "Required fields cannot be left blank.")
             return false
         }
         
@@ -207,7 +207,7 @@ class SignUpViewModel {
         if !NSPredicate(format: "SELF MATCHES %@", regex)
             .evaluate(with: email) {
             
-            emailError = "Please enter a valid email address."
+            emailError = String(localized: "Please enter a valid email address.")
             return false
         }
         
@@ -227,12 +227,12 @@ class SignUpViewModel {
     private func validatePassword() -> Bool {
         
         if password.isEmpty {
-            passwordError = "Required fields cannot be left blank."
+            passwordError = String(localized: "Required fields cannot be left blank.")
             return false
         }
         
         if password.count < 12 {
-            passwordError = "Password must be at least 12 characters."
+            passwordError = String(localized: "Password must be at least 12 characters.")
             return false
         }
         
@@ -241,7 +241,7 @@ class SignUpViewModel {
         if !NSPredicate(format: "SELF MATCHES %@", alphaNumericRegex)
             .evaluate(with: password) {
             
-            passwordError = "Password must include letters and numbers."
+            passwordError = String(localized: "Password must include letters and numbers.")
             return false
         }
         
@@ -250,7 +250,7 @@ class SignUpViewModel {
         if !NSPredicate(format: "SELF MATCHES %@", specialCharRegex)
             .evaluate(with: password) {
             
-            passwordError = "Password must include one of ($ @ ! % * # ? & .)."
+            passwordError = String(localized: "Password must include one of ($ @ ! % * # ? & .).")
             return false
         }
         
@@ -268,11 +268,11 @@ class SignUpViewModel {
     private func validateConfirmPassword() -> Bool {
         
         if confirmPassword.isEmpty {
-            confirmPasswordError = "Required fields cannot be left blank."
+            confirmPasswordError = String(localized: "Required fields cannot be left blank.")
             return false
             
         } else if password != confirmPassword {
-            confirmPasswordError = "Passwords do not match."
+            confirmPasswordError = String(localized: "Passwords do not match.")
             return false
         }
         

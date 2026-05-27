@@ -40,10 +40,10 @@ class ResetPasswordViewModel {
     // MARK: - UI State
 
     /// Validation error for the email field.
-    var emailError: String? = nil
+    var emailError: String?
 
     /// Generic error message for unexpected failures.
-    var errorMessage: String? = nil
+    var errorMessage: String?
 
     /// Indicates whether a request is in progress.
     var isLoading: Bool = false
@@ -82,9 +82,9 @@ class ResetPasswordViewModel {
             } catch let error as ResetPasswordError {
                 switch error {
                 case .emailRequired:
-                    self.emailError = "Required fields cannot be left blank."
+                    self.emailError = String(localized: "Required fields cannot be left blank.")
                 case .invalidEmail:
-                    self.emailError = "Please enter a valid email address."
+                    self.emailError = String(localized: "Please enter a valid email address.")
                 }
 
             } catch let error as NSError {
@@ -92,7 +92,7 @@ class ResetPasswordViewModel {
                    authError == .userNotFound {
                     didSendEmail = true
                 } else {
-                    self.errorMessage = "Something went wrong. Please try again."
+                    self.errorMessage = String(localized: "Something went wrong. Please try again.")
                 }
             }
 
@@ -112,7 +112,7 @@ class ResetPasswordViewModel {
     private func validateEmail() -> Bool {
 
         if email.trimmingCharacters(in: .whitespaces).isEmpty {
-            emailError = "Required fields cannot be left blank."
+            emailError = String(localized: "Required fields cannot be left blank.")
             return false
         }
 
@@ -121,7 +121,7 @@ class ResetPasswordViewModel {
         if !NSPredicate(format: "SELF MATCHES %@", regex)
             .evaluate(with: email) {
 
-            emailError = "Please enter a valid email address."
+            emailError = String(localized: "Please enter a valid email address.")
             return false
         }
 

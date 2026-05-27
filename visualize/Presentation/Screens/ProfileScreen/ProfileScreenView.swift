@@ -64,32 +64,26 @@ struct ProfileScreenView: View {
                         showImageEditor: $showImageEditor,
                         isCameraActive: $isCameraActive
                     )
-
                     VStack(spacing: Metrics.contentSpacing) {
                         ProfileUserInfoView(
                             username: viewModel.username,
                             email: viewModel.email
                         )
-
                         Divider()
                             .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
-
                         ProfilePreferencesSectionView(
                             availableThemes: ChartColorTheme.allCases,
                             selectedTheme: selectedTheme
                         ) { theme in
                             selectedThemeRaw = theme.rawValue
                             activeToast = Toast(
-                                message: "\(theme.title) theme applied",
+                                message: String(localized: "\(theme.title) theme applied"),
                                 type: .success
                             )
                         }
-
                         Divider()
                             .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
-
                         ProfileAboutSectionView(items: viewModel.aboutItems)
-
                         Button("Log out", action: viewModel.logOut)
                             .font(.title3.weight(.semibold))
                             .foregroundStyle(.red)

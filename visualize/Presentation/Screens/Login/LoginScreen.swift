@@ -60,14 +60,14 @@ struct Login: View {
                     // Title
                     Text("Welcome")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color(Color.appNavy))
+                        .foregroundColor(Color.appNavy)
                         .multilineTextAlignment(.center)
                         .padding(.top, 58)
                         .padding(.bottom, 58)
 
                     // Email input
                     InputField(
-                        placeholder: "Email",
+                        placeholder: String(localized: "Email"),
                         text: $viewModel.email,
                         errorMessage: viewModel.emailError,
                         keyboardType: .emailAddress
@@ -76,7 +76,7 @@ struct Login: View {
 
                     // Password input
                     PasswordField(
-                        placeholder: "Password",
+                        placeholder: String(localized: "Password"),
                         text: $viewModel.password,
                         isVisible: $isPasswordVisible,
                         errorMessage: viewModel.passwordError

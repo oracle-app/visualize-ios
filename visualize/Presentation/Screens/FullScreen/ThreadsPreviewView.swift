@@ -154,7 +154,7 @@ struct ThreadsPreviewView: View {
         ZStack {
             // Centered title — sits in its own layer so the side buttons
             // never push it off center, regardless of their widths.
-            Text("Preview")
+            Text(String(localized: "Preview"))
                 .font(.system(size: titleFontSize, weight: .bold))
                 .foregroundStyle(Color.appNavy)
 

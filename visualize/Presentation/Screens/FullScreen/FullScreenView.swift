@@ -216,10 +216,10 @@ struct FullScreenView: View {
 
     private var errorState: some View {
         VStack(spacing: 5) {
-            Text("Couldn't load")
+            Text(String(localized: "Couldn't load"))
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(Color.appTeal)
-            Text("Something went wrong.")
+            Text(String(localized: "Something went wrong."))
                 .font(.system(size: 17))
                 .foregroundStyle(Color.appTeal)
                 .multilineTextAlignment(.center)

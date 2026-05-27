@@ -5,14 +5,11 @@
 //  Created by Diana Escalante on 14/04/26.
 //
 
-//
+import SwiftUI
+
 /// A dropdown view that displays a list of user search results.
 /// Each result is tappable and triggers a selection callback.
 /// Uses UserRowView to render each user in a clean, compact list.
-//
-
-import SwiftUI
-
 struct SearchResultsDropdown: View {
     
     let results: [AppUser]
@@ -22,7 +19,7 @@ struct SearchResultsDropdown: View {
         VStack {
             
             if results.isEmpty {
-                Text("No results found")
+                Text(String(localized: "No results found"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
