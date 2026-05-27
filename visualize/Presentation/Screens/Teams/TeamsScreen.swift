@@ -135,6 +135,7 @@ struct TeamsScreen: View {
         }
         .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
         .appBackground()
+        .portraitOrientationLock()
     }
 
     // MARK: Helpers

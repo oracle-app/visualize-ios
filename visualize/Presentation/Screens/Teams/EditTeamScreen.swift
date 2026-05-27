@@ -73,6 +73,7 @@ struct EditTeamScreen: View {
                 .tint(Color.primaryOrange)
             }
         }
+        .portraitOrientationLock()
     }
 
     private func loadedView() -> some View {
