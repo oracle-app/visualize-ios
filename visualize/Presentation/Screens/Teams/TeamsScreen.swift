@@ -83,7 +83,6 @@ struct TeamsScreen: View {
 
                         if expandedTeamIDs.contains(team.id) {
                             ForEach(team.members) { member in
-                                let _ = print("member:", member.id, "owner:", team.ownerID, "match:", member.id == team.ownerID)
                                 Group {
                                     if member.id == team.ownerID {
                                         OwnerRowView(user: member)

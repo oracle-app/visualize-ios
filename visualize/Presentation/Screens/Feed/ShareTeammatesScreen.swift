@@ -5,15 +5,12 @@
 //  Created by Diana Escalante on 13/04/26.
 //
 
-//
+import SwiftUI
+
 /// Main screen that allows users to share content with teammates.
 /// It handles UI states (loading, error, loaded), integrates search functionality,
 /// and displays both suggested users and selected teammates.
 /// Coordinates interactions between the ViewModel and reusable UI components.
-//
-
-import SwiftUI
-
 struct ShareTeammatesScreen: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isFocused: Bool

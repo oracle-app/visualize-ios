@@ -45,4 +45,3 @@ struct TeamToggleRow: View {
         .listRowBackground(Color.appMint)
     }
 }
-
