@@ -69,11 +69,11 @@ final class VizReadyViewModel {
     func updateTitle(_ newTitle: String, forID id: Int) {
         let trimmed: String = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
-            titleValidationError = "Title cannot be empty"
+            titleValidationError = String(localized: "Title cannot be empty")
             return
         }
         guard trimmed.count <= Self.titleCharLimit else {
-            titleValidationError = "Title exceeds character limit"
+            titleValidationError = String(localized: "Title exceeds character limit")
             return
         }
         titleValidationError = nil

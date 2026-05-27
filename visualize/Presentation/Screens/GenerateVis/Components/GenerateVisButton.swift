@@ -43,7 +43,7 @@ struct GenerateVisButton: View {
                 .offset(x: shimmerOffset)
                 .blendMode(.screen)
                 
-                Text("Generate visualizations")
+                Text(String(localized:"Generate visualizations"))
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundColor(.white)
             }

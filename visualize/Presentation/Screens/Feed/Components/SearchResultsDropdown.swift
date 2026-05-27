@@ -19,7 +19,7 @@ struct SearchResultsDropdown: View {
         VStack {
             
             if results.isEmpty {
-                Text("No results found")
+                Text(String(localized: "No results found"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)

@@ -99,7 +99,7 @@ struct ShareTeammatesScreen: View {
                     Section {
                         if isSharingExpanded {
                             if vm.selectedUsers.isEmpty {
-                                Text("Search for teammates or select a team below.")
+                                Text(String(localized: "Search for teammates or select a team below."))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -116,7 +116,7 @@ struct ShareTeammatesScreen: View {
                             }
                         }
                     } header: {
-                        collapsableHeader("Sharing with", isExpanded: $isSharingExpanded)
+                        collapsableHeader(String(localized: "Sharing with"), isExpanded: $isSharingExpanded)
                     }
 
                     // MARK: My Teams
@@ -127,7 +127,7 @@ struct ShareTeammatesScreen: View {
                                     .frame(maxWidth: .infinity)
                                     .listRowBackground(Color.clear)
                             } else if vm.myTeams.isEmpty {
-                                Text("You haven't created any teams yet.")
+                                Text(String(localized: "You haven't created any teams yet."))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -145,7 +145,7 @@ struct ShareTeammatesScreen: View {
                             }
                         }
                     } header: {
-                        collapsableHeader("My teams", isExpanded: $isMyTeamsExpanded)
+                        collapsableHeader(String(localized: "My teams"), isExpanded: $isMyTeamsExpanded)
                     }
 
                     // MARK: Teams I'm in
@@ -156,7 +156,7 @@ struct ShareTeammatesScreen: View {
                                     .frame(maxWidth: .infinity)
                                     .listRowBackground(Color.clear)
                             } else if vm.joinedTeams.isEmpty {
-                                Text("You're not part of any teams yet.")
+                                Text(String(localized: "You're not part of any teams yet."))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -174,7 +174,7 @@ struct ShareTeammatesScreen: View {
                             }
                         }
                     } header: {
-                        collapsableHeader("Teams I'm in", isExpanded: $isJoinedTeamsExpanded)
+                        collapsableHeader(String(localized: "Teams I'm in"), isExpanded: $isJoinedTeamsExpanded)
                     }
                 }
                 .listStyle(.insetGrouped)
