@@ -23,6 +23,7 @@ struct VizReadyView: View {
     @State private var sheetSize: PresentationDetent = .fraction(0.28)
     /// Controls the discard confirmation alert triggered by the X button.
     @State private var showDiscardAlert: Bool = false
+    @State private var isTeammatesSelected: Bool = false
  
     private let userDatasource: UserDatasource = UserDatasource()
     private let teamDatasource: TeamDatasource = TeamDatasource()
@@ -198,17 +199,29 @@ struct VizReadyView: View {
                     chartPreviewJSON: suggestion?.previewJSON ?? ""
                 ),
                 sheetSize: $sheetSize,
-                onConfirm: {
+                onConfirm: { isShared in
+                    coordinator.pendingToast = Toast(
+                        message: isShared
+                            ? "Visualization published and shared"
+                            : "Visualization published to your feed",
+                        type: .success
+                    )
                     Task {
                         try? await Task.sleep(for: .milliseconds(350))
                         await MainActor.run {
                             coordinator.finishCreateFlow()
                         }
                     }
+                },
+                onModeChange: { isTeammates in
+                    isTeammatesSelected = isTeammates
                 }
             )
         }
-        .presentationDetents([.fraction(0.34), .large], selection: $sheetSize)
+        .presentationDetents(
+            isTeammatesSelected ? [.fraction(0.34), .large] : [.fraction(0.34)],
+            selection: $sheetSize
+        )
         .presentationBackground(.clear)
     }
 }

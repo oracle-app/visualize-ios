@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - Share Mode
 
 /// Represents the two sharing options available to the user.
-private enum ShareMode {
+enum ShareMode {
     case personal
     case teammates
 }
@@ -43,14 +43,22 @@ struct ShareSheet: View {
     @Environment(\.dismiss) private var dismiss
     
     /// Called after the visualization is successfully created in Firestore.
-    var onConfirm: (() -> Void)?
+    var onConfirm: ((_ isShared: Bool) -> Void)?
+    
+    var onModeChange: ((Bool) -> Void)? = nil
 
     // MARK: - Init
 
-    init(viewModel: ShareSheetViewModel, sheetSize: Binding<PresentationDetent>, onConfirm: (() -> Void)? = nil) {
+    init(
+        viewModel: ShareSheetViewModel,
+        sheetSize: Binding<PresentationDetent>,
+        onConfirm: ((_ isShared: Bool) -> Void)? = nil,
+        onModeChange: ((Bool) -> Void)? = nil
+    ) {
         _vm = State(initialValue: viewModel)
         _sheetSize = sheetSize
         self.onConfirm = onConfirm
+        self.onModeChange = onModeChange
     }
 
     // MARK: - Body
@@ -85,6 +93,9 @@ struct ShareSheet: View {
                 }
             }
             .animation(.easeInOut(duration: 0.22), value: selectedOption)
+            .onChange(of: selectedOption) { _, newValue in
+                onModeChange?(newValue == .teammates)
+            }
             .toolbar { toolbar }
         }
         .onDisappear {
@@ -108,7 +119,7 @@ struct ShareSheet: View {
                     .frame(maxWidth: 360)
                     .frame(height: 45)
                     .background(Color.appTeal.opacity(selectedOption == .personal ? 1 : 0))
-                    .background(.white)
+                    .background(AppColors.UI.screenBackground)
                     .clipShape(.capsule)
                     .overlay(Capsule().stroke(Color.appTeal, lineWidth: 1.5))
                     .overlay(
@@ -134,7 +145,7 @@ struct ShareSheet: View {
                     .foregroundStyle(Color.appTeal)
                     .frame(maxWidth: 360)
                     .frame(height: 45)
-                    .background(.white)
+                    .background(AppColors.UI.screenBackground)
                     .clipShape(.capsule)
                     .overlay(Capsule().stroke(Color.appTeal, lineWidth: 1.5))
             }
@@ -274,8 +285,9 @@ struct ShareSheet: View {
                         do {
                             try await vm.confirmShare()
                             // Only dismiss and notify parent on success
+                            let isShared = selectedOption == .teammates
                             dismiss()
-                            onConfirm?()
+                            onConfirm?(isShared)
                         } catch {
                             // Error is surfaced via vm.confirmError, sheet stays open
                             vm.confirmError = error.localizedDescription

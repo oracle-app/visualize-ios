@@ -81,7 +81,7 @@ struct NavBar: View {
             // Create
             NavigationStack(path: $coordinator.createPath) {
                 CreateVisualization()
-                    .navigationDestination(for: AppRoute.self) { route in
+                    .navigationDestination(for: CreateRoute.self) { route in
                         switch route {
                         case .generatingVisualizations:
                             GeneratingVisualizationsView()
