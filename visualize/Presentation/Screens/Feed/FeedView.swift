@@ -40,7 +40,6 @@ struct FeedView: View {
     @State private var scrollPosition: ScrollPosition = .init(idType: String.self)
     @State private var searchPressed: Bool = false
 
-
     var shouldLoad: Bool = true
 
     // MARK: - Body
@@ -107,8 +106,7 @@ struct FeedView: View {
                             viewModel.isSearchActive = true
                             searchPressed = false
                         }
-                    }
-                    else {
+                    } else {
                         searchPressed = true
                         title = nil
                         withAnimation {

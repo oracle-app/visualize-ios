@@ -24,7 +24,7 @@ extension Color {
     static let appTeal = AppColors.Text.teriary
     static let appSubtitle = AppColors.Text.secondary
     static let appNavy = AppColors.Text.primary
-
+    
     static let appAmber      = Color(red: 232/255, green: 160/255, blue: 32/255)  // #E8A020
     static let appOrange = Color(red: 255/255, green: 122/255, blue: 0/255)   // #FF7A00
     static let appCardTitle = Color(red: 26/255,  green: 47/255,  blue: 63/255)  // #1A2F3F
