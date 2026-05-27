@@ -60,6 +60,8 @@ class CreateTeamUseCase {
     /// Throws:
     /// - `CreateTeamError.teamNameEmpty`
     ///   if the name is invalid.
+    /// - `CreateTeamError.teamMembersEmpty`
+    ///   if no non-owner members are selected.
     /// - Repository-related errors during creation.
     func execute(
         name: String,

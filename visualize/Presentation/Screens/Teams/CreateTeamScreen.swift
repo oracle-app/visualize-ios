@@ -65,7 +65,7 @@ struct CreateTeamScreen: View {
             
             // MARK: - Background
             
-            Color("AppBackground")
+            Color.appBackground
                 .ignoresSafeArea()
 
             ScrollView {
@@ -310,7 +310,7 @@ struct CreateTeamScreen: View {
                                 }
                             }
                         }
-                        .background(Color("AppBackground"))
+                        .background(Color.appBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                         .padding(.horizontal, 20)
                     }
@@ -383,7 +383,7 @@ struct CreateTeamScreen: View {
                             // Show success toast.
                             vm.showToast(
                                 Toast(
-                                    message: "Team created successfully!",
+                                    message: "Team created successfully",
                                     type: .success
                                 )
                             )
