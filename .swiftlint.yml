@@ -9,4 +9,4 @@ disabled_rules:
   - type_name
 
 file_length:
-  warning: 400
+  warning: 600

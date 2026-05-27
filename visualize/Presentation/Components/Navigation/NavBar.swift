@@ -56,8 +56,8 @@ struct NavBar: View {
 
         let appearance = UITabBarAppearance()
         appearance.configureWithDefaultBackground()
-        appearance.stackedLayoutAppearance.selected.iconColor = .systemMint
-        appearance.stackedLayoutAppearance.normal.iconColor = .black
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.navbarIcon)
+        appearance.stackedLayoutAppearance.normal.iconColor = .secondaryLabel
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
@@ -99,7 +99,47 @@ struct NavBar: View {
 
             // Teams
             NavigationStack(path: $coordinator.teamsPath) {
-                Color.green.ignoresSafeArea()
+                TeamsScreen(
+                    viewModel: TeamsScreenViewModel(
+                        teamRepository: TeamRepositoryImpl(
+                            teamDatasource: TeamDatasource(),
+                            userDatasource: UserDatasource()
+                        ),
+                        authRepository: AuthRepositoryImpl(
+                            source: AuthFirebaseDatasource()
+                        ),
+                        userRepository: UserRepositoryImpl(
+                            userDatasource: UserDatasource()
+                        )
+                    )
+                )
+                .navigationDestination(for: TeamsRoute.self) { route in
+                    switch route {
+                    case .createTeam:
+                        CreateTeamScreen(
+                            viewModel: CreateTeamViewModel(
+                                createTeamUseCase: CreateTeamUseCase(
+                                    teamRepository: TeamRepositoryImpl(
+                                        teamDatasource: TeamDatasource(),
+                                        userDatasource: UserDatasource()
+                                    )
+                                ),
+                                userRepository: UserRepositoryImpl(
+                                    userDatasource: UserDatasource()
+                                ),
+                                teamRepository: TeamRepositoryImpl(
+                                    teamDatasource: TeamDatasource(),
+                                    userDatasource: UserDatasource()
+                                ),
+                                authRepository: AuthRepositoryImpl(
+                                    source: AuthFirebaseDatasource()
+                                )
+                            ),
+                            onConfirm: {}
+                        )
+                        .navigationBarBackButtonHidden(true)
+                    }
+                }
             }
             .tabItem { Label("", systemImage: "person.2") }
             .tag(Tabs.teams)

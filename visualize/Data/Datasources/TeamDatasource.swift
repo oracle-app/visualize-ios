@@ -62,6 +62,16 @@ final class TeamDatasource {
         }
     }
     
+    func updateTeamMembers(teamID: String, membersIDs: [String]) async throws {
+        do {
+            try await firebase.collection("teams")
+                .document(teamID)
+                .updateData(["membersIDs": membersIDs])
+        } catch {
+            throw error
+        }
+    }
+    
     func getTeams(byIDs ids: [String]) async throws -> [TeamDTO] {
         guard !ids.isEmpty else { return [] }
         /// Firebase has a limit of 30. For testing purposes,
