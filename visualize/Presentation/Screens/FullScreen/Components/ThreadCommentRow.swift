@@ -118,13 +118,13 @@ struct ThreadCommentRow: View {
             }
             .buttonStyle(.plain)
             .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
-            .alert("Delete comment?", isPresented: $showDeleteAlert) {
+            .alert("Delete thread?", isPresented: $showDeleteAlert) {
                 Button("Delete", role: .destructive) {
                     onDeleteComment(comment.id, comment.authorID)
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This will permanently remove the comment and all its replies. This action cannot be undone.")
+                Text("This will permanently remove the thread and all its replies. This action cannot be undone.")
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 18)
