@@ -69,11 +69,16 @@ enum AppColors {
         static let secondary = Color("TextSecondary")
         static let teriary = Color("TextTertiary")
         static let placeholder = Color("TextPlaceholder")
+        static let authFieldText = Color("AuthFieldText")
+        static let authButtonText = Color("AuthButtonText")
     }
 
     enum UI {
         static let background = Color("ComponentBackground")
         static let cardShare = Color("CardShare")
         static let screenBackground = Color("AppBackground")
+        static let authErrorBackground = Color("AuthErrorBackground")
+        static let authButtonIcon = Color("AuthButtonIcon")
+        static let authButton = Color("AuthButton")
     }
 }

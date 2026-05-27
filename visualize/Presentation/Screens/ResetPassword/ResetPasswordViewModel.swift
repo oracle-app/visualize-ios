@@ -40,10 +40,10 @@ class ResetPasswordViewModel {
     // MARK: - UI State
 
     /// Validation error for the email field.
-    var emailError: String? = nil
+    var emailError: String?
 
     /// Generic error message for unexpected failures.
-    var errorMessage: String? = nil
+    var errorMessage: String?
 
     /// Indicates whether a request is in progress.
     var isLoading: Bool = false

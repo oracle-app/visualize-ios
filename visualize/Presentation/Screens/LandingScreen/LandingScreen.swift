@@ -77,13 +77,13 @@ struct LandingScreen: View {
                     } label: {
                         Text("Log in")
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(AppColors.Text.authButtonText)
                             .frame(maxWidth: 280)
                             .frame(height: 50)
                             .shadow(radius: 10, x: 0, y: 2)
                             .background(
                                 Capsule()
-                                    .fill(Color.appTeal)
+                                    .fill(AppColors.UI.authButton)
                             )
                     }
                     .padding(.bottom, 20)
@@ -138,4 +138,3 @@ struct LandingScreen: View {
     LandingScreen()
         .environment(AppCoordinator())
 }
-
