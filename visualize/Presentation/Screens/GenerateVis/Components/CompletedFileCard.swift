@@ -33,7 +33,7 @@ struct CompletedFileCard: View {
                     .foregroundColor(.primary)
                     .lineLimit(1)
 
-                Text("\(fileSize) / \(fileSize)")
+                Text("\(fileSize)")
                     .font(.system(size: 12))
                     .foregroundColor(.secondary)
             }
@@ -69,5 +69,3 @@ struct CompletedFileCard: View {
     }
     
 }
-
-

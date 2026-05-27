@@ -92,13 +92,6 @@ struct RootScreen: View {
                                     )
                                 )
                                 .navigationBarBackButtonHidden(true)
- 
-                            // These routes belong to the Create tab and are registered
-                            // in NavBar's Create NavigationStack. They are listed here
-                            // only to satisfy switch exhaustiveness, they are never
-                            // pushed onto the auth path.
-                            case .generatingVisualizations, .vizReady:
-                                EmptyView()
                             }
                         }
                 }
