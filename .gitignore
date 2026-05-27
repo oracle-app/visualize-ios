@@ -9,7 +9,6 @@ DerivedData/
 .build
 swiftlint_report.html
 visualize/GoogleService-Info.plist
-visualize/Localizable.xcstrings
 
 # Claude Code
 .claude/
