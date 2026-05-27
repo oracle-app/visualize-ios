@@ -32,8 +32,16 @@ class CreateVisualizationViewModel {
  
     private var timer: Timer?
  
-    private let validateFileUseCase = ValidateFileUseCase()
-    private let checkFileSizeUseCase = CheckFileSizeUseCase()
+    private let validateFileUseCase: ValidateFileUseCase
+    private let checkFileSizeUseCase: CheckFileSizeUseCase
+
+    init(
+        validateFileUseCase: ValidateFileUseCase = ValidateFileUseCase(),
+        checkFileSizeUseCase: CheckFileSizeUseCase = CheckFileSizeUseCase()
+    ) {
+        self.validateFileUseCase = validateFileUseCase
+        self.checkFileSizeUseCase = checkFileSizeUseCase
+    }
 
     func handleFile(url: URL) {
 
