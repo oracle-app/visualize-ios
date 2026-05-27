@@ -82,12 +82,10 @@ class ChartTooltipCoordinator: NSObject {
         let tappedX = Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
         let tappedY = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
 
-        // Find nearest integer index to the tap (chart uses 0,1,2... internally)
         let pointIndex = max(0, min(Int(tappedX.rounded()), xValues.count - 1))
 
-        // Find which stack was tapped by checking cumulative Y ranges
         var cumulativeY = 0.0
-        var hitStackIndex = stackedSubSeries.count - 1
+        var hitStackIndex: Int?
 
         for (subIdx, subSeries) in stackedSubSeries.enumerated() {
             guard let ds = subSeries.dataSeries as? SCIXyDataSeries,
@@ -102,6 +100,8 @@ class ChartTooltipCoordinator: NSObject {
             }
             cumulativeY = segmentTop
         }
+
+        guard let hitStackIndex else { return false }
 
         guard let ds = stackedSubSeries[hitStackIndex].dataSeries as? SCIXyDataSeries,
               pointIndex < Int(ds.count),
@@ -136,8 +136,6 @@ class ChartTooltipCoordinator: NSObject {
               let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis
         else { return false }
 
-        // For horizontal: xAxis is vertical, so tap location.y maps to data index
-        // For vertical: xAxis is horizontal, so tap location.x maps to data index
         let tappedData = isHorizontalChart
             ? Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
             : Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
@@ -145,17 +143,26 @@ class ChartTooltipCoordinator: NSObject {
         let pointIndex = max(0, min(Int(tappedData.rounded()), xValues.count - 1))
         guard pointIndex < yValues.count else { return false }
 
+        let yValue = yValues[pointIndex]
+
+        // Validate tap is actually within the bar, not in empty space above it
+        let tappedY = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
+        if isHorizontalChart {
+            let tappedX = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
+            guard tappedX >= 0 && tappedX <= yValue else { return false }
+        } else {
+            guard tappedY >= 0 && tappedY <= yValue else { return false }
+        }
+
         let displayX: Double
         if !categoryLabels.isEmpty, categoryLabels.indices.contains(pointIndex) {
             displayX = Double(categoryLabels[pointIndex]) ?? Double(pointIndex)
         } else {
             displayX = xValues[pointIndex]
         }
-        let yValue = yValues[pointIndex]
 
         let pointInSurface: CGPoint
         if isHorizontalChart {
-            // yAxis is horizontal (value axis), xAxis is vertical (category axis)
             let pixelX = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(yValue / 2))
             let pixelY = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(Double(pointIndex)))
             pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
@@ -284,7 +291,13 @@ class ChartTooltipCoordinator: NSObject {
             - Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
         )
 
-        guard abs(yValues[pointIndex] - tappedY) < thresholdY else {
+        let thresholdX = abs(
+            Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x + 40)))
+            - Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
+        )
+
+        guard abs(xValues[pointIndex] - tappedX) < thresholdX &&
+              abs(yValues[pointIndex] - tappedY) < thresholdY else {
             removeTooltip()
             return
         }
