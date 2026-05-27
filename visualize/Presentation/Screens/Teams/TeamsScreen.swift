@@ -117,10 +117,23 @@ struct TeamsScreen: View {
             NavigationStack {
                 EditTeamScreen(
                     viewModel: viewModel.makeEditViewModel(for: team),
-                    onConfirm: { viewModel.didFinishEditing() }
+                    onConfirm: { viewModel.didFinishEditing(teamName: team.name) }
                 )
             }
         }
+        .overlay(alignment: .bottom) {
+            if let toast = viewModel.currentToast {
+                ToastView(toast: toast)
+                    .padding(.bottom, 24)
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                            removal: .opacity.combined(with: .scale(scale: 0.95))
+                        )
+                    )
+            }
+        }
+        .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
         .appBackground()
     }
 

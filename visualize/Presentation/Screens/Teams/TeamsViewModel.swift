@@ -25,6 +25,10 @@ final class TeamsScreenViewModel {
     var showDeleteConfirmation = false
     private(set) var teamPendingDelete: Team?
     var teamToEdit: Team?
+    var currentToast: Toast?
+    
+    @ObservationIgnored
+    private var toastTask: Task<Void, Never>?
 
     // MARK: - Dependencies
 
@@ -78,8 +82,10 @@ final class TeamsScreenViewModel {
             do {
                 try await teamRepository.deleteTeam(teamID: team.id)
                 myTeams.removeAll { $0.id == team.id }
+                showToast("\"\(team.name)\" deleted", type: .success)
             } catch {
                 self.error = "Failed to delete team."
+                showToast("Failed to delete \"\(team.name)\"", type: .error)
             }
             teamPendingDelete = nil
         }
@@ -103,8 +109,9 @@ final class TeamsScreenViewModel {
         )
     }
     
-    /// Reloads teams after the edit team sheet confirms changes.
-    func didFinishEditing() {
+    /// Reloads teams after the edit sheet confirms changes and shows a toast.
+    func didFinishEditing(teamName: String) {
+        showToast("\"\(teamName)\" updated", type: .success)
         Task { await loadTeams() }
     }
     
@@ -113,5 +120,19 @@ final class TeamsScreenViewModel {
     /// Placeholder for navigation or sheet presentation to create a team.
     func beginCreating() {
         // TODO: Navigate to create new team screen
+    }
+    
+    // MARK: - Toast
+
+    /// Shows a toast and auto-dismisses it after a short delay.
+    private func showToast(_ message: String, type: ToastType) {
+        toastTask?.cancel()
+        currentToast = Toast(message: message, type: type)
+        toastTask = Task {
+            try? await Task.sleep(for: .seconds(2.5))
+            if !Task.isCancelled {
+                currentToast = nil
+            }
+        }
     }
 }

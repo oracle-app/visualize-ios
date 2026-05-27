@@ -131,7 +131,6 @@ class FeedViewModel {
         }
     }
 
-
     /// Executes the search and updates `searchResults` with the returned cards.
     private func performSearch() async {
         do {
@@ -155,6 +154,8 @@ class FeedViewModel {
         searchTask?.cancel()
     }
     
+    // MARK: - Toast
+    /// Shows a toast and auto-dismisses it after a short delay.
     func showToast(_ toast: Toast) {
         toastTask?.cancel()
         currentToast = toast
