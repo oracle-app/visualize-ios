@@ -9,7 +9,7 @@ import SwiftUI
 @MainActor
 struct NotificationsScreen: View {
 
-    @ObservedObject var viewModel: NotificationsViewModel
+    var viewModel: NotificationsViewModel
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {

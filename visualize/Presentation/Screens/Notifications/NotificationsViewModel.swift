@@ -5,11 +5,11 @@
 // Created By Miguel Degollado
 
 import Foundation
-import Combine
 import SwiftUI
 
 @MainActor
-final class NotificationsViewModel: ObservableObject {
+@Observable
+final class NotificationsViewModel {
 
     // MARK: - State
 
@@ -29,7 +29,7 @@ final class NotificationsViewModel: ObservableObject {
         }
     }
 
-    @Published private(set) var state: NotificationsState = .loading
+    private(set) var state: NotificationsState = .loading
     private var pendingReadIDs: Set<String> = []
 
     // MARK: - Dependencies
@@ -38,7 +38,8 @@ final class NotificationsViewModel: ObservableObject {
     private let getNotificationsUseCase: GetNotificationsUseCase
     private let markNotificationReadUseCase: MarkNotificationReadUseCase
     private let markAllNotificationsReadUseCase: MarkAllNotificationsReadUseCase
-    private var listenerTask: Task<Void, Never>?
+    private(set) var currentUserID: String = ""
+    private let listenerBox = TaskBox()
 
     // MARK: - Init
 
@@ -52,23 +53,31 @@ final class NotificationsViewModel: ObservableObject {
         self.getNotificationsUseCase = getNotificationsUseCase
         self.markNotificationReadUseCase = markNotificationReadUseCase
         self.markAllNotificationsReadUseCase = markAllNotificationsReadUseCase
+        Task {
+            await initializeUser()
+        }
     }
-
-    deinit { listenerTask?.cancel() }
+    
+    private func initializeUser() async {
+        do {
+            self.currentUserID = try await authRepository.getCurrentUserID()
+            self.loadNotifications()
+        } catch {
+            self.state = .error("Could not authenticate user")
+        }
+    }
 
     // MARK: - Load
 
     func loadNotifications() {
-        guard let userID = authRepository.getCurrentUser()?.uid else {
-            state = .empty
+        guard !currentUserID.isEmpty else {
             return
         }
-        print("[NotificationsVM] My userID: \(userID)")
 
         state = .loading
-        listenerTask?.cancel()
-        listenerTask = Task {
-            for await notifications in getNotificationsUseCase.execute(for: userID) {
+        listenerBox.task?.cancel()
+        listenerBox.task = Task {
+            for await notifications in getNotificationsUseCase.execute(for: currentUserID) {
                 guard !Task.isCancelled else { break }
                 let groups = group(notifications)
                 let corrected = applyPendingReads(to: groups)
@@ -90,7 +99,8 @@ final class NotificationsViewModel: ObservableObject {
 
     func markAllAsRead() {
         guard case .loaded(let groups) = state,
-              let userID = authRepository.getCurrentUser()?.uid else { return }
+              !currentUserID.isEmpty else { return }
+              
         state = .loaded(groups.map { group in
             NotificationDisplayGroup(id: group.id, items: group.items.map {
                 NotificationDisplayItem(id: $0.id, boldPrefix: $0.boldPrefix, message: $0.message,
@@ -98,7 +108,8 @@ final class NotificationsViewModel: ObservableObject {
                     avatarInitials: $0.avatarInitials, avatarColor: $0.avatarColor, avatarURL: $0.avatarURL)
             })
         })
-        Task { try? await markAllNotificationsReadUseCase.execute(userID: userID) }
+        
+        Task { try? await markAllNotificationsReadUseCase.execute(userID: currentUserID) }
     }
 
     // MARK: - Grouping
@@ -162,4 +173,9 @@ final class NotificationsViewModel: ObservableObject {
         state = newState
     }
     #endif
+}
+
+private final class TaskBox: @unchecked Sendable {
+    var task: Task<Void, Never>?
+    deinit { task?.cancel() }
 }

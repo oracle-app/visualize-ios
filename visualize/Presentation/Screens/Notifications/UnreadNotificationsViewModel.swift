@@ -7,49 +7,56 @@
 //
 
 import Foundation
-import Combine
 
 @MainActor
-final class UnreadNotificationsViewModel: ObservableObject {
+@Observable
+final class UnreadNotificationsViewModel {
 
-    @Published private(set) var hasUnread: Bool = false
+    private(set) var hasUnread: Bool = false
 
     private let authRepository: AuthRepository
     private let observeUnreadUseCase: ObserveUnreadNotificationsUseCase
-    private var listenerTask: Task<Void, Never>?
-    private var notificationObservers: [NSObjectProtocol] = []
+    
     private var isPaused: Bool = false
+    private(set) var currentUserID: String = ""
+    private let cleanupBox = UnreadCleanupBox()
 
     init(authRepository: AuthRepository, observeUnreadUseCase: ObserveUnreadNotificationsUseCase) {
         self.authRepository = authRepository
         self.observeUnreadUseCase = observeUnreadUseCase
         setupScreenObservers()
-        startListening()
+        Task {
+            await initializeUser()
+        }
     }
-
-    deinit {
-        listenerTask?.cancel()
-        notificationObservers.forEach { NotificationCenter.default.removeObserver($0) }
+    
+    private func initializeUser() async {
+        do {
+            self.currentUserID = try await authRepository.getCurrentUserID()
+            self.startListening()
+        } catch {
+            print("Error fetching user ID for unread notifications: \(error)")
+        }
     }
 
     // MARK: - Listener lifecycle
 
     private func startListening() {
-        guard !isPaused,
-              let userID = authRepository.getCurrentUser()?.uid else { return }
-        listenerTask?.cancel()
-        listenerTask = Task {
-            for await hasUnread in observeUnreadUseCase.execute(for: userID) {
+        guard !isPaused, !currentUserID.isEmpty else { return }
+        
+        cleanupBox.task?.cancel()
+        cleanupBox.task = Task {
+            for await unread in observeUnreadUseCase.execute(for: currentUserID) {
                 guard !Task.isCancelled else { break }
-                self.hasUnread = hasUnread
+                self.hasUnread = unread
             }
         }
     }
 
     private func pause() {
         isPaused = true
-        listenerTask?.cancel()
-        listenerTask = nil
+        cleanupBox.task?.cancel()
+        cleanupBox.task = nil
     }
 
     private func resume() {
@@ -60,7 +67,7 @@ final class UnreadNotificationsViewModel: ObservableObject {
     // MARK: - Screen coordination
 
     private func setupScreenObservers() {
-        notificationObservers = [
+        cleanupBox.observers = [
             NotificationCenter.default.addObserver(
                 forName: .notificationsScreenDidAppear, object: nil, queue: .main
             ) { [weak self] _ in Task { @MainActor [weak self] in self?.pause() } },
@@ -74,5 +81,15 @@ final class UnreadNotificationsViewModel: ObservableObject {
     func stopListening() {
         pause()
         hasUnread = false
+    }
+}
+
+private final class UnreadCleanupBox: @unchecked Sendable {
+    var task: Task<Void, Never>?
+    var observers: [NSObjectProtocol] = []
+    
+    deinit {
+        task?.cancel()
+        observers.forEach { NotificationCenter.default.removeObserver($0) }
     }
 }

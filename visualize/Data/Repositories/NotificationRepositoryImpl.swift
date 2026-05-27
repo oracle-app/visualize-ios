@@ -26,6 +26,7 @@ final class NotificationRepositoryImpl: NotificationRepository {
                     case .success(let dtos):
                         continuation.yield(dtos.map { $0.toDomain() })
                     case .failure:
+                        print("Couldn't load notifications.")
                         continuation.yield([])
                     }
                 }
