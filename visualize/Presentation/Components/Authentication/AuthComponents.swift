@@ -26,7 +26,7 @@ struct InputField: View {
     @Binding var text: String
     
     /// Optional validation error message.
-    var errorMessage: String? = nil
+    var errorMessage: String?
     
     /// Keyboard configuration depending on input type.
     var keyboardType: UIKeyboardType = .default
@@ -60,9 +60,9 @@ struct InputField: View {
         .padding(.vertical, 18)
         .focused($isFocused)
         .background(
-            hasError ? Color("AuthErrorBackground") : Color("ComponentBackground")
+            hasError ? AppColors.UI.authErrorBackground : Color.appMint
         )
-        .foregroundStyle(Color("AuthFieldText"))
+        .foregroundStyle(AppColors.Text.authFieldText)
         .tint(hasError ? .red : Color.appTeal)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -155,7 +155,7 @@ struct PasswordField: View {
             .autocapitalization(.none)
             .autocorrectionDisabled()
             .focused($isFocused)
-            .foregroundStyle(Color("AuthFieldText"))
+            .foregroundStyle(AppColors.Text.authFieldText)
             .tint(hasError ? .red : Color.appTeal)
 
             // MARK: Visibility Toggle
@@ -164,13 +164,13 @@ struct PasswordField: View {
                 isVisible.toggle()
             } label: {
                 Image(systemName: isVisible ? "eye.slash" : "eye")
-                    .foregroundColor(Color("AuthButtonIcon"))
+                    .foregroundColor(AppColors.UI.authButtonIcon)
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 18)
         .background(
-            hasError ? Color("AuthErrorBackground") : Color("ComponentBackground")
+            hasError ? AppColors.UI.authErrorBackground : Color.appMint
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -220,12 +220,12 @@ struct AuthButton: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(Color("AuthButtonText"))
+                .foregroundColor(AppColors.Text.authButtonText)
                 .frame(maxWidth: 150)
                 .frame(height: 50)
                 .background(
                     RoundedRectangle(cornerRadius: 50)
-                        .fill(Color("TextTertiary"))
+                        .fill(AppColors.Text.teriary)
                 )
         }
     }

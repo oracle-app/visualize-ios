@@ -123,7 +123,7 @@ struct CheckEmailView: View {
             
             // MARK: - Background Styling
             
-            .background(Color("AppBackground"))
+            .background(Color.appBackground)
             .clipShape(RoundedRectangle(cornerRadius: 30))
             .frame(maxHeight: .infinity)
             .ignoresSafeArea(edges: .bottom)

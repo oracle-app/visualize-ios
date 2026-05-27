@@ -168,7 +168,7 @@ struct SignUp: View {
                 .frame(maxWidth: 360)
                 .padding(.horizontal, 24)
                 .background(
-                    Color("AppBackground")
+                    Color.appBackground
                     .frame(height: 800, alignment: .top)
                     .clipShape(
                         RoundedRectangle(cornerRadius: 30)
