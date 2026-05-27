@@ -96,6 +96,33 @@ struct NavBar: View {
                         )
                     )
                 )
+                .navigationDestination(for: TeamsRoute.self) { route in
+                    switch route {
+                    case .createTeam:
+                        CreateTeamScreen(
+                            viewModel: CreateTeamViewModel(
+                                createTeamUseCase: CreateTeamUseCase(
+                                    teamRepository: TeamRepositoryImpl(
+                                        teamDatasource: TeamDatasource(),
+                                        userDatasource: UserDatasource()
+                                    )
+                                ),
+                                userRepository: UserRepositoryImpl(
+                                    userDatasource: UserDatasource()
+                                ),
+                                teamRepository: TeamRepositoryImpl(
+                                    teamDatasource: TeamDatasource(),
+                                    userDatasource: UserDatasource()
+                                ),
+                                authRepository: AuthRepositoryImpl(
+                                    source: AuthFirebaseDatasource()
+                                )
+                            ),
+                            onConfirm: {}
+                        )
+                        .navigationBarBackButtonHidden(true)
+                    }
+                }
             }
             .tabItem { Label("", systemImage: "person.2") }
             .tag(Tabs.teams)

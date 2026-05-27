@@ -42,7 +42,7 @@ final class AppCoordinator {
     var selectedTab: Tabs = .feed
     var feedPath: [AppRoute] = []
     var createPath: [AppRoute] = []
-    var teamsPath: [AppRoute] = []
+    var teamsPath: [TeamsRoute] = []
     var profilePath: [AppRoute] = []
 
     // MARK: - Navigation
@@ -57,7 +57,7 @@ final class AppCoordinator {
                 createPath.append(route)
 
             case .teams:
-                teamsPath.append(route)
+                assertionFailure("Use pushTeam(_:) for the teams tab")
 
             case .profile:
                 profilePath.append(route)
@@ -122,7 +122,7 @@ final class AppCoordinator {
                 createPath = newPath
 
             case .teams:
-                teamsPath = newPath
+                break
 
             case .profile:
                 profilePath = newPath
@@ -130,6 +130,13 @@ final class AppCoordinator {
         } else {
             path = newPath
         }
+    }
+    
+    // MARK: - Teams Navigation
+
+    /// Pushes a route onto the teams tab stack.
+    func pushTeams(_ route: TeamsRoute) {
+        teamsPath.append(route)
     }
 
     // MARK: - Session

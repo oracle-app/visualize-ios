@@ -12,6 +12,8 @@ import SwiftUI
 ///   - "My Teams": teams created by the user, with swipe to delete or edit.
 ///   - "Teams I'm In": teams the user belongs to, with tap-to-expand member list.
 struct TeamsScreen: View {
+    
+    @Environment(AppCoordinator.self) private var coordinator
 
     @State private var viewModel: TeamsScreenViewModel
     @State private var expandedTeamIDs: Set<String> = []
@@ -102,7 +104,7 @@ struct TeamsScreen: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    viewModel.beginCreating()
+                    coordinator.pushTeams(.createTeam)
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 15, weight: .medium))
