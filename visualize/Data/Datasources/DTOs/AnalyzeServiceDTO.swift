@@ -10,7 +10,7 @@
 /// # Endpoint map
 /// ```
 /// POST /analyzeData -> AnalyzeTaskResponseDTO (contains task_id)
-/// /// GET  /results/{taskId} -> TaskStatusDTO            (status check only)
+/// /// GET  /results/{taskId} -> TaskStatusDTO (status check only)
 /// GET  /results/{taskId}?chart=N&preview=true -> ChartResponseDTO (single chart, preview)
 /// GET  /results/{taskId}?chart=N&page=N -> ChartResponseDTO (single chart, full detail)
 /// ```
@@ -102,24 +102,24 @@ private enum JSONValue: Decodable {
  
     init(from decoder: Decoder) throws {
         let c = try decoder.singleValueContainer()
-        if c.decodeNil()                                   { self = .null;          return }
-        if let b = try? c.decode(Bool.self)                { self = .bool(b);       return }
-        if let n = try? c.decode(Double.self)              { self = .number(n);     return }
-        if let s = try? c.decode(String.self)              { self = .string(s);     return }
-        if let a = try? c.decode([JSONValue].self)         { self = .array(a);      return }
-        if let o = try? c.decode([String: JSONValue].self) { self = .object(o);     return }
+        if c.decodeNil(){ self = .null; return }
+        if let b = try? c.decode(Bool.self) { self = .bool(b); return }
+        if let n = try? c.decode(Double.self) { self = .number(n); return }
+        if let s = try? c.decode(String.self) { self = .string(s); return }
+        if let a = try? c.decode([JSONValue].self) { self = .array(a); return }
+        if let o = try? c.decode([String: JSONValue].self) { self = .object(o); return }
         throw DecodingError.dataCorruptedError(in: c, debugDescription: "Unrecognized JSON value")
     }
  
     /// Converts back to an `Any` value compatible with `JSONSerialization`.
     func toAny() -> Any {
         switch self {
-        case .null:            return NSNull()
-        case .bool(let b):     return b
-        case .number(let n):   return n
-        case .string(let s):   return s
-        case .array(let a):    return a.map { $0.toAny() }
-        case .object(let o):   return o.mapValues { $0.toAny() }
+        case .null: return NSNull()
+        case .bool(let b): return b
+        case .number(let n): return n
+        case .string(let s): return s
+        case .array(let a): return a.map { $0.toAny() }
+        case .object(let o): return o.mapValues { $0.toAny() }
         }
     }
 }
@@ -141,12 +141,12 @@ extension ChartResponseDTO {
         if let chartIndex { obj["chartIndex"] = chartIndex }
         if let chartName { obj["chartName"] = chartName }
         if let page { obj["page"] = page }
-        if let preview { obj["preview"]      = preview      }
-        if let status       { obj["status"]       = status       }
-        if let totalPages   { obj["totalPages"]   = totalPages   }
-        if let totalPoints  { obj["totalPoints"]  = totalPoints  }
-        if let data,    let d = try? JSONSerialization.jsonObject(with: data.raw)    { obj["data"]    = d }
-        if let metrics, let m = try? JSONSerialization.jsonObject(with: metrics.raw) { obj["metrics"] = m }
+        if let preview { obj["preview"] = preview }
+        if let status { obj["status"] = status }
+        if let totalPages { obj["totalPages"] = totalPages }
+        if let totalPoints { obj["totalPoints"] = totalPoints }
+        if let data, let d = try? JSONSerialization.jsonObject(with: data.raw) { obj["data"] = d }
+        if let metrics,let m = try? JSONSerialization.jsonObject(with: metrics.raw) { obj["metrics"] = m }
  
         guard
             let jsonData = try? JSONSerialization.data(withJSONObject: obj, options: []),
