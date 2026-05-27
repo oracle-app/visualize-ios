@@ -27,18 +27,25 @@ final class TeamsScreenViewModel {
     
     var showDeleteConfirmation = false
     private(set) var teamPendingDelete: Team?
+    var teamToEdit: Team?
 
     // MARK: - Dependencies
 
     private let teamRepository: any TeamRepository
     private let authRepository: any AuthRepository
+    private let userRepository: any UserRepository
     private var userID: String = ""
 
     // MARK: - Init
 
-    init(teamRepository: any TeamRepository, authRepository: any AuthRepository) {
+    init(
+        teamRepository: any TeamRepository,
+        authRepository: any AuthRepository,
+        userRepository: any UserRepository
+    ) {
         self.teamRepository = teamRepository
         self.authRepository = authRepository
+        self.userRepository = userRepository
     }
     
     // MARK: - Loading
@@ -85,7 +92,23 @@ final class TeamsScreenViewModel {
 
     /// Placeholder for navigation or sheet presentation to edit a team.
     func beginEditing(_ team: Team) {
-        // TODO: Present edit sheet for team
+        teamToEdit = team
+    }
+    
+    /// Builds the view model for the edit team sheet for the given team.
+    func makeEditViewModel(for team: Team) -> EditTeamViewModel {
+        EditTeamViewModel(
+            teamRepository: teamRepository,
+            userRepository: userRepository,
+            teamID: team.id,
+            ownerID: userID,
+            initialMembers: team.members
+        )
+    }
+    
+    /// Reloads teams after the edit team sheet confirms changes.
+    func didFinishEditing() {
+        Task { await loadTeams() }
     }
     
     // MARK: - Create

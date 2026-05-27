@@ -116,6 +116,14 @@ struct TeamsScreen: View {
         } message: {
             Text("Are you sure you want to delete \"\(viewModel.teamPendingDelete?.name ?? "")\"? This action cannot be undone.")
         }
+        .sheet(item: $viewModel.teamToEdit) { team in
+            NavigationStack {
+                EditTeamScreen(
+                    viewModel: viewModel.makeEditViewModel(for: team),
+                    onConfirm: { viewModel.didFinishEditing() }
+                )
+            }
+        }
         .appBackground()
     }
 
@@ -144,7 +152,8 @@ struct TeamsScreen: View {
         TeamsScreen(
             viewModel: TeamsScreenViewModel(
                 teamRepository: MockTeamRepository(),
-                authRepository: MockAuthRepository()
+                authRepository: MockAuthRepository(),
+                userRepository: UserRepositoryImpl(userDatasource: UserDatasource())
             )
         )
         .environment(AppCoordinator())

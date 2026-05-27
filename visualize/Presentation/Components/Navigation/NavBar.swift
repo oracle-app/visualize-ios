@@ -90,6 +90,9 @@ struct NavBar: View {
                         ),
                         authRepository: AuthRepositoryImpl(
                             source: AuthFirebaseDatasource()
+                        ),
+                        userRepository: UserRepositoryImpl(
+                            userDatasource: UserDatasource()
                         )
                     )
                 )
