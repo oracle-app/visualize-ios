@@ -99,7 +99,6 @@ struct ThreadsView: View {
                     }
                     Spacer(minLength: 16)
                 }
-                .padding()
             }
             .scrollDismissesKeyboard(.interactively)
             .task {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseCore
 
 extension CommentDTO {
     func toComment(threads: [ThreadReply] = [], resolvedAuthorName: String? = nil, resolvedAvatarURL: String? = nil) -> Comment {
@@ -17,7 +18,8 @@ extension CommentDTO {
             content: self.content,
             imageURL: self.imageURL,
             createdAt: self.createdAt,
-            threads: threads
+            threads: threads,
+            timeAgo: self.createdAt.dateValue().timeAgoDisplay()
         )
     }
 }

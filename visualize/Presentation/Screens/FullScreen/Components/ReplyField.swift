@@ -63,7 +63,7 @@ struct ReplyField: View {
                 TextEditor(text: $text)
                     .focused($focused)
                     .font(.system(size: 17))
-                    .foregroundStyle(Color.black)
+                    .foregroundStyle(Color.primaryText)
                     .scrollContentBackground(.hidden)
                     .frame(minHeight: minHeight, maxHeight: maxHeight)
                     .fixedSize(horizontal: false, vertical: true)

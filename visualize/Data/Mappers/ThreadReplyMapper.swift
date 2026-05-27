@@ -17,7 +17,7 @@ extension ThreadReplyDTO {
             authorAvatarURL: resolvedAvatarURL ?? self.authorAvatarURL,
             createdAt: self.createdAt,
             content: self.content,
-            timeAgo: self.createdAt.dateValue().timeAgoDisplay()
+            timeAgo: self.createdAt.dateValue().timeAgoShort()
         )
     }
 }

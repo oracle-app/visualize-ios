@@ -16,7 +16,7 @@ import FirebaseCore
 struct ThreadCommentRow: View {
 
     // MARK: - Properties
-
+    
     var comment: Comment
     var currentUserID: String?
     var image: UIImage? = nil
@@ -68,11 +68,11 @@ struct ThreadCommentRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(isAuthor ? "Me" : (comment.authorName ?? comment.authorID))
                     .font(.body.weight(.bold))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color.primaryText)
 
-                Text(comment.createdAt.dateValue().timeAgoDisplay())
+                Text(comment.timeAgo)
                     .font(.subheadline)
-                    .foregroundStyle(.black.opacity(0.5))
+                    .foregroundStyle(Color.primaryText.opacity(0.5))
             }
 
             Spacer()
@@ -111,7 +111,7 @@ struct ThreadCommentRow: View {
 
                     Image(systemName: "ellipsis")
                         .font(.system(size: 22))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.appTeal)
                 }
                 .frame(width: 37, height: 37)
                 .contentShape(Circle())
@@ -151,7 +151,7 @@ struct ThreadCommentRow: View {
                             .scaledToFit()
                             .frame(height: 200)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .cornerRadius(12)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     case .failure:
                         placeholderImage
                     case .empty:
@@ -164,10 +164,8 @@ struct ThreadCommentRow: View {
             }
         }
         .padding(.horizontal, 18)
-        .padding(.vertical, 9)
+        .padding(.vertical, 10)
     }
-    
-    
 
     private var placeholderImage: some View {
         RoundedRectangle(cornerRadius: 12)
@@ -181,10 +179,11 @@ struct ThreadCommentRow: View {
             if let content = comment.content, !content.isEmpty {
                 Text(content)
                     .font(.system(size: 15))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color.primaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 18)
-                    .padding(.vertical, 10)
+                    .padding(.top, 10)
+                    .padding(.bottom, comment.threads.isEmpty ? 8 : 0)
             }
         }
     }
@@ -198,12 +197,13 @@ private struct ThreadRepliesList: View {
     let currentUserID: String?
     let commentID: String
     var onDeleteReply: (String, String, String) -> Void
-
+    
     var body: some View {
         VStack(spacing: 0) {
             ForEach(threads) { reply in
                 ThreadReplyRow(
                     isFirst: isFirst(reply),
+                    isLast: isLast(reply),
                     reply: reply,
                     currentUserID: currentUserID,
                     commentID: commentID,
@@ -211,10 +211,14 @@ private struct ThreadRepliesList: View {
                 )
             }
         }
+        .padding(.bottom, 12)
     }
-
     private func isFirst(_ reply: ThreadReply) -> Bool {
         threads.first?.id == reply.id
+    }
+    
+    private func isLast(_ reply: ThreadReply) -> Bool {
+        threads.last?.id == reply.id
     }
 }
 

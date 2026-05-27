@@ -90,7 +90,7 @@ struct FullScreenView: View {
                     isCompact: isLandscape,
                     onBack: {
                         viewModel.tooltipCoordinator?.removeTooltip()
-                        
+                        showThreads = false
                         dismiss()
                     }
                 )
@@ -203,6 +203,7 @@ struct FullScreenView: View {
                 .presentationBackgroundInteraction(.enabled(upThrough: .large))
                 .presentationCornerRadius(24)
         }
+        .preventScreenShot(isActive: true)
         .onChange(of: isLandscape) { _, newValue in
             if !newValue {
                 showThreads = true
