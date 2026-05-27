@@ -41,10 +41,15 @@ class UploadProfilePhotoUseCase {
             imageData: imageData
         )
 
-        try await userRepository.updateProfilePictureURL(
-            userID: authUser.uid,
-            url: url
-        )
+        do {
+            try await userRepository.updateProfilePictureURL(
+                userID: authUser.uid,
+                url: url
+            )
+        } catch {
+            try? await userRepository.deleteProfileImage(userID: authUser.uid)
+            throw error
+        }
 
         return url
     }
