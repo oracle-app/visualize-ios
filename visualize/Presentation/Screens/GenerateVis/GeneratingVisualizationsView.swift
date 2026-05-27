@@ -29,7 +29,7 @@ struct GeneratingVisualizationsView: View {
         }
         .task {
             guard let fileURL = coordinator.pendingFileURL else {
-                viewModel.errorMessage = "No dataset to analyze. Please go back and select a file."
+                viewModel.errorMessage = String(localized: "No dataset to analyze. Please go back and select a file.")
                 return
             }
 

@@ -75,7 +75,16 @@ struct AnalyzeAPIService {
         let endpoint = baseURL
             .appendingPathComponent("results")
             .appendingPathComponent(taskId)
-        let (data, _) = try await session.data(from: endpoint)
+        let (data, response) = try await session.data(from: endpoint)
+
+        guard let http = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        // 200 = COMPLETED, 202 = still processing. Anything else is a real error.
+        guard http.statusCode == 200 || http.statusCode == 202 else {
+            throw URLError(.badServerResponse)
+        }
+
         return (try? JSONDecoder().decode(TaskStatusDTO.self, from: data))?.status ?? "PROCESSING"
     }
  

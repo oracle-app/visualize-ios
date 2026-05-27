@@ -63,6 +63,10 @@ func getSuggestions(taskId: String) async throws -> [ChartSuggestion] {
             }
         }
  
+        guard !suggestions.isEmpty else {
+            throw URLError(.cannotParseResponse)
+        }
+    
         return suggestions.sorted { $0.id < $1.id }
     }
     
@@ -83,8 +87,14 @@ func getSuggestions(taskId: String) async throws -> [ChartSuggestion] {
     ) async throws {
         for _ in 0..<maxAttempts {
             let status = try await service.fetchTaskStatus(taskId: taskId)
-            if status == "COMPLETED" { return }
-            try await Task.sleep(for: .seconds(intervalSeconds))
+            switch status {
+            case "COMPLETED":
+                return
+            case "FAILED", "ERROR", "CANCELLED":
+                throw URLError(.resourceUnavailable)
+            default:
+                try await Task.sleep(for: .seconds(intervalSeconds))
+            }
         }
         throw URLError(.timedOut)
     }

@@ -62,7 +62,7 @@ class CreateVisualizationViewModel {
             }
             try FileManager.default.copyItem(at: url, to: dest)
         } catch {
-            errorMessage = "Could not access the selected file."
+            errorMessage = String(localized: "Could not access the selected file.")
             return
         }
 
