@@ -224,7 +224,7 @@ class ThreadsViewModel {
             enriched.authorAvatarURL = user.profilePictureURL
             enriched.timeAgo = reply.createdAt.dateValue().timeAgoDisplay()
         } catch {
-            enriched.authorName = "Unknown"
+            enriched.authorName = String(localized: "Unknown")
         }
 
         return enriched
@@ -237,10 +237,9 @@ extension Date {
     func timeAgoDisplay() -> String {
         let seconds = Int(Date().timeIntervalSince(self))
         switch seconds {
-        case ..<60: return "just now"
-        case ..<3600: return "\(seconds / 60) min ago"
-        case ..<86400: return "\(seconds / 3600) hr ago"
-        default: return "\(seconds / 86400) days ago"
-        }
+        case ..<60: return String(localized: "just now")
+        case ..<3600: return String(localized: "\(seconds / 60) min ago")
+        case ..<86400: return String(localized: "\(seconds / 3600) hr ago")
+        default: return String(localized: "\(seconds / 86400) days ago")        }
     }
 }

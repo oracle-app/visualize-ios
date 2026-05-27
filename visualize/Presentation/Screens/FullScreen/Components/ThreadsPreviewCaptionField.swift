@@ -40,7 +40,7 @@ struct ThreadsPreviewCaptionField: View {
     init(
         text: Binding<String>,
         focus: FocusState<Bool>.Binding,
-        placeholder: String = "Add an optional description...",
+        placeholder: String = String(localized: "Add an optional description..."),
         limit: Int = 500
     ) {
         self._text = text
@@ -65,10 +65,10 @@ struct ThreadsPreviewCaptionField: View {
 
             // MARK: - Caption header
             VStack(alignment: .leading, spacing: 2) {
-                Text("Caption")
+                Text(String(localized: "Caption"))
                     .font(.system(size: headlineFontSize, weight: .bold))
                     .foregroundStyle(Color.appNavy)
-                Text("Share insights about this edited visualization.")
+                Text(String(localized: "Share insights about this edited visualization."))
                     .font(.system(size: captionFontSize))
                     .foregroundStyle(Color.appTeal)
             }

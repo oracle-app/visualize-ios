@@ -25,12 +25,12 @@ final class ProfileScreenViewModel {
 
     var aboutItems: [AboutItem] {
         [
-            .info("Version 1.0.0"),
-            .info("Developed by DreamTeam Corp."),
-            .action("Terms of Service") { [weak self] in
+            .info(String(localized: "Version 1.0.0")),
+            .info(String(localized: "Developed by DreamTeam Corp.")),
+            .action(String(localized: "Terms of Service")) { [weak self] in
                 self?.openTermsOfService()
             },
-            .action("Licenses and open source libraries") { [weak self] in
+            .action(String(localized: "Licenses and open source libraries")) { [weak self] in
                 self?.openLicenses()
             }
         ]
