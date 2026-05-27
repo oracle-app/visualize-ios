@@ -29,11 +29,11 @@ final class AppCoordinator {
     var root: RootRoute = .landing
 
     // MARK: - Tab State
-
+ 
     var selectedTab: Tabs = .feed
     var feedPath: [AppRoute] = []
     var createPath: [CreateRoute] = []
-    var teamsPath: [AppRoute] = []
+    var teamsPath: [TeamsRoute] = []
     var profilePath: [AppRoute] = []
     
     // MARK: - Create Flow Payload
@@ -64,7 +64,7 @@ final class AppCoordinator {
                 assertionFailure("Use pushCreate(_:) for the create tab.")
 
             case .teams:
-                teamsPath.append(route)
+                assertionFailure("Use pushTeam(_:) for the teams tab")
 
             case .profile:
                 profilePath.append(route)
@@ -78,6 +78,13 @@ final class AppCoordinator {
     /// Pushes a `CreateRoute` onto the create tab stack.
     func pushCreate(_ route: CreateRoute) {
         createPath.append(route)
+    }
+    
+    // MARK: - Teams Navigation
+
+    /// Pushes a route onto the teams tab stack.
+    func pushTeams(_ route: TeamsRoute) {
+        teamsPath.append(route)
     }
 
     func pop() {
@@ -129,6 +136,7 @@ final class AppCoordinator {
         guard !isAuthenticated else { return }
         path = newPath
     }
+    
 
     // MARK: - Session
 

@@ -50,10 +50,12 @@ struct CreateVisualization: View {
                         .padding(.bottom, 10)
 
                     Group {
-                        if viewModel.isUploadComplete {
-                            Text("Your dataset is ready! Generate visualizations to explore your data.")
+                        if viewModel.isUploading {
+                            Text(String(localized: "Uploading your dataset..."))
+                        } else if viewModel.isUploadComplete {
+                            Text(String(localized: "Your dataset is ready! Generate visualizations to explore your data."))
                         } else {
-                            Text("Upload a dataset and we'll generate the best visualizations to help you understand your data.")
+                            Text(String(localized: "Upload a dataset and we'll generate the best visualizations to help you understand your data."))
                         }
                     }
                     .font(.system(size: 15))
@@ -136,7 +138,7 @@ struct CreateVisualization: View {
                 }
                 viewModel.handleFile(url: url)
             case .failure(let error):
-                viewModel.errorMessage = "Error selecting file: \(error.localizedDescription)"
+                viewModel.errorMessage = String(localized: "Error selecting file: \(error.localizedDescription)")
             }
         }
         .alert("Delete dataset?", isPresented: $showDeleteAlert) {

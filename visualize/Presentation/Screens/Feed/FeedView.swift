@@ -40,7 +40,6 @@ struct FeedView: View {
     @State private var scrollPosition: ScrollPosition = .init(idType: String.self)
     @State private var searchPressed: Bool = false
 
-
     var shouldLoad: Bool = true
 
     // MARK: - Body
@@ -66,7 +65,7 @@ struct FeedView: View {
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(.secondary)
                         .font(.body)
-                    TextField("Search visualizations...", text: $viewModel.searchQuery)
+                    TextField(String(localized: "Search visualizations..."), text: $viewModel.searchQuery)
                         .textFieldStyle(.plain)
                         .font(.body)
                         .frame(width: 220)
@@ -107,8 +106,7 @@ struct FeedView: View {
                             viewModel.isSearchActive = true
                             searchPressed = false
                         }
-                    }
-                    else {
+                    } else {
                         searchPressed = true
                         title = nil
                         withAnimation {
@@ -196,7 +194,7 @@ struct FeedView: View {
                     ),
                     onConfirm: {
                         viewModel.loadData()
-                        viewModel.showToast(Toast(message: "Sharing updated successfully", type: .success))
+                        viewModel.showToast(Toast(message: String(localized: "Sharing updated successfully"),type: .success))
                     }
                 )
                 .presentationDetents([.medium, .large])
@@ -301,11 +299,10 @@ struct FeedView: View {
             if viewModel.isSearchActive && viewModel.searchQuery.count >= 2 {
                 if viewModel.searchResults.isEmpty {
                     VStack {
-                        Text("No results for \"\(viewModel.searchQuery)\"")
+                        Text(String(localized: "No results for \"\(viewModel.searchQuery)\""))
                             .font(.body.bold())
                             .foregroundStyle(Color.appTeal)
-                        Text("Try a different search term")
-                            .foregroundStyle(.gray)
+                        Text(String(localized: "Try a different search term"))                            .foregroundStyle(.gray)
                     }
                     .hCenter()
                     .padding(.top, 300)

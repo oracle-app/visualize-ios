@@ -79,15 +79,73 @@ struct NavBar: View {
             .tag(Tabs.create)
 
             NavigationStack(path: $coordinator.teamsPath) {
-                Color.green.ignoresSafeArea()
+                TeamsScreen(
+                    viewModel: TeamsScreenViewModel(
+                        teamRepository: TeamRepositoryImpl(
+                            teamDatasource: TeamDatasource(),
+                            userDatasource: UserDatasource()
+                        ),
+                        authRepository: AuthRepositoryImpl(
+                            source: AuthFirebaseDatasource()
+                        ),
+                        userRepository: UserRepositoryImpl(
+                            userDatasource: UserDatasource()
+                        )
+                    )
+                )
+                .navigationDestination(for: TeamsRoute.self) { route in
+                    switch route {
+                    case .createTeam:
+                        CreateTeamScreen(
+                            viewModel: CreateTeamViewModel(
+                                createTeamUseCase: CreateTeamUseCase(
+                                    teamRepository: TeamRepositoryImpl(
+                                        teamDatasource: TeamDatasource(),
+                                        userDatasource: UserDatasource()
+                                    )
+                                ),
+                                userRepository: UserRepositoryImpl(
+                                    userDatasource: UserDatasource()
+                                ),
+                                teamRepository: TeamRepositoryImpl(
+                                    teamDatasource: TeamDatasource(),
+                                    userDatasource: UserDatasource()
+                                ),
+                                authRepository: AuthRepositoryImpl(
+                                    source: AuthFirebaseDatasource()
+                                )
+                            ),
+                            onConfirm: {}
+                        )
+                        .navigationBarBackButtonHidden(true)
+                    }
+                }
             }
             .tabItem { Label("", systemImage: "person.2") }
             .tag(Tabs.teams)
 
             NavigationStack(path: $coordinator.profilePath) {
+                let authRepository = AuthRepositoryImpl(source: AuthFirebaseDatasource())
+                let userRepository = UserRepositoryImpl(userDatasource: UserDatasource())
+
+                let uploadProfilePhotoUseCase = UploadProfilePhotoUseCase(
+                    authRepository: authRepository,
+                    userRepository: userRepository
+                )
+                
+                let deleteProfilePhotoUseCase = DeleteProfilePhotoUseCase(
+                    authRepository: authRepository,
+                    userRepository: userRepository
+                )
+
                 ProfileScreenView(
-                    logoutUseCase: logoutUseCase,
-                    getCurrentUserProfileUseCase: getCurrentUserProfileUseCase
+                    logoutUseCase: LogoutUseCase(repository: authRepository),
+                    getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase(
+                        authRepository: authRepository,
+                        userRepository: userRepository
+                    ),
+                    uploadProfilePhotoUseCase: uploadProfilePhotoUseCase,
+                    deleteProfilePhotoUseCase: deleteProfilePhotoUseCase
                 )
             }
             .tabItem { Label("", systemImage: "person.circle") }

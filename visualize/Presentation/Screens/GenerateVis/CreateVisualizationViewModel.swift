@@ -38,7 +38,7 @@ class CreateVisualizationViewModel {
     func handleFile(url: URL) {
 
         guard validateFileUseCase.execute(url: url) else {
-            errorMessage = "Only .xlsx or .csv files allowed."
+            errorMessage = String(localized: "Only .xlsx or .csv files allowed.")
             return
         }
 
@@ -49,7 +49,7 @@ class CreateVisualizationViewModel {
         else { return }
 
         guard checkFileSizeUseCase.execute(size: Int64(size)) else {
-            errorMessage = "File exceeds the 100 MB limit."
+            errorMessage = String(localized: "File exceeds the 100 MB limit.")
             return
         }
         

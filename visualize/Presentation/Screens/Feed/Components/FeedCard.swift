@@ -40,10 +40,10 @@ struct FeedCard: View {
         
         if interval < 3600 {
             let minutes = Int(interval / 60)
-            return minutes <= 1 ? "Just now" : "\(minutes) minutes ago"
+            return minutes <= 1 ? String(localized: "Just now") : String(localized: "\(minutes) minutes ago")
         } else if interval < 86400 {
             let hours = Int(interval / 3600)
-            return hours == 1 ? "1 hour ago" : "\(hours) hours ago"
+            return hours == 1 ? String(localized: "1 hour ago") : String(localized: "\(hours) hours ago")
         } else {
             return date.formatted(date: .abbreviated, time: .omitted)
         }
@@ -59,7 +59,7 @@ struct FeedCard: View {
                         .lineLimit(2)
                         .minimumScaleFactor(0.6)
                     HStack(spacing: 12) {
-                        Text("by \(isOwner ? "me" : author)")
+                        Text(String(localized: "by \(isOwner ? "me" : author)"))
                         Text("•")
                         Text(formattedDate)
                     }
@@ -164,28 +164,9 @@ struct FeedCard: View {
             }
             
             if let sharedWith, !sharedWith.isEmpty {
-                HStack(spacing: -20) {
-                    let displayMembers = Array(sharedWith.prefix(maxAvatars))
-                    let remainingCount = sharedWith.count - displayMembers.count
-                    ForEach(Array(displayMembers.enumerated()), id: \.element.id) { index, user in
-                        UserAvatarView(user: user, size: 33, showBorder: true)
-                            .zIndex(Double(maxAvatars - index))
-                    }
-                    if remainingCount > 0 {
-                        ZStack {
-                            Circle().fill(Color(.systemBackground))
-                            Text("+\(remainingCount)")
-                                .font(.system(size: 13, weight: .regular))
-                                .foregroundStyle(Color.primaryText)
-                        }
-                        .frame(width: 33, height: 33)
-                        .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
-                        .padding(.leading, 10)
-                        .zIndex(0)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 10)
+                StackedAvatars(members: sharedWith, maxAvatars: maxAvatars, avatarSize: 33)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 10)
             }
        }
        .padding(16)

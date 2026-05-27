@@ -82,7 +82,7 @@ struct RecommendedChartCard: View {
         }
         .buttonStyle(.plain)
         .alert("Edit chart title", isPresented: $isEditAlertPresented) {
-            TextField("Chart title", text: $draft)
+            TextField(String(localized: "Chart title"), text: $draft)
                 .onChange(of: draft) { _, new in
                     if new.count > charLimit { draft = String(new.prefix(charLimit)) }
                 }

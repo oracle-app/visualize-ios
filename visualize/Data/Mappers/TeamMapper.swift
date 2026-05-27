@@ -9,12 +9,13 @@ import Foundation
 
 extension TeamDTO {
     func toTeam(members: [AppUser]) -> Team {
-        guard let id = self.id else {fatalError("TeamDTO must have an ID.")}
+        guard let id = self.id else { fatalError("TeamDTO must have an ID.") }
         return Team(
-            id : id,
-            name : self.name,
-            memberCount : members.count,
-            members : members
+            id: id,
+            name: self.name,
+            ownerID: self.ownerID,
+            memberCount: members.count,
+            members: members
         )
     }
 }

@@ -12,12 +12,12 @@ import Observation
 @Observable
 final class GeneratingVisualizationsViewModel {
     
-    let title = "Generating Visualizations"
-    let message = "We’re analyzing your dataset and generating charts that best represent your data."
-    let footerMessage = "This may take a moment..."
+    let title = String(localized: "Generating Visualizations")
+    let message = String(localized: "We're analyzing your dataset and generating charts that best represent your data.")
+    let footerMessage = String(localized: "This may take a moment...")
+ 
+    var isLoading: Bool = false
     
-    var isLoading: Bool  = false
-
     /// Chart suggestions returned by the repository; passed to `VizReadyView` on success.
     var suggestions: [ChartSuggestion] = []
  

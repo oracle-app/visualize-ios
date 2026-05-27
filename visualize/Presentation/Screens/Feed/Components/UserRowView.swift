@@ -5,14 +5,11 @@
 //  Created by Diana Escalante on 14/04/26.
 //
 
-//
+import SwiftUI
+
 /// A row component that displays basic user information (name and email).
 /// Optionally includes a remove button with a tap animation.
 /// Designed to be reusable in lists, dropdowns, or selection views.
-//
-
-import SwiftUI
-
 struct UserRowView: View {
     
     let user: AppUser
@@ -24,7 +21,7 @@ struct UserRowView: View {
     var body: some View {
         HStack(spacing: 12) {
             
-            UserAvatarView (user: user, size: 40, showBorder: false)
+            UserAvatarView(user: user, size: 40, showBorder: false)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.username)

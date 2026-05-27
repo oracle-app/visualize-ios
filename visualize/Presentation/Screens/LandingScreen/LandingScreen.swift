@@ -57,13 +57,13 @@ struct LandingScreen: View {
                         .tracking(5)
                         .padding(.top, 70)
 
-                    Text("Turn data into decisions.")
+                    Text(String(localized: "Turn data into decisions."))
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(Color.appSubtitle)
                 }
                 .padding(.bottom, 32)
 
-                Text("Create, choose, and share AI-powered\ngraphs in seconds.\nFast, simple, and secure.")
+                Text(String(localized: "Create, choose, and share AI-powered\ngraphs in seconds.\nFast, simple, and secure."))
                     .font(.system(size: 15))
                     .foregroundColor(Color.appNavy)
                     .multilineTextAlignment(.center)

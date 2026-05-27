@@ -101,34 +101,34 @@ class LoginViewModel {
             } catch let error as LoginError {
                 switch error {
                 case .emailRequired, .invalidEmail:
-                    self.emailError = "Please enter a valid email address."
+                    self.emailError = String(localized: "Please enter a valid email address.")
                 case .passwordRequired:
-                    self.passwordError = "Required fields cannot be left blank."
+                    self.passwordError = String(localized: "Required fields cannot be left blank.")
                 case .invalidCredentials:
                     showToast(Toast(
-                        message: "Incorrect email or password. Please try again.",
+                        message: String(localized: "Incorrect email or password. Please try again."),
                         type: .error
                     ))
                 case .networkIssue:
                     showToast(Toast(
-                        message: "Unable to connect. Check your internet connection.",
+                        message: String(localized: "Unable to connect. Check your internet connection."),
                         type: .error
                     ))
                 case .unknown:
                     showToast(Toast(
-                        message: "Something went wrong. Please try again.",
+                        message: String(localized: "Something went wrong. Please try again."),
                         type: .error
                     ))
                 case .notFound:
                     showToast(Toast(
-                        message: "User not found.",
+                        message: String(localized: "User not found."),
                         type: .error
                     ))
                 }
                 
             } catch {
                 showToast(Toast(
-                    message: "Something went wrong. Please try again.",
+                    message: String(localized: "Something went wrong. Please try again."),
                     type: .error
                 ))
             }
@@ -140,7 +140,7 @@ class LoginViewModel {
     
     private func validateEmail() -> Bool {
         if email.trimmingCharacters(in: .whitespaces).isEmpty {
-            emailError = "Required fields cannot be left blank."
+            emailError = String(localized: "Required fields cannot be left blank.")
             return false
         }
         
@@ -150,7 +150,7 @@ class LoginViewModel {
     
     private func validatePassword() -> Bool {
         if password.isEmpty {
-            passwordError = "Required fields cannot be left blank."
+            passwordError = String(localized: "Required fields cannot be left blank.")
             return false
         }
         

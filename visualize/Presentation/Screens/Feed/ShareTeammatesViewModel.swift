@@ -5,17 +5,13 @@
 //  Created by Diana Escalante on 13/04/26.
 //
 
-//
-/// ViewModel that manages the business logic for sharing teammates.
-/// Handles data loading, search filtering, and user selection/removal.
-/// Maintains UI state and communicates with the service layer to fetch users.
-//
-
 import SwiftUI
 import Observation
 import Foundation
 
-/// Manages state and logic for the share teammates flow.
+/// ViewModel that manages the business logic for sharing teammates.
+/// Handles data loading, search filtering, and user selection/removal.
+/// Maintains UI state and communicates with the service layer to fetch users.
 @Observable
 class ShareTeammatesViewModel {
     // MARK: - Dependencies
@@ -126,7 +122,7 @@ class ShareTeammatesViewModel {
                 !selectedUsers.contains(where: { $0.id == candidate.id })
             }
         } catch {
-            self.error = "Failed to search users"
+            self.error = String(localized: "Failed to search users")
         }
     }
     // MARK: - Actions
@@ -181,7 +177,7 @@ class ShareTeammatesViewModel {
                 joinedTeams = try await joinedTeamsRequest
                 selectedTeamIDs = Set(initialTeamIDs)
             } catch {
-                self.error = "Error loading teams"
+                self.error = String(localized: "Error loading teams")
             }
         }
 
