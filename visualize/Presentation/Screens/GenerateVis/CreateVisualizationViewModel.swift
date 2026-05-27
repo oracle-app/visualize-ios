@@ -19,13 +19,19 @@ import SwiftUI
 @MainActor
 @Observable
 class CreateVisualizationViewModel {
-
+ 
     var selectedFileName: String? = nil
     var errorMessage: String? = nil
+ 
+    var isUploading: Bool = false
+    var uploadProgress: Double = 0.0
     var isUploadComplete: Bool = false
+    
     var fileSize: String = "0 MB"
     var pickedFileURL: URL? = nil
-
+ 
+    private var timer: Timer?
+ 
     private let validateFileUseCase = ValidateFileUseCase()
     private let checkFileSizeUseCase = CheckFileSizeUseCase()
 
@@ -48,7 +54,8 @@ class CreateVisualizationViewModel {
         }
         
         // Copy to a stable temp location before security-scoped access ends.
-        let dest = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(url.lastPathComponent)
+        let dest = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(url.lastPathComponent)
         do {
             if FileManager.default.fileExists(atPath: dest.path) {
                 try FileManager.default.removeItem(at: dest)
@@ -71,13 +78,44 @@ class CreateVisualizationViewModel {
         selectedFileName = url.lastPathComponent
         pickedFileURL = dest
         errorMessage = nil
-        isUploadComplete = true
+        startUpload()
     }
-
+ 
+    func startUpload() {
+        isUploading = true
+        isUploadComplete = false
+        uploadProgress = 0.0
+ 
+        timer = Timer.scheduledTimer(
+            withTimeInterval: 0.05,
+            repeats: true
+        ) { timer in
+            if self.uploadProgress < 1.0 {
+                self.uploadProgress += 0.02
+            } else {
+                timer.invalidate()
+                self.isUploading = false
+                self.isUploadComplete = true
+            }
+        }
+    }
+ 
+    func cancelUpload() {
+        timer?.invalidate()
+        isUploading = false
+        isUploadComplete = false
+        uploadProgress = 0.0
+        selectedFileName = nil
+        removeTempFile()
+        pickedFileURL = nil
+    }
+ 
     func resetFile() {
 
         isUploadComplete = false
+        isUploading = false
         selectedFileName = nil
+        uploadProgress = 0.0
         fileSize = "0 MB"
         removeTempFile()
         pickedFileURL = nil

@@ -23,6 +23,8 @@ struct CreateVisualization: View {
     @State
     private var viewModel =
         CreateVisualizationViewModel()
+    
+    @State private var showDeleteAlert: Bool = false
 
     @State
     private var isFilePickerPresented = false
@@ -60,22 +62,30 @@ struct CreateVisualization: View {
                     .padding(.bottom, 20)
 
                     ZStack {
-                        if viewModel.isUploadComplete {
-                            CompletedFileCard(
-                                fileName: viewModel.selectedFileName ?? "",
-                                fileSize: viewModel.fileSize,
-                                onDelete: { viewModel.resetFile() }
-                            )
-                        } else {
-                            Button {
-                                isFilePickerPresented = true
-                            } label: {
-                                UploadDropZone()
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
+                        if viewModel.isUploading {
+                             UploadingFileCard(
+                                 fileName: viewModel.selectedFileName ?? "",
+                                 fileSize: viewModel.fileSize,
+                                 progress: viewModel.uploadProgress,
+                                 onCancel: { viewModel.cancelUpload() }
+                             )
+                         } else if viewModel.isUploadComplete {
+                             CompletedFileCard(
+                                 fileName: viewModel.selectedFileName ?? "",
+                                 fileSize: viewModel.fileSize,
+                                 onDelete: { showDeleteAlert = true }
+                             )
+                         } else {
+                             Button {
+                                 isFilePickerPresented = true
+                             } label: {
+                                 UploadDropZone()
+                             }
+                             .buttonStyle(.plain)
+                         }
+                     }
                     .frame(minHeight: 160, alignment: .top)
+                    .animation(.easeInOut(duration: 0.2), value: viewModel.isUploading)
                     .animation(.easeInOut(duration: 0.2), value: viewModel.isUploadComplete)
                     .padding(.bottom, 8)
 
@@ -128,6 +138,14 @@ struct CreateVisualization: View {
             case .failure(let error):
                 viewModel.errorMessage = "Error selecting file: \(error.localizedDescription)"
             }
+        }
+        .alert("Delete dataset?", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) {
+                viewModel.resetFile()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This will remove the uploaded dataset.")
         }
         .portraitOrientationLock()
         .background(Color.appBackground.ignoresSafeArea())
