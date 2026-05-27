@@ -151,6 +151,14 @@ private final class PreviewUserRepository: UserRepository {
     func addHiddenVisualization(userID: String, visualizationID: String) async throws {}
 
     func removeHiddenVisualization(userID: String, visualizationID: String) async throws {}
+    
+    func updateProfilePictureURL(userID: String, url: URL?) async throws {}
+
+    func uploadProfileImage(userID: String, imageData: Data) async throws -> URL {
+        URL(string: "https://example.com/profile.jpg")!
+    }
+
+    func deleteProfileImage(userID: String) async throws {}
 }
 
 #Preview {
