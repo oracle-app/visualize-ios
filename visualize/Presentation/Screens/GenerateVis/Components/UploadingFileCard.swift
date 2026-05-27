@@ -21,22 +21,26 @@ struct UploadingFileCard: View {
     let progress: Double
     let onCancel: () -> Void
 
-    var uploadedMB: String {
+    var uploadedSize: String {
 
-        let total =
-            Double(
-                fileSize.replacingOccurrences(
-                    of: " MB",
-                    with: ""
-                )
-            ) ?? 12
+        let totalBytes: Double
+        if fileSize.contains("MB") {
+            let value = Double(fileSize.replacingOccurrences(of: " MB", with: "")) ?? 0
+            totalBytes = value * 1024 * 1024
+        } else {
+            let value = Double(fileSize.replacingOccurrences(of: " KB", with: "")) ?? 0
+            totalBytes = value * 1024
+        }
 
-        let done = total * progress
+        let doneBytes = totalBytes * progress
+        let doneKB = doneBytes / 1024
+        let doneMB = doneKB / 1024
 
-        return String(
-            format: "%.0f MB",
-            done
-        )
+        if doneMB >= 1 {
+            return String(format: "%.1f MB", doneMB)
+        } else {
+            return String(format: "%.0f KB", doneKB)
+        }
     }
 
     var body: some View {
@@ -52,7 +56,7 @@ struct UploadingFileCard: View {
                     .font(.system(size: 14, weight: .semibold))
                     .lineLimit(1)
 
-                Text("\(uploadedMB) / \(fileSize)")
+                Text("\(uploadedSize) / \(fileSize)")
                     .font(.system(size: 12))
                     .foregroundColor(.secondary)
 
