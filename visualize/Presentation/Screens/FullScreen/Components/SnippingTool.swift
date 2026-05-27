@@ -29,15 +29,32 @@ struct SnipFloatingToolbar: View {
     private let toolCornerRadius: CGFloat = 10
     private let containerRadius: CGFloat = 32
 
+    // Geometry shared with `SnipEditorView` for panel anchoring.
+    // Buttons are 38pt wide with 2pt spacing → 40pt stride between centers.
+    // The stroke-width button (index 3 of 7) sits at the toolbar's center.
+    // Offsets below are signed horizontal distances from that center to the
+    // owning button's center, used by floating panels to align over them.
+    private static let buttonStride: CGFloat = 40
+
+    /// Horizontal offset (in points) from the toolbar's center to the center
+    /// of the button that opens `panel`. Keep in sync with the button order
+    /// declared inside `body`.
+    static func panelOffset(for panel: ToolPanel) -> CGFloat {
+        switch panel {
+        case .strokeWidth: return 0          // index 3 — centered
+        case .shapes:      return buttonStride * 2  // index 5 — two strides right
+        }
+    }
+
     var body: some View {
         HStack(spacing: 2) {
-            iconToolButton(tool: .pencil, symbol: "pencil")
-            iconToolButton(tool: .eraser, symbol: "eraser")
-            colorSwatchButton
-            strokeWeightButton
-            textToolButton
-            shapeToolButton
-            iconToolButton(tool: .crop, symbol: "crop")
+            iconToolButton(tool: .pencil, symbol: "pencil")    // 0
+            iconToolButton(tool: .eraser, symbol: "eraser")    // 1
+            colorSwatchButton                                  // 2
+            strokeWeightButton                                 // 3 — opens .strokeWidth
+            textToolButton                                     // 4
+            shapeToolButton                                    // 5 — opens .shapes
+            iconToolButton(tool: .crop, symbol: "crop")        // 6
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
