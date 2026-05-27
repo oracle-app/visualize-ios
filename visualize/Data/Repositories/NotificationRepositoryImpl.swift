@@ -16,7 +16,7 @@ final class NotificationRepositoryImpl: NotificationRepository {
         self.datasource = datasource
     }
 
-    func notificationsStream(for userID: String) -> AsyncStream<[Notification]> {
+    func notificationsStream(for userID: String) -> AsyncStream<Result<[Notification], Error>> {
         let raw = datasource.notificationsStream(for: userID)
         return AsyncStream { continuation in
             let task = Task {
@@ -24,10 +24,10 @@ final class NotificationRepositoryImpl: NotificationRepository {
                     guard !Task.isCancelled else { break }
                     switch result {
                     case .success(let dtos):
-                        continuation.yield(dtos.map { $0.toDomain() })
-                    case .failure:
-                        print("Couldn't load notifications.")
-                        continuation.yield([])
+                        continuation.yield(.success(dtos.map { $0.toDomain() }))
+                    case .failure(let error):
+                        print("Couldn't load notifications: \(error.localizedDescription)")
+                        continuation.yield(.failure(error))
                     }
                 }
                 continuation.finish()

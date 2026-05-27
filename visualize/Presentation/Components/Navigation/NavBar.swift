@@ -39,6 +39,9 @@ struct NavBar: View {
         let authSource = AuthFirebaseDatasource()
         let authRepo = AuthRepositoryImpl(source: authSource)
         let userRepo = UserRepositoryImpl(userDatasource: UserDatasource())
+        let notificationsRepo = NotificationRepositoryImpl(
+            datasource: NotificationDatasource()
+        )
         self.logoutUseCase = LogoutUseCase(repository: authRepo)
         self.getCurrentUserProfileUseCase = GetCurrentUserProfileUseCase(
             authRepository: authRepo,
@@ -47,9 +50,8 @@ struct NavBar: View {
         let notifRepo = NotificationRepositoryImpl()
         self.notificationsViewModel = NotificationsViewModel(
             authRepository: authRepo,
-            getNotificationsUseCase: GetNotificationsUseCase(repository: notifRepo),
-            markNotificationReadUseCase: MarkNotificationReadUseCase(repository: notifRepo),
-            markAllNotificationsReadUseCase: MarkAllNotificationsReadUseCase(repository: notifRepo)
+            notificationRepository: notificationsRepo,
+            
         )
 
         let appearance = UITabBarAppearance()

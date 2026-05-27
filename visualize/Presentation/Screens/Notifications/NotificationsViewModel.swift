@@ -35,9 +35,7 @@ final class NotificationsViewModel {
     // MARK: - Dependencies
 
     private let authRepository: AuthRepository
-    private let getNotificationsUseCase: GetNotificationsUseCase
-    private let markNotificationReadUseCase: MarkNotificationReadUseCase
-    private let markAllNotificationsReadUseCase: MarkAllNotificationsReadUseCase
+    private let notificationRepository: any NotificationRepository
     private(set) var currentUserID: String = ""
     private let listenerBox = TaskBox()
 
@@ -45,14 +43,10 @@ final class NotificationsViewModel {
 
     init(
         authRepository: AuthRepository,
-        getNotificationsUseCase: GetNotificationsUseCase,
-        markNotificationReadUseCase: MarkNotificationReadUseCase,
-        markAllNotificationsReadUseCase: MarkAllNotificationsReadUseCase
+        notificationRepository: NotificationRepository
     ) {
         self.authRepository = authRepository
-        self.getNotificationsUseCase = getNotificationsUseCase
-        self.markNotificationReadUseCase = markNotificationReadUseCase
-        self.markAllNotificationsReadUseCase = markAllNotificationsReadUseCase
+        self.notificationRepository = notificationRepository
         Task {
             await initializeUser()
         }
@@ -73,15 +67,19 @@ final class NotificationsViewModel {
         guard !currentUserID.isEmpty else {
             return
         }
-
         state = .loading
         listenerBox.task?.cancel()
         listenerBox.task = Task {
-            for await notifications in getNotificationsUseCase.execute(for: currentUserID) {
+            for await streamResult in notificationRepository.notificationsStream(for: currentUserID) {
                 guard !Task.isCancelled else { break }
-                let groups = group(notifications)
-                let corrected = applyPendingReads(to: groups)
-                state = corrected.allSatisfy({ $0.items.isEmpty }) ? .empty : .loaded(corrected)
+                switch streamResult {
+                case .success(let notifications):
+                    let groups = group(notifications)
+                    let corrected = applyPendingReads(to: groups)
+                    state = corrected.allSatisfy({ $0.items.isEmpty }) ? .empty : .loaded(corrected)
+                case .failure(let error):
+                    state = .error(error.localizedDescription)
+                }
             }
         }
     }
@@ -92,7 +90,7 @@ final class NotificationsViewModel {
         pendingReadIDs.insert(id)
         applyOptimisticRead(id: id)
         Task {
-            try? await markNotificationReadUseCase.execute(notificationID: id)
+            try? await notificationRepository.markAsRead(notificationID: id)
             pendingReadIDs.remove(id)
         }
     }
@@ -109,7 +107,7 @@ final class NotificationsViewModel {
             })
         })
         
-        Task { try? await markAllNotificationsReadUseCase.execute(userID: currentUserID) }
+        Task { try? await notificationRepository.markAllAsRead(userID: currentUserID) }
     }
 
     // MARK: - Grouping

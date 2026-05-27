@@ -15,15 +15,18 @@ final class UnreadNotificationsViewModel {
     private(set) var hasUnread: Bool = false
 
     private let authRepository: AuthRepository
-    private let observeUnreadUseCase: ObserveUnreadNotificationsUseCase
+    private let notificationRepository: any NotificationRepository
     
     private var isPaused: Bool = false
     private(set) var currentUserID: String = ""
     private let cleanupBox = UnreadCleanupBox()
 
-    init(authRepository: AuthRepository, observeUnreadUseCase: ObserveUnreadNotificationsUseCase) {
+    init(
+        authRepository: AuthRepository,
+        notificationRepository: NotificationRepository
+    ) {
         self.authRepository = authRepository
-        self.observeUnreadUseCase = observeUnreadUseCase
+        self.notificationRepository = notificationRepository
         setupScreenObservers()
         Task {
             await initializeUser()
@@ -46,7 +49,7 @@ final class UnreadNotificationsViewModel {
         
         cleanupBox.task?.cancel()
         cleanupBox.task = Task {
-            for await unread in observeUnreadUseCase.execute(for: currentUserID) {
+            for await unread in notificationRepository.unreadStream(for: currentUserID) {
                 guard !Task.isCancelled else { break }
                 self.hasUnread = unread
             }
