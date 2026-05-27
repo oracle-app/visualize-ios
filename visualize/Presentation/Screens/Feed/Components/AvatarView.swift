@@ -56,3 +56,18 @@ struct UserAvatarView: View {
         }
     }
 }
+
+extension UserAvatarView {
+    init(username: String, avatarURL: String?, size: CGFloat = 33, showBorder: Bool = false) {
+        self.init(
+            user: AppUser(
+                id: "",
+                email: "",
+                profilePictureURL: avatarURL,
+                username: username
+            ),
+            size: size,
+            showBorder: showBorder
+        )
+    }
+}

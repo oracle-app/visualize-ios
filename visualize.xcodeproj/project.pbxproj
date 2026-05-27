@@ -116,6 +116,7 @@
 				053BEF192F8AEC41008A3D6B /* Resources */,
 				26B2AA8F2FA16BFE000D9D11 /* Run Script */,
 				DE6CE3532FBDB87B00F34FF1 /* Run Script */,
+				DE4EE0D82FC599060010720B /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -218,6 +219,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\n\nif command -v swiftlint >/dev/null 2>&1; then\n  swiftlint lint --quiet\n  swiftlint lint --reporter html --output \"${SRCROOT}/swiftlint_report.html\" || true\nelse\n  echo \"warning: SwiftLint not found\"\nfi\n";
+		};
+		DE4EE0D82FC599060010720B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport PATH=\"$PATH:/opt/homebrew/bin\"\n\nif command -v swiftlint >/dev/null 2>&1; then\n  swiftlint lint --quiet\n  swiftlint lint --reporter html --output \"${SRCROOT}/swiftlint_report.html\" || true\nelse\n  echo \"warning: SwiftLint not found\"\nfi\n";
 		};
 		DE6CE3532FBDB87B00F34FF1 /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;

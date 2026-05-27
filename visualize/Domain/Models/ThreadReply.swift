@@ -6,13 +6,17 @@
 //
 import Foundation
 import FirebaseFirestore
+
 struct ThreadReply: Identifiable, Codable {
-    @DocumentID var id: String?
-    
+    let id: String?
     var authorID: String
     var authorName: String = ""
     var authorAvatarURL: String?
     var createdAt: Timestamp
     var content: String
     var timeAgo: String = ""
+
+    enum CodingKeys: String, CodingKey {
+        case id, authorID, authorName, authorAvatarURL, createdAt, content
+    }
 }

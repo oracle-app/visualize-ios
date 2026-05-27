@@ -19,16 +19,21 @@ struct ThreadsView: View {
     // MARK: - Properties
 
     let visualizationID: String
-
+    var isCollapsed: Bool = false
+    
     @State private var viewModel: ThreadsViewModel
     @State private var replyText = ""
     @State private var activeCommentID: String? = nil
+    @State private var activeCommentAuthor: String? = nil
     @State private var currentUser: AppUser? = nil
+    
+    @FocusState private var isInputFocused: Bool
 
     // MARK: - Init
 
-    init(visualizationID: String = "3nlO5I3PoEWAaKzwfcKB") {
+    init(visualizationID: String = "3nlO5I3PoEWAaKzwfcKB", isCollapsed: Bool = false) {
         self.visualizationID = visualizationID
+        self.isCollapsed = isCollapsed
         self._viewModel = State(initialValue: ThreadsViewModel(visualizationID: visualizationID))
     }
 
@@ -43,14 +48,11 @@ struct ThreadsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-
-            VStack(spacing: 8) {
-                Text("Threads")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(Color.appTeal)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 25)
+            Text("Threads")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(Color.appTeal)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 25)
 
             ScrollView {
                 VStack(spacing: 16) {
@@ -70,67 +72,146 @@ struct ThreadsView: View {
                         ForEach(viewModel.comments) { comment in
                             ThreadCommentRow(
                                 comment: comment,
-                                activeCommentID: $activeCommentID
-                            )
+                                currentUserID: currentUser?.id,
+                                activeCommentID: $activeCommentID,
+                                activeCommentAuthor: $activeCommentAuthor
+                            ){ commentID, authorID in
+                                guard let user = currentUser else { return }
+                                Task {
+                                    await viewModel.deleteComment(
+                                        commentID: commentID,
+                                        authorID: authorID,
+                                        currentUserID: user.id
+                                    )
+                                }
+                            } onDeleteReply: { commentID, replyID, authorID in
+                                guard let user = currentUser else { return }
+                                Task {
+                                    await viewModel.deleteReply(
+                                        commentID: commentID,
+                                        replyID: replyID,
+                                        authorID: authorID,
+                                        currentUserID: user.id
+                                    )
+                                }
+                            }
                         }
                     }
-                    Spacer(minLength: 100)
+                    Spacer(minLength: 16)
                 }
                 .padding()
             }
+            .scrollDismissesKeyboard(.interactively)
             .task {
                 await fetchCurrentUser()
                 await viewModel.loadComments()
             }
             .safeAreaInset(edge: .bottom) {
-                replyInputBar
+                if !isCollapsed {
+                    replyInputBar
+                }
             }
-            .animation(.easeInOut(duration: 0.2), value: activeCommentID)
         }
+        .animation(.easeInOut(duration: 0.2), value: activeCommentID)
     }
 
     // MARK: - Subviews
-
     @ViewBuilder
     private var replyInputBar: some View {
-        if activeCommentID != nil {
-            VStack(spacing: 0) {
-                ReplyField(text: $replyText, isActive: true) {
-                    submitReply()
+        VStack(spacing: 0) {
+            
+            // Chip que aparece solo cuando estás respondiendo
+            if let author = activeCommentAuthor {
+                HStack {
+                    Image(systemName: "arrowshape.turn.up.left.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.appTeal)
+                    
+                    Text("Replying to \(author)")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color.appTeal)
+                    
+                    Spacer()
+                    
+                    Button {
+                        withAnimation {
+                            activeCommentID = nil
+                            activeCommentAuthor = nil
+                        }
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(.secondary)
+                    }
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 8)
+                .padding(.horizontal, 48)
+                .padding(.vertical, 8)
+                .background()
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
-            .transition(.move(edge: .bottom).combined(with: .opacity))
+            
+            ReplyField(
+                text: $replyText,
+                placeholder: activeCommentID == nil ? "Start a new thread. . ." : "Write your reply...",
+                isActive: true
+            ) {
+                submitReply()
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 8)
         }
+        .animation(.easeInOut(duration: 0.2), value: activeCommentID)
     }
 
     // MARK: - Private Methods
 
     private func fetchCurrentUser() async {
-        currentUser = AppUser(
-            id: "rcONSHwWXHbUo3NsO6bhg0J4D8u2",
-            email: "test@test.com",
-            profilePictureURL: nil,
-            username: "Kimberly Marquez"
-        )
+        guard let firebaseUser = Auth.auth().currentUser else {
+            print("No authenticated user found")
+            return
+        }
+        let db = Firestore.firestore()
+        do {
+            let doc = try await db
+                .collection("users")
+                .document(firebaseUser.uid)
+                .getDocument()
+            guard let data = doc.data() else { return }
+            
+            currentUser = AppUser(
+                id: doc.documentID,
+                email: data["email"] as? String ?? "",
+                profilePictureURL: data["profilePictureURL"] as? String,
+                username: data["username"] as? String ?? ""
+            )
+            print("User loaded: \(currentUser?.username ?? "nil")")
+        } catch {
+            print("Error fetching user: \(error)")
+        }
     }
 
     private func submitReply() {
-        guard let commentID = activeCommentID,
-              !replyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              let user = currentUser
-        else { return }
+        let trimmed = replyText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, let user = currentUser else { return }
 
         Task {
-            await viewModel.postReply(
-                to: commentID,
-                content: replyText,
-                author: user
-            )
+            if let commentID = activeCommentID {
+                await viewModel.postReply(
+                    to: commentID,
+                    content: trimmed,
+                    author: user
+                )
+            } else {
+                await viewModel.postComment(
+                    content: trimmed,
+                    author: user
+                )
+            }
             replyText = ""
-            withAnimation { activeCommentID = nil }
-            await viewModel.loadComments()
+            withAnimation {
+                activeCommentID = nil
+                activeCommentAuthor = nil
+            }
         }
     }
 }

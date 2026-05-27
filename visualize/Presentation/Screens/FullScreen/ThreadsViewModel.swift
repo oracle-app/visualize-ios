@@ -5,10 +5,7 @@
 //  Created by Kimberly Marquez on 03/05/26.
 //
 //  Manages comments and thread replies for a visualization.
-//  - Loads comments and nested replies from Firestore in parallel
-//  - Posts new replies and refreshes the comments list
-//  - Caches user data to avoid redundant Firestore fetches
-//  - Enriches replies with author info and relative timestamps
+//  Delegates all business logic to Use Cases.
 
 import Foundation
 import FirebaseFirestore
@@ -22,18 +19,34 @@ class ThreadsViewModel {
 
     var comments: [Comment] = []
     var isLoading = false
-    var threadError: String?
+    var error: String?
 
-    private let db = Firestore.firestore()
     private let visualizationID: String
     private let isPreview: Bool
-    private var userCache: [String: AppUser] = [:]
-
+    private let loadCommentsUseCase: LoadCommentsUseCase
+    private let postCommentUseCase: PostCommentUseCase
+    private let postReplyUseCase: PostReplyUseCase
+    private let deleteCommentUseCase: DeleteCommentUseCase
+    private let deleteReplyUseCase: DeleteReplyUseCase
+    
     // MARK: - Init
 
-    init(visualizationID: String, isPreview: Bool = false) {
+    init(
+        visualizationID: String,
+        isPreview: Bool = false,
+        loadCommentsUseCase: LoadCommentsUseCase = LoadCommentsUseCase(),
+        postCommentUseCase: PostCommentUseCase = PostCommentUseCase(),
+        postReplyUseCase: PostReplyUseCase = PostReplyUseCase(),
+        deleteCommentUseCase: DeleteCommentUseCase = DeleteCommentUseCase(),
+        deleteReplyUseCase: DeleteReplyUseCase = DeleteReplyUseCase()
+    ) {
         self.visualizationID = visualizationID
         self.isPreview = isPreview
+        self.loadCommentsUseCase = loadCommentsUseCase
+        self.postCommentUseCase = postCommentUseCase
+        self.postReplyUseCase = postReplyUseCase
+        self.deleteCommentUseCase = deleteCommentUseCase
+        self.deleteReplyUseCase = deleteReplyUseCase
     }
 
     #if DEBUG
@@ -42,18 +55,19 @@ class ThreadsViewModel {
         vm.comments = [
             Comment(
                 id: "c1",
-                authorID: "Kimberly Marquez",
+                authorID: "u1",
                 authorName: "Kimberly Marquez",
-                content: "Este es un comentario de prueba",
-                createdAt: Timestamp(date: Date()),
+                content: "This is a test comment",
+                imageURL: nil,
+                createdAt: .init(date: .now),
                 threads: [
                     ThreadReply(
                         id: "r1",
                         authorID: "u1",
                         authorName: "Diana Escalante",
-                        authorAvatarURL: "",
-                        createdAt: Timestamp(date: Date()),
-                        content: "Este es un reply de prueba",
+                        authorAvatarURL: nil,
+                        createdAt: .init(date: .now),
+                        content: "This is a test reply",
                         timeAgo: "5 min ago"
                     )
                 ]
@@ -65,182 +79,72 @@ class ThreadsViewModel {
 
     // MARK: - Public Methods
 
-    /// Loads all comments and their thread replies for the current visualization.
     func loadComments() async {
         guard !isPreview else { return }
         isLoading = true
         defer { isLoading = false }
 
         do {
-            let snapshot = try await db
-                .collection("visualizations")
-                .document(visualizationID)
-                .collection("comments")
-                .order(by: "createdAt", descending: false)
-                .getDocuments()
-
-            var loaded: [Comment] = snapshot.documents.compactMap {
-                try? $0.data(as: Comment.self)
-            }
-
-            // Enrich threads and author names in parallel
-            await withTaskGroup(of: (Int, [ThreadReply]).self) { group in
-                for i in loaded.indices {
-                    guard let commentID = loaded[i].id else { continue }
-                    group.addTask {
-                        let threads = await self.loadThreads(commentID: commentID)
-                        return (i, threads)
-                    }
-                }
-                for await (index, threads) in group {
-                    loaded[index].threads = threads
-                }
-            }
-
-            // Enrich comment author names after threads are loaded
-            for i in loaded.indices {
-                loaded[i] = await enrichCommentAuthor(comment: loaded[i])
-            }
-
-            comments = loaded
+            comments = try await loadCommentsUseCase.execute(visualizationID: visualizationID)
         } catch {
-            threadError = error.localizedDescription
+            self.error = error.localizedDescription
+        }
+    }
+    
+    func postComment(content: String, author: AppUser) async {
+        do {
+            try await postCommentUseCase.execute(
+                visualizationID: visualizationID,
+                author: author,
+                content: content
+            )
+            await loadComments()
+        } catch {
+            self.error = error.localizedDescription
         }
     }
 
     /// Posts a reply under the given comment and refreshes the comments list.
     func postReply(to commentID: String, content: String, author: AppUser) async {
-        let data: [String: Any] = [
-            "authorID": author.id,
-            "authorName": author.username,
-            "authorAvatarURL": author.profilePictureURL ?? "",
-            "content": content,
-            "createdAt": Timestamp()
-        ]
-
         do {
-            try await db
-                .collection("visualizations")
-                .document(visualizationID)
-                .collection("comments")
-                .document(commentID)
-                .collection("threads")
-                .addDocument(data: data)
+            try await postReplyUseCase.execute(
+                visualizationID: visualizationID,
+                commentID: commentID,
+                author: author,
+                content: content
+            )
+            await loadComments()
         } catch {
-            threadError = error.localizedDescription
+            self.error = error.localizedDescription
         }
     }
-
-    // MARK: - Private Methods
-
-    /// Fetches and enriches all thread replies for a given comment.
-    private func loadThreads(commentID: String) async -> [ThreadReply] {
+    
+    func deleteComment(commentID: String, authorID: String, currentUserID: String) async {
         do {
-            let snapshot = try await db
-                .collection("visualizations")
-                .document(visualizationID)
-                .collection("comments")
-                .document(commentID)
-                .collection("threads")
-                .order(by: "createdAt", descending: false)
-                .getDocuments()
-
-            var replies: [ThreadReply] = snapshot.documents.compactMap {
-                try? $0.data(as: ThreadReply.self)
-            }
-
-            await withTaskGroup(of: (Int, ThreadReply).self) { group in
-                for i in replies.indices {
-                    group.addTask {
-                        let enriched = await self.enrichWithUser(reply: replies[i])
-                        return (i, enriched)
-                    }
-                }
-                for await (index, enrichedReply) in group {
-                    replies[index] = enrichedReply
-                }
-            }
-
-            return replies
+            try await deleteCommentUseCase.execute(
+                visualizationID: visualizationID,
+                commentID: commentID,
+                requestingUserID: currentUserID,
+                authorID: authorID
+            )
+            await loadComments()
         } catch {
-            threadError = error.localizedDescription
-            return []
+            self.error = error.localizedDescription
         }
     }
-
-    /// Resolves the author name for a comment from Firestore, using the cache when possible.
-    private func enrichCommentAuthor(comment: Comment) async -> Comment {
-        var updated = comment
-
-        // If Firestore already stored a real authorName (not a UID), just use it
-        if let name = comment.authorName, !name.isEmpty, name != comment.authorID, name.contains(" ") || name.count < 30 {
-            return updated
-        }
-
-        if let cached = userCache[comment.authorID] {
-            updated.authorName = cached.username
-            return updated
-        }
-
+    
+    func deleteReply(commentID: String, replyID: String, authorID: String, currentUserID: String) async {
         do {
-            let doc = try await db
-                .collection("users")
-                .document(comment.authorID)
-                .getDocument()
-            if let username = doc.data()?["username"] as? String, !username.isEmpty {
-                updated.authorName = username
-            }
+            try await deleteReplyUseCase.execute(
+                visualizationID: visualizationID,
+                commentID: commentID,
+                replyID: replyID,
+                requestingUserID: currentUserID,
+                authorID: authorID
+            )
+            await loadComments()
         } catch {
-            updated.authorName = nil
-        }
-
-        return updated
-    }
-
-    /// Fills in author info and relative timestamp on a reply, using the cache when possible.
-    private func enrichWithUser(reply: ThreadReply) async -> ThreadReply {
-        var enriched = reply
-
-        if !enriched.authorName.isEmpty {
-            enriched.timeAgo = reply.createdAt.dateValue().timeAgoDisplay()
-            return enriched
-        }
-
-        if let cachedUser = userCache[reply.authorID] {
-            enriched.authorName = cachedUser.username
-            enriched.authorAvatarURL = cachedUser.profilePictureURL
-            enriched.timeAgo = reply.createdAt.dateValue().timeAgoDisplay()
-            return enriched
-        }
-
-        do {
-            let doc = try await db
-                .collection("users")
-                .document(reply.authorID)
-                .getDocument()
-            let user = try doc.data(as: AppUser.self)
-            userCache[reply.authorID] = user
-            enriched.authorName = user.username
-            enriched.authorAvatarURL = user.profilePictureURL
-            enriched.timeAgo = reply.createdAt.dateValue().timeAgoDisplay()
-        } catch {
-            enriched.authorName = "Unknown"
-        }
-
-        return enriched
-    }
-}
-
-// MARK: - Date Extension
-
-extension Date {
-    func timeAgoDisplay() -> String {
-        let seconds = Int(Date().timeIntervalSince(self))
-        switch seconds {
-        case ..<60: return "just now"
-        case ..<3600: return "\(seconds / 60) min ago"
-        case ..<86400: return "\(seconds / 3600) hr ago"
-        default: return "\(seconds / 86400) days ago"
+            self.error = error.localizedDescription
         }
     }
 }
