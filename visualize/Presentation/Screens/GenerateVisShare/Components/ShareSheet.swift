@@ -108,7 +108,7 @@ struct ShareSheet: View {
                     .frame(maxWidth: 360)
                     .frame(height: 45)
                     .background(Color.appTeal.opacity(selectedOption == .personal ? 1 : 0))
-                    .background(.white)
+                    .background(AppColors.UI.screenBackground)
                     .clipShape(.capsule)
                     .overlay(Capsule().stroke(Color.appTeal, lineWidth: 1.5))
                     .overlay(
@@ -134,7 +134,7 @@ struct ShareSheet: View {
                     .foregroundStyle(Color.appTeal)
                     .frame(maxWidth: 360)
                     .frame(height: 45)
-                    .background(.white)
+                    .background(AppColors.UI.screenBackground)
                     .clipShape(.capsule)
                     .overlay(Capsule().stroke(Color.appTeal, lineWidth: 1.5))
             }

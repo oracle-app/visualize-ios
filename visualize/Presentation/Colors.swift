@@ -75,7 +75,7 @@ enum AppColors {
 
     enum UI {
         static let background = Color("ComponentBackground")
-        static let cardShare = Color("CardShare")
+        static let card = Color("Card")
         static let screenBackground = Color("AppBackground")
         static let authErrorBackground = Color("AuthErrorBackground")
         static let authButtonIcon = Color("AuthButtonIcon")
