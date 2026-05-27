@@ -23,6 +23,7 @@ struct FullScreenView: View {
     @State private var viewModel: FullScreenViewModel
     @State private var chartLoadID = UUID()
     @State private var showThreads = true
+    @State private var isSnipping = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
@@ -131,6 +132,7 @@ struct FullScreenView: View {
                     Button {
                         if let chart = viewModel.parsedChart {
                             showThreads = false
+                            isSnipping = true
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                 Task { await viewModel.captureChartForEditor(chart) }
                             }
@@ -171,6 +173,7 @@ struct FullScreenView: View {
                 onDismiss: {
                     viewModel.dismissEditor()
                     showThreads = true
+                    isSnipping = false
                 }
             )
         }
@@ -179,7 +182,7 @@ struct FullScreenView: View {
         } message: {
             Text("Could not capture the chart. Please try again.")
         }
-        .preventScreenShot()
+        .preventScreenShot(isActive: !isSnipping)
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: Binding(

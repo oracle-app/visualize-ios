@@ -165,6 +165,7 @@ struct Login: View {
                 coordinator.login()
             }
         }
+        .portraitOrientationLock()
     }
 }
 

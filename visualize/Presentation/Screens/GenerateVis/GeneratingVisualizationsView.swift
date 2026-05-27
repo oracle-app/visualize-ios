@@ -35,6 +35,7 @@ struct GeneratingVisualizationsView: View {
                 coordinator.navigateToVizReady(with: viewModel.suggestions)
             }
         }
+        .portraitOrientationLock()
     }
 
     private var centerContent: some View {

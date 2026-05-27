@@ -98,6 +98,7 @@ struct VizReadyView: View {
         .sheet(isPresented: $showShareSheet) {
             shareSheet
         }
+        .portraitOrientationLock()
     }
  
     // MARK: - Private views

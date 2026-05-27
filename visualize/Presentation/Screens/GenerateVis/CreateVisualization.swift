@@ -132,6 +132,7 @@ struct CreateVisualization: View {
                 viewModel.errorMessage = "Error selecting file: \(error.localizedDescription)"
             }
         }
+        .portraitOrientationLock()
         .background(Color.appBackground.ignoresSafeArea())
     }
 }
