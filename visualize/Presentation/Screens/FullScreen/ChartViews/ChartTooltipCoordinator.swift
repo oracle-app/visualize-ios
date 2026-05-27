@@ -149,9 +149,9 @@ class ChartTooltipCoordinator: NSObject {
         let tappedY = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
         if isHorizontalChart {
             let tappedX = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
-            guard tappedX >= 0 && tappedX <= yValue else { return false }
+            guard tappedX >= min(0, yValue) && tappedX <= max(0, yValue) else { return false }
         } else {
-            guard tappedY >= 0 && tappedY <= yValue else { return false }
+            guard tappedY >= min(0, yValue) && tappedY <= max(0, yValue) else { return false }
         }
 
         let displayX: Double
