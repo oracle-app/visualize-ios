@@ -55,6 +55,19 @@ struct EditTeamScreen: View {
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
+        .overlay(alignment: .bottom) {
+            if let toast = viewModel.currentToast {
+                ToastView(toast: toast)
+                    .padding(.bottom, 24)
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                            removal: .opacity.combined(with: .scale(scale: 0.95))
+                        )
+                    )
+            }
+        }
+        .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
@@ -65,9 +78,13 @@ struct EditTeamScreen: View {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Confirm", systemImage: "checkmark") {
                     Task {
-                        try? await viewModel.confirmChanges()
-                        onConfirm()
-                        dismiss()
+                        do {
+                            try await viewModel.confirmChanges()
+                            onConfirm()
+                            dismiss()
+                        } catch {
+                            // The error toast was already shown by the ViewModel; the sheet remains open.
+                        }
                     }
                 }
                 .tint(Color.primaryOrange)

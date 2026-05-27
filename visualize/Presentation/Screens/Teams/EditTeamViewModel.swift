@@ -44,10 +44,14 @@ final class EditTeamViewModel {
     private(set) var members: [AppUser] = []
     private(set) var suggestedUsers: [AppUser] = []
     private(set) var isLoading = false
+    private(set) var currentToast: Toast?
     private(set) var error: String?
     
     /// Search task used for debounce.
     private var searchTask: Task<Void, Never>?
+    
+    @ObservationIgnored
+    private var toastTask: Task<Void, Never>?
 
     // MARK: - Computed
     /// The team owner, if present in the members list.
@@ -101,16 +105,31 @@ final class EditTeamViewModel {
  
     /// Executes the email search and updates `suggestedUsers`, excluding current members.
     private func performSearch() async {
+        let query = email
         isLoading = true
-        error = nil
         defer { isLoading = false }
         do {
-            let results = try await userRepository.getUserSuggestionsByEmail(email: email)
+            let results = try await userRepository.getUserSuggestionsByEmail(email: query)
+            guard query == email else { return }
             suggestedUsers = results.filter { candidate in
                 !members.contains(where: { $0.id == candidate.id })
             }
         } catch {
-            self.error = "Failed to search users"
+            showToast("Failed to search users", type: .error)
+        }
+    }
+    
+    // MARK: - Toast
+
+    /// Shows a toast and auto-dismisses it after a short delay.
+    private func showToast(_ message: String, type: ToastType) {
+        toastTask?.cancel()
+        currentToast = Toast(message: message, type: type)
+        toastTask = Task {
+            try? await Task.sleep(for: .seconds(2.5))
+            if !Task.isCancelled {
+                currentToast = nil
+            }
         }
     }
  
@@ -144,8 +163,14 @@ final class EditTeamViewModel {
     }
  
     /// Persists the current members list, updating only the team's `membersIDs`.
+    /// The owner is excluded so it is not written back into `membersIDs`.
     func confirmChanges() async throws {
-        let membersIDs = members.map { $0.id }
-        try await teamRepository.updateTeamMembers(teamID: teamID, membersIDs: membersIDs)
+        do {
+            let membersIDs = nonOwnerMembers.map { $0.id }
+            try await teamRepository.updateTeamMembers(teamID: teamID, membersIDs: membersIDs)
+        } catch {
+            showToast("Failed to update team", type: .error)
+            throw error
+        }
     }
 }
