@@ -1,9 +1,8 @@
-
 //
 //  ToastView.swift
 //  visualize
 //
-//  Created by Soporte on 07/05/26.
+//  Created by Diana Escalante on 07/05/26.
 //
 
 import SwiftUI
