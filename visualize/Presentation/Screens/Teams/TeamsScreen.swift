@@ -76,19 +76,17 @@ struct TeamsScreen: View {
                         }
 
                         if expandedTeamIDs.contains(team.id) {
-                            let owner = team.members.first
-                            let others = Array(team.members.dropFirst())
-                            
-                            if let owner {
-                                OwnerRowView(user: owner)
-                                    .listRowInsets(EdgeInsets(top: 4, leading: 32, bottom: 4, trailing: 16))
-                                    .listRowBackground(Color.appMint.opacity(0.6))
-                            }
- 
-                            ForEach(others) { member in
-                                UserRowView(user: member)
-                                    .listRowInsets(EdgeInsets(top: 4, leading: 32, bottom: 4, trailing: 16))
-                                    .listRowBackground(Color.appMint.opacity(0.6))
+                            ForEach(team.members) { member in
+                                let _ = print("member:", member.id, "owner:", team.ownerID, "match:", member.id == team.ownerID)
+                                Group {
+                                    if member.id == team.ownerID {
+                                        OwnerRowView(user: member)
+                                    } else {
+                                        UserRowView(user: member)
+                                    }
+                                }
+                                .listRowInsets(EdgeInsets(top: 4, leading: 32, bottom: 4, trailing: 16))
+                                .listRowBackground(Color.appMint.opacity(0.6))
                             }
                         }
                     }

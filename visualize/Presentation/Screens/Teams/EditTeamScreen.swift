@@ -90,7 +90,7 @@ struct EditTeamScreen: View {
             List {
                 Section {
                     if viewModel.members.isEmpty {
-                        Text("Search for members to add to your team.")
+                        Text("Search for teammates to add members.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -98,15 +98,25 @@ struct EditTeamScreen: View {
                             .listRowBackground(Color.clear)
                             .listRowInsets(EdgeInsets())
                     } else {
-                        UsersListView(
-                            users: viewModel.members,
-                            onRemove: { viewModel.removeUser($0) }
-                        )
+                        VStack(spacing: 0) {
+                            if let owner = viewModel.owner {
+                                OwnerRowView(user: owner)
+
+                                if !viewModel.nonOwnerMembers.isEmpty {
+                                    Divider()
+                                }
+                            }
+
+                            UsersListView(
+                                users: viewModel.nonOwnerMembers,
+                                onRemove: { viewModel.removeUser($0) }
+                            )
+                        }
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                     }
                 } header: {
-                    Text("Member list")
+                    Text("Members")
                         .foregroundStyle(Color.primaryText)
                 }
             }

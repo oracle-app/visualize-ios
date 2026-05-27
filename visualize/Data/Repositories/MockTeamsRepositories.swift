@@ -20,15 +20,15 @@ final class MockTeamRepository: TeamRepository {
 
     func getTeamsUserOwns(userID: String) async throws -> [Team] {
         [
-            Team(id: "t1", name: "Design Team", memberCount: 3, members: Array(mockMembers.prefix(3))),
-            Team(id: "t2", name: "Backend Crew", memberCount: 2, members: Array(mockMembers.prefix(2)))
+            Team(id: "t1", name: "Design Team", ownerID: "u1", memberCount: 3, members: Array(mockMembers.prefix(3))),
+            Team(id: "t2", name: "Backend Crew", ownerID: "u1", memberCount: 2, members: Array(mockMembers.prefix(2)))
         ]
     }
 
     func getTeamsUserIsIn(userID: String) async throws -> [Team] {
         [
-            Team(id: "t3", name: "Marketing", memberCount: 4, members: mockMembers),
-            Team(id: "t4", name: "QA Squad", memberCount: 1, members: Array(mockMembers.prefix(1)))
+            Team(id: "t3", name: "Marketing", ownerID: "u1", memberCount: 4, members: mockMembers),
+            Team(id: "t4", name: "QA Squad", ownerID: "u1", memberCount: 1, members: Array(mockMembers.prefix(1)))
         ]
     }
 

@@ -18,19 +18,19 @@ import Foundation
 @MainActor
 @Observable
 final class EditTeamViewModel {
- 
+    
     // MARK: - Dependencies
- 
+    
     private let teamRepository: any TeamRepository
     private let userRepository: any UserRepository
- 
+    
     // MARK: - Constants
- 
+    
     private let teamID: String
     private let ownerID: String
- 
+    
     // MARK: - Input State
- 
+    
     /// Current text in the email search field.
     /// Setting this value automatically schedules a debounced user search.
     var email: String = "" {
@@ -38,16 +38,27 @@ final class EditTeamViewModel {
             scheduleSearch()
         }
     }
- 
+    
     // MARK: - UI State
- 
+    
     private(set) var members: [AppUser] = []
     private(set) var suggestedUsers: [AppUser] = []
     private(set) var isLoading = false
     private(set) var error: String?
- 
+    
     /// Search task used for debounce.
     private var searchTask: Task<Void, Never>?
+
+    // MARK: - Computed
+    /// The team owner, if present in the members list.
+    var owner: AppUser? {
+        members.first { $0.id == ownerID }
+    }
+
+    /// All members except the owner.
+    var nonOwnerMembers: [AppUser] {
+        members.filter { $0.id != ownerID }
+    }
  
     // MARK: - Init
  

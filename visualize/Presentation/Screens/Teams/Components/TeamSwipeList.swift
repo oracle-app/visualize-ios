@@ -77,11 +77,10 @@ struct TeamSwipeRow: View {
 #Preview {
     TeamsSwipeList(
         teams: [
-            Team(id: "1", name: "Design Team", memberCount: 3, members: []),
-            Team(id: "2", name: "Backend Crew", memberCount: 5, members: [])
+            Team(id: "1", name: "Design Team", ownerID: "1", memberCount: 3, members: []),
+            Team(id: "2", name: "Backend Crew", ownerID: "1", memberCount: 5, members: [])
         ],
         onDelete: { _ in },
         onEdit: { _ in }
     )
 }
-
