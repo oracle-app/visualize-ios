@@ -107,13 +107,13 @@ struct VizReadyView: View {
     private var expandedHeader: some View {
         VStack(spacing: 8) {
             VStack(spacing: 8) {
-                Text("Your visualizations are ready!")
+                Text(String(localized: "Your visualizations are ready!"))
                     .font(.system(size: 25, weight: .bold))
                     .foregroundStyle(Color.appNavy)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8)
  
-                Text("We've generated several charts based\non your dataset.")
+                Text(String(localized: "We've generated several charts based\non your dataset."))
                     .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(Color.appSubtitle)
                     .multilineTextAlignment(.center)
@@ -123,7 +123,7 @@ struct VizReadyView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
  
-            Text("Choose the chart that best represents the insights you want to share")
+            Text(String(localized: "Choose the chart that best represents the insights you want to share"))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Color.appSubtitle.opacity(0.8))
                 .frame(maxWidth: .infinity, alignment: .leading)

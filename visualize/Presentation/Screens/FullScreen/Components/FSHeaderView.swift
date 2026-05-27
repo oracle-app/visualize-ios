@@ -23,8 +23,8 @@ struct FSHeaderView: View {
     private var sharedWithText: String {
         switch members.count {
         case 0: return ""
-        case 1: return "Shared with 1 member"
-        default: return "Shared with \(members.count) members"
+        case 1: return String(localized: "Shared with 1 member")
+        default: return String(localized: "Shared with \(members.count) members")
         }
     }
 

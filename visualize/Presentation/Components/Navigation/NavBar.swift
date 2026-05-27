@@ -104,9 +104,27 @@ struct NavBar: View {
 
             // Profile
             NavigationStack(path: $coordinator.profilePath) {
+                let authRepository = AuthRepositoryImpl(source: AuthFirebaseDatasource())
+                let userRepository = UserRepositoryImpl(userDatasource: UserDatasource())
+
+                let uploadProfilePhotoUseCase = UploadProfilePhotoUseCase(
+                    authRepository: authRepository,
+                    userRepository: userRepository
+                )
+                
+                let deleteProfilePhotoUseCase = DeleteProfilePhotoUseCase(
+                    authRepository: authRepository,
+                    userRepository: userRepository
+                )
+
                 ProfileScreenView(
-                    logoutUseCase: logoutUseCase,
-                    getCurrentUserProfileUseCase: getCurrentUserProfileUseCase
+                    logoutUseCase: LogoutUseCase(repository: authRepository),
+                    getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase(
+                        authRepository: authRepository,
+                        userRepository: userRepository
+                    ),
+                    uploadProfilePhotoUseCase: uploadProfilePhotoUseCase,
+                    deleteProfilePhotoUseCase: deleteProfilePhotoUseCase
                 )
             }
             .tabItem { Label("", systemImage: "person.circle") }

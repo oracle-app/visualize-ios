@@ -126,7 +126,7 @@ class ShareTeammatesViewModel {
                 !selectedUsers.contains(where: { $0.id == candidate.id })
             }
         } catch {
-            self.error = "Failed to search users"
+            self.error = String(localized: "Failed to search users")
         }
     }
     // MARK: - Actions
@@ -181,7 +181,7 @@ class ShareTeammatesViewModel {
                 joinedTeams = try await joinedTeamsRequest
                 selectedTeamIDs = Set(initialTeamIDs)
             } catch {
-                self.error = "Error loading teams"
+                self.error = String(localized: "Error loading teams")
             }
         }
 

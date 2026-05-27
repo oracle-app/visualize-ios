@@ -14,7 +14,7 @@ import SwiftUI
 struct FeedCard: View {
     @State private var showAlert1 = false
     @State private var showAlert2 = false
-    @State private var chart: ChartData? = nil
+    @State private var chart: ChartData?
     var visualizationID: String
     var previewJSON: String
     var title: String
@@ -24,7 +24,7 @@ struct FeedCard: View {
     var onTap: () -> Void
     var onHide: () -> Void
     var onDelete: () -> Void
-    var sharedWith: [AppUser]? = nil
+    var sharedWith: [AppUser]?
     var isOwner: Bool = false
     let maxAvatars = 3
     /// TO DO: Image Implementation that uses profilePictureURL
@@ -40,10 +40,10 @@ struct FeedCard: View {
         
         if interval < 3600 {
             let minutes = Int(interval / 60)
-            return minutes <= 1 ? "Just now" : "\(minutes) minutes ago"
+            return minutes <= 1 ? String(localized: "Just now") : String(localized: "\(minutes) minutes ago")
         } else if interval < 86400 {
             let hours = Int(interval / 3600)
-            return hours == 1 ? "1 hour ago" : "\(hours) hours ago"
+            return hours == 1 ? String(localized: "1 hour ago") : String(localized: "\(hours) hours ago")
         } else {
             return date.formatted(date: .abbreviated, time: .omitted)
         }
@@ -52,13 +52,14 @@ struct FeedCard: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 5){
+                VStack(alignment: .leading, spacing: 5) {
                     Text(title)
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(Color.primaryText)
-                        .minimumScaleFactor(0.5)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.6)
                     HStack(spacing: 12) {
-                        Text("by \(isOwner ? "me" : author)")
+                        Text(String(localized: "by \(isOwner ? "me" : author)"))
                         Text("•")
                         Text(formattedDate)
                     }

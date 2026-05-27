@@ -88,7 +88,7 @@ struct CheckEmailView: View {
                         Button {
                             viewModel.resend()
                         } label: {
-                            Text(viewModel.isResending ? "Sending..." : "Resend email")
+                            Text(viewModel.isResending ? String(localized: "Sending...") : String(localized: "Resend email"))
                                 .underline()
                                 .foregroundColor(Color(Color.primaryOrange))
                         }
