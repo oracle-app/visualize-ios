@@ -7,7 +7,6 @@ disabled_rules:
   - type_body_length
   - comma
   - type_name
-  - opening_brace
 
 file_length:
   warning: 600
