@@ -28,7 +28,8 @@ final class ProfileScreenViewModel {
             .action(String(localized: "Terms of Service")) { [weak self] in
                 self?.openTermsOfService()
             },
-            .action(String(localized: "Licenses and open source libraries")) { [weak self] in                self?.openLicenses()
+            .action(String(localized: "Licenses and open source libraries")) { [weak self] in
+                self?.openLicenses()
             }
         ]
     }
