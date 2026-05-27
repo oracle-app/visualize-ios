@@ -76,7 +76,16 @@ struct TeamsScreen: View {
                         }
 
                         if expandedTeamIDs.contains(team.id) {
-                            ForEach(team.members) { member in
+                            let owner = team.members.first
+                            let others = Array(team.members.dropFirst())
+                            
+                            if let owner {
+                                OwnerRowView(user: owner)
+                                    .listRowInsets(EdgeInsets(top: 4, leading: 32, bottom: 4, trailing: 16))
+                                    .listRowBackground(Color.appMint.opacity(0.6))
+                            }
+ 
+                            ForEach(others) { member in
                                 UserRowView(user: member)
                                     .listRowInsets(EdgeInsets(top: 4, leading: 32, bottom: 4, trailing: 16))
                                     .listRowBackground(Color.appMint.opacity(0.6))
@@ -135,7 +144,6 @@ struct TeamsScreen: View {
         }
         .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
         .appBackground()
-        .portraitOrientationLock()
     }
 
     // MARK: Helpers

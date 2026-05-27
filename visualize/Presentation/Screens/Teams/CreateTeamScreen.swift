@@ -252,37 +252,10 @@ struct CreateTeamScreen: View {
 
                         VStack(spacing: 0) {
 
-                            // MARK: - Owner Row
-                            
+                        // MARK: - Owner Row
+
                             if let owner {
-                                HStack(spacing: 12) {
-                                    
-                                    UserAvatarView(
-                                        user: owner,
-                                        size: 40,
-                                        showBorder: false
-                                    )
-                                    
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        
-                                        Text(owner.username)
-                                            .font(.body.weight(.bold))
-                                            .foregroundStyle(Color.primaryText)
-
-                                        Text(owner.email)
-                                            .font(.subheadline)
-                                            .foregroundStyle(Color.primaryText)
-                                            .opacity(0.5)
-                                    }
-
-                                    Spacer()
-
-                                    Text("owner")
-                                        .font(.system(size: 13))
-                                        .foregroundStyle(Color.appSubtitle)
-                                        .fontWeight(.semibold)
-                                }
-                                .padding(8)
+                                OwnerRowView(user: owner)
 
                                 if !nonOwnerMembers.isEmpty {
                                     Divider()
@@ -290,13 +263,13 @@ struct CreateTeamScreen: View {
                             }
 
                             // MARK: - Team Members
-                            
+
                             if !nonOwnerMembers.isEmpty {
                                 ForEach(
                                     Array(nonOwnerMembers.enumerated()),
                                     id: \.element.id
                                 ) { index, user in
-                                    
+
                                     UserRowView(
                                         user: user,
                                         onRemove: {
