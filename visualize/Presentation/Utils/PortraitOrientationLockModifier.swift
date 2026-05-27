@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct PortraitOrientationLockModifier: ViewModifier {
+    let isEnabled: Bool
+
     func body(content: Content) -> some View {
         content
             .onAppear {
+                guard isEnabled else { return }
                 AppDelegate.orientationLock = .portrait
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                     windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
@@ -19,11 +22,24 @@ struct PortraitOrientationLockModifier: ViewModifier {
             .onDisappear {
                 AppDelegate.orientationLock = .all
             }
+            .onChange(of: isEnabled) { _, enabled in
+                if enabled {
+                    AppDelegate.orientationLock = .portrait
+                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                        windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+                    }
+                } else {
+                    AppDelegate.orientationLock = .all
+                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                        windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .all))
+                    }
+                }
+            }
     }
 }
 
 extension View {
-    func portraitOrientationLock() -> some View {
-        self.modifier(PortraitOrientationLockModifier())
+    func portraitOrientationLock(_ isEnabled: Bool = true) -> some View {
+        self.modifier(PortraitOrientationLockModifier(isEnabled: isEnabled))
     }
 }
