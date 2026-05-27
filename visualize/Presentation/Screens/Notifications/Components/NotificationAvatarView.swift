@@ -11,7 +11,7 @@ struct NotificationAvatarView: View {
     let initials: String
     let color: Color
     let size: CGFloat
-    var avatarURL: String? = nil
+    var avatarURL: String?
 
     var body: some View {
         ZStack {

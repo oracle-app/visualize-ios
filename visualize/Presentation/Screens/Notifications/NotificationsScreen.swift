@@ -68,10 +68,14 @@ struct NotificationsScreen: View {
 
     // MARK: - Loaded view
 
+    // MARK: - Loaded view
+
     private func loadedView(groups: [NotificationDisplayGroup]) -> some View {
-        VStack(alignment: .leading, spacing: 28) {
+        VStack(alignment: .leading, spacing: 20) {
             ForEach(groups) { group in
-                if !group.items.isEmpty || group.id == "Today" {
+                
+                if !group.items.isEmpty || group.id == "Today" || group.id == "Yesterday" {
+                    
                     VStack(alignment: .leading, spacing: 12) {
                         Text(group.title)
                             .font(.system(size: 18, weight: .bold))
@@ -83,7 +87,7 @@ struct NotificationsScreen: View {
                                 .font(.system(size: 16))
                                 .foregroundStyle(Color.appSubtitle)
                                 .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.vertical, 20)
+                                .padding(.bottom, 8)
                         } else {
                             NotificationGroupCard(
                                 group: group,
@@ -94,14 +98,13 @@ struct NotificationsScreen: View {
                     }
                 }
             }
-
             if case .loaded(let groups) = viewModel.state,
                groups.flatMap(\.items).count > 0 {
                 Text("No more notifications.")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(Color.appSubtitle)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, 12)
+                    .padding(.top, 8)
             }
         }
     }

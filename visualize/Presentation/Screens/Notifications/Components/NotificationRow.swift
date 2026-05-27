@@ -2,7 +2,6 @@
 //  NotificationRow.swift
 //  visualize
 //
-//  Created by Miguel Degollado
 
 import SwiftUI
 
@@ -21,17 +20,17 @@ struct NotificationRow: View {
                     avatarURL: item.avatarURL
                 )
                 .padding(.top, 2)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(item.timestamp)
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.appSubtitle)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-
+                HStack(alignment: .top, spacing: 8) {
                     Text("\(Text(item.boldPrefix).font(.system(size: 16, weight: .semibold)))\(Text(item.message).font(.system(size: 16)))")
                         .foregroundStyle(Color.appNavy)
                         .lineSpacing(3)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
+
+                    Text(item.timestamp)
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.appSubtitle)
+                        .fixedSize()
                 }
             }
             .padding(.vertical, 14)
