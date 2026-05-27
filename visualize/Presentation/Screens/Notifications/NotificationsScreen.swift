@@ -31,6 +31,9 @@ struct NotificationsScreen: View {
             NotificationCenter.default.post(name: .notificationsScreenDidDisappear, object: nil)
             viewModel.markAllAsRead()
         }
+        .refreshable {
+            viewModel.loadNotifications()
+        }
     }
 
     // MARK: - Content state switcher
