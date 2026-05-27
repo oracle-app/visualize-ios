@@ -94,7 +94,7 @@ struct FeedCard: View {
                         
                         Image(systemName: "ellipsis")
                             .font(.system(size: 22))
-                            .foregroundStyle(AppColors.UI.cardShare)
+                            .foregroundStyle(AppColors.UI.card)
                     }
                     .frame(width: 37, height: 37)
                     .contentShape(Circle())
