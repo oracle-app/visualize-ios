@@ -5,14 +5,11 @@
 //  Created by Diana Escalante on 20/05/26.
 //
 
-//
+import SwiftUI
+
 /// A scrollable list of teams the current user belongs to (but did not create).
 /// Tapping a row expands it to show all members vertically using UserRowView.
 /// Collapsed state shows team name, member count, and stacked avatars.
-//
-
-import SwiftUI
-
 struct TeamToggleRow: View {
 
     let team: Team

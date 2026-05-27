@@ -5,15 +5,12 @@
 //  Created by Diana Escalante on 18/05/26.
 //
 
-//
-/// ViewModel for TeamsScreen.
-/// Handles loading, deleting, and editing teams.
-/// Separates teams owned by the user from teams the user belongs to.
-//
-
 import SwiftUI
 import Observation
 
+/// ViewModel for TeamsScreen.
+/// Handles loading, deleting, and editing teams.
+/// Separates teams owned by the user from teams the user belongs to.
 @MainActor
 @Observable
 final class TeamsScreenViewModel {

@@ -5,14 +5,11 @@
 //  Created by Diana Escalante on 26/05/26.
 //
 
-//
+import SwiftUI
+
 /// Sheet that lets the team owner edit a team's members.
 /// Supports searching users by email to add new members and removing existing ones.
 /// On confirmation, persists the updated members list to the team.
-//
-
-import SwiftUI
-
 struct EditTeamScreen: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isFocused: Bool

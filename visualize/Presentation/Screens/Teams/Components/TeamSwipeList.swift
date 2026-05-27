@@ -5,14 +5,11 @@
 //  Created by Diana Escalante on 20/05/26.
 //
 
-//
+import SwiftUI
+
 /// A scrollable list of teams owned by the current user.
 /// Each row shows the team name, member count, and a stacked avatar group.
 /// Supports swipe-left actions to delete or edit a team.
-//
-
-import SwiftUI
-
 struct TeamsSwipeList: View {
 
     let teams: [Team]

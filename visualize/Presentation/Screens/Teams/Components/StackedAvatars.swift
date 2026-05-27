@@ -5,13 +5,10 @@
 //  Created by Diana Escalante on 20/05/26.
 //
 
-//
-/// Displays a horizontally stacked group of user avatars with optional overflow count.
-/// Reusable across team list components.
-//
-
 import SwiftUI
 
+/// Displays a horizontally stacked group of user avatars with optional overflow count.
+/// Reusable across team list components.
 struct StackedAvatars: View {
 
     let members: [AppUser]

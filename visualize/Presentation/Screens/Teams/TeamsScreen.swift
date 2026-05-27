@@ -5,15 +5,12 @@
 //  Created by Diana Escalante on 20/05/26.
 //
 
-//
+import SwiftUI
+
 /// The main screen for managing and browsing teams.
 /// Divided into two sections:
 ///   - "My Teams": teams created by the user, with swipe to delete or edit.
 ///   - "Teams I'm In": teams the user belongs to, with tap-to-expand member list.
-//
-
-import SwiftUI
-
 struct TeamsScreen: View {
 
     @State private var viewModel: TeamsScreenViewModel
