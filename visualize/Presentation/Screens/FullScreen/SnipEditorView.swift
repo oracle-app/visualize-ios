@@ -207,26 +207,33 @@ struct SnipEditorView: View {
                 VStack(spacing: 0) {
                     Spacer()
 
-                    HStack(alignment: .bottom, spacing: 0) {
-                        Spacer()
-
+                    // Floating panels are anchored to the toolbar (which is itself
+                    // horizontally centered on screen), not to the screen edges. Each
+                    // panel is centered in the ZStack and then nudged with `.offset`
+                    // by the horizontal distance from the toolbar's center to the
+                    // center of the button that owns it. This keeps panels visually
+                    // above their button in any orientation.
+                    //
+                    // Toolbar layout (see SnipFloatingToolbar): 7 buttons × 38pt with
+                    // 2pt spacing → button-to-button stride = 40pt. The stroke-width
+                    // button is the 4th of 7, sitting exactly at the toolbar's
+                    // center, so its panel needs no offset. The shape button is the
+                    // 6th, two strides (80pt) to the right of center.
+                    ZStack {
                         if openPanel == .strokeWidth {
                             SnipStrokeWidthPanelView(model: bindable)
                                 .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
                         }
-
-                        Spacer()
 
                         if openPanel == .shapes {
                             SnipShapesPanelView(model: model) {
                                 withAnimation(.easeOut(duration: 0.15)) { openPanel = nil }
                             }
                             .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
-                            .padding(.trailing, 60)
+                            .offset(x: SnipFloatingToolbar.panelOffset(for: .shapes))
                         }
                     }
                     .padding(.bottom, 8)
-                    .padding(.horizontal, 24)
 
                     SnipFloatingToolbar(
                         selectedTool: $bindable.activeTool,

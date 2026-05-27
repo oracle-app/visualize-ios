@@ -14,7 +14,7 @@ import SwiftUI
 struct FeedCard: View {
     @State private var showAlert1 = false
     @State private var showAlert2 = false
-    @State private var chart: ChartData? = nil
+    @State private var chart: ChartData?
     var visualizationID: String
     var previewJSON: String
     var title: String
@@ -24,7 +24,7 @@ struct FeedCard: View {
     var onTap: () -> Void
     var onHide: () -> Void
     var onDelete: () -> Void
-    var sharedWith: [AppUser]? = nil
+    var sharedWith: [AppUser]?
     var isOwner: Bool = false
     let maxAvatars = 3
     /// TO DO: Image Implementation that uses profilePictureURL
@@ -52,11 +52,12 @@ struct FeedCard: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 5){
+                VStack(alignment: .leading, spacing: 5) {
                     Text(title)
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(Color.primaryText)
-                        .minimumScaleFactor(0.5)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.6)
                     HStack(spacing: 12) {
                         Text(String(localized: "by \(isOwner ? "me" : author)"))
                         Text("•")
