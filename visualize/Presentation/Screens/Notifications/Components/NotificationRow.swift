@@ -15,11 +15,18 @@ struct NotificationRow: View {
             HStack(alignment: .top, spacing: 12) {
                 NotificationAvatarView(
                     initials: item.avatarInitials,
-                    color: item.avatarColor,
                     size: 40,
                     avatarURL: item.avatarURL
                 )
                 .padding(.top, 2)
+                .overlay(alignment: .leading) {
+                    if !item.isRead {
+                        Circle()
+                            .fill(Color.appRed)
+                            .frame(width: 8, height: 8)
+                            .offset(x: -28)
+                    }
+                }
                 HStack(alignment: .top, spacing: 8) {
                     Text("\(Text(item.boldPrefix).font(.system(size: 16, weight: .semibold)))\(Text(item.message).font(.system(size: 16)))")
                         .foregroundStyle(Color.appNavy)

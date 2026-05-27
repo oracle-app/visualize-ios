@@ -19,7 +19,9 @@ struct NotificationGroupCard: View {
                 )
             }
         }
-        .background(Color.appMint)
-        .clipShape(RoundedRectangle(cornerRadius: 26))
+        .background(
+            RoundedRectangle(cornerRadius: 26)
+                .fill(Color.appMint)
+        )
     }
 }

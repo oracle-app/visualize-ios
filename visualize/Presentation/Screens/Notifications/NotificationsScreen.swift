@@ -29,6 +29,7 @@ struct NotificationsScreen: View {
         }
         .onDisappear {
             NotificationCenter.default.post(name: .notificationsScreenDidDisappear, object: nil)
+            viewModel.markAllAsRead()
         }
     }
 
@@ -65,8 +66,6 @@ struct NotificationsScreen: View {
             .padding(.top, 100)
         }
     }
-
-    // MARK: - Loaded view
 
     // MARK: - Loaded view
 
