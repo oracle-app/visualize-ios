@@ -27,10 +27,12 @@ struct TeamsScreen: View {
             // MARK: - My Teams
 
             Section {
-                if viewModel.myTeams.isEmpty {
-                    emptyState("You haven't created any teams yet.")
-                        .listRowBackground(Color.clear)
-                        .foregroundStyle(Color.secondary)
+                if viewModel.isLoading && !viewModel.hasLoadedOnce {
+                        loadingState
+                    } else if viewModel.myTeams.isEmpty {
+                        emptyState("You haven't created any teams yet.")
+                            .listRowBackground(Color.clear)
+                            .foregroundStyle(Color.secondary)
                 } else {
                     ForEach(viewModel.myTeams) { team in
                         TeamSwipeRow(team: team)
@@ -58,10 +60,12 @@ struct TeamsScreen: View {
             // MARK: - Teams I'm In
 
             Section {
-                if viewModel.joinedTeams.isEmpty {
-                    emptyState("You're not part of any teams yet.")
-                        .listRowBackground(Color.clear)
-                        .foregroundStyle(Color.secondary)
+                if viewModel.isLoading && !viewModel.hasLoadedOnce {
+                        loadingState
+                    } else if viewModel.joinedTeams.isEmpty {
+                        emptyState("You're not part of any teams yet.")
+                            .listRowBackground(Color.clear)
+                            .foregroundStyle(Color.secondary)
                 } else {
                     ForEach(viewModel.joinedTeams) { team in
                         TeamToggleRow(
@@ -116,6 +120,9 @@ struct TeamsScreen: View {
         .task {
             await viewModel.loadTeams()
         }
+        .refreshable {
+            await viewModel.loadTeams()
+        }
         .alert("Delete Team", isPresented: $viewModel.showDeleteConfirmation) {
             Button("Delete", role: .destructive, action: viewModel.confirmDelete)
             Button("Cancel", role: .cancel) { }
@@ -153,6 +160,13 @@ struct TeamsScreen: View {
             .font(.title3.bold())
             .foregroundStyle(Color.primaryText)
             .textCase(nil)
+    }
+    
+    private var loadingState: some View {
+        ProgressView()
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.vertical, 8)
+            .listRowBackground(Color.clear)
     }
 
     private func emptyState(_ message: String) -> some View {

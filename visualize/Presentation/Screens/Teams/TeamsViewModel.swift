@@ -20,6 +20,7 @@ final class TeamsScreenViewModel {
     private(set) var myTeams: [Team] = []
     private(set) var joinedTeams: [Team] = []
     private(set) var isLoading = false
+    private(set) var hasLoadedOnce = false
     private(set) var error: String?
     
     var showDeleteConfirmation = false
@@ -54,7 +55,10 @@ final class TeamsScreenViewModel {
     func loadTeams() async {
         isLoading = true
         error = nil
-        defer { isLoading = false }
+        defer {
+            isLoading = false
+            hasLoadedOnce = true
+        }
 
         do {
             userID = try await authRepository.getCurrentUserID()
@@ -113,13 +117,6 @@ final class TeamsScreenViewModel {
     func didFinishEditing(teamName: String) {
         showToast("\"\(teamName)\" updated", type: .success)
         Task { await loadTeams() }
-    }
-    
-    // MARK: - Create
-
-    /// Placeholder for navigation or sheet presentation to create a team.
-    func beginCreating() {
-        // TODO: Navigate to create new team screen
     }
     
     // MARK: - Toast
