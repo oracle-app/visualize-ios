@@ -46,6 +46,10 @@ final class AppCoordinator {
 
     /// Bumped after a successful share to signal `CreateVisualization` to call `resetFile()`.
     var createFlowResetID: Int = 0
+    
+    /// Toast to display in `FeedView` after a successful create flow.
+    /// Set by `VizReadyView` before calling `finishCreateFlow()`, consumed and cleared by `FeedView`.
+     var pendingToast: Toast? = nil
 
     // MARK: - Navigation
 
