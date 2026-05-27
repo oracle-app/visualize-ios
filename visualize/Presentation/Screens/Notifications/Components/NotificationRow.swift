@@ -4,15 +4,12 @@
 //
 //  Created by Miguel Degollado
 
-
-
 import SwiftUI
 
 struct NotificationRow: View {
     let item: NotificationDisplayItem
     let showSeparator: Bool
     var onTap: ((String) -> Void)? = nil
-    var onDelete: ((String) -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 0) {
@@ -26,19 +23,15 @@ struct NotificationRow: View {
                 .padding(.top, 2)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    // Timestamp top-right per Figma
                     Text(item.timestamp)
                         .font(.system(size: 12))
                         .foregroundStyle(Color.appSubtitle)
                         .frame(maxWidth: .infinity, alignment: .trailing)
 
-                    (
-                        Text(item.boldPrefix).font(.system(size: 16, weight: .semibold)) +
-                        Text(item.message).font(.system(size: 16))
-                    )
-                    .foregroundStyle(Color.appNavy)
-                    .lineSpacing(3)
-                    .fixedSize(horizontal: false, vertical: true)
+                    Text("\(Text(item.boldPrefix).font(.system(size: 16, weight: .semibold)))\(Text(item.message).font(.system(size: 16)))")
+                        .foregroundStyle(Color.appNavy)
+                        .lineSpacing(3)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             .padding(.vertical, 14)
@@ -55,13 +48,6 @@ struct NotificationRow: View {
         .onTapGesture {
             guard !item.isRead else { return }
             onTap?(item.id)
-        }
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-                onDelete?(item.id)
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
         }
     }
 }
