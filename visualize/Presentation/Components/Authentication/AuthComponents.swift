@@ -60,9 +60,9 @@ struct InputField: View {
         .padding(.vertical, 18)
         .focused($isFocused)
         .background(
-            hasError ? Color.white : Color.appLightTeal
+            hasError ? Color("AuthErrorBackground") : Color("ComponentBackground")
         )
-        .foregroundStyle(Color.appDarkBlue)
+        .foregroundStyle(Color("AuthFieldText"))
         .tint(hasError ? .red : Color.appTeal)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -111,7 +111,7 @@ struct PasswordField: View {
     @Binding var isVisible: Bool
     
     /// Optional validation error message.
-    var errorMessage: String? = nil
+    var errorMessage: String?
     
     /// Tracks focus state for UI feedback.
     @FocusState private var isFocused: Bool
@@ -155,7 +155,7 @@ struct PasswordField: View {
             .autocapitalization(.none)
             .autocorrectionDisabled()
             .focused($isFocused)
-            .foregroundStyle(Color.appDarkBlue)
+            .foregroundStyle(Color("AuthFieldText"))
             .tint(hasError ? .red : Color.appTeal)
 
             // MARK: Visibility Toggle
@@ -164,13 +164,13 @@ struct PasswordField: View {
                 isVisible.toggle()
             } label: {
                 Image(systemName: isVisible ? "eye.slash" : "eye")
-                    .foregroundColor(Color.appNavy)
+                    .foregroundColor(Color("AuthButtonIcon"))
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 18)
         .background(
-            hasError ? Color.white : Color.appLightTeal
+            hasError ? Color("AuthErrorBackground") : Color("ComponentBackground")
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -220,12 +220,12 @@ struct AuthButton: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(Color("AuthButtonText"))
                 .frame(maxWidth: 150)
                 .frame(height: 50)
                 .background(
                     RoundedRectangle(cornerRadius: 50)
-                        .fill(Color(Color.appTeal))
+                        .fill(Color("TextTertiary"))
                 )
         }
     }

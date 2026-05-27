@@ -30,7 +30,7 @@ struct CheckEmailView: View {
     // MARK: - Body
     
     var body: some View {
-        VStack(spacing: 0){
+        VStack(spacing: 0) {
             
             // MARK: - Header Image
             
@@ -43,7 +43,7 @@ struct CheckEmailView: View {
             
             // MARK: - Content
             
-            VStack(spacing: 0){
+            VStack(spacing: 0) {
                 
                 // MARK: - Back Button
                 
@@ -60,7 +60,7 @@ struct CheckEmailView: View {
                 
                 // MARK: - Message Section
                 
-                VStack(spacing: 0){
+                VStack(spacing: 0) {
                     
                     // Title
                     
@@ -123,7 +123,7 @@ struct CheckEmailView: View {
             
             // MARK: - Background Styling
             
-            .background(Color(red: 245/255, green: 244/255, blue: 242/255))
+            .background(Color("AppBackground"))
             .clipShape(RoundedRectangle(cornerRadius: 30))
             .frame(maxHeight: .infinity)
             .ignoresSafeArea(edges: .bottom)

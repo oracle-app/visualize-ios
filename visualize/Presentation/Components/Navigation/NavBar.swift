@@ -45,7 +45,7 @@ struct NavBar: View {
 
         let appearance = UITabBarAppearance()
         appearance.configureWithDefaultBackground()
-        appearance.stackedLayoutAppearance.selected.iconColor = .systemMint
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.navbarIcon)
         appearance.stackedLayoutAppearance.normal.iconColor = .black
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance

@@ -43,13 +43,13 @@ class LoginViewModel {
     
     // MARK: - UI Error State
     
-    var emailError: String? = nil
-    var passwordError: String? = nil
+    var emailError: String?
+    var passwordError: String?
     var isLoading: Bool = false
     var isLoggedIn: Bool = false
     
     // Toast
-    var currentToast: Toast? = nil
+    var currentToast: Toast?
 
     @ObservationIgnored
     private var toastTask: Task<Void, Never>?

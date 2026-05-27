@@ -74,19 +74,19 @@ class SignUpViewModel {
     // MARK: - UI Error State
     
     /// Validation error for the name field.
-    var nameError: String? = nil
+    var nameError: String?
     
     /// Validation error for the email field.
-    var emailError: String? = nil
+    var emailError: String?
     
     /// Validation error for the password field.
-    var passwordError: String? = nil
+    var passwordError: String?
     
     /// Validation error for the confirm password field.
-    var confirmPasswordError: String? = nil
+    var confirmPasswordError: String?
     
     /// Generic error message for unexpected failures.
-    var errorMessage: String? = nil
+    var errorMessage: String?
     
     /// Indicates whether a registration request is currently running.
     var isLoading: Bool = false

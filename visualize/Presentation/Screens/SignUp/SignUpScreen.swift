@@ -64,7 +64,7 @@ struct SignUp: View {
                     
                     Text("Create your account")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color(Color.appNavy))
+                        .foregroundColor(Color.appNavy)
                         .multilineTextAlignment(.center)
                         .padding(.top, 58)
                         .padding(.bottom, 58)
@@ -168,11 +168,7 @@ struct SignUp: View {
                 .frame(maxWidth: 360)
                 .padding(.horizontal, 24)
                 .background(
-                    Color(
-                        red: 245/255,
-                        green: 244/255,
-                        blue: 242/255
-                    )
+                    Color("AppBackground")
                     .frame(height: 800, alignment: .top)
                     .clipShape(
                         RoundedRectangle(cornerRadius: 30)
