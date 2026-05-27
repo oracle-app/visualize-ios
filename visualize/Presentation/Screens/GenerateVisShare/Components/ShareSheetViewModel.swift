@@ -105,7 +105,7 @@ final class ShareSheetViewModel {
         do {
             self.userID = try await authRepository.getCurrentUserID()
         } catch {
-            self.error = "Couldn't get user session."
+            self.error = String(localized: "Couldn't get user session.")
         }
     }
 
@@ -126,7 +126,8 @@ final class ShareSheetViewModel {
                 myTeams = try await myTeamsRequest
                 joinedTeams = try await joinedTeamsRequest
             } catch {
-                self.error = "Error loading teams: \(error.localizedDescription)"
+                self.error = String(localized: "Error loading teams: \(error.localizedDescription)")
+
             }
             isLoading = false
         }
@@ -173,7 +174,7 @@ final class ShareSheetViewModel {
     /// - Throws: Any error from `CreateVisualizationUseCase`.
     func confirmShare() async throws {
         guard !userID.isEmpty else {
-            confirmError = "Session not valid."
+            confirmError = String(localized: "Session not valid.")
             return
         }
         

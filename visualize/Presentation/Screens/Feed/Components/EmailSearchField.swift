@@ -21,7 +21,7 @@ struct EmailSearchField: View {
                 .foregroundStyle(isFocused ? Color.primaryOrange : Color.appTeal)
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
             
-            TextField("Enter email", text: $email)
+            TextField(String(localized: "Enter email"), text: $email)
                 .focused($isFocused)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled(true)

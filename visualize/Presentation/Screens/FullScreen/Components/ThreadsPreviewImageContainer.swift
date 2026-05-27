@@ -30,7 +30,7 @@ struct ThreadsPreviewImageContainer: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Text("Preview of the edited visualization")
+            Text(String(localized: "Preview of the edited visualization"))
                 .font(.system(size: headerFontSize, weight: .semibold))
                 .foregroundStyle(Color.appNavy)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -69,10 +69,10 @@ struct ThreadsPreviewImageContainer: View {
             Image(systemName: "photo.badge.exclamationmark")
                 .font(.system(size: 30, weight: .regular))
                 .foregroundStyle(Color.appTeal)
-            Text("Couldn't load preview")
+            Text(String(localized: "Couldn't load preview"))
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(Color.appNavy)
-            Text("The edited visualization failed to load.")
+            Text(String(localized: "The edited visualization failed to load."))
                 .font(.system(size: 13))
                 .foregroundStyle(Color.appSubtitle)
                 .multilineTextAlignment(.center)

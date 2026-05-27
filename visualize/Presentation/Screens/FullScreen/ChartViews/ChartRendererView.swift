@@ -81,8 +81,8 @@ struct ChartRendererView: View {
             StackedBarChartView(
                 data: data,
                 categories: stackNames,
-                xLabel: "Category",
-                yLabel: "Count",
+                xLabel: String(localized: "Category"),
+                yLabel: String(localized: "Count"),
                 theme: theme,
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady
@@ -124,8 +124,8 @@ struct ChartRendererView: View {
             AreaChartView(
                 categories: categories,
                 series: series,
-                xLabel: "Category",
-                yLabel: "Count",
+                xLabel: String(localized: "Category"),
+                yLabel: String(localized: "Count"),
                 theme: theme,
                 viewport: viewport,
                 onCoordinatorReady: onCoordinatorReady

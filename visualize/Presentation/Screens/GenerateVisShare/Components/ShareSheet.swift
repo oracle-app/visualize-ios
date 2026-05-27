@@ -118,8 +118,7 @@ struct ShareSheet: View {
             }
 
             if selectedOption == .personal {
-                Text("You can share this with teammates later.")
-                    .font(.subheadline)
+                Text(String(localized: "You can share this with teammates later."))                    .font(.subheadline)
                     .foregroundStyle(.gray)
                     .transition(.opacity)
             }
@@ -167,7 +166,7 @@ struct ShareSheet: View {
                     Section {
                         if isSharingExpanded {
                             if vm.selectedUsers.isEmpty {
-                                Text("Select teammates individually, or choose a team below.")
+                                Text(String(localized: "Select teammates individually, or choose a team below."))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -184,13 +183,13 @@ struct ShareSheet: View {
                             }
                         }
                     } header: {
-                        collapsableHeader("Sharing with", isExpanded: $isSharingExpanded)
+                        collapsableHeader(String(localized: "Sharing with"), isExpanded: $isSharingExpanded)
                     }
 
                     Section {
                         if isMyTeamsExpanded {
                             if vm.myTeams.isEmpty {
-                                Text("You don't own any teams yet.")
+                                Text(String(localized: "You don't own any teams yet."))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -208,13 +207,13 @@ struct ShareSheet: View {
                             }
                         }
                     } header: {
-                        collapsableHeader("My teams", isExpanded: $isMyTeamsExpanded)
+                        collapsableHeader(String(localized: "My teams"), isExpanded: $isMyTeamsExpanded)
                     }
 
                     Section {
                         if isJoinedTeamsExpanded {
                             if vm.joinedTeams.isEmpty {
-                                Text("You haven't joined any teams yet.")
+                                Text(String(localized: "You haven't joined any teams yet."))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -232,7 +231,7 @@ struct ShareSheet: View {
                             }
                         }
                     } header: {
-                        collapsableHeader("Teams I'm in", isExpanded: $isJoinedTeamsExpanded)
+                        collapsableHeader(String(localized: "Teams I'm in"), isExpanded: $isJoinedTeamsExpanded)
                     }
                 }
                 .listStyle(.insetGrouped)
