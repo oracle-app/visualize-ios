@@ -28,11 +28,12 @@ class TeamRepositoryImpl: TeamRepository {
     
     func getTeamsUserIsIn(userID: String) async throws -> [Team] {
         let teamsDTOs = try await teamDatasource.getTeamsUserIsIn(userID: userID)
-        let allMemberIDs = Set(teamsDTOs.flatMap { $0.membersIDs })
+        let allMemberIDs = Set(teamsDTOs.flatMap { $0.membersIDs + [$0.ownerID] })
         let usersDTOs = try await userDatasource.getUsers(byIDs: Array(allMemberIDs))
         let usersDict = Dictionary(uniqueKeysWithValues: usersDTOs.map { ($0.id, $0.toAppUser()) })
         return teamsDTOs.map { teamDTO in
-            let members = teamDTO.membersIDs.compactMap { usersDict[$0] }
+            let memberIDs = [teamDTO.ownerID] + teamDTO.membersIDs.filter { $0 != teamDTO.ownerID }
+            let members = memberIDs.compactMap { usersDict[$0] }
             return teamDTO.toTeam(members: members)
         }
     }
