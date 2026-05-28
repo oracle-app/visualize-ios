@@ -101,7 +101,7 @@ final class FullScreenViewModel {
         do {
             self.userID = try await authRepository.getCurrentUserID()
         } catch {
-            self.error = "No se pudo obtener la sesión del usuario."
+            self.error = "Could not load user session."
         }
     }
 

@@ -129,6 +129,7 @@ struct LandingScreen: View {
         .background(Color.appTeal)
         .ignoresSafeArea(edges: .top)
         .toolbar(.hidden, for: .navigationBar)
+        .portraitOrientationLock()
     }
 }
 

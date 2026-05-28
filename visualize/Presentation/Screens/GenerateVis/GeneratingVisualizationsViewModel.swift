@@ -15,8 +15,8 @@ final class GeneratingVisualizationsViewModel {
     let title = String(localized: "Generating Visualizations")
     let message = String(localized: "We're analyzing your dataset and generating charts that best represent your data.")
     let footerMessage = String(localized: "This may take a moment...")
-    var isLoading = false
-    
+ 
+    var isLoading: Bool = false
     
     /// Chart suggestions returned by the repository; passed to `VizReadyView` on success.
     var suggestions: [ChartSuggestion] = []
@@ -25,22 +25,32 @@ final class GeneratingVisualizationsViewModel {
     var errorMessage: String? = nil
  
     // MARK: - Dependencies
-    /// Source of chart suggestions. Defaults to the mock.
+    private let analyzeRepository: any AnalyzeRepository
     private let chartSuggestionsRepository: any ChartSuggestionsRepository
  
     // MARK: - Init
-    init(chartSuggestionsRepository: any ChartSuggestionsRepository = MockChartSuggestionsRepositoryImpl()) {
+    init(
+        analyzeRepository: any AnalyzeRepository = AnalyzeRepositoryImpl(),
+        chartSuggestionsRepository: any ChartSuggestionsRepository = APIChartSuggestionsRepositoryImpl()
+    ) {
+        self.analyzeRepository = analyzeRepository
         self.chartSuggestionsRepository = chartSuggestionsRepository
     }
  
     // MARK: - Intents
-    /// Fetches chart suggestions from the repository.
+    /// Uploads the dataset and fetches chart suggestions from the repository.
     /// The view reads `suggestions` after this returns and navigates via the coordinator.
-    func startLoading() async {
+    func startLoading(fileURL: URL) async {
         isLoading = true
         errorMessage = nil
+        suggestions = []
+        
         do {
-            suggestions = try await chartSuggestionsRepository.getSuggestions()
+            // Step 1: upload the file and obtain a task identifier.
+            let id = try await analyzeRepository.uploadDataset(fileURL: fileURL)
+
+            // Step 2: poll for the generated chart suggestions.
+            suggestions = try await chartSuggestionsRepository.getSuggestions(taskId: id)
         } catch {
             errorMessage = error.localizedDescription
         }

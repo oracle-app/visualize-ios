@@ -25,8 +25,8 @@ struct DonutChartView: UIViewRepresentable {
     func makeUIView(context: Context) -> SCIPieChartSurface {
         let surface = SCIPieChartSurface()
         surface.backgroundColor = UIColor(Color.white)
-        surface.holeRadius = 100
-        surface.holeRadiusSizingMode = .absolute
+        surface.holeRadius = 0.4
+        surface.holeRadiusSizingMode = .relative
  
         let donutSeries = SCIDonutRenderableSeries()
         donutSeries.drawLabels = true

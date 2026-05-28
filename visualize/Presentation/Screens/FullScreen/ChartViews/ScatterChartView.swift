@@ -29,6 +29,7 @@ struct ScatterChartView: UIViewRepresentable {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
         coordinator.xValues = xValues
         coordinator.yValues = yValues
+        coordinator.isScatterChart = true
         return coordinator
     }
 
@@ -80,7 +81,7 @@ struct ScatterChartView: UIViewRepresentable {
         renderSeries.dataSeries = dataSeries
         renderSeries.pointMarker = {
             let marker = SCIEllipsePointMarker()
-            marker.size = CGSize(width: 8, height: 8)
+            marker.size = CGSize(width: 12, height: 12)
             marker.fillStyle = SCISolidBrushStyle(color: secondaryColor)
             marker.strokeStyle = SCISolidPenStyle(color: primaryColor, thickness: 1.5)
             return marker
@@ -89,7 +90,7 @@ struct ScatterChartView: UIViewRepresentable {
         surface.renderableSeries.add(renderSeries)
 
         // MARK: Interactivity
-        context.coordinator.attach(to: surface)
+        context.coordinator.attach(to: surface, zoomDirection: .xyDirection, pinchDirection: .xyDirection)
         onCoordinatorReady?(context.coordinator)
 
         // MARK: Viewport override
