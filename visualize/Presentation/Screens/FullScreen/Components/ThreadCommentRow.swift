@@ -232,7 +232,7 @@ private struct ThreadRepliesList: View {
             authorName: "Kimberly Marquez",
             content: "This is a test comment.",
             imageURL: nil,
-            createdAt: Timestamp(date: Date()),
+            createdAt: Date(),
             threads: []
         ),
         currentUserID: "u1",

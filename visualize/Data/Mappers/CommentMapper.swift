@@ -6,20 +6,20 @@
 //
 
 import Foundation
-import FirebaseCore
+import FirebaseFirestore 
 
 extension CommentDTO {
     func toComment(threads: [ThreadReply] = [], resolvedAuthorName: String? = nil, resolvedAvatarURL: String? = nil) -> Comment {
         Comment(
             id: self.id ?? "",
             authorID: self.authorID,
-            authorName: resolvedAuthorName ?? self.authorName,
-            authorAvatarURL: resolvedAvatarURL ?? self.authorAvatarURL,
+            authorName: resolvedAuthorName,
+            authorAvatarURL: resolvedAvatarURL,
             content: self.content,
             imageURL: self.imageURL,
             createdAt: self.createdAt,
             threads: threads,
-            timeAgo: self.createdAt.dateValue().timeAgoDisplay()
+            timeAgo: self.createdAt.timeAgoDisplay()
         )
     }
 }

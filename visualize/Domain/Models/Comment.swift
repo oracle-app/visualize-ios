@@ -15,7 +15,7 @@ struct Comment: Identifiable, Codable {
     var authorAvatarURL: String?
     var content: String?
     var imageURL: String?
-    var createdAt: Timestamp
+    var createdAt: Date
     var threads: [ThreadReply] = []
     var timeAgo: String = ""
     

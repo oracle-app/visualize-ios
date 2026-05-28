@@ -6,18 +6,18 @@
 //
 
 import Foundation
-import FirebaseCore
+import FirebaseFirestore 
 
 extension ThreadReplyDTO {
     func toThreadReply(resolvedAuthorName: String? = nil, resolvedAvatarURL: String? = nil) -> ThreadReply {
         ThreadReply(
             id: self.id,
             authorID: self.authorID,
-            authorName: resolvedAuthorName ?? self.authorName ?? "",
-            authorAvatarURL: resolvedAvatarURL ?? self.authorAvatarURL,
+            authorName: resolvedAuthorName ?? "",
+            authorAvatarURL: resolvedAvatarURL,
             createdAt: self.createdAt,
             content: self.content,
-            timeAgo: self.createdAt.dateValue().timeAgoShort()
+            timeAgo: self.createdAt.timeAgoShort()
         )
     }
 }

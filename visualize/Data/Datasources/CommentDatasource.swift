@@ -9,13 +9,13 @@ import FirebaseFirestore
 
 /// Firestore datasource responsible for creating snip comment documents.
 final class CommentDatasource {
-
+    
     private let firebase: Firestore
-
+    
     init(firebase: Firestore = Firestore.firestore()) {
         self.firebase = firebase
     }
-
+    
     func postSnipComment(visualizationID: String, authorID: String, imageURL: URL, authorName: String) async throws {
         let data: [String: Any] = [
             "authorID": authorID,
@@ -24,7 +24,7 @@ final class CommentDatasource {
             "createdAt": Timestamp(),
             "imageURL": imageURL.absoluteString
         ]
-
+        
         try await firebase
             .collection("visualizations")
             .document(visualizationID)
@@ -37,33 +37,33 @@ final class CommentDatasource {
             .collection("visualizations")
             .document(visualizationID)
             .collection("comments")
-            .order(by: "createdAt", descending: false)
             .getDocuments()
-
+        
         return snapshot.documents.compactMap {
             try? $0.data(as: CommentDTO.self)
         }
     }
-
-    func postComment(visualizationID: String, authorID: String, authorName: String, content: String, imageURL: String? = nil) async throws {
+    
+    func postComment(visualizationID: String, authorID: String, content: String, imageURL: String? = nil) async throws {
         var data: [String: Any] = [
             "authorID": authorID,
-            "authorName": authorName,
             "content": content,
             "createdAt": Timestamp()
         ]
         if let imageURL {
             data["imageURL"] = imageURL
         }
-
+        
         try await firebase
             .collection("visualizations")
             .document(visualizationID)
             .collection("comments")
             .addDocument(data: data)
     }
-
+    
     func deleteComment(visualizationID: String, commentID: String) async throws {
+        try await deleteAllThreads(visualizationID: visualizationID, commentID: commentID)
+        
         try await firebase
             .collection("visualizations")
             .document(visualizationID)
@@ -71,9 +71,23 @@ final class CommentDatasource {
             .document(commentID)
             .delete()
     }
+    
+    private func deleteAllThreads(visualizationID: String, commentID: String) async throws {
+        let snapshot = try await firebase
+            .collection("visualizations")
+            .document(visualizationID)
+            .collection("comments")
+            .document(commentID)
+            .collection("threads")
+            .getDocuments()
 
+        let batch = firebase.batch()
+        snapshot.documents.forEach { batch.deleteDocument($0.reference) }
+        try await batch.commit()
+    }
+    
     // MARK: - Threads
-
+    
     func fetchThreads(visualizationID: String, commentID: String) async throws -> [ThreadReplyDTO] {
         let snapshot = try await firebase
             .collection("visualizations")
@@ -81,23 +95,20 @@ final class CommentDatasource {
             .collection("comments")
             .document(commentID)
             .collection("threads")
-            .order(by: "createdAt", descending: false)
             .getDocuments()
-
+        
         return snapshot.documents.compactMap {
             try? $0.data(as: ThreadReplyDTO.self)
         }
     }
-
-    func postReply(visualizationID: String, commentID: String, authorID: String, authorName: String, authorAvatarURL: String?, content: String) async throws {
+    
+    func postReply(visualizationID: String, commentID: String, authorID: String, content: String) async throws {
         let data: [String: Any] = [
             "authorID": authorID,
-            "authorName": authorName,
-            "authorAvatarURL": authorAvatarURL ?? "",
             "content": content,
             "createdAt": Timestamp()
         ]
-
+        
         try await firebase
             .collection("visualizations")
             .document(visualizationID)
@@ -106,7 +117,7 @@ final class CommentDatasource {
             .collection("threads")
             .addDocument(data: data)
     }
-
+    
     func deleteReply(visualizationID: String, commentID: String, replyID: String) async throws {
         try await firebase
             .collection("visualizations")
@@ -116,15 +127,5 @@ final class CommentDatasource {
             .collection("threads")
             .document(replyID)
             .delete()
-    }
-
-    // MARK: - Users
-
-    func fetchUser(userID: String) async throws -> [String: Any]? {
-        let doc = try await firebase
-            .collection("users")
-            .document(userID)
-            .getDocument()
-        return doc.data()
     }
 }

@@ -11,9 +11,7 @@ import FirebaseFirestore
 struct CommentDTO: Codable {
     @DocumentID var id: String?
     let authorID: String
-    let authorName: String?
-    let authorAvatarURL: String? 
     let content: String?
     let imageURL: String?
-    let createdAt: Timestamp
+    let createdAt: Date
 }

@@ -12,7 +12,7 @@ struct ThreadReply: Identifiable, Codable {
     var authorID: String
     var authorName: String = ""
     var authorAvatarURL: String?
-    var createdAt: Timestamp
+    var createdAt: Date
     var content: String
     var timeAgo: String = ""
 

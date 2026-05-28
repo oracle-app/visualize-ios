@@ -127,7 +127,7 @@ struct ThreadReplyRow: View {
             authorID: "u1",
             authorName: "Diana Escalante",
             authorAvatarURL: nil,
-            createdAt: Timestamp(date: Date()),
+            createdAt: Date(),
             content: "This is a test reply",
             timeAgo: "5m"
         ),

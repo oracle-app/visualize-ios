@@ -15,9 +15,9 @@ import FirebaseAuth
 import FirebaseFirestore
 
 struct ThreadsView: View {
-
+    
     // MARK: - Properties
-
+    
     let visualizationID: String
     var isCollapsed: Bool = false
     
@@ -25,13 +25,12 @@ struct ThreadsView: View {
     @State private var replyText = ""
     @State private var activeCommentID: String? = nil
     @State private var activeCommentAuthor: String? = nil
-    @State private var currentUser: AppUser? = nil
-    
+    @State private var showError = false
     @FocusState private var isInputFocused: Bool
 
     // MARK: - Init
 
-    init(visualizationID: String = "3nlO5I3PoEWAaKzwfcKB", isCollapsed: Bool = false) {
+    init(visualizationID: String, isCollapsed: Bool = false) {
         self.visualizationID = visualizationID
         self.isCollapsed = isCollapsed
         self._viewModel = State(initialValue: ThreadsViewModel(visualizationID: visualizationID))
@@ -72,26 +71,22 @@ struct ThreadsView: View {
                         ForEach(viewModel.comments) { comment in
                             ThreadCommentRow(
                                 comment: comment,
-                                currentUserID: currentUser?.id,
+                                currentUserID: viewModel.currentUser?.id,
                                 activeCommentID: $activeCommentID,
                                 activeCommentAuthor: $activeCommentAuthor
                             ){ commentID, authorID in
-                                guard let user = currentUser else { return }
                                 Task {
                                     await viewModel.deleteComment(
                                         commentID: commentID,
-                                        authorID: authorID,
-                                        currentUserID: user.id
+                                        authorID: authorID
                                     )
                                 }
                             } onDeleteReply: { commentID, replyID, authorID in
-                                guard let user = currentUser else { return }
                                 Task {
                                     await viewModel.deleteReply(
                                         commentID: commentID,
                                         replyID: replyID,
-                                        authorID: authorID,
-                                        currentUserID: user.id
+                                        authorID: authorID
                                     )
                                 }
                             }
@@ -102,7 +97,7 @@ struct ThreadsView: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .task {
-                await fetchCurrentUser()
+                await viewModel.fetchCurrentUser()
                 await viewModel.loadComments()
             }
             if !isCollapsed {
@@ -110,6 +105,19 @@ struct ThreadsView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: activeCommentID)
+        .onChange(of: viewModel.error) { _, newError in
+            if newError != nil {
+                showError = true
+            }
+        }
+        .alert(String(localized: "An error has happened"), isPresented: $showError) {
+            Button(String(localized: "OK"), role: .cancel) {
+                viewModel.error = nil
+            }
+        } message: {
+            Text(viewModel.error ?? "")
+        }
+        
     }
 
     // MARK: - Subviews
@@ -117,7 +125,6 @@ struct ThreadsView: View {
     private var replyInputBar: some View {
         VStack(spacing: 0) {
             
-            // Chip que aparece solo cuando estás respondiendo
             if let author = activeCommentAuthor {
                 HStack {
                     Image(systemName: "arrowshape.turn.up.left.fill")
@@ -161,46 +168,19 @@ struct ThreadsView: View {
 
     // MARK: - Private Methods
 
-    private func fetchCurrentUser() async {
-        guard let firebaseUser = Auth.auth().currentUser else {
-            print("No authenticated user found")
-            return
-        }
-        let db = Firestore.firestore()
-        do {
-            let doc = try await db
-                .collection("users")
-                .document(firebaseUser.uid)
-                .getDocument()
-            guard let data = doc.data() else { return }
-            
-            currentUser = AppUser(
-                id: doc.documentID,
-                email: data["email"] as? String ?? "",
-                profilePictureURL: data["profilePictureURL"] as? String,
-                username: data["username"] as? String ?? ""
-            )
-            print("User loaded: \(currentUser?.username ?? "nil")")
-        } catch {
-            print("Error fetching user: \(error)")
-        }
-    }
-
     private func submitReply() {
         let trimmed = replyText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, let user = currentUser else { return }
+        guard !trimmed.isEmpty else { return }
 
         Task {
             if let commentID = activeCommentID {
                 await viewModel.postReply(
                     to: commentID,
-                    content: trimmed,
-                    author: user
+                    content: trimmed
                 )
             } else {
                 await viewModel.postComment(
-                    content: trimmed,
-                    author: user
+                    content: trimmed
                 )
             }
             replyText = ""

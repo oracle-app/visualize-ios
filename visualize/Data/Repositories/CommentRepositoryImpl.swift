@@ -12,10 +12,15 @@ import FirebaseCore
 final class CommentRepositoryImpl: CommentRepository {
 
     private let commentDatasource: CommentDatasource
+    private let userDatasource: UserDatasource
     private var userCache: [String: AppUser] = [:]
 
-    init(commentDatasource: CommentDatasource = CommentDatasource()) {
+    init(
+        commentDatasource: CommentDatasource = CommentDatasource(),
+        userDatasource: UserDatasource = UserDatasource()
+    ) {
         self.commentDatasource = commentDatasource
+        self.userDatasource = userDatasource
     }
 
     func postSnipComment(visualizationID: String, authorID: String, imageURL: URL, authorName: String) async throws {
@@ -31,7 +36,6 @@ final class CommentRepositoryImpl: CommentRepository {
 
     func loadComments(visualizationID: String) async throws -> [Comment] {
         let dtos = try await commentDatasource.fetchComments(visualizationID: visualizationID)
-
         var comments: [Comment] = []
 
         await withTaskGroup(of: Comment.self) { group in
@@ -41,8 +45,12 @@ final class CommentRepositoryImpl: CommentRepository {
                         visualizationID: visualizationID,
                         commentID: dto.id ?? ""
                     )
-                    let (authorName, avatarURL) = await self.resolveUserInfo(userID: dto.authorID, storedName: dto.authorName)
-                    return await dto.toComment(threads: threads, resolvedAuthorName: authorName, resolvedAvatarURL: avatarURL)
+                    let (authorName, avatarURL) = await self.resolveUserInfo(userID: dto.authorID)
+                    return dto.toComment(
+                        threads: threads,
+                        resolvedAuthorName: authorName,
+                        resolvedAvatarURL: avatarURL
+                    )
                 }
             }
             for await comment in group {
@@ -50,14 +58,13 @@ final class CommentRepositoryImpl: CommentRepository {
             }
         }
 
-        return comments.sorted { $0.createdAt.dateValue() < $1.createdAt.dateValue() }
+        return comments.sorted { $0.createdAt < $1.createdAt }
     }
 
     func postComment(visualizationID: String, author: AppUser, content: String, imageURL: String? = nil) async throws {
         try await commentDatasource.postComment(
             visualizationID: visualizationID,
             authorID: author.id,
-            authorName: author.username,
             content: content,
             imageURL: imageURL
         )
@@ -77,8 +84,6 @@ final class CommentRepositoryImpl: CommentRepository {
             visualizationID: visualizationID,
             commentID: commentID,
             authorID: author.id,
-            authorName: author.username,
-            authorAvatarURL: author.profilePictureURL,
             content: content
         )
     }
@@ -103,13 +108,10 @@ final class CommentRepositoryImpl: CommentRepository {
             return await withTaskGroup(of: ThreadReply.self) { group in
                 for dto in dtos {
                     group.addTask {
-                        let (name, avatar) = await self.resolveUserInfo(
-                            userID: dto.authorID,
-                            storedName: dto.authorName
-                        )
-                        return await dto.toThreadReply(
-                            resolvedAuthorName: name,
-                            resolvedAvatarURL: avatar
+                        let (authorName, avatarURL) = await self.resolveUserInfo(userID: dto.authorID)
+                        return dto.toThreadReply(
+                            resolvedAuthorName: authorName,
+                            resolvedAvatarURL: avatarURL
                         )
                     }
                 }
@@ -117,41 +119,21 @@ final class CommentRepositoryImpl: CommentRepository {
                 for await reply in group {
                     replies.append(reply)
                 }
-                return replies.sorted { $0.createdAt.dateValue() < $1.createdAt.dateValue() }
+                return replies.sorted { $0.createdAt < $1.createdAt }
             }
         } catch {
             return []
         }
     }
 
-    private func resolveUsername(userID: String) async -> String? {
-        if let cached = userCache[userID] { return cached.username }
-        guard let data = try? await commentDatasource.fetchUser(userID: userID),
-              let username = data["username"] as? String else { return nil }
-        return username
-    }
-
-    private func resolveUserInfo(userID: String, storedName: String?) async -> (String, String?) {
-        if let cached = userCache[userID] {
+    private func resolveUserInfo(userID: String) async -> (String, String?) {
+        if let cached = userCache[userID]{
             return (cached.username, cached.profilePictureURL)
         }
-
-        // Fetch from Firestore
-        guard let data = try? await commentDatasource.fetchUser(userID: userID) else {
-            return (storedName ?? "Unknown", nil)
+        guard let user = try? await userDatasource.getUserByID(userID: userID).toAppUser() else {
+            return ("Unknown", nil)
         }
-
-        let username = data["username"] as? String ?? storedName ?? "Unknown"
-        let avatar = data["profilePictureURL"] as? String
-
-        // Save to cache
-        userCache[userID] = AppUser(
-            id: userID,
-            email: data["email"] as? String ?? "",
-            profilePictureURL: avatar,
-            username: username
-        )
-
-        return (username, avatar)
+        userCache[userID] = user
+        return (user.username, user.profilePictureURL)
     }
 }
