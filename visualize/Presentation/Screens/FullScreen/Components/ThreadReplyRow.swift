@@ -15,18 +15,24 @@ import FirebaseFirestore
 struct ThreadReplyRow: View {
 
     // MARK: - Properties
+    @State private var showDeleteAlert = false
 
     var isFirst: Bool = false  // Controls the top connector line height
+    var isLast: Bool = false
     var reply: ThreadReply
+    var currentUserID: String?
+    var commentID: String
+    var onDelete: (String, String, String) -> Void
+    
+    var isAuthor: Bool { currentUserID == reply.authorID }
 
     // MARK: - Body
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-
             threadConnector
-
             replyBubble
+                .padding(.top, 8)
         }
         .padding(.leading, 14)
     }
@@ -37,16 +43,24 @@ struct ThreadReplyRow: View {
     private var threadConnector: some View {
         VStack(spacing: 0) {
             Rectangle()
-                .fill(Color(.white).opacity(0.5))
-                .frame(width: 2, height: isFirst ? 16 : 40)
+                .fill(Color.appBackground.opacity(0.5))
+                .frame(width: 2, height: isFirst ? 16 : 20)
 
-            Image(systemName: "person.crop.circle.fill")
-                .resizable()
-                .frame(width: 30, height: 30)
-                .foregroundStyle(.black)
-                .padding(.horizontal)
-
-            Spacer().frame(minHeight: 12)
+            UserAvatarView(
+                username: reply.authorName,
+                avatarURL: reply.authorAvatarURL,
+                size: 30
+            )
+            
+            if !isLast {
+                Rectangle()
+                    .fill(Color.appBackground.opacity(0.5))
+                    .frame(width: 2)
+                    .frame(minHeight: 20)
+                    .frame(maxWidth: .infinity)
+            } else {
+                Spacer().frame(minHeight: 12)
+            }
         }
         .frame(width: 44)
     }
@@ -55,19 +69,19 @@ struct ThreadReplyRow: View {
     private var replyBubble: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
-                Text(reply.authorName)
+                Text(isAuthor ? "Me" : reply.authorName)
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color.primaryText)
 
                 Spacer()
 
                 Text(reply.timeAgo)
                     .font(.system(size: 13))
-                    .foregroundStyle(.black.opacity(0.5))
+                    .foregroundStyle(Color.primaryText.opacity(0.5))
             }
             Text(reply.content)
-                .font(.system(size: 17, weight: .regular))
-                .foregroundStyle(.black)
+                .font(.system(size: 15, weight: .regular))
+                .foregroundStyle(Color.primaryText)
                 .fixedSize(horizontal: false, vertical: true)
                 .lineSpacing(2)
         }
@@ -75,10 +89,30 @@ struct ThreadReplyRow: View {
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.appThreadsReply)
+                .fill(Color.appBackground)
+                .shadow(color: Color.primaryText.opacity(0.20), radius: 6, x: 3, y: 5)
         )
         .padding(.trailing, 14)
         .padding(.vertical, 4)
+        .contextMenu {
+            if isAuthor, reply.id != nil {
+                Button(role: .destructive) {
+                    showDeleteAlert = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+        }
+        .alert("Delete reply?", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) {
+                if let replyID = reply.id {
+                    onDelete(commentID, replyID, reply.authorID)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will permanently remove your reply. This action cannot be undone.")
+        }
     }
 }
 
@@ -86,15 +120,19 @@ struct ThreadReplyRow: View {
 
 #Preview {
     ThreadReplyRow(
-        isFirst: true,
+        isFirst: false,
+        isLast: true,
         reply: ThreadReply(
-            id: nil,
-            authorID: "123",
+            id: "r1",
+            authorID: "u1",
             authorName: "Diana Escalante",
-            authorAvatarURL: "",
-            createdAt: Timestamp(date: Date()),
-            content: "Este es un reply de prueba",
-            timeAgo: "5 min ago"
-        )
+            authorAvatarURL: nil,
+            createdAt: Date(),
+            content: "This is a test reply",
+            timeAgo: "5m"
+        ),
+        currentUserID: "u2",
+        commentID: "c1",
+        onDelete: { _, _, _ in }
     )
 }

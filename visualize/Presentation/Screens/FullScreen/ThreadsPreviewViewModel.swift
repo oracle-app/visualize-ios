@@ -26,7 +26,6 @@ import Observation
 enum ThreadsPreviewAlert: Identifiable {
     case discard
     case share
-
     var id: Self { self }
 }
 

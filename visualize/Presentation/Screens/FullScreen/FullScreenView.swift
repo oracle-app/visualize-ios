@@ -24,6 +24,7 @@ struct FullScreenView: View {
     @State private var chartLoadID = UUID()
     @State private var showThreads = true
     @State private var isSnipping = false
+    @State private var selectedDetent: PresentationDetent = .fraction(0.08)
     @Environment(\.dismiss) private var dismiss
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
@@ -89,6 +90,7 @@ struct FullScreenView: View {
                     isCompact: isLandscape,
                     onBack: {
                         viewModel.tooltipCoordinator?.removeTooltip()
+                        showThreads = false
                         dismiss()
                     }
                 )
@@ -189,10 +191,24 @@ struct FullScreenView: View {
             get: { showThreads && !isLandscape },
             set: { showThreads = $0 }
         )) {
-            ThreadsView(visualizationID: card.id)
-                .presentationDetents([.fraction(0.08), .medium, .large])
+            ThreadsView(
+                visualizationID: card.id,
+                isCollapsed: selectedDetent == .fraction(0.08)
+            )
+                //.frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.appBackground)
+                //.ignoresSafeArea(edges: .bottom)
+                .interactiveDismissDisabled(true)
+                .presentationDetents([.fraction(0.08), .medium, .large], selection: $selectedDetent)
                 .presentationBackgroundInteraction(.enabled(upThrough: .large))
                 .presentationCornerRadius(24)
+                .presentationDragIndicator(.visible)
+        }
+        //.preventScreenShot(isActive: true)
+        .onChange(of: isLandscape) { _, newValue in
+            if !newValue {
+                showThreads = true
+            }
         }
     }
 

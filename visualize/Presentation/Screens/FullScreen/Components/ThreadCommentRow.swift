@@ -16,20 +16,34 @@ import FirebaseCore
 struct ThreadCommentRow: View {
 
     // MARK: - Properties
-
+    
     var comment: Comment
+    var currentUserID: String?
     var image: UIImage? = nil
 
     @Binding var activeCommentID: String?
+    @Binding var activeCommentAuthor: String?
+    @State private var showDeleteAlert = false
+    
     var isReplying: Bool { activeCommentID == comment.id }  // True when this comment is active
+    var isAuthor: Bool { currentUserID == comment.authorID }
+    
+    var onDeleteComment: (String, String) -> Void
+    var onDeleteReply: (String, String, String) -> Void
 
     // MARK: - Body
 
     var body: some View {
         VStack(spacing: 0) {
             commentHeader
+            contentSection
             imageSection
-            ThreadRepliesList(threads: comment.threads)
+            ThreadRepliesList(
+                threads: comment.threads,
+                currentUserID: currentUserID,
+                commentID: comment.id,
+                onDeleteReply: onDeleteReply
+            )
         }
         .background(
             RoundedRectangle(cornerRadius: 20)
@@ -43,34 +57,74 @@ struct ThreadCommentRow: View {
     /// Author avatar, name, timestamp, and reply toggle button.
     private var commentHeader: some View {
         HStack(spacing: 8) {
-            Image(systemName: "person.crop.circle.fill")
-                .resizable()
-                .frame(width: 30, height: 30)
-                .foregroundStyle(.white)
-                .padding(.horizontal)
-
+            
+            UserAvatarView(
+                username: comment.authorName ?? "",
+                avatarURL: comment.authorAvatarURL,
+                size: 30
+            )
+            .padding(.horizontal)
+            
             VStack(alignment: .leading, spacing: 2) {
-                Text(comment.authorName ?? comment.authorID)
+                Text(isAuthor ? "Me" : (comment.authorName ?? comment.authorID))
                     .font(.body.weight(.bold))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color.primaryText)
 
-                Text(comment.createdAt.dateValue().timeAgoDisplay())
+                Text(comment.timeAgo)
                     .font(.subheadline)
-                    .foregroundStyle(.black.opacity(0.5))
+                    .foregroundStyle(Color.primaryText.opacity(0.5))
             }
 
             Spacer()
-
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    activeCommentID = isReplying ? nil : comment.id
+            
+            Menu {
+                if isAuthor {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            activeCommentID = comment.id
+                            activeCommentAuthor = "Me"
+                        }
+                    } label: {
+                        Label("Reply", systemImage:"arrowshape.turn.up.left")
+                    }
+                    
+                    Button(role: .destructive) {
+                        showDeleteAlert = true
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                } else {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            activeCommentID = comment.id
+                            activeCommentAuthor = comment.authorName ?? comment.authorID
+                        }
+                    } label: {
+                        Label("Reply", systemImage:"arrowshape.turn.up.left")
+                    }
                 }
             } label: {
-                Image(systemName: "arrowshape.turn.up.left")
-                    .font(.system(size: 26))
-                    .foregroundStyle(Color.white)
-                    .frame(width: 44, height: 44)
-                    .background(Circle().fill(.ultraThinMaterial))
+                ZStack {
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 37, height: 37)
+
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 22))
+                        .foregroundStyle(Color.appTeal)
+                }
+                .frame(width: 37, height: 37)
+                .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+            .alert("Delete thread?", isPresented: $showDeleteAlert) {
+                Button("Delete", role: .destructive) {
+                    onDeleteComment(comment.id, comment.authorID)
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This will permanently remove the thread and all its replies. This action cannot be undone.")
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 18)
@@ -87,6 +141,7 @@ struct ThreadCommentRow: View {
     private var imageSection: some View {
         Group {
             if let urlString = comment.imageURL,
+               !urlString.isEmpty,
                let url = URL(string: urlString) {
                 AsyncImage(url: url) { phase in
                     switch phase {
@@ -94,7 +149,9 @@ struct ThreadCommentRow: View {
                         image
                             .resizable()
                             .scaledToFit()
-                            .cornerRadius(12)
+                            .frame(height: 200)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     case .failure:
                         placeholderImage
                     case .empty:
@@ -104,19 +161,31 @@ struct ThreadCommentRow: View {
                         placeholderImage
                     }
                 }
-            } else {
-                placeholderImage
             }
         }
         .padding(.horizontal, 18)
-        .padding(.vertical, 9)
+        .padding(.vertical, 10)
     }
 
     private var placeholderImage: some View {
         RoundedRectangle(cornerRadius: 12)
             .fill(Color.black.opacity(0.08))
-            .frame(height: 120)
+            .frame(height: 200)
             .overlay(Label("", systemImage: "photo").foregroundStyle(.secondary))
+    }
+    
+    private var contentSection: some View {
+        Group {
+            if let content = comment.content, !content.isEmpty {
+                Text(content)
+                    .font(.system(size: 15))
+                    .foregroundStyle(Color.primaryText)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 18)
+                    .padding(.top, 10)
+                    .padding(.bottom, comment.threads.isEmpty ? 8 : 0)
+            }
+        }
     }
 }
 
@@ -125,20 +194,31 @@ struct ThreadCommentRow: View {
 /// Renders the full list of replies, passing `isFirst` to correctly style the connector line.
 private struct ThreadRepliesList: View {
     let threads: [ThreadReply]
-
+    let currentUserID: String?
+    let commentID: String
+    var onDeleteReply: (String, String, String) -> Void
+    
     var body: some View {
         VStack(spacing: 0) {
-            ForEach(threads) { (reply: ThreadReply) in
+            ForEach(threads) { reply in
                 ThreadReplyRow(
                     isFirst: isFirst(reply),
-                    reply: reply
+                    isLast: isLast(reply),
+                    reply: reply,
+                    currentUserID: currentUserID,
+                    commentID: commentID,
+                    onDelete: onDeleteReply
                 )
             }
         }
+        .padding(.bottom, 12)
     }
-
     private func isFirst(_ reply: ThreadReply) -> Bool {
         threads.first?.id == reply.id
+    }
+    
+    private func isLast(_ reply: ThreadReply) -> Bool {
+        threads.last?.id == reply.id
     }
 }
 
@@ -147,10 +227,18 @@ private struct ThreadRepliesList: View {
 #Preview {
     ThreadCommentRow(
         comment: Comment(
-            authorID: "Kimberly Marquez",
-            content: "Este es un comentario de prueba",
-            createdAt: Timestamp(date: Date())
+            id: "c1",
+            authorID: "u1",
+            authorName: "Kimberly Marquez",
+            content: "This is a test comment.",
+            imageURL: nil,
+            createdAt: Date(),
+            threads: []
         ),
-        activeCommentID: .constant(nil)
+        currentUserID: "u1",
+        activeCommentID: .constant(nil),
+        activeCommentAuthor: .constant(nil),
+        onDeleteComment: { _, _ in },
+        onDeleteReply: { _, _, _ in }
     )
 }

@@ -4,9 +4,9 @@
 //
 //  Created by Kimberly Marquez on 4/28/26.
 //
-//  Input bar for composing and sending a thread reply.
+//  Input bar for composing and sending a thread reply or new thread.
+//  - Grows vertically as the user types
 //  - Animates a send button into view when the field has text
-//  - Auto-focuses the text field when isActive becomes true
 //  - Calls onSend when the send button is tapped
 
 import SwiftUI
@@ -16,10 +16,14 @@ struct ReplyField: View {
     // MARK: - Properties
 
     @Binding var text: String
+    var placeholder: String = "Start a new thread. . ."
     var isActive: Bool = false
     var onSend: () -> Void = {}
 
     @FocusState private var focused: Bool
+    
+    private let minHeight: CGFloat = 40
+    private let maxHeight: CGFloat = 120
 
     var hasText: Bool {
         !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -28,14 +32,15 @@ struct ReplyField: View {
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .bottom, spacing: 12) {
             textInput
             if hasText {
                 sendButton
                     .transition(.scale.combined(with: .opacity))
             }
         }
-        .padding()
+        .padding(.horizontal)
+        .padding(.vertical, 8)
         .animation(.easeInOut(duration: 0.2), value: hasText)
         .onChange(of: isActive) { _, newValue in
             focused = newValue
@@ -46,25 +51,19 @@ struct ReplyField: View {
 
     /// Capsule-shaped text field with a microphone button on the trailing side.
     private var textInput: some View {
-        HStack {
-            TextField(String(localized: "Reply . . ."), text: $text)
-                .foregroundStyle(.black)
-                .font(.system(size: 20))
+        HStack (alignment: .bottom){
+            TextField(placeholder, text: $text, axis: .vertical)
                 .focused($focused)
-
-            Spacer()
-
-            Button {
-                // TODO: Microphone input
-            } label: {
-                Image(systemName: "mic.fill")
-                    .font(.system(size: 24))
-                    .foregroundStyle(.gray)
-            }
+                .font(.system(size: 17))
+                .foregroundStyle(Color.primaryText)
+                .lineLimit(1...4)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 8)
+                .background(Color.clear)
         }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 18)
-        .frame(height: 40)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 6)
+        .background(Color.clear)
         .background(
             Capsule()
                 .fill(.ultraThinMaterial)
@@ -89,11 +88,17 @@ struct ReplyField: View {
                         .fill(Color.appTeal)
                 )
         }
+        .padding(.bottom, 2)
     }
 }
 
 // MARK: - Preview
 
 #Preview {
-    ReplyField(text: .constant(""))
+    VStack {
+        Spacer()
+        ReplyField(text: .constant(""))
+        ReplyField(text: .constant("This is a longer message that should expand the text field vertically as more content is added."))
+    }
+    .background(Color.gray.opacity(0.2))
 }
