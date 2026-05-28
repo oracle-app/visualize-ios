@@ -17,7 +17,7 @@ struct VizReadyView: View {
  
     @Environment(AppCoordinator.self) private var coordinator
     /// Backing state machine for chart selection and title editing.
-    @State private var viewModel: VizReadyViewModel
+    @State private var viewModel: VizReadyScreenViewModel
     /// Controls presentation of the share sheet after the user taps proceed.
     @State private var showShareSheet: Bool = false
     @State private var sheetSize: PresentationDetent = .fraction(0.28)
@@ -32,7 +32,7 @@ struct VizReadyView: View {
  
     /// - Parameter suggestions: Chart suggestions produced by the ML service (or mock).
     init(suggestions: [ChartSuggestion]) {
-        self._viewModel = State(initialValue: VizReadyViewModel(suggestions: suggestions))
+        self._viewModel = State(initialValue: VizReadyScreenViewModel(suggestions: suggestions))
     }
  
     // MARK: - Body
@@ -137,7 +137,7 @@ struct VizReadyView: View {
     private var cards: some View {
         VStack(spacing: 12) {
             ForEach(viewModel.suggestions) { suggestion in
-                RecommendedChartCard(
+                RecommendedChartCardView(
                     title: viewModel.displayTitle(for: suggestion),
                     chart: suggestion.chart,
                     isSelected: viewModel.isSelected(suggestion.id),
@@ -183,7 +183,7 @@ struct VizReadyView: View {
         )
  
         return NavigationStack {
-            ShareSheet(
+            ShareSheetView(
                 viewModel: ShareSheetViewModel(
                     teamRepository: TeamRepositoryImpl(
                         teamDatasource: teamDatasource,

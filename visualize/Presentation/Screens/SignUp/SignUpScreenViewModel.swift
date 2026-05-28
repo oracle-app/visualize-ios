@@ -23,7 +23,7 @@ import Observation
 /// whenever any observable property changes.
 @MainActor
 @Observable
-class SignUpViewModel {
+class SignUpScreenViewModel {
     
     // MARK: - Input State
     

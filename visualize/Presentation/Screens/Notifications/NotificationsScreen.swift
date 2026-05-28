@@ -9,7 +9,7 @@ import SwiftUI
 @MainActor
 struct NotificationsScreen: View {
 
-    var viewModel: NotificationsViewModel
+    var viewModel: NotificationsScreenViewModel
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -91,7 +91,7 @@ struct NotificationsScreen: View {
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .padding(.bottom, 8)
                         } else {
-                            NotificationGroupCard(
+                            NotificationGroupCardView(
                                 group: group,
                                 onTap: { id in viewModel.markAsRead(id: id) }
                             )

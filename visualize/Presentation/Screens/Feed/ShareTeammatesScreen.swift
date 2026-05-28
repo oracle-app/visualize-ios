@@ -14,7 +14,7 @@ import SwiftUI
 struct ShareTeammatesScreen: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isFocused: Bool
-    @State private var vm: ShareTeammatesViewModel
+    @State private var vm: ShareTeammatesScreenViewModel
     @State private var isSharingExpanded = true
     @State private var isMyTeamsExpanded = true
     @State private var isJoinedTeamsExpanded = true
@@ -23,7 +23,7 @@ struct ShareTeammatesScreen: View {
     /// - Parameters:
     ///   - viewModel: The view model managing search and selection state.
     ///   - onConfirm: Closure executed after the share is persisted successfully.
-    init(viewModel: ShareTeammatesViewModel, onConfirm: @escaping () -> Void) {
+    init(viewModel: ShareTeammatesScreenViewModel, onConfirm: @escaping () -> Void) {
         _vm = State(initialValue: viewModel)
         self.onConfirm = onConfirm
     }
@@ -81,7 +81,7 @@ struct ShareTeammatesScreen: View {
     private func loadedView() -> some View {
         VStack(spacing: 16) {
             ZStack(alignment: .top) {
-                EmailSearchField(
+                EmailSearchFieldView(
                     email: $vm.email,
                     onClear: { vm.clearEmail() },
                     isFocused: _isFocused
@@ -136,7 +136,7 @@ struct ShareTeammatesScreen: View {
                                     .listRowInsets(EdgeInsets())
                             } else {
                                 ForEach(vm.myTeams) { team in
-                                    TeamRow(
+                                    TeamRowView(
                                         team: team,
                                         isSelected: vm.isSelected(team),
                                         onTap: { vm.toggleSelection(team) }
@@ -165,7 +165,7 @@ struct ShareTeammatesScreen: View {
                                     .listRowInsets(EdgeInsets())
                             } else {
                                 ForEach(vm.joinedTeams) { team in
-                                    TeamRow(
+                                    TeamRowView(
                                         team: team,
                                         isSelected: vm.isSelected(team),
                                         onTap: { vm.toggleSelection(team) }
@@ -204,8 +204,8 @@ struct ShareTeammatesScreen: View {
 }
 
 // MARK: - Preview
-extension ShareTeammatesViewModel {
-    static var previewWithUsers: ShareTeammatesViewModel {
+extension ShareTeammatesScreenViewModel {
+    static var previewWithUsers: ShareTeammatesScreenViewModel {
         let userDatasource = UserDatasource()
         let teamDatasource = TeamDatasource()
         let authDatasource = AuthFirebaseDatasource()
@@ -216,7 +216,7 @@ extension ShareTeammatesViewModel {
         let authRepository = AuthRepositoryImpl(
             source: authDatasource
         )
-        return ShareTeammatesViewModel(
+        return ShareTeammatesScreenViewModel(
             userRepository: UserRepositoryImpl(
                 userDatasource: userDatasource
             ),
@@ -240,7 +240,7 @@ extension ShareTeammatesViewModel {
 #Preview {
     NavigationStack {
         ShareTeammatesScreen(
-            viewModel: ShareTeammatesViewModel.previewWithUsers,
+            viewModel: ShareTeammatesScreenViewModel.previewWithUsers,
             onConfirm: {}
         )
     }

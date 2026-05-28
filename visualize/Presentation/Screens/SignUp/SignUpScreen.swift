@@ -18,14 +18,14 @@ import SwiftUI
 /// - Password visibility toggling
 /// - Keyboard-aware scrolling behavior
 /// - Registration action handling
-struct SignUp: View {
+struct SignUpScreen: View {
     @Environment(AppCoordinator.self) private var coordinator 
 
     // MARK: - State
     
     /// ViewModel responsible for managing
     /// registration state and validation.
-    @State private var viewModel: SignUpViewModel
+    @State private var viewModel: SignUpScreenViewModel
     
     /// Controls visibility of the password field.
     @State private var isPasswordVisible = false
@@ -35,7 +35,7 @@ struct SignUp: View {
     
     // MARK: - Initialization
     
-    init(viewModel: SignUpViewModel) {
+    init(viewModel: SignUpScreenViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
 
@@ -198,8 +198,8 @@ struct SignUp: View {
 // MARK: - Preview
 
 #Preview {
-    SignUp(
-        viewModel: SignUpViewModel(
+    SignUpScreen(
+        viewModel: SignUpScreenViewModel(
             registerUseCase: RegisterUseCase(
                 authRepository: AuthRepositoryImpl(
                     source: AuthFirebaseDatasource()
