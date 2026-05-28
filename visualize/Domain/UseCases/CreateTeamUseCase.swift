@@ -86,9 +86,9 @@ class CreateTeamUseCase {
         ///
         /// Duplicates are removed in case the owner
         /// was manually added as a member.
-        let allMemberIDs = ([ownerID] + memberIDs)
+        let allMemberIDs = memberIDs
             .reduce(into: [String]()) { result, id in
-                if !result.contains(id) {
+                if !result.contains(id) && id != ownerID {
                     result.append(id)
                 }
             }
