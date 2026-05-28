@@ -125,6 +125,7 @@ struct FeedView: View {
         } trailing: {
             HStack(spacing: 15) {
                 Button("Notifications", systemImage: "bell") {
+                    coordinator.push(.notifications)
                 }
             }
         } principal: {
@@ -215,6 +216,12 @@ struct FeedView: View {
             }
         }
         .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
+        .onChange(of: coordinator.pendingToast) { _, toast in
+            guard let toast else { return }
+            viewModel.showToast(toast)
+            viewModel.loadData(forceRefresh: true)
+            coordinator.pendingToast = nil
+        }
         .onGeometryChange(for: EdgeInsets.self) {
             $0.safeAreaInsets
         } action: { newValue in

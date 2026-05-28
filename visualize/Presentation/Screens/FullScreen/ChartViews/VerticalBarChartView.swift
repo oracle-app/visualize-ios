@@ -51,7 +51,7 @@ struct VerticalBarChartView: UIViewRepresentable {
     // MARK: - Coordinator
     func makeCoordinator() -> ChartTooltipCoordinator {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
-        coordinator.xValues = categories.enumerated().map { idx, cat in Double(cat) ?? Double(idx) }
+        coordinator.xValues = categories.indices.map { Double($0) }
         coordinator.yValues = values
         return coordinator
     }
@@ -88,7 +88,7 @@ struct VerticalBarChartView: UIViewRepresentable {
         // MARK: Data
         let xData = SCIDoubleValues()
         let yData = SCIDoubleValues()
-        for (index, _) in categories.enumerated() {
+        for index in categories.indices {
             xData.add(Double(index))
             yData.add(values[index])
         }
@@ -108,7 +108,7 @@ struct VerticalBarChartView: UIViewRepresentable {
         surface.renderableSeries.add(renderSeries)
  
         // MARK: Interactivity
-        context.coordinator.attach(to: surface, zoomDirection: .xDirection,  pinchDirection: .xDirection)
+        context.coordinator.attach(to: surface, zoomDirection: .xyDirection,  pinchDirection: .xyDirection)
         onCoordinatorReady?(context.coordinator)
 
         // MARK: Viewport override

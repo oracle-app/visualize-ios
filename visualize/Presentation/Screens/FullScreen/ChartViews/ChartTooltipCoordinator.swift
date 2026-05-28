@@ -29,9 +29,12 @@ class ChartTooltipCoordinator: NSObject {
     var xValues: [Double] = []
     var yValues: [Double] = []
     var stackKeys: [String] = []
+    var categoryLabels: [String] = []
     var stackedSubSeries: [SCIStackedColumnRenderableSeries] = []
     var areaSeriesData: [AreaSeriesEntry] = []
     var isHorizontalChart: Bool = false
+    var isScatterChart: Bool = false
+    var isLineChart: Bool = false
     
     // MARK: - Init
 
@@ -53,7 +56,17 @@ class ChartTooltipCoordinator: NSObject {
             handleAreaTap(at: location, seriesArea: seriesArea, surface: surface)
             return
         }
-
+        
+        if isScatterChart {
+            handleScatterTap(at: location, seriesArea: seriesArea, surface: surface)
+            return
+        }
+        
+        if isLineChart {
+            handleLineTap(at: location, seriesArea: seriesArea, surface: surface)
+            return
+        }
+        
         if handleStackedTap(at: location, seriesArea: seriesArea, surface: surface) { return }
         if handleBarTap(at: location, seriesArea: seriesArea, surface: surface) { return }
 
@@ -61,85 +74,107 @@ class ChartTooltipCoordinator: NSObject {
     }
 
     private func handleStackedTap(at location: CGPoint, seriesArea: UIView, surface: SCIChartSurface) -> Bool {
-        for (stackIndex, stackedSeries) in stackedSubSeries.enumerated() {
-            let hitTestInfo = SCIHitTestInfo()
-            stackedSeries.hitTest(hitTestInfo, at: location)
-            guard hitTestInfo.isHit else { continue }
-            guard
-                let xAxis = surface.xAxes.item(at: 0) as? SCINumericAxis,
-                let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis,
-                let ds = stackedSeries.dataSeries as? SCIXyDataSeries
-            else { return false }
+        guard !stackedSubSeries.isEmpty,
+              let xAxis = surface.xAxes.item(at: 0) as? SCINumericAxis,
+              let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis
+        else { return false }
 
-            let pointIndex = Int(hitTestInfo.pointSeriesIndex)
-            guard pointIndex >= 0 && pointIndex < Int(ds.count) else { return false }
+        let tappedX = Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
+        let tappedY = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
 
-            let xValue = xValues.indices.contains(pointIndex)
-                ? xValues[pointIndex]
-                : Double(xAxis.currentCoordinateCalculator.getDataValue(Float(hitTestInfo.hitTestPoint.x)))
+        let pointIndex = max(0, min(Int(tappedX.rounded()), xValues.count - 1))
 
-            let yValue: Double
-            if let raw = ds.yValues.value(at: pointIndex) as? NSNumber {
-                yValue = raw.doubleValue
-            } else {
-                yValue = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(hitTestInfo.hitTestPoint.y)))
+        var cumulativeY = 0.0
+        var hitStackIndex: Int?
+
+        for (subIdx, subSeries) in stackedSubSeries.enumerated() {
+            guard let ds = subSeries.dataSeries as? SCIXyDataSeries,
+                  pointIndex < Int(ds.count),
+                  let raw = ds.yValues.value(at: pointIndex) as? NSNumber
+            else { continue }
+
+            let segmentTop = cumulativeY + raw.doubleValue
+            if tappedY >= cumulativeY && tappedY <= segmentTop {
+                hitStackIndex = subIdx
+                break
             }
-
-            // Sum all segments up to stackIndex so the arrow points to the actual top of the tapped segment
-            var cumulativeY = 0.0
-            for subIdx in 0...stackIndex {
-                if let subDs = stackedSubSeries[subIdx].dataSeries as? SCIXyDataSeries,
-                   pointIndex < Int(subDs.count),
-                   let raw = subDs.yValues.value(at: pointIndex) as? NSNumber {
-                    cumulativeY += raw.doubleValue
-                }
-            }
-
-            let stackLabel = stackKeys.indices.contains(stackIndex) ? stackKeys[stackIndex] : yLabel
-            let pixelX = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(xValue))
-            let pixelY = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(cumulativeY))
-            let pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
-            removeTooltip()
-            showTooltip(at: pointInSurface, xValue: xValue, yValue: yValue, overrideYLabel: stackLabel)
-            return true
+            cumulativeY = segmentTop
         }
-        return false
+
+        guard let hitStackIndex else { return false }
+
+        guard let ds = stackedSubSeries[hitStackIndex].dataSeries as? SCIXyDataSeries,
+              pointIndex < Int(ds.count),
+              let raw = ds.yValues.value(at: pointIndex) as? NSNumber
+        else { return false }
+
+        let displayX = xValues.indices.contains(pointIndex) ? xValues[pointIndex] : Double(pointIndex)
+        let yValue = raw.doubleValue
+
+        var tooltipCumulativeY = 0.0
+        for subIdx in 0...hitStackIndex {
+            if let subDs = stackedSubSeries[subIdx].dataSeries as? SCIXyDataSeries,
+               pointIndex < Int(subDs.count),
+               let subRaw = subDs.yValues.value(at: pointIndex) as? NSNumber {
+                tooltipCumulativeY += subRaw.doubleValue
+            }
+        }
+
+        let stackLabel = stackKeys.indices.contains(hitStackIndex) ? stackKeys[hitStackIndex] : yLabel
+        let pixelX = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(Double(pointIndex)))
+        let pixelY = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(tooltipCumulativeY))
+        let pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
+
+        removeTooltip()
+        showTooltip(at: pointInSurface, xValue: displayX, yValue: yValue, overrideYLabel: stackLabel)
+        return true
     }
 
     private func handleBarTap(at location: CGPoint, seriesArea: UIView, surface: SCIChartSurface) -> Bool {
-        for index in 0..<surface.renderableSeries.count {
-            let series = surface.renderableSeries.item(at: index)
-            let hitTestInfo = SCIHitTestInfo()
-            series.hitTest(hitTestInfo, at: location)
-            guard hitTestInfo.isHit else { continue }
-            guard
-                let xAxis = surface.xAxes.item(at: 0) as? SCINumericAxis,
-                let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis
-            else { return false }
+        guard !xValues.isEmpty,
+              let xAxis = surface.xAxes.item(at: 0) as? SCINumericAxis,
+              let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis
+        else { return false }
 
-            let pointIndex = Int(hitTestInfo.pointSeriesIndex)
-            guard pointIndex >= 0 && pointIndex < xValues.count else { return false }
+        let tappedData = isHorizontalChart
+            ? Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
+            : Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
 
-            let xValue = xValues[pointIndex]
-            let yValue = yValues[pointIndex]
+        let pointIndex = max(0, min(Int(tappedData.rounded()), xValues.count - 1))
+        guard pointIndex < yValues.count else { return false }
 
-            let pointInSurface: CGPoint
-            if isHorizontalChart {
-                // Horizontal bars have swapped axes; center the tooltip at the bar midpoint
-                let pixelX = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(yValue / 2))
-                let pixelY = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(xValue))
-                pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
-            } else {
-                let pixelX = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(xValue))
-                let pixelY = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(yValue))
-                pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
-            }
+        let yValue = yValues[pointIndex]
 
-            removeTooltip()
-            showTooltip(at: pointInSurface, xValue: xValue, yValue: yValue)
-            return true
+        // Validate tap is actually within the bar, not in empty space above it
+        let tappedY = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
+        if isHorizontalChart {
+            let tappedX = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
+            guard tappedX >= min(0, yValue) && tappedX <= max(0, yValue) else { return false }
+        } else {
+            guard tappedY >= min(0, yValue) && tappedY <= max(0, yValue) else { return false }
         }
-        return false
+
+        let displayX: Double
+        if !categoryLabels.isEmpty, categoryLabels.indices.contains(pointIndex) {
+            displayX = Double(categoryLabels[pointIndex]) ?? Double(pointIndex)
+        } else {
+            displayX = xValues[pointIndex]
+        }
+
+        let pointInSurface: CGPoint
+        if isHorizontalChart {
+            let pixelX = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(yValue / 2))
+            let pixelY = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(Double(pointIndex)))
+            pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
+        } else {
+            let pixelX = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(Double(pointIndex)))
+            let pixelY = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(yValue))
+            pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
+        }
+
+        removeTooltip()
+        showTooltip(at: pointInSurface, xValue: displayX, yValue: yValue)
+        return true
     }
     
     private func handleAreaTap(at location: CGPoint, seriesArea: UIView, surface: SCIChartSurface) {
@@ -191,8 +226,101 @@ class ChartTooltipCoordinator: NSObject {
         removeTooltip()
         showTooltip(at: pointInSurface, xValue: xValue, yValue: yValue, overrideYLabel: data.label)
     }
+    
+    private func handleScatterTap(at location: CGPoint, seriesArea: UIView, surface: SCIChartSurface) {
+        guard
+            let xAxis = surface.xAxes.item(at: 0) as? SCINumericAxis,
+            let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis
+        else { return }
+
+        let tappedX = Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
+        let tappedY = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
+
+        // Find nearest point by 2D distance — zoom-invariant
+        guard let pointIndex = xValues.indices.min(by: {
+            let d0 = pow(xValues[$0] - tappedX, 2) + pow(yValues[$0] - tappedY, 2)
+            let d1 = pow(xValues[$1] - tappedX, 2) + pow(yValues[$1] - tappedY, 2)
+            return d0 < d1
+        }) else { return }
+
+        // Threshold: 40px in data units on X axis
+        let thresholdX = abs(
+            Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x + 40)))
+            - Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
+        )
+        let thresholdY = abs(
+            Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y + 40)))
+            - Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
+        )
+
+        let dx = abs(xValues[pointIndex] - tappedX)
+        let dy = abs(yValues[pointIndex] - tappedY)
+        guard dx < thresholdX && dy < thresholdY else {
+            removeTooltip()
+            return
+        }
+
+        let xValue = xValues[pointIndex]
+        let yValue = yValues[pointIndex]
+
+        let pixelX = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(xValue))
+       let pixelY = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(yValue))
+       let pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
+
+       removeTooltip()
+       showTooltip(at: pointInSurface, xValue: xValue, yValue: yValue)
+    }
+    
+    private func handleLineTap(at location: CGPoint, seriesArea: UIView, surface: SCIChartSurface) {
+        guard
+            let xAxis = surface.xAxes.item(at: 0) as? SCINumericAxis,
+            let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis
+        else { return }
+
+        let tappedX = Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
+        let tappedY = Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
+
+        // Find nearest point by X first, then check Y proximity
+        guard let pointIndex = xValues.indices.min(by: {
+            abs(xValues[$0] - tappedX) < abs(xValues[$1] - tappedX)
+        }) else { return }
+
+        // Threshold in Y: 40px converted to data units
+        let thresholdY = abs(
+            Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y + 40)))
+            - Double(yAxis.currentCoordinateCalculator.getDataValue(Float(location.y)))
+        )
+
+        let thresholdX = abs(
+            Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x + 40)))
+            - Double(xAxis.currentCoordinateCalculator.getDataValue(Float(location.x)))
+        )
+
+        guard abs(xValues[pointIndex] - tappedX) < thresholdX &&
+              abs(yValues[pointIndex] - tappedY) < thresholdY else {
+            removeTooltip()
+            return
+        }
+
+        let xValue = xValues[pointIndex]
+        let yValue = yValues[pointIndex]
+
+        let pixelX = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(xValue))
+        let pixelY = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(yValue))
+        let pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
+
+        removeTooltip()
+        showTooltip(at: pointInSurface, xValue: xValue, yValue: yValue)
+    }
+    
     // Dismiss the tooltip as soon as the user starts panning the chart
     @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
+        if gesture.state == .began {
+            removeTooltip()
+        }
+    }
+    
+    @objc func handlePinch(_ gesture: UIPinchGestureRecognizer) {
         if gesture.state == .began {
             removeTooltip()
         }
@@ -308,6 +436,10 @@ class ChartTooltipCoordinator: NSObject {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         tap.numberOfTapsRequired = 1
         surface.addGestureRecognizer(tap)
+        
+        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
+        pinch.delegate = self
+        surface.addGestureRecognizer(pinch)
 
         // Pan gesture is only used to dismiss the tooltip on drag start;
         // it runs simultaneously with SciChart's own pan modifier
