@@ -13,7 +13,7 @@ import SwiftUI
 struct EditTeamScreen: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isFocused: Bool
-    @State private var viewModel: EditTeamViewModel
+    @State private var viewModel: EditTeamScreenViewModel
 
     /// Called after the members list is persisted successfully.
     var onConfirm: () -> Void
@@ -21,7 +21,7 @@ struct EditTeamScreen: View {
     /// - Parameters:
     ///   - viewModel: The view model managing search and member state.
     ///   - onConfirm: Closure executed after the changes are persisted successfully.
-    init(viewModel: EditTeamViewModel, onConfirm: @escaping () -> Void) {
+    init(viewModel: EditTeamScreenViewModel, onConfirm: @escaping () -> Void) {
         _viewModel = State(initialValue: viewModel)
         self.onConfirm = onConfirm
     }
@@ -96,7 +96,7 @@ struct EditTeamScreen: View {
     private func loadedView() -> some View {
         VStack(spacing: 16) {
             ZStack(alignment: .top) {
-                EmailSearchField(
+                EmailSearchFieldView(
                     email: $viewModel.email,
                     onClear: { viewModel.clearEmail() },
                     isFocused: _isFocused
@@ -187,7 +187,7 @@ private final class PreviewUserRepository: UserRepository {
 
     return NavigationStack {
         EditTeamScreen(
-            viewModel: EditTeamViewModel(
+            viewModel: EditTeamScreenViewModel(
                 teamRepository: MockTeamRepository(),
                 userRepository: PreviewUserRepository(),
                 teamID: "t1",

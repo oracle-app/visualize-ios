@@ -68,7 +68,7 @@ struct TeamsScreen: View {
                             .foregroundStyle(Color.secondary)
                 } else {
                     ForEach(viewModel.joinedTeams) { team in
-                        TeamToggleRow(
+                        TeamToggleRowView(
                             team: team,
                             isExpanded: expandedTeamIDs.contains(team.id)
                         ) {

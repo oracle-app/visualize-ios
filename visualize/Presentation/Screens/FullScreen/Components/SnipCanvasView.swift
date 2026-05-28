@@ -11,7 +11,7 @@ import SwiftUI
 
 /// Canvas layer that renders committed and in-progress snip annotations over the chart image.
 struct AnnotationCanvasView: View {
-    var model: SnipViewModel
+    var model: SnipScreenViewModel
 
     var body: some View {
         ZStack {
@@ -143,7 +143,7 @@ struct AnnotationCanvasView: View {
 // MARK: - Gesture overlay
 
 struct SnipGestureOverlayView: View {
-    var model: SnipViewModel
+    var model: SnipScreenViewModel
 
     var body: some View {
         Color.clear

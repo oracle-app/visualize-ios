@@ -142,7 +142,7 @@ struct CreateTeamScreen: View {
 
                     // MARK: - Search Field
                     
-                    EmailSearchField(
+                    EmailSearchFieldView(
                         email: $vm.searchEmail,
                         onClear: { vm.searchEmail = "" },
                         isFocused: _isSearchFocused

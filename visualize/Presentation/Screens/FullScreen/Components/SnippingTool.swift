@@ -139,7 +139,7 @@ struct SnipFloatingToolbar: View {
 // MARK: - Shapes panel
 
 struct SnipShapesPanelView: View {
-    var model: SnipViewModel
+    var model: SnipScreenViewModel
     let onSelect: () -> Void
 
     var body: some View {
@@ -170,7 +170,7 @@ struct SnipShapesPanelView: View {
 // MARK: - Stroke width panel
 
 struct SnipStrokeWidthPanelView: View {
-    @Bindable var model: SnipViewModel
+    @Bindable var model: SnipScreenViewModel
 
     var body: some View {
         VStack(spacing: 8) {
