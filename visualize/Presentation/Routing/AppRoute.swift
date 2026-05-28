@@ -17,15 +17,11 @@ enum AppRoute: Hashable {
     case signUp
     case resetPassword
     case checkEmail(email: String)
+    case generatingVisualizations
+    case vizReady
+    case notifications
 }
 
-// MARK: - Root Route
-
-/// Defines the root-level screen of the app,
-/// displayed before any navigation occurs.
-///
-/// Separate from `AppRoute` since it lives outside
-/// the `NavigationStack` path.
 enum RootRoute {
     case landing
 }

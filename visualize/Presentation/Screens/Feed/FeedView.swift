@@ -125,6 +125,7 @@ struct FeedView: View {
         } trailing: {
             HStack(spacing: 15) {
                 Button("Notifications", systemImage: "bell") {
+                    coordinator.push(.notifications)
                 }
             }
         } principal: {

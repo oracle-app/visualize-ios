@@ -51,6 +51,7 @@ final class AppCoordinator {
     /// Set by `VizReadyView` before calling `finishCreateFlow()`, consumed and cleared by `FeedView`.
      var pendingToast: Toast? = nil
 
+
     // MARK: - Navigation
 
     func push(_ route: AppRoute) {
