@@ -57,7 +57,7 @@ final class NotificationsViewModel {
             self.currentUserID = try await authRepository.getCurrentUserID()
             self.loadNotifications()
         } catch {
-            self.state = .error("Could not authenticate user")
+            self.state = .error(String(localized: "Could not authenticate user"))
         }
     }
 
@@ -131,10 +131,11 @@ final class NotificationsViewModel {
             }
         }
 
+        // Localized section headers
         return [
-            NotificationDisplayGroup(id: "Today",        items: today),
-            NotificationDisplayGroup(id: "Yesterday",    items: yesterday),
-            NotificationDisplayGroup(id: "Last 30 days", items: last30)
+            NotificationDisplayGroup(id: String(localized: "Today"),        items: today),
+            NotificationDisplayGroup(id: String(localized: "Yesterday"),    items: yesterday),
+            NotificationDisplayGroup(id: String(localized: "Last 30 days"), items: last30)
         ]
     }
 
