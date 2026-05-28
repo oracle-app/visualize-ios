@@ -13,7 +13,6 @@ struct LoadedListView: View {
     /// Called when the user taps Share on a card.
     /// Provides the visualization ID, all shared users, editable users, and current team IDs.
     let onShare: (String, [AppUser], [AppUser], [String]) -> Void
-    //let onShare: (String, [AppUser]) -> Void
     let onTap: (VisualizationCard) -> Void
     let onHide: (String) -> Void
     let onDelete: (String) -> Void
@@ -22,11 +21,12 @@ struct LoadedListView: View {
     var body: some View {
         LazyVStack(spacing: 12) {
             ForEach(items, id: \.id) { item in
-                FeedCard(
+                FeedCardView(
+                    visualizationID: item.id,
+                    previewJSON: item.previewJSON,
                     title: item.title,
                     author: item.author,
                     date: item.createdAt,
-                    chart: item.chart,
                     onShare: { onShare(item.id, item.allUsersSharedWith, item.usersSharedWith, item.teamsSharedWith.map { $0.id }) },
                     onTap: { onTap(item) },
                     onHide: { onHide(item.id) },

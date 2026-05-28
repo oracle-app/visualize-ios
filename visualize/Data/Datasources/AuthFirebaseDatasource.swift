@@ -16,14 +16,32 @@ class AuthFirebaseDatasource {
     
     /// Signs in a user using email and password with Firebase Authentication.
     ///
+    /// Firebase-specific errors are caught here and mapped into domain-level
+    /// `LoginError` cases to keep upper layers decoupled from Firebase.
+    ///
     /// - Parameters:
     ///   - email: The user's email address.
     ///   - password: The user's password.
     /// - Returns: The authenticated Firebase user.
-    /// - Throws: An error if the authentication process fails.
+    /// - Throws:
+    ///   - `LoginError.invalidCredentials` if the email or password is incorrect.
+    ///   - `LoginError.networkIssue` if there is no internet connection.
+    ///   - `LoginError.unknown` for any other unexpected error.
     func login(email: String, password: String) async throws -> FirebaseAuth.User {
-        let result = try await auth.signIn(withEmail: email, password: password)
-        return result.user
+        do {
+            let result = try await auth.signIn(withEmail: email, password: password)
+            return result.user
+        } catch let error as NSError {
+            let code = AuthErrorCode(rawValue: error.code)
+            switch code {
+            case .wrongPassword, .invalidCredential, .userNotFound:
+                throw LoginError.invalidCredentials
+            case .networkError:
+                throw LoginError.networkIssue
+            default:
+                throw LoginError.unknown
+            }
+        }
     }
     
     /// Registers a new user using email and password with Firebase Authentication.

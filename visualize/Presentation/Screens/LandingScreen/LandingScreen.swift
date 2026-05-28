@@ -57,13 +57,13 @@ struct LandingScreen: View {
                         .tracking(5)
                         .padding(.top, 70)
 
-                    Text("Turn data into decisions.")
+                    Text(String(localized: "Turn data into decisions."))
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(Color.appSubtitle)
                 }
                 .padding(.bottom, 32)
 
-                Text("Create, choose, and share AI-powered\ngraphs in seconds.\nFast, simple, and secure.")
+                Text(String(localized: "Create, choose, and share AI-powered\ngraphs in seconds.\nFast, simple, and secure."))
                     .font(.system(size: 15))
                     .foregroundColor(Color.appNavy)
                     .multilineTextAlignment(.center)
@@ -77,13 +77,13 @@ struct LandingScreen: View {
                     } label: {
                         Text("Log in")
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(AppColors.Text.authButtonText)
                             .frame(maxWidth: 280)
                             .frame(height: 50)
                             .shadow(radius: 10, x: 0, y: 2)
                             .background(
                                 Capsule()
-                                    .fill(Color.appTeal)
+                                    .fill(AppColors.UI.authButton)
                             )
                     }
                     .padding(.bottom, 20)
@@ -122,13 +122,14 @@ struct LandingScreen: View {
                     .padding(.bottom, 55)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(red: 245/255, green: 244/255, blue: 242/255))
+            .background(Color.appBackground)
             .clipShape(RoundedRectangle(cornerRadius: 30))
             .ignoresSafeArea(edges: .bottom)
         }
         .background(Color.appTeal)
         .ignoresSafeArea(edges: .top)
         .toolbar(.hidden, for: .navigationBar)
+        .portraitOrientationLock()
     }
 }
 
@@ -138,4 +139,3 @@ struct LandingScreen: View {
     LandingScreen()
         .environment(AppCoordinator())
 }
-

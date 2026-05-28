@@ -25,7 +25,7 @@ struct ProfilePreferencesSectionView: View {
                     Button {
                         selectThemeAction(theme)
                     } label: {
-                        ThemePaletteView(colors: colors(for: theme))
+                        ThemePaletteView(colors: theme.swiftUIColors)
                             .frame(maxWidth: .infinity)
                             .frame(height: Metrics.paletteHeight)
                             .clipShape(.rect(cornerRadius: Metrics.themeCornerRadius))
@@ -57,24 +57,6 @@ struct ProfilePreferencesSectionView: View {
             GridItem(.flexible(), spacing: Metrics.columnSpacing)
         ]
     }
-
-    // MARK: - Private methods
-
-    /// Returns the visual color palette for a chart theme.
-    /// - Parameter theme: The chart color theme to render.
-    /// - Returns: The SwiftUI colors associated with the selected theme.
-    private func colors(for theme: ChartColorTheme) -> [Color] {
-        switch theme {
-        case .aqua:
-            [.paletteAqua1, .paletteAqua2, .paletteAqua3, .paletteAqua4, .paletteAqua5]
-        case .iris:
-            [.paletteIris1, .paletteIris2, .paletteIris3, .paletteIris4, .paletteIris5]
-        case .autumn:
-            [.paletteAutumn1, .paletteAutumn2, .paletteAutumn3, .paletteAutumn4, .paletteAutumn5]
-        case .blossom:
-            [.paletteBlossom1, .paletteBlossom2, .paletteBlossom3, .paletteBlossom4, .paletteBlossom5]
-        }
-    }
 }
 
 // MARK: - ThemePaletteView
@@ -99,12 +81,12 @@ private struct ThemePaletteView: View {
 
 private enum Metrics {
     static let sectionSpacing: CGFloat = 14
-    static let paletteHeight: CGFloat = 27
+    static let paletteHeight: CGFloat = 33
     static let themeCornerRadius: CGFloat = 10
     static let selectedBorderWidth: CGFloat = 2
     static let selectionPadding: CGFloat = 3
-    static let rowSpacing: CGFloat = 6
-    static let columnSpacing: CGFloat = 6
+    static let rowSpacing: CGFloat = 8
+    static let columnSpacing: CGFloat = 8
 }
 
 #Preview {
@@ -114,7 +96,7 @@ private enum Metrics {
 
         ProfilePreferencesSectionView(
             availableThemes: ChartColorTheme.allCases,
-            selectedTheme: .aqua
+            selectedTheme: .lagoon
         ) { _ in
             // Preview action
         }

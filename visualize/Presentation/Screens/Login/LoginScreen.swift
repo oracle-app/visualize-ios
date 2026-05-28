@@ -60,14 +60,14 @@ struct Login: View {
                     // Title
                     Text("Welcome")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color(Color.appNavy))
+                        .foregroundColor(Color.appNavy)
                         .multilineTextAlignment(.center)
                         .padding(.top, 58)
                         .padding(.bottom, 58)
 
                     // Email input
                     InputField(
-                        placeholder: "Email",
+                        placeholder: String(localized: "Email"),
                         text: $viewModel.email,
                         errorMessage: viewModel.emailError,
                         keyboardType: .emailAddress
@@ -76,7 +76,7 @@ struct Login: View {
 
                     // Password input
                     PasswordField(
-                        placeholder: "Password",
+                        placeholder: String(localized: "Password"),
                         text: $viewModel.password,
                         isVisible: $isPasswordVisible,
                         errorMessage: viewModel.passwordError
@@ -141,17 +141,31 @@ struct Login: View {
                 .scrollTargetLayout()
                 .padding(.horizontal, 24)
             }
-            .background(Color(red: 245/255, green: 244/255, blue: 242/255))
+            .background(Color.appBackground)
             .clipShape(RoundedRectangle(cornerRadius: 30))
             .ignoresSafeArea(edges: .bottom)
             .scrollDismissesKeyboard(.interactively)
         }
+        .overlay(alignment: .bottom) {
+            if let toast = viewModel.currentToast {
+                ToastView(toast: toast)
+                    .padding(.bottom, 32)
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                            removal: .opacity.combined(with: .scale(scale: 0.95))
+                        )
+                    )
+            }
+        }
+        .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
         .background(Color(Color.appTeal))
         .onChange(of: viewModel.isLoggedIn) { _, success in
             if success {
                 coordinator.login()
             }
         }
+        .portraitOrientationLock()
     }
 }
 

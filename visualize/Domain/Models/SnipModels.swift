@@ -1,3 +1,10 @@
+//
+//  SnipModels.swift
+//  visualize
+//
+//  Created by Nicolas Peralta on 15/05/26.
+//
+
 import SwiftUI
 
 // MARK: - Drawing tool
@@ -62,19 +69,6 @@ struct DrawingStroke: Identifiable {
     var color: Color
     /// Stroke width in points.
     var lineWidth: CGFloat
-
-    /// Returns `true` if any point in the stroke falls within `radius` of `point`.
-    ///
-    /// - Parameters:
-    ///   - point: The canvas coordinate to test against.
-    ///   - radius: The hit-test radius in points.
-    func hits(point: CGPoint, radius: CGFloat) -> Bool {
-        points.contains {
-            let deltaX = $0.x - point.x
-            let deltaY = $0.y - point.y
-            return deltaX * deltaX + deltaY * deltaY <= radius * radius
-        }
-    }
 }
 
 // MARK: - Shape annotation

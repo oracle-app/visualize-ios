@@ -20,18 +20,19 @@ import Foundation
 /// - Loads teams owned by and joined by the current user.
 /// - Coordinates search, selection, and confirm-share actions.
 ///
-@Observable
+
 @MainActor
+@Observable
 final class ShareSheetViewModel {
 
     // MARK: - Dependencies
 
     private let teamRepository: any TeamRepository
     private let userRepository: any UserRepository
+    private let authRepository: any AuthRepository
     private let createVisualizationUseCase: CreateVisualizationUseCase
 
-    // Temporary hardcoded user ID, will be replaced with authenticated session value.
-    private let userID = "e9Nk8XrxHJAtwN3Hf2FL"
+    private(set) var userID: String = ""
     
     // MARK: - Chart Data
  
@@ -64,7 +65,6 @@ final class ShareSheetViewModel {
     /// Non-nil when `confirmShare` fails. Displayed in `ShareSheet` so the user knows the save failed.
     var confirmError: String? = nil
 
-
     // MARK: - Private State
 
     private var searchTask: Task<Void, Never>?
@@ -83,6 +83,7 @@ final class ShareSheetViewModel {
     init(
         teamRepository: any TeamRepository,
         userRepository: any UserRepository,
+        authRepository: any AuthRepository,
         createVisualizationUseCase: CreateVisualizationUseCase,
         chartTitle: String,
         chartConfigJSON: String,
@@ -90,10 +91,22 @@ final class ShareSheetViewModel {
     ) {
         self.teamRepository = teamRepository
         self.userRepository = userRepository
+        self.authRepository = authRepository
         self.createVisualizationUseCase = createVisualizationUseCase
         self.chartTitle = chartTitle
         self.chartConfigJSON = chartConfigJSON
         self.chartPreviewJSON = chartPreviewJSON
+        Task {
+            await initializeUser()
+        }
+    }
+    
+    private func initializeUser() async {
+        do {
+            self.userID = try await authRepository.getCurrentUserID()
+        } catch {
+            self.error = String(localized: "Couldn't get user session.")
+        }
     }
 
     // MARK: - Data Loading
@@ -104,7 +117,7 @@ final class ShareSheetViewModel {
     /// the fetch and populates `myTeams` and `joinedTeams` on success.
     func loadData() {
         guard !isLoading else { return }
-
+        guard !userID.isEmpty else { return }
         Task {
             isLoading = true
             do {
@@ -113,7 +126,8 @@ final class ShareSheetViewModel {
                 myTeams = try await myTeamsRequest
                 joinedTeams = try await joinedTeamsRequest
             } catch {
-                self.error = "Error loading teams: \(error.localizedDescription)"
+                self.error = String(localized: "Error loading teams: \(error.localizedDescription)")
+
             }
             isLoading = false
         }
@@ -159,6 +173,11 @@ final class ShareSheetViewModel {
     /// For teammates: populated with the user's selections from the sheet.
     /// - Throws: Any error from `CreateVisualizationUseCase`.
     func confirmShare() async throws {
+        guard !userID.isEmpty else {
+            confirmError = String(localized: "Session not valid.")
+            return
+        }
+        
         confirmError = nil
         try await createVisualizationUseCase.execute(
             title: chartTitle,

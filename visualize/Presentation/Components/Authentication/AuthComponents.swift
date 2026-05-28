@@ -26,7 +26,7 @@ struct InputField: View {
     @Binding var text: String
     
     /// Optional validation error message.
-    var errorMessage: String? = nil
+    var errorMessage: String?
     
     /// Keyboard configuration depending on input type.
     var keyboardType: UIKeyboardType = .default
@@ -60,9 +60,9 @@ struct InputField: View {
         .padding(.vertical, 18)
         .focused($isFocused)
         .background(
-            hasError ? Color.white : Color.appLightTeal
+            hasError ? AppColors.UI.authErrorBackground : Color.appMint
         )
-        .foregroundStyle(Color.appDarkBlue)
+        .foregroundStyle(AppColors.Text.authFieldText)
         .tint(hasError ? .red : Color.appTeal)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -111,7 +111,7 @@ struct PasswordField: View {
     @Binding var isVisible: Bool
     
     /// Optional validation error message.
-    var errorMessage: String? = nil
+    var errorMessage: String?
     
     /// Tracks focus state for UI feedback.
     @FocusState private var isFocused: Bool
@@ -155,7 +155,7 @@ struct PasswordField: View {
             .autocapitalization(.none)
             .autocorrectionDisabled()
             .focused($isFocused)
-            .foregroundStyle(Color.appDarkBlue)
+            .foregroundStyle(AppColors.Text.authFieldText)
             .tint(hasError ? .red : Color.appTeal)
 
             // MARK: Visibility Toggle
@@ -164,13 +164,13 @@ struct PasswordField: View {
                 isVisible.toggle()
             } label: {
                 Image(systemName: isVisible ? "eye.slash" : "eye")
-                    .foregroundColor(Color.appNavy)
+                    .foregroundColor(AppColors.UI.authButtonIcon)
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 18)
         .background(
-            hasError ? Color.white : Color.appLightTeal
+            hasError ? AppColors.UI.authErrorBackground : Color.appMint
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -220,12 +220,12 @@ struct AuthButton: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(AppColors.Text.authButtonText)
                 .frame(maxWidth: 150)
                 .frame(height: 50)
                 .background(
                     RoundedRectangle(cornerRadius: 50)
-                        .fill(Color(Color.appTeal))
+                        .fill(AppColors.Text.teriary)
                 )
         }
     }

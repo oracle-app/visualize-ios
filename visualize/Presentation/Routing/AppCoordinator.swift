@@ -27,23 +27,30 @@ final class AppCoordinator {
     var isAuthenticated: Bool = false
     var path: [AppRoute] = []
     var root: RootRoute = .landing
-    
-    /// Chart suggestions produced by the ML service, passed from
-    /// `GeneratingVisualizationsView` to `VizReadyView`.
-    ///
-    /// Stored here instead of in `AppRoute` because `ChartData`'s
-    /// associated values (e.g. `[String: Double]`) are not `Hashable`,
-    /// which is required for route enum cases.
-    var pendingSuggestions: [ChartSuggestion] = []
-    var createFlowResetID: Int = 0
 
     // MARK: - Tab State
-
+ 
     var selectedTab: Tabs = .feed
     var feedPath: [AppRoute] = []
-    var createPath: [AppRoute] = []
-    var teamsPath: [AppRoute] = []
+    var createPath: [CreateRoute] = []
+    var teamsPath: [TeamsRoute] = []
     var profilePath: [AppRoute] = []
+    
+    // MARK: - Create Flow Payload
+
+    /// Local URL of the dataset copied from the file importer.
+    var pendingFileURL: URL? = nil
+
+    /// Chart suggestions parsed by `GeneratingVisualizationsView`.
+    var pendingSuggestions: [ChartSuggestion] = []
+
+    /// Bumped after a successful share to signal `CreateVisualization` to call `resetFile()`.
+    var createFlowResetID: Int = 0
+    
+    /// Toast to display in `FeedView` after a successful create flow.
+    /// Set by `VizReadyView` before calling `finishCreateFlow()`, consumed and cleared by `FeedView`.
+     var pendingToast: Toast? = nil
+
 
     // MARK: - Navigation
 
@@ -54,10 +61,11 @@ final class AppCoordinator {
                 feedPath.append(route)
 
             case .create:
-                createPath.append(route)
+                // Create tab uses CreateRoute, not AppRoute.
+                assertionFailure("Use pushCreate(_:) for the create tab.")
 
             case .teams:
-                teamsPath.append(route)
+                assertionFailure("Use pushTeam(_:) for the teams tab")
 
             case .profile:
                 profilePath.append(route)
@@ -65,6 +73,19 @@ final class AppCoordinator {
         } else {
             path.append(route)
         }
+    }
+    
+    // MARK: - Create Tab Navigation
+    /// Pushes a `CreateRoute` onto the create tab stack.
+    func pushCreate(_ route: CreateRoute) {
+        createPath.append(route)
+    }
+    
+    // MARK: - Teams Navigation
+
+    /// Pushes a route onto the teams tab stack.
+    func pushTeams(_ route: TeamsRoute) {
+        teamsPath.append(route)
     }
 
     func pop() {
@@ -113,39 +134,23 @@ final class AppCoordinator {
     }
 
     func replace(path newPath: [AppRoute]) {
-        if isAuthenticated {
-            switch selectedTab {
-            case .feed:
-                feedPath = newPath
-
-            case .create:
-                createPath = newPath
-
-            case .teams:
-                teamsPath = newPath
-
-            case .profile:
-                profilePath = newPath
-            }
-        } else {
-            path = newPath
-        }
+        guard !isAuthenticated else { return }
+        path = newPath
     }
+    
 
     // MARK: - Session
 
     func login() {
-        path.removeAll()
+        clearAllPaths()
+        selectedTab = .feed
         isAuthenticated = true
     }
 
     func logout() {
         isAuthenticated = false
-        path.removeAll()
-        feedPath.removeAll()
-        resetCreateFlow(shouldResetUpload: false)
-        teamsPath.removeAll()
-        profilePath.removeAll()
+        selectedTab = .feed
+        clearAllPaths()
     }
     
     /// Clears the create flow's navigation and transient state explicitly.
@@ -153,7 +158,7 @@ final class AppCoordinator {
     func resetCreateFlow(shouldResetUpload: Bool = true) {
         createPath.removeAll()
         pendingSuggestions.removeAll()
-
+        pendingFileURL = nil
         if shouldResetUpload {
             createFlowResetID += 1
         }
@@ -165,10 +170,27 @@ final class AppCoordinator {
         resetCreateFlow()
     }
     
+    /// Stores the dataset file URL and pushes `.generatingVisualizations` in one call,
+    /// so the route is never pushed without its required payload.
+    /// - Parameter fileURL: Stable local URL of the dataset (copied to temp dir).
+    func startGeneration(with fileURL: URL) {
+        pendingFileURL = fileURL
+        pushCreate(.generatingVisualizations)
+    }
+    
     /// Stores suggestions and pushes `.vizReady` in a single call.
     /// - Parameter suggestions: The chart suggestions to display in `VizReadyView`.
     func navigateToVizReady(with suggestions: [ChartSuggestion]) {
         pendingSuggestions = suggestions
-        push(.vizReady)
+        pushCreate(.vizReady)
+    }
+    // MARK: Helpers
+    
+    private func clearAllPaths() {
+        path.removeAll()
+        feedPath.removeAll()
+        teamsPath.removeAll()
+        profilePath.removeAll()
+        resetCreateFlow(shouldResetUpload: true)
     }
 }

@@ -43,11 +43,16 @@ class LoginViewModel {
     
     // MARK: - UI Error State
     
-    var emailError: String? = nil
-    var passwordError: String? = nil
-    var errorMessage: String? = nil
+    var emailError: String?
+    var passwordError: String?
     var isLoading: Bool = false
     var isLoggedIn: Bool = false
+    
+    // Toast
+    var currentToast: Toast?
+
+    @ObservationIgnored
+    private var toastTask: Task<Void, Never>?
     
     // MARK: - Dependencies
     
@@ -59,10 +64,22 @@ class LoginViewModel {
         self.loginUseCase = loginUseCase
     }
     
+    // MARK: - Toast
+
+    func showToast(_ toast: Toast) {
+        toastTask?.cancel()
+        currentToast = toast
+        toastTask = Task {
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            currentToast = nil
+        }
+    }
+    
     // MARK: - Actions
     
     func login() {
-        errorMessage = nil
+        guard !isLoading else { return }
         
         let isEmailValid = validateEmail()
         let isPasswordValid = validatePassword()
@@ -84,15 +101,37 @@ class LoginViewModel {
             } catch let error as LoginError {
                 switch error {
                 case .emailRequired, .invalidEmail:
-                    self.emailError = "Please enter a valid email address."
+                    self.emailError = String(localized: "Please enter a valid email address.")
                 case .passwordRequired:
-                    self.passwordError = "Required fields cannot be left blank."
+                    self.passwordError = String(localized: "Required fields cannot be left blank.")
+                case .invalidCredentials:
+                    showToast(Toast(
+                        message: String(localized: "Incorrect email or password. Please try again."),
+                        type: .error
+                    ))
+                case .networkIssue:
+                    showToast(Toast(
+                        message: String(localized: "Unable to connect. Check your internet connection."),
+                        type: .error
+                    ))
+                case .unknown:
+                    showToast(Toast(
+                        message: String(localized: "Something went wrong. Please try again."),
+                        type: .error
+                    ))
+                case .notFound:
+                    showToast(Toast(
+                        message: String(localized: "User not found."),
+                        type: .error
+                    ))
                 }
                 
             } catch {
-                self.errorMessage = error.localizedDescription
+                showToast(Toast(
+                    message: String(localized: "Something went wrong. Please try again."),
+                    type: .error
+                ))
             }
-            
             isLoading = false
         }
     }
@@ -101,7 +140,7 @@ class LoginViewModel {
     
     private func validateEmail() -> Bool {
         if email.trimmingCharacters(in: .whitespaces).isEmpty {
-            emailError = "Required fields cannot be left blank."
+            emailError = String(localized: "Required fields cannot be left blank.")
             return false
         }
         
@@ -111,7 +150,7 @@ class LoginViewModel {
     
     private func validatePassword() -> Bool {
         if password.isEmpty {
-            passwordError = "Required fields cannot be left blank."
+            passwordError = String(localized: "Required fields cannot be left blank.")
             return false
         }
         

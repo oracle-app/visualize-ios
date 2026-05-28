@@ -11,7 +11,8 @@ extension VisualizationDTO {
     func toVisualizationCard(
             authorName: String,
             teamsSharedWith: [Team],
-            usersSharedWith: [AppUser]
+            usersSharedWith: [AppUser],
+            preParsedChart: ChartData? = nil
         ) -> VisualizationCard {
             var allUsersDict: [String: AppUser] = [:]
             for user in usersSharedWith {
@@ -23,25 +24,6 @@ extension VisualizationDTO {
                 }
             }
             let allUsers = Array(allUsersDict.values)
-            
-            // Parse preview chart from previewJSON (reduced data) for feed card rendering.
-            // FullScreenView parses configJSON directly to get all data points.
-            let previewString = self.previewJSON ?? self.configJSON
-            let parsedChart = ChartConfigParser.parse(from: previewString) ?? .unsupported(type: "Invalid JSON")
-     
-            let derivedChartType: ChartType
-            switch parsedChart {
-            case .verticalBar:   derivedChartType = .verticalBar
-            case .horizontalBar: derivedChartType = .horizontalBar
-            case .stackedBar:    derivedChartType = .stackedBar
-            case .line:          derivedChartType = .line
-            case .pie:           derivedChartType = .pie
-            case .donut:         derivedChartType = .donut
-            case .scatter:       derivedChartType = .scatter
-            case .area:          derivedChartType = .area
-            case .tile:          derivedChartType = .tile
-            case .unsupported:   derivedChartType = .tile
-            }
      
             return VisualizationCard(
                 id: self.id ?? "",
@@ -49,8 +31,7 @@ extension VisualizationDTO {
                 author: authorName,
                 authorID: self.authorID,
                 createdAt: self.createdAt,
-                chart: parsedChart,
-                chartType: derivedChartType,
+                previewJSON: self.previewJSON,
                 teamsSharedWith: teamsSharedWith,
                 usersSharedWith: usersSharedWith,
                 allUsersSharedWith: allUsers

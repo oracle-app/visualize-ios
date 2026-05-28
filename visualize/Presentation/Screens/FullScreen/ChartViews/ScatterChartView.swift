@@ -20,14 +20,16 @@ struct ScatterChartView: UIViewRepresentable {
     let yValues: [Double]
     let xLabel: String
     let yLabel: String
-    var viewport: ChartViewport? = nil
-    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
+    let theme: ChartColorTheme
+    var viewport: ChartViewport?
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
     
     // MARK: - Coordinator
     func makeCoordinator() -> ChartTooltipCoordinator {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
         coordinator.xValues = xValues
         coordinator.yValues = yValues
+        coordinator.isScatterChart = true
         return coordinator
     }
 
@@ -35,25 +37,29 @@ struct ScatterChartView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> SCIChartSurface {
         let surface = SCIChartSurface()
-        //SCIThemeManager.applyTheme(SCIChartTheme.expressionLight, to: surface)
         surface.backgroundColor = UIColor(Color.white)
         surface.renderableSeriesAreaBorderStyle = SCISolidPenStyle(color: .clear, thickness: 0)
-
+        
+        let primaryColor = theme.uiColors[0]
+        let secondaryColor = theme.uiColors[1]
+        let gridLineColor = primaryColor.withAlphaComponent(0.5)
+        
         // MARK: Axes
         let xAxis = SCINumericAxis()
         xAxis.axisTitle = xLabel
-        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        xAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.5), thickness: 1.5)
+        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        xAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1.5)
         xAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         xAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
 
         let yAxis = SCINumericAxis()
         yAxis.axisTitle = yLabel
-        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        yAxis.visibleRange = SCIDoubleRange(min: -0.5, max: 1.5)
-        yAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.5), thickness: 1.5)
+        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        yAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1.5)
         yAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         yAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
+        yAxis.autoRange = .always
+        yAxis.growBy = SCIDoubleRange(min: 0.2, max: 0.2)
 
         surface.xAxes.add(xAxis)
         surface.yAxes.add(yAxis)
@@ -75,16 +81,16 @@ struct ScatterChartView: UIViewRepresentable {
         renderSeries.dataSeries = dataSeries
         renderSeries.pointMarker = {
             let marker = SCIEllipsePointMarker()
-            marker.size = CGSize(width: 8, height: 8)
-            marker.fillStyle = SCISolidBrushStyle(color: UIColor(Color.primaryOrange))
-            marker.strokeStyle = SCISolidPenStyle(color: UIColor(Color.appNavy), thickness: 1.5)
+            marker.size = CGSize(width: 12, height: 12)
+            marker.fillStyle = SCISolidBrushStyle(color: secondaryColor)
+            marker.strokeStyle = SCISolidPenStyle(color: primaryColor, thickness: 1.5)
             return marker
         }()
 
         surface.renderableSeries.add(renderSeries)
 
         // MARK: Interactivity
-        context.coordinator.attach(to: surface)
+        context.coordinator.attach(to: surface, zoomDirection: .xyDirection, pinchDirection: .xyDirection)
         onCoordinatorReady?(context.coordinator)
 
         // MARK: Viewport override
@@ -96,6 +102,12 @@ struct ScatterChartView: UIViewRepresentable {
     func updateUIView(_ uiView: SCIChartSurface, context: Context) {}
     
     static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: ChartTooltipCoordinator) {
+        uiView.suspendUpdates()
+        uiView.renderableSeries.clear()
+        uiView.chartModifiers.clear()
+        uiView.xAxes.clear()
+        uiView.yAxes.clear()
+        uiView.annotations.clear()
         coordinator.cleanup()
     }
 }

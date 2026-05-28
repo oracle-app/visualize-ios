@@ -14,7 +14,7 @@ import os.log
 /// Wraps `SCIChartSurface` in a `UIViewRepresentable` with zoom, pan,
 /// and rollover tooltip modifiers for full-screen interactivity.
 struct StackedBarChartView: UIViewRepresentable {
- 
+    
     // MARK: - Properties
     /// Stack key -> values per category. Keys are rendered in ascending order.
     let data: [String: [Double]]
@@ -22,47 +22,42 @@ struct StackedBarChartView: UIViewRepresentable {
     let categories: [String]
     let xLabel: String
     let yLabel: String
-    var viewport: ChartViewport? = nil
-    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)? = nil
-
-    // MARK: - Private
-    private let stackColors: [UIColor] = [
-        UIColor(Color.appTeal),
-        UIColor(Color.primaryOrange),
-        UIColor(Color.appNavy),
-        UIColor(Color.appMint)
-    ]
+    let theme: ChartColorTheme
+    var viewport: ChartViewport?
+    var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
     
     // MARK: - Coordinator
     func makeCoordinator() -> ChartTooltipCoordinator {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
-
         coordinator.xValues = categories.enumerated().map { idx, cat in
             Double(cat) ?? Double(idx)
         }
-
-        coordinator.isStackedChart = true
-
+        coordinator.stackKeys = data.keys.sorted()
         return coordinator
     }
+    
     // MARK: - UIViewRepresentable
     func makeUIView(context: Context) -> SCIChartSurface {
         let surface = SCIChartSurface()
         surface.backgroundColor = UIColor(Color.white)
         surface.renderableSeriesAreaBorderStyle = SCISolidPenStyle(color: .clear, thickness: 0)
+        
+        let primaryColor = theme.uiColors[0]
+        let gridLineColor = primaryColor.withAlphaComponent(0.2)
  
         // MARK: Axes
         let xAxis = SCINumericAxis()
         xAxis.axisTitle = xLabel
-        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        xAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.2), thickness: 1)
+        xAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        xAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1)
         xAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         xAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
+        xAxis.visibleRange = SCIDoubleRange(min: -0.5, max: Double(categories.count) - 0.5)
  
         let yAxis = SCINumericAxis()
         yAxis.axisTitle = yLabel
-        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: UIColor(Color.appTeal))
-        yAxis.majorGridLineStyle = SCISolidPenStyle(color: UIColor(Color.appTeal).withAlphaComponent(0.2), thickness: 1)
+        yAxis.tickLabelStyle = SCIFontStyle(fontSize: 12, andTextColor: primaryColor)
+        yAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1)
         yAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         yAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
         yAxis.growBy = SCIDoubleRange(min: 0, max: 0.1)
@@ -73,14 +68,14 @@ struct StackedBarChartView: UIViewRepresentable {
         // MARK: Stacked Series
         let stackedCollection = SCIVerticallyStackedColumnsCollection()
         let sortedStacks = data.sorted { $0.key < $1.key }
+        let themeColors = theme.uiColors
  
         for (stackIndex, (_, stackValues)) in sortedStacks.enumerated() {
             let xData = SCIDoubleValues()
             let yData = SCIDoubleValues()
  
-            for (catIndex, category) in categories.enumerated() {
-                xData.add(Double(category) ?? Double(catIndex))
-                // Default to 0 if this stack has fewer values than categories
+            for (catIndex, _) in categories.enumerated() {
+                xData.add(Double(catIndex))
                 let value: Double = catIndex < stackValues.count ? stackValues[catIndex] : 0
                 yData.add(value)
             }
@@ -88,7 +83,7 @@ struct StackedBarChartView: UIViewRepresentable {
             let dataSeries = SCIXyDataSeries(xType: .double, yType: .double)
             dataSeries.append(x: xData, y: yData)
  
-            let color: UIColor = stackColors[stackIndex % stackColors.count]
+            let color = themeColors[stackIndex % themeColors.count]
             let stackedSeries = SCIStackedColumnRenderableSeries()
             stackedSeries.dataSeries = dataSeries
             stackedSeries.fillBrushStyle = SCISolidBrushStyle(color: color)
@@ -96,6 +91,7 @@ struct StackedBarChartView: UIViewRepresentable {
             stackedSeries.dataPointWidth = 0.7
  
             stackedCollection.add(stackedSeries)
+            context.coordinator.stackedSubSeries.append(stackedSeries)
         }
  
         surface.renderableSeries.add(stackedCollection)
@@ -113,6 +109,12 @@ struct StackedBarChartView: UIViewRepresentable {
     func updateUIView(_ uiView: SCIChartSurface, context: Context) {}
     
     static func dismantleUIView(_ uiView: SCIChartSurface, coordinator: ChartTooltipCoordinator) {
+        uiView.suspendUpdates()
+        uiView.renderableSeries.clear()
+        uiView.chartModifiers.clear()
+        uiView.xAxes.clear()
+        uiView.yAxes.clear()
+        uiView.annotations.clear()
         coordinator.cleanup()
     }
 }

@@ -17,8 +17,7 @@ protocol VisualizationRepository {
     ///   - teamIDs: The new list of team IDs.
     func updateSharing(visualizationID: String, userIDs: [String], teamIDs: [String]) async throws
     
-    func getSharedVisualizations(userID: String) async throws -> [VisualizationCard]
-    func getPersonalVisualizations(userID: String) async throws -> [VisualizationCard]
+    func getAllVisualizations(userID: String) async throws -> [VisualizationCard]
     func searchVisualizations(userID: String, query: String) async throws -> [VisualizationCard]
 
     func deleteVisualization(visualizationID: String) async throws

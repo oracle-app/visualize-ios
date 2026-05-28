@@ -17,12 +17,13 @@ struct VizReadyView: View {
  
     @Environment(AppCoordinator.self) private var coordinator
     /// Backing state machine for chart selection and title editing.
-    @State private var viewModel: VizReadyViewModel
+    @State private var viewModel: VizReadyScreenViewModel
     /// Controls presentation of the share sheet after the user taps proceed.
     @State private var showShareSheet: Bool = false
     @State private var sheetSize: PresentationDetent = .fraction(0.28)
     /// Controls the discard confirmation alert triggered by the X button.
     @State private var showDiscardAlert: Bool = false
+    @State private var isTeammatesSelected: Bool = false
  
     private let userDatasource: UserDatasource = UserDatasource()
     private let teamDatasource: TeamDatasource = TeamDatasource()
@@ -31,7 +32,7 @@ struct VizReadyView: View {
  
     /// - Parameter suggestions: Chart suggestions produced by the ML service (or mock).
     init(suggestions: [ChartSuggestion]) {
-        self._viewModel = State(initialValue: VizReadyViewModel(suggestions: suggestions))
+        self._viewModel = State(initialValue: VizReadyScreenViewModel(suggestions: suggestions))
     }
  
     // MARK: - Body
@@ -43,6 +44,7 @@ struct VizReadyView: View {
                 cards
             }
         }
+        .appBackground()
         .scrollIndicators(.hidden)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -97,6 +99,7 @@ struct VizReadyView: View {
         .sheet(isPresented: $showShareSheet) {
             shareSheet
         }
+        .portraitOrientationLock()
     }
  
     // MARK: - Private views
@@ -105,13 +108,13 @@ struct VizReadyView: View {
     private var expandedHeader: some View {
         VStack(spacing: 8) {
             VStack(spacing: 8) {
-                Text("Your visualizations are ready!")
+                Text(String(localized: "Your visualizations are ready!"))
                     .font(.system(size: 25, weight: .bold))
                     .foregroundStyle(Color.appNavy)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8)
  
-                Text("We've generated several charts based\non your dataset.")
+                Text(String(localized: "We've generated several charts based\non your dataset."))
                     .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(Color.appSubtitle)
                     .multilineTextAlignment(.center)
@@ -121,7 +124,7 @@ struct VizReadyView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
  
-            Text("Choose the chart that best represents the insights you want to share")
+            Text(String(localized: "Choose the chart that best represents the insights you want to share"))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Color.appSubtitle.opacity(0.8))
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -134,7 +137,7 @@ struct VizReadyView: View {
     private var cards: some View {
         VStack(spacing: 12) {
             ForEach(viewModel.suggestions) { suggestion in
-                RecommendedChartCard(
+                RecommendedChartCardView(
                     title: viewModel.displayTitle(for: suggestion),
                     chart: suggestion.chart,
                     isSelected: viewModel.isSelected(suggestion.id),
@@ -173,16 +176,21 @@ struct VizReadyView: View {
             visualizationDatasource: vizDatasource,
             teamsDatasource: teamDatasource
         )
+        let authDatasource = AuthFirebaseDatasource()
         let suggestion = viewModel.selectedSuggestion
+        let authRepository = AuthRepositoryImpl(
+            source: authDatasource
+        )
  
         return NavigationStack {
-            ShareSheet(
+            ShareSheetView(
                 viewModel: ShareSheetViewModel(
                     teamRepository: TeamRepositoryImpl(
                         teamDatasource: teamDatasource,
                         userDatasource: userDatasource
                     ),
                     userRepository: UserRepositoryImpl(userDatasource: userDatasource),
+                    authRepository: authRepository,
                     createVisualizationUseCase: CreateVisualizationUseCase(
                         visualizationRepository: vizRepository
                     ),
@@ -191,17 +199,29 @@ struct VizReadyView: View {
                     chartPreviewJSON: suggestion?.previewJSON ?? ""
                 ),
                 sheetSize: $sheetSize,
-                onConfirm: {
+                onConfirm: { isShared in
+                    coordinator.pendingToast = Toast(
+                        message: isShared
+                            ? "Visualization published and shared"
+                            : "Visualization published to your feed",
+                        type: .success
+                    )
                     Task {
                         try? await Task.sleep(for: .milliseconds(350))
                         await MainActor.run {
                             coordinator.finishCreateFlow()
                         }
                     }
+                },
+                onModeChange: { isTeammates in
+                    isTeammatesSelected = isTeammates
                 }
             )
         }
-        .presentationDetents([.fraction(0.34), .large], selection: $sheetSize)
+        .presentationDetents(
+            isTeammatesSelected ? [.fraction(0.34), .large] : [.fraction(0.34)],
+            selection: $sheetSize
+        )
         .presentationBackground(.clear)
     }
 }

@@ -8,9 +8,14 @@
 /// Contract for fetching ML-generated chart suggestions for a dataset.
 ///
 /// Implementations:
-/// - `MockChartSuggestionsRepositoryImpl` — reads bundled JSON (current)
+/// - `APIChartSuggestionsRepositoryImpl` , calls the live microservice (production).
+/// - `MockChartSuggestionsRepositoryImpl` , returns bundled Titanic JSON (previews and tests).
+
 protocol ChartSuggestionsRepository {
-    /// Returns chart suggestions for the most recently uploaded dataset.
+    /// Returns chart suggestions for the dataset identified by `taskId`.
+    /// - Parameter taskId: The identifier returned by `AnalyzeRepository.uploadDataset`.
+    ///   Mock implementations may ignore this value and return a fixed dataset.
+    /// - Returns: Suggestions sorted ascending by `chartIndex`.
     /// - Throws: Any networking or parsing error.
-    func getSuggestions() async throws -> [ChartSuggestion]
+    func getSuggestions(taskId: String) async throws -> [ChartSuggestion]
 }
