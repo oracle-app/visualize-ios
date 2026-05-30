@@ -60,14 +60,14 @@ struct Login: View {
                     // Title
                     Text("Welcome")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color(Color.appNavy))
+                        .foregroundColor(Color.appNavy)
                         .multilineTextAlignment(.center)
                         .padding(.top, 58)
                         .padding(.bottom, 58)
 
                     // Email input
                     InputField(
-                        placeholder: "Email",
+                        placeholder: String(localized: "Email"),
                         text: $viewModel.email,
                         errorMessage: viewModel.emailError,
                         keyboardType: .emailAddress
@@ -76,7 +76,7 @@ struct Login: View {
 
                     // Password input
                     PasswordField(
-                        placeholder: "Password",
+                        placeholder: String(localized: "Password"),
                         text: $viewModel.password,
                         isVisible: $isPasswordVisible,
                         errorMessage: viewModel.passwordError
@@ -141,7 +141,7 @@ struct Login: View {
                 .scrollTargetLayout()
                 .padding(.horizontal, 24)
             }
-            .background(Color(red: 245/255, green: 244/255, blue: 242/255))
+            .background(Color.appBackground)
             .clipShape(RoundedRectangle(cornerRadius: 30))
             .ignoresSafeArea(edges: .bottom)
             .scrollDismissesKeyboard(.interactively)
@@ -165,6 +165,7 @@ struct Login: View {
                 coordinator.login(user: authenticatedUser)
             }
         }
+        .portraitOrientationLock()
     }
 }
 

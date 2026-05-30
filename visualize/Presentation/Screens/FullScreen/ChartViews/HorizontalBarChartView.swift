@@ -56,6 +56,7 @@ struct HorizontalBarChartView: UIViewRepresentable {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
         coordinator.xValues = categories.indices.map { Double($0) }
         coordinator.yValues = Array(values.prefix(categories.count))
+        coordinator.isHorizontalChart = true
         return coordinator
     }
 
@@ -78,6 +79,7 @@ struct HorizontalBarChartView: UIViewRepresentable {
         xAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1)
         xAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         xAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
+        xAxis.visibleRange = SCIDoubleRange(min: -0.5, max: Double(categories.count) - 0.5)
 
         let yAxis = SCINumericAxis()
         yAxis.axisTitle = yLabel
@@ -121,7 +123,7 @@ struct HorizontalBarChartView: UIViewRepresentable {
         surface.renderableSeries.add(stackedCollection)
 
         // MARK: Interactivity
-        context.coordinator.attach(to: surface, zoomDirection: .yDirection)
+        context.coordinator.attach(to: surface, zoomDirection: .xyDirection)
         onCoordinatorReady?(context.coordinator)
 
         // MARK: Viewport override

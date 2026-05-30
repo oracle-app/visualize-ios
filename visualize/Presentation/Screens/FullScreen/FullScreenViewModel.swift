@@ -101,7 +101,7 @@ final class FullScreenViewModel {
         do {
             self.userID = try await authRepository.getCurrentUserID()
         } catch {
-            self.error = "No se pudo obtener la sesión del usuario."
+            self.error = "Could not load user session."
         }
     }
 
@@ -175,10 +175,10 @@ final class FullScreenViewModel {
             if let json = configJSON {
                 parsedChart = ChartConfigParser.parse(from: json)
                 if parsedChart == nil {
-                    configError = "Chart data could not be parsed."
+                    configError = String(localized: "Chart data could not be parsed.")
                 }
             } else {
-                configError = "Chart data not found."
+                configError = String(localized: "Chart data not found.")
             }
         } catch {
             configError = error.localizedDescription

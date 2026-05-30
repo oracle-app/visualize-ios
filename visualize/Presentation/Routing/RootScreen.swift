@@ -36,7 +36,7 @@ struct RootScreen: View {
     var body: some View {
         Group {
             if coordinator.isAuthenticated {
-                NavBar()
+                NavBarView()
             } else {
                 NavigationStack(path: $coordinator.path) {
                     LandingScreen()
@@ -56,8 +56,8 @@ struct RootScreen: View {
                                 )
                                 .navigationBarBackButtonHidden(true)
                             case .signUp:
-                                SignUp(
-                                    viewModel: SignUpViewModel(
+                                SignUpScreen(
+                                    viewModel: SignUpScreenViewModel(
                                         registerUseCase: RegisterUseCase(
                                             authRepository: AuthRepositoryImpl(
                                                 source: AuthFirebaseDatasource()
@@ -70,8 +70,8 @@ struct RootScreen: View {
                                 )
                                 .navigationBarBackButtonHidden(true)
                             case .resetPassword:
-                                ResetPasswordView(
-                                    viewModel: ResetPasswordViewModel(
+                                ResetPasswordScreen(
+                                    viewModel: ResetPasswordScreenViewModel(
                                         resetPasswordUseCase: ResetPasswordUseCase(
                                             authRepository: AuthRepositoryImpl(
                                                 source: AuthFirebaseDatasource()
@@ -81,8 +81,8 @@ struct RootScreen: View {
                                 )
                                 .navigationBarBackButtonHidden(true)
                             case .checkEmail(let email):
-                                CheckEmailView(
-                                    viewModel: CheckEmailViewModel(
+                                CheckEmailScreen(
+                                    viewModel: CheckEmailScreenViewModel(
                                         email: email,
                                         resetPasswordUseCase: ResetPasswordUseCase(
                                             authRepository: AuthRepositoryImpl(
@@ -92,12 +92,12 @@ struct RootScreen: View {
                                     )
                                 )
                                 .navigationBarBackButtonHidden(true)
- 
+
                             // These routes belong to the Create tab and are registered
                             // in NavBar's Create NavigationStack. They are listed here
                             // only to satisfy switch exhaustiveness, they are never
                             // pushed onto the auth path.
-                            case .generatingVisualizations, .vizReady:
+                            case .generatingVisualizations, .vizReady, .notifications:
                                 EmptyView()
                             }
                         }

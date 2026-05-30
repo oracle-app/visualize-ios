@@ -30,6 +30,7 @@ struct LineChartView: UIViewRepresentable {
             let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
             coordinator.xValues = sorted.map { $0.key }
             coordinator.yValues = sorted.map { $0.value }
+            coordinator.isLineChart = true
             return coordinator
         }
     

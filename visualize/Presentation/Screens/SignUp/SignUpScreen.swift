@@ -18,14 +18,14 @@ import SwiftUI
 /// - Password visibility toggling
 /// - Keyboard-aware scrolling behavior
 /// - Registration action handling
-struct SignUp: View {
+struct SignUpScreen: View {
     @Environment(AppCoordinator.self) private var coordinator 
 
     // MARK: - State
     
     /// ViewModel responsible for managing
     /// registration state and validation.
-    @State private var viewModel: SignUpViewModel
+    @State private var viewModel: SignUpScreenViewModel
     
     /// Controls visibility of the password field.
     @State private var isPasswordVisible = false
@@ -35,7 +35,7 @@ struct SignUp: View {
     
     // MARK: - Initialization
     
-    init(viewModel: SignUpViewModel) {
+    init(viewModel: SignUpScreenViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
 
@@ -64,7 +64,7 @@ struct SignUp: View {
                     
                     Text("Create your account")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color(Color.appNavy))
+                        .foregroundColor(Color.appNavy)
                         .multilineTextAlignment(.center)
                         .padding(.top, 58)
                         .padding(.bottom, 58)
@@ -72,7 +72,7 @@ struct SignUp: View {
                     // MARK: Name Field
                     
                     InputField(
-                        placeholder: "Name",
+                        placeholder: String(localized: "Name"),
                         text: $viewModel.name,
                         errorMessage: viewModel.nameError
                     )
@@ -81,7 +81,7 @@ struct SignUp: View {
                     // MARK: Email Field
                     
                     InputField(
-                        placeholder: "Email",
+                        placeholder: String(localized: "Email"),
                         text: $viewModel.email,
                         errorMessage: viewModel.emailError,
                         keyboardType: .emailAddress
@@ -91,7 +91,7 @@ struct SignUp: View {
                     // MARK: Password Field
                     
                     PasswordField(
-                        placeholder: "Password",
+                        placeholder: String(localized: "Password"),
                         text: $viewModel.password,
                         isVisible: $isPasswordVisible,
                         errorMessage: viewModel.passwordError
@@ -113,7 +113,7 @@ struct SignUp: View {
                     // MARK: Confirm Password Field
                     
                     PasswordField(
-                        placeholder: "Confirm password",
+                        placeholder: String(localized: "Confirm password"),
                         text: $viewModel.confirmPassword,
                         isVisible: $isConfirmPasswordVisible,
                         errorMessage: viewModel.confirmPasswordError
@@ -168,11 +168,7 @@ struct SignUp: View {
                 .frame(maxWidth: 360)
                 .padding(.horizontal, 24)
                 .background(
-                    Color(
-                        red: 245/255,
-                        green: 244/255,
-                        blue: 242/255
-                    )
+                    Color.appBackground
                     .frame(height: 800, alignment: .top)
                     .clipShape(
                         RoundedRectangle(cornerRadius: 30)
@@ -195,14 +191,15 @@ struct SignUp: View {
                 coordinator.replace(path: [.login])
             }
         }
+        .portraitOrientationLock()
     }
 }
 
 // MARK: - Preview
 
 #Preview {
-    SignUp(
-        viewModel: SignUpViewModel(
+    SignUpScreen(
+        viewModel: SignUpScreenViewModel(
             registerUseCase: RegisterUseCase(
                 authRepository: AuthRepositoryImpl(
                     source: AuthFirebaseDatasource()

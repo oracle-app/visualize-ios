@@ -6,6 +6,7 @@
 //
 
 import FirebaseFirestore
+import FirebaseStorage
 
 class UserDatasource {
     private let firebase: Firestore
@@ -69,5 +70,32 @@ class UserDatasource {
     func removeHiddenVisualization(userID: String, visualizationID: String) async throws {
         try await firebase.collection("users").document(userID)
             .updateData(["hiddenVisualizations": FieldValue.arrayRemove([visualizationID])])
+    }
+    
+    func uploadProfileImage(userID: String, imageData: Data) async throws -> URL {
+        let storage = Storage.storage()
+        let ref = storage.reference()
+            .child("profilePictures/\(userID).jpg")
+
+        _ = try await ref.putDataAsync(imageData)
+
+        let url = try await ref.downloadURL()
+        return url
+    }
+    
+    func updateProfilePictureURL(userID: String, url: URL?) async throws {
+        let value: Any = url?.absoluteString ?? ""
+        try await firebase.collection("users").document(userID)
+            .updateData([
+                "profilePictureURL": value
+            ])
+    }
+    
+    func deleteProfileImage(userID: String) async throws {
+        let storage = Storage.storage()
+        let ref = storage.reference()
+            .child("profilePictures/\(userID).jpg")
+
+        try await ref.delete()
     }
 }

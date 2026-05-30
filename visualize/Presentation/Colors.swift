@@ -1,14 +1,31 @@
 import SwiftUI
 
+// MARK: Background Modifier
+struct AppBackgroundModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        ZStack {
+            Color("AppBackground")
+                .ignoresSafeArea()
+            content
+        }
+    }
+}
+
+extension View {
+    func appBackground() -> some View {
+        modifier(AppBackgroundModifier())
+    }
+}
+
+// MARK: Colors
 extension Color {
     static let primaryText = AppColors.Text.primary
     static let appMint = AppColors.UI.background
     static let appTeal = AppColors.Text.teriary
     static let appSubtitle = AppColors.Text.secondary
-
-    static let appNavy = Color(red: 19/255,  green: 33/255,  blue: 44/255)  // #13212C
+    static let appNavy = AppColors.Text.primary
+    
     static let appAmber      = Color(red: 232/255, green: 160/255, blue: 32/255)  // #E8A020
-    static let appBackground = Color(red: 247/255, green: 247/255, blue: 247/255) // #F7F7F7
     static let appOrange = Color(red: 255/255, green: 122/255, blue: 0/255)   // #FF7A00
     static let appCardTitle = Color(red: 26/255,  green: 47/255,  blue: 63/255)  // #1A2F3F
     static let appButtonBackground = Color(red: 235/255, green: 235/255, blue: 240/255) // #EBEBF0
@@ -52,10 +69,16 @@ enum AppColors {
         static let secondary = Color("TextSecondary")
         static let teriary = Color("TextTertiary")
         static let placeholder = Color("TextPlaceholder")
+        static let authFieldText = Color("AuthFieldText")
+        static let authButtonText = Color("AuthButtonText")
     }
 
     enum UI {
         static let background = Color("ComponentBackground")
-        static let cardShare = Color("CardShare")
+        static let card = Color("Card")
+        static let screenBackground = Color("AppBackground")
+        static let authErrorBackground = Color("AuthErrorBackground")
+        static let authButtonIcon = Color("AuthButtonIcon")
+        static let authButton = Color("AuthButton")
     }
 }

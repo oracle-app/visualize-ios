@@ -5,6 +5,8 @@
 //  Created by Carlos Amador on 25/04/26.
 //
 
+import UIKit
+
 class UserRepositoryImpl: UserRepository {
 
     private let userDatasource: UserDatasource
@@ -19,6 +21,21 @@ class UserRepositoryImpl: UserRepository {
     func getUserSuggestionsByEmail(email: String) async throws -> [AppUser] {
         let usersRaw: [UserDTO] = try await userDatasource.getUserSuggestionsByEmail(email: email)
         return usersRaw.map { $0.toAppUser() }
+    }
+    
+    func updateProfilePictureURL(userID: String, url: URL?) async throws {
+        try await userDatasource.updateProfilePictureURL(userID: userID, url: url)
+    }
+    func deleteProfileImage(userID: String) async throws {
+        try await userDatasource.deleteProfileImage(userID: userID)
+    }
+    
+    func uploadProfileImage(userID: String, imageData: Data) async throws -> URL {
+        let url: URL = try await userDatasource.uploadProfileImage(
+            userID: userID,
+            imageData: imageData
+        )
+        return url
     }
     
     /// Creates a new user in the remote data source and returns the created user

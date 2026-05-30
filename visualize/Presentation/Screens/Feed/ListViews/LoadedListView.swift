@@ -27,7 +27,7 @@ struct LoadedListView: View {
                     currentUserID: currentUserID,
                     authorID: item.authorID
                 )
-                FeedCard(
+                FeedCardView(
                     visualizationID: item.id,
                     previewJSON: item.previewJSON,
                     title: item.title,
@@ -39,7 +39,7 @@ struct LoadedListView: View {
                     onDelete: { onDelete(item.id) },
                     sharedWith: item.allUsersSharedWith,
                     permissions: permissions,
-                    isOwner: item.authorID == currentUserID,
+                    isOwner: item.authorID == currentUserID
                 )
             }
         }

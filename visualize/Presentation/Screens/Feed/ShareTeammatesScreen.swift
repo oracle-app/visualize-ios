@@ -5,19 +5,16 @@
 //  Created by Diana Escalante on 13/04/26.
 //
 
-//
+import SwiftUI
+
 /// Main screen that allows users to share content with teammates.
 /// It handles UI states (loading, error, loaded), integrates search functionality,
 /// and displays both suggested users and selected teammates.
 /// Coordinates interactions between the ViewModel and reusable UI components.
-//
-
-import SwiftUI
-
 struct ShareTeammatesScreen: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isFocused: Bool
-    @State private var vm: ShareTeammatesViewModel
+    @State private var vm: ShareTeammatesScreenViewModel
     @State private var isSharingExpanded = true
     @State private var isMyTeamsExpanded = true
     @State private var isJoinedTeamsExpanded = true
@@ -26,7 +23,7 @@ struct ShareTeammatesScreen: View {
     /// - Parameters:
     ///   - viewModel: The view model managing search and selection state.
     ///   - onConfirm: Closure executed after the share is persisted successfully.
-    init(viewModel: ShareTeammatesViewModel, onConfirm: @escaping () -> Void) {
+    init(viewModel: ShareTeammatesScreenViewModel, onConfirm: @escaping () -> Void) {
         _vm = State(initialValue: viewModel)
         self.onConfirm = onConfirm
     }
@@ -42,7 +39,6 @@ struct ShareTeammatesScreen: View {
                         .foregroundStyle(Color.primaryText)
                 }
                 contentView
-                Spacer()
             }
             .padding(.horizontal, 16)
             if isFocused && vm.email.count >= 3 {
@@ -85,7 +81,7 @@ struct ShareTeammatesScreen: View {
     private func loadedView() -> some View {
         VStack(spacing: 16) {
             ZStack(alignment: .top) {
-                EmailSearchField(
+                EmailSearchFieldView(
                     email: $vm.email,
                     onClear: { vm.clearEmail() },
                     isFocused: _isFocused
@@ -103,7 +99,7 @@ struct ShareTeammatesScreen: View {
                     Section {
                         if isSharingExpanded {
                             if vm.selectedUsers.isEmpty {
-                                Text("Search for teammates or select a team below.")
+                                Text(String(localized: "Search for teammates or select a team below."))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -120,7 +116,7 @@ struct ShareTeammatesScreen: View {
                             }
                         }
                     } header: {
-                        collapsableHeader("Sharing with", isExpanded: $isSharingExpanded)
+                        collapsableHeader(String(localized: "Sharing with"), isExpanded: $isSharingExpanded)
                     }
 
                     // MARK: My Teams
@@ -131,7 +127,7 @@ struct ShareTeammatesScreen: View {
                                     .frame(maxWidth: .infinity)
                                     .listRowBackground(Color.clear)
                             } else if vm.myTeams.isEmpty {
-                                Text("You haven't created any teams yet.")
+                                Text(String(localized: "You haven't created any teams yet."))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -140,7 +136,7 @@ struct ShareTeammatesScreen: View {
                                     .listRowInsets(EdgeInsets())
                             } else {
                                 ForEach(vm.myTeams) { team in
-                                    TeamRow(
+                                    TeamRowView(
                                         team: team,
                                         isSelected: vm.isSelected(team),
                                         onTap: { vm.toggleSelection(team) }
@@ -149,7 +145,7 @@ struct ShareTeammatesScreen: View {
                             }
                         }
                     } header: {
-                        collapsableHeader("My teams", isExpanded: $isMyTeamsExpanded)
+                        collapsableHeader(String(localized: "My teams"), isExpanded: $isMyTeamsExpanded)
                     }
 
                     // MARK: Teams I'm in
@@ -160,7 +156,7 @@ struct ShareTeammatesScreen: View {
                                     .frame(maxWidth: .infinity)
                                     .listRowBackground(Color.clear)
                             } else if vm.joinedTeams.isEmpty {
-                                Text("You're not part of any teams yet.")
+                                Text(String(localized: "You're not part of any teams yet."))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -169,7 +165,7 @@ struct ShareTeammatesScreen: View {
                                     .listRowInsets(EdgeInsets())
                             } else {
                                 ForEach(vm.joinedTeams) { team in
-                                    TeamRow(
+                                    TeamRowView(
                                         team: team,
                                         isSelected: vm.isSelected(team),
                                         onTap: { vm.toggleSelection(team) }
@@ -178,7 +174,7 @@ struct ShareTeammatesScreen: View {
                             }
                         }
                     } header: {
-                        collapsableHeader("Teams I'm in", isExpanded: $isJoinedTeamsExpanded)
+                        collapsableHeader(String(localized: "Teams I'm in"), isExpanded: $isJoinedTeamsExpanded)
                     }
                 }
                 .listStyle(.insetGrouped)
@@ -199,17 +195,17 @@ struct ShareTeammatesScreen: View {
             withAnimation { isExpanded.wrappedValue.toggle() }
         } label: {
             HStack {
-                Text(title).foregroundStyle(.black)
+                Text(title).foregroundStyle(Color.primaryText)
                 Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color.primaryText)
             }
         }
     }
 }
 
 // MARK: - Preview
-extension ShareTeammatesViewModel {
-    static var previewWithUsers: ShareTeammatesViewModel {
+extension ShareTeammatesScreenViewModel {
+    static var previewWithUsers: ShareTeammatesScreenViewModel {
         let userDatasource = UserDatasource()
         let teamDatasource = TeamDatasource()
         let authDatasource = AuthFirebaseDatasource()
@@ -220,7 +216,7 @@ extension ShareTeammatesViewModel {
         let authRepository = AuthRepositoryImpl(
             source: authDatasource
         )
-        return ShareTeammatesViewModel(
+        return ShareTeammatesScreenViewModel(
             userRepository: UserRepositoryImpl(
                 userDatasource: userDatasource
             ),
@@ -244,7 +240,7 @@ extension ShareTeammatesViewModel {
 #Preview {
     NavigationStack {
         ShareTeammatesScreen(
-            viewModel: ShareTeammatesViewModel.previewWithUsers,
+            viewModel: ShareTeammatesScreenViewModel.previewWithUsers,
             onConfirm: {}
         )
     }

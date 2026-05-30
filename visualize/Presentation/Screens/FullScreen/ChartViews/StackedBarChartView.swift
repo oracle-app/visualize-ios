@@ -14,7 +14,7 @@ import os.log
 /// Wraps `SCIChartSurface` in a `UIViewRepresentable` with zoom, pan,
 /// and rollover tooltip modifiers for full-screen interactivity.
 struct StackedBarChartView: UIViewRepresentable {
- 
+    
     // MARK: - Properties
     /// Stack key -> values per category. Keys are rendered in ascending order.
     let data: [String: [Double]]
@@ -29,15 +29,13 @@ struct StackedBarChartView: UIViewRepresentable {
     // MARK: - Coordinator
     func makeCoordinator() -> ChartTooltipCoordinator {
         let coordinator = ChartTooltipCoordinator(xLabel: xLabel, yLabel: yLabel)
-
         coordinator.xValues = categories.enumerated().map { idx, cat in
             Double(cat) ?? Double(idx)
         }
-
-        coordinator.isStackedChart = true
-
+        coordinator.stackKeys = data.keys.sorted()
         return coordinator
     }
+    
     // MARK: - UIViewRepresentable
     func makeUIView(context: Context) -> SCIChartSurface {
         let surface = SCIChartSurface()
@@ -54,6 +52,7 @@ struct StackedBarChartView: UIViewRepresentable {
         xAxis.majorGridLineStyle = SCISolidPenStyle(color: gridLineColor, thickness: 1)
         xAxis.minorGridLineStyle = SCISolidPenStyle(color: .clear, thickness: 0)
         xAxis.axisBandsStyle = SCISolidBrushStyle(color: .clear)
+        xAxis.visibleRange = SCIDoubleRange(min: -0.5, max: Double(categories.count) - 0.5)
  
         let yAxis = SCINumericAxis()
         yAxis.axisTitle = yLabel
@@ -75,9 +74,8 @@ struct StackedBarChartView: UIViewRepresentable {
             let xData = SCIDoubleValues()
             let yData = SCIDoubleValues()
  
-            for (catIndex, category) in categories.enumerated() {
-                xData.add(Double(category) ?? Double(catIndex))
-                // Default to 0 if this stack has fewer values than categories
+            for (catIndex, _) in categories.enumerated() {
+                xData.add(Double(catIndex))
                 let value: Double = catIndex < stackValues.count ? stackValues[catIndex] : 0
                 yData.add(value)
             }
@@ -93,6 +91,7 @@ struct StackedBarChartView: UIViewRepresentable {
             stackedSeries.dataPointWidth = 0.7
  
             stackedCollection.add(stackedSeries)
+            context.coordinator.stackedSubSeries.append(stackedSeries)
         }
  
         surface.renderableSeries.add(stackedCollection)

@@ -5,6 +5,8 @@
 //  Created by Carlos Amador on 25/04/26.
 //
 
+import Foundation
+
 protocol UserRepository {
     /// Retrieves a user by their unique identifier.
     ///
@@ -17,7 +19,7 @@ protocol UserRepository {
     
     /// Creates a new user in the system.
     ///
-    /// This operation is part of the Domain Layer contract and is responsible for
+    /// This operation is part of the Domain Layer contract and is responsible for505
     /// defining the creation of a user without exposing implementation details.
     ///
     /// - Parameter user: The domain user (`AppUser`) to be created.
@@ -26,4 +28,8 @@ protocol UserRepository {
     func createUser(user: AppUser) async throws -> AppUser
     func addHiddenVisualization(userID: String, visualizationID: String) async throws
     func removeHiddenVisualization(userID: String, visualizationID: String) async throws
+    
+    func updateProfilePictureURL(userID: String, url: URL?) async throws
+    func uploadProfileImage(userID: String, imageData: Data) async throws -> URL
+    func deleteProfileImage(userID: String) async throws
 }

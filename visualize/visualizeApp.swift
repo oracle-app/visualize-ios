@@ -11,24 +11,32 @@ import FirebaseAppCheck
 import SciChart
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-
-    if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
-        FirebaseApp.configure()
+    
+    static var orientationLock = UIInterfaceOrientationMask.all
+    
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
+      ) -> Bool {
+          if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
+              FirebaseApp.configure()
+          }
+      
+        #if DEBUG
+          guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
+              assertionFailure("GoogleService-Info.plist is missing — Firebase will not be configured. Add the file to the project.")
+              return true
+          }
+          
+          AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+        #endif
+          
+          return true
+      }
+    
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+            return AppDelegate.orientationLock
     }
-
-    #if DEBUG
-    guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
-      assertionFailure("GoogleService-Info.plist is missing — Firebase will not be configured. Add the file to the project.")
-      return true
-    }
-
-    AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
-    #endif
-
-    return true
-  }
 }
 
 @main
