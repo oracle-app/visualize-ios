@@ -4,6 +4,9 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//  Rendering and gesture layers for Snipping Tool annotations. The canvas draws
+//  strokes, shapes, text labels, crop overlays, and forwards drag/tap gestures
+//  to the view model without owning editing state.
 
 import SwiftUI
 
@@ -27,8 +30,10 @@ struct AnnotationCanvasView: View {
                 Text(ann.text)
                     .font(.system(size: ann.fontSize, weight: .semibold))
                     .foregroundStyle(ann.color)
+                    .shadow(color: .black.opacity(0.6), radius: 0.6, x: 0, y: 0.8)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
+                    // Keep labels readable over dark chrome while preserving native SwiftUI styling.
                     .background(Color.white.opacity(0.75))
                     .clipShape(.rect(cornerRadius: 4))
                     .shadow(color: .black.opacity(0.15), radius: 2)
