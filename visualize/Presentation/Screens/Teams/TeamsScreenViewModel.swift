@@ -103,6 +103,7 @@ final class TeamsScreenViewModel {
             do {
                 try await teamRepository.deleteTeam(teamID: team.id)
                 myTeams.removeAll { $0.id == team.id }
+                joinedTeams.removeAll() { $0.id == team.id }
                 showToast("\"\(team.name)\" deleted", type: .success)
             } catch {
                 self.error = "Failed to delete team."
@@ -125,7 +126,7 @@ final class TeamsScreenViewModel {
             teamRepository: teamRepository,
             userRepository: userRepository,
             teamID: team.id,
-            ownerID: userID,
+            ownerID: team.ownerID,
             initialMembers: team.members
         )
     }

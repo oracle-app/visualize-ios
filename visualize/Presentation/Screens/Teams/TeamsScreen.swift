@@ -38,12 +38,11 @@ struct TeamsScreen: View {
                         ForEach(viewModel.myTeams) { team in
                             TeamSwipeRow(team: team)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button {
+                                    Button(role: .destructive) {
                                         viewModel.deleteTeam(team)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
-                                    .tint(.red)
 
                                     Button {
                                         viewModel.beginEditing(team)
@@ -64,36 +63,55 @@ struct TeamsScreen: View {
             Section {
                 if viewModel.isLoading && !viewModel.hasLoadedOnce {
                         loadingState
-                    } else if viewModel.joinedTeams.isEmpty {
-                        emptyState("You're not part of any teams yet.")
-                            .listRowBackground(Color.clear)
-                            .foregroundStyle(Color.secondary)
+                } else if viewModel.joinedTeams.isEmpty {
+                    emptyState("You're not part of any teams yet.")
+                        .listRowBackground(Color.clear)
+                        .foregroundStyle(Color.secondary)
                 } else {
                     ForEach(viewModel.joinedTeams) { team in
-                        TeamToggleRowView(
-                            team: team,
-                            isExpanded: expandedTeamIDs.contains(team.id)
-                        ) {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                if expandedTeamIDs.contains(team.id) {
-                                    expandedTeamIDs.remove(team.id)
-                                } else {
-                                    expandedTeamIDs.insert(team.id)
+                        
+                        if viewModel.currentUserRole == .admin {
+                            TeamSwipeRow(team: team)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(role: .destructive) {
+                                        viewModel.deleteTeam(team)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    
+                                    Button {
+                                        viewModel.beginEditing(team)
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(Color.appTeal)
                                 }
-                            }
-                        }
-
-                        if expandedTeamIDs.contains(team.id) {
-                            ForEach(team.members) { member in
-                                Group {
-                                    if member.id == team.ownerID {
-                                        OwnerRowView(user: member)
+                            
+                        } else {
+                            TeamToggleRowView(
+                                team: team,
+                                isExpanded: expandedTeamIDs.contains(team.id)
+                            ) {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    if expandedTeamIDs.contains(team.id) {
+                                        expandedTeamIDs.remove(team.id)
                                     } else {
-                                        UserRowView(user: member)
+                                        expandedTeamIDs.insert(team.id)
                                     }
                                 }
-                                .listRowInsets(EdgeInsets(top: 4, leading: 32, bottom: 4, trailing: 16))
-                                .listRowBackground(Color.appMint.opacity(0.6))
+                            }
+                            if expandedTeamIDs.contains(team.id) {
+                                ForEach(team.members) { member in
+                                    Group {
+                                        if member.id == team.ownerID {
+                                            OwnerRowView(user: member)
+                                        } else {
+                                            UserRowView(user: member)
+                                        }
+                                    }
+                                    .listRowInsets(EdgeInsets(top: 4, leading: 32, bottom: 4, trailing: 16))
+                                    .listRowBackground(Color.appMint.opacity(0.6))
+                                }
                             }
                         }
                     }
