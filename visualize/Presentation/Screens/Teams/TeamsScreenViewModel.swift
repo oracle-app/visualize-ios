@@ -27,6 +27,7 @@ final class TeamsScreenViewModel {
     private(set) var teamPendingDelete: Team?
     var teamToEdit: Team?
     var currentToast: Toast?
+    private(set) var currentUserRole: Role = .consumer
     
     @ObservationIgnored
     private var toastTask: Task<Void, Never>?
@@ -57,6 +58,8 @@ final class TeamsScreenViewModel {
     private func initializeUser() async {
         do {
             self.userID = try await authRepository.getCurrentUserID()
+            let user = try await userRepository.getUserByID(userID: userID)
+            self.currentUserRole = user.role
         } catch {
             self.error = "Failed to authenticate user."
         }

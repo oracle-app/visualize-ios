@@ -25,36 +25,38 @@ struct TeamsScreen: View {
     var body: some View {
         List {
             // MARK: - My Teams
-
-            Section {
-                if viewModel.isLoading && !viewModel.hasLoadedOnce {
-                        loadingState
+            
+            if (viewModel.currentUserRole != .consumer) {
+                Section {
+                    if viewModel.isLoading && !viewModel.hasLoadedOnce {
+                            loadingState
                     } else if viewModel.myTeams.isEmpty {
                         emptyState("You haven't created any teams yet.")
                             .listRowBackground(Color.clear)
                             .foregroundStyle(Color.secondary)
-                } else {
-                    ForEach(viewModel.myTeams) { team in
-                        TeamSwipeRow(team: team)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button {
-                                    viewModel.deleteTeam(team)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                                .tint(.red)
+                    } else {
+                        ForEach(viewModel.myTeams) { team in
+                            TeamSwipeRow(team: team)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button {
+                                        viewModel.deleteTeam(team)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    .tint(.red)
 
-                                Button {
-                                    viewModel.beginEditing(team)
-                                } label: {
-                                    Label("Edit", systemImage: "pencil")
+                                    Button {
+                                        viewModel.beginEditing(team)
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(Color.appTeal)
                                 }
-                                .tint(Color.appTeal)
-                            }
+                        }
                     }
+                } header: {
+                    sectionHeader("My teams")
                 }
-            } header: {
-                sectionHeader("My teams")
             }
 
             // MARK: - Teams I'm In
@@ -105,15 +107,17 @@ struct TeamsScreen: View {
         .navigationTitle("Teams")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    coordinator.pushTeams(.createTeam)
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 15, weight: .medium))
+            if viewModel.currentUserRole != .consumer {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        coordinator.pushTeams(.createTeam)
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 15, weight: .medium))
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.primaryOrange)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.primaryOrange)
             }
         }
         .task {
