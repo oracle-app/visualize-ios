@@ -193,18 +193,16 @@ struct FullScreen: View {
         )) {
             ThreadScreen(
                 visualizationID: card.id,
+                visualizationOwnerID: card.authorID,
                 isCollapsed: selectedDetent == .fraction(0.08)
             )
-                //.frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.appBackground)
-                //.ignoresSafeArea(edges: .bottom)
                 .interactiveDismissDisabled(true)
                 .presentationDetents([.fraction(0.08), .medium, .large], selection: $selectedDetent)
                 .presentationBackgroundInteraction(.enabled(upThrough: .large))
                 .presentationCornerRadius(24)
                 .presentationDragIndicator(.visible)
         }
-        //.preventScreenShot(isActive: true)
         .onChange(of: isLandscape) { _, newValue in
             if !newValue {
                 showThreads = true

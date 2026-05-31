@@ -19,6 +19,7 @@ struct ThreadScreen: View {
     // MARK: - Properties
     
     let visualizationID: String
+    let visualizationOwnerID: String
     var isCollapsed: Bool = false
     
     @State private var viewModel: ThreadScreenViewModel
@@ -30,15 +31,26 @@ struct ThreadScreen: View {
 
     // MARK: - Init
 
-    init(visualizationID: String, isCollapsed: Bool = false) {
+    init(
+        visualizationID: String,
+        visualizationOwnerID: String,
+        isCollapsed: Bool = false
+    ) {
         self.visualizationID = visualizationID
+        self.visualizationOwnerID = visualizationOwnerID
         self.isCollapsed = isCollapsed
-        self._viewModel = State(initialValue: ThreadScreenViewModel(visualizationID: visualizationID))
+        self._viewModel = State(
+            initialValue: ThreadScreenViewModel(
+                visualizationID: visualizationID,
+                visualizationOwnerID: visualizationOwnerID
+            )
+        )
     }
 
     #if DEBUG
     init(previewViewModel: ThreadScreenViewModel) {
         self.visualizationID = "preview"
+        self.visualizationOwnerID = "preview"
         self._viewModel = State(initialValue: previewViewModel)
     }
     #endif
@@ -72,9 +84,12 @@ struct ThreadScreen: View {
                             ThreadCommentRowView(
                                 comment: comment,
                                 currentUserID: viewModel.currentUser?.id,
+                                canDelete: { authorID in
+                                    viewModel.permissions?.canDeleteComment(commentAuthorID: authorID) ?? false
+                                },
                                 activeCommentID: $activeCommentID,
                                 activeCommentAuthor: $activeCommentAuthor
-                            ){ commentID, authorID in
+                            ) { commentID, authorID in
                                 Task {
                                     await viewModel.deleteComment(
                                         commentID: commentID,

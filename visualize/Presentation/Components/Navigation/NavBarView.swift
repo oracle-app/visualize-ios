@@ -27,7 +27,8 @@ struct NavBarView: View {
             searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
             hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
             deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo),
-            authRepository: authRepository
+            authRepository: authRepository,
+            userRepository: userRepo
         )
     }()
 
@@ -77,7 +78,7 @@ struct NavBarView: View {
             .tabItem { Label("", systemImage: "house") }
             .tag(Tabs.feed)
 
-            // Create (Logica de roles introducida aquí)
+            // Create
             if coordinator.currentUser?.role != .consumer {
                 NavigationStack(path: $coordinator.createPath) {
                     CreateVisualizationScreen()
@@ -144,3 +145,37 @@ struct NavBarView: View {
             }
             .tabItem { Label("", systemImage: "person.2") }
             .tag(Tabs.teams)
+            NavigationStack(path: $coordinator.profilePath) {
+                let authRepository = AuthRepositoryImpl(source: AuthFirebaseDatasource())
+                let userRepository = UserRepositoryImpl(userDatasource: UserDatasource())
+
+                let uploadProfilePhotoUseCase = UploadProfilePhotoUseCase(
+                    authRepository: authRepository,
+                    userRepository: userRepository
+                )
+                
+                let deleteProfilePhotoUseCase = DeleteProfilePhotoUseCase(
+                    authRepository: authRepository,
+                    userRepository: userRepository
+                )
+
+                ProfileScreen(
+                    logoutUseCase: LogoutUseCase(repository: authRepository),
+                    getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase(
+                        authRepository: authRepository,
+                        userRepository: userRepository
+                    ),
+                    uploadProfilePhotoUseCase: uploadProfilePhotoUseCase,
+                    deleteProfilePhotoUseCase: deleteProfilePhotoUseCase
+                )
+            }
+            .tabItem { Label("", systemImage: "person.circle") }
+            .tag(Tabs.profile)
+        }
+    }
+}
+
+#Preview {
+    NavBarView()
+        .environment(AppCoordinator())
+}
