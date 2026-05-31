@@ -23,7 +23,8 @@ extension VisualizationDTO {
                     allUsersDict[member.id] = member
                 }
             }
-            let allUsers = Array(allUsersDict.values)
+            let allUsers = Array(allUsersDict.values).sorted {$0.username < $1.username}
+            
      
             return VisualizationCard(
                 id: self.id ?? "",
