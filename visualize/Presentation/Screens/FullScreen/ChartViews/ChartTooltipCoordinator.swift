@@ -12,13 +12,20 @@ import os.log
 class ChartTooltipCoordinator: NSObject {
 
     // MARK: - Supporting Types
-    
+
     struct AreaSeriesEntry {
         let xValues: [Double]
         let yValues: [Double]
         let label: String
     }
-    
+
+    struct TooltipState: Equatable {
+        let point: CGPoint
+        let xValue: Double
+        let yValue: Double
+        let overrideYLabel: String?
+    }
+
     // MARK: - Properties
 
     weak var surface: SCIChartSurface?
@@ -35,6 +42,8 @@ class ChartTooltipCoordinator: NSObject {
     var isHorizontalChart: Bool = false
     var isScatterChart: Bool = false
     var isLineChart: Bool = false
+
+    private(set) var lastTooltipState: TooltipState?
     
     // MARK: - Init
 
@@ -334,6 +343,8 @@ class ChartTooltipCoordinator: NSObject {
         removeTooltip()
         guard let surface else { return }
 
+        lastTooltipState = TooltipState(point: point, xValue: xValue, yValue: yValue, overrideYLabel: overrideYLabel)
+
         let displayYLabel = overrideYLabel ?? yLabel
         let tooltipColor = UIColor(red: 0.05, green: 0.25, blue: 0.25, alpha: 0.92)
 
@@ -409,7 +420,9 @@ class ChartTooltipCoordinator: NSObject {
         tooltipLabel = nil
         tooltipArrow?.removeFromSuperview()
         tooltipArrow = nil
+        lastTooltipState = nil
     }
+
 
     // MARK: - Attach
 

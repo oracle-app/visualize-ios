@@ -133,6 +133,7 @@ struct FullScreen: View {
                     // Snipping tool floats over the top-trailing corner of the chart
                     Button {
                         if let chart = viewModel.parsedChart {
+                            viewModel.prepareChartForEditorCapture()
                             showThreads = false
                             isSnipping = true
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
