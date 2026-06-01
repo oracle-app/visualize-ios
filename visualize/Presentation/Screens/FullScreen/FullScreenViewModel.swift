@@ -218,12 +218,7 @@ final class FullScreenViewModel {
                 guard let tooltipState else { return }
                 // Ensure the viewport override has been applied before positioning the tooltip.
                 DispatchQueue.main.async {
-                    coordinator.showTooltip(
-                        at: tooltipState.point,
-                        xValue: tooltipState.xValue,
-                        yValue: tooltipState.yValue,
-                        overrideYLabel: tooltipState.overrideYLabel
-                    )
+                    coordinator.showTooltip(from: tooltipState)
                 }
             }
         )
