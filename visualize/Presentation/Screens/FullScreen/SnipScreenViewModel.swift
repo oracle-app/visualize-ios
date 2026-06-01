@@ -4,6 +4,9 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//  State coordinator for the Snipping Tool editor. It owns annotation arrays,
+//  active tool selection, crop state, eraser behavior, and undo/redo snapshots
+//  while keeping rendering details in the SwiftUI canvas layer.
 
 import SwiftUI
 import Observation

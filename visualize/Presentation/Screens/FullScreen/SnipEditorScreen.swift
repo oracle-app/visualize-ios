@@ -4,6 +4,7 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
 //  Main Snipping Tool screen. It presents the captured chart, hosts the
 //  annotation canvas and gestures, manages crop zoom, and exports the edited
 //  image when the user shares it as a new thread.

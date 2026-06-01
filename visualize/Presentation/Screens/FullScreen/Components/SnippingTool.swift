@@ -4,6 +4,7 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
 //  Floating Snipping Tool controls. This file contains the bottom toolbar plus
 //  the lightweight panels for selecting shapes and adjusting stroke width.
 

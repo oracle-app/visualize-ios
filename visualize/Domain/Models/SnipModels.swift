@@ -4,6 +4,9 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//  Domain models for Snipping Tool annotations. These lightweight value types
+//  describe tools, strokes, text labels, and shapes independently from the
+//  SwiftUI views that render or edit them.
 
 import SwiftUI
 

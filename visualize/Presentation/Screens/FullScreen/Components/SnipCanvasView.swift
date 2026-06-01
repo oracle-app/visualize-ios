@@ -4,6 +4,7 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
 //  Rendering and gesture layers for Snipping Tool annotations. The canvas draws
 //  strokes, shapes, text labels, crop overlays, and forwards drag/tap gestures
 //  to the view model without owning editing state.
