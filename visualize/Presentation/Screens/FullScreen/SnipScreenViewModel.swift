@@ -53,6 +53,9 @@ final class SnipScreenViewModel {
         var cropRect: CGRect?
     }
 
+    /// Maximum number of undo snapshots retained to bound memory growth.
+    private let maxUndoSnapshots = 50
+
     private var undoStack: [Snapshot] = []
     private var redoStack: [Snapshot] = []
     private var cropStart: CGPoint?
@@ -62,6 +65,9 @@ final class SnipScreenViewModel {
     private func saveSnapshot() {
         undoStack.append(Snapshot(strokes: strokes, annotations: textAnnotations,
                                   shapes: shapeAnnotations, cropRect: cropRect))
+        if undoStack.count > maxUndoSnapshots {
+            undoStack.removeFirst()
+        }
         redoStack.removeAll()
         canUndo = true
         canRedo = false
@@ -75,6 +81,9 @@ final class SnipScreenViewModel {
         guard let snap = undoStack.popLast() else { return }
         redoStack.append(Snapshot(strokes: strokes, annotations: textAnnotations,
                                   shapes: shapeAnnotations, cropRect: cropRect))
+        if redoStack.count > maxUndoSnapshots {
+            redoStack.removeFirst()
+        }
         apply(snap)
         canUndo = !undoStack.isEmpty
         canRedo = true
