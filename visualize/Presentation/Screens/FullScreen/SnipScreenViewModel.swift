@@ -186,13 +186,13 @@ final class SnipScreenViewModel {
     func beginErase() { saveSnapshot() }
 
     /// Removes the portions of strokes within the eraser radius and clears any
-    /// shapes or text annotations whose anchor falls inside the erase area.
+    /// text annotations whose anchor falls inside the erase area.
     ///
     /// For strokes, the eraser performs a segment-level erase: each stroke is
     /// scanned point-by-point and split into one or more sub-strokes around the
-    /// erased region, preserving the unaffected segments. Shapes and text are
-    /// still removed as a whole when hit (see follow-up changes for parametric
-    /// shape splitting).
+    /// erased region, preserving the unaffected segments. Supported shapes are
+    /// first sampled into stroke-like paths so line and rectangle annotations can
+    /// be partially erased instead of removed as whole objects.
     ///
     /// - Parameters:
     ///   - point: The canvas coordinate used as the centre of the erase radius.
@@ -200,13 +200,28 @@ final class SnipScreenViewModel {
         strokes = strokes.flatMap { stroke -> [DrawingStroke] in
             splitStroke(stroke, erasingAround: point, radius: eraserRadius)
         }
-        shapeAnnotations.removeAll {
-            let mid = CGPoint(x: ($0.startPoint.x + $0.endPoint.x) / 2,
-                              y: ($0.startPoint.y + $0.endPoint.y) / 2)
-            let deltaX = mid.x - point.x
-            let deltaY = mid.y - point.y
-            return deltaX * deltaX + deltaY * deltaY <= eraserRadius * eraserRadius * 4
+
+        var convertedShapeStrokes: [DrawingStroke] = []
+        shapeAnnotations = shapeAnnotations.compactMap { shape in
+            let shapeStrokes = sampledStrokes(for: shape)
+
+            guard !shapeStrokes.isEmpty else {
+                return shouldEraseWholeShape(shape, around: point) ? nil : shape
+            }
+
+            let survivingStrokes = shapeStrokes.flatMap { stroke in
+                splitStroke(stroke, erasingAround: point, radius: eraserRadius)
+            }
+
+            if strokesAreUnchanged(before: shapeStrokes, after: survivingStrokes) {
+                return shape
+            }
+
+            convertedShapeStrokes.append(contentsOf: survivingStrokes)
+            return nil
         }
+        strokes.append(contentsOf: convertedShapeStrokes)
+
         textAnnotations.removeAll {
             let deltaX = $0.position.x - point.x
             let deltaY = $0.position.y - point.y
@@ -299,6 +314,71 @@ final class SnipScreenViewModel {
         return result
     }
 
+    /// Converts the simple closed/open shape variants into sampled stroke paths.
+    /// Arrow and circle support are added separately because their geometry needs
+    /// dedicated arrowhead and ellipse sampling rules.
+    private func sampledStrokes(for shape: ShapeAnnotation) -> [DrawingStroke] {
+        let start = shape.startPoint
+        let end = shape.endPoint
+        let rect = CGRect(x: min(start.x, end.x), y: min(start.y, end.y),
+                          width: abs(end.x - start.x), height: abs(end.y - start.y))
+        guard rect.width > 0 || rect.height > 0 else { return [] }
+
+        let paths: [[CGPoint]]
+        switch shape.type {
+        case .line:
+            paths = [sampledPolyline([start, end])]
+        case .rectangle:
+            paths = [sampledPolyline([
+                CGPoint(x: rect.minX, y: rect.minY),
+                CGPoint(x: rect.maxX, y: rect.minY),
+                CGPoint(x: rect.maxX, y: rect.maxY),
+                CGPoint(x: rect.minX, y: rect.maxY),
+                CGPoint(x: rect.minX, y: rect.minY)
+            ])]
+        case .arrow, .circle, .triangle:
+            paths = []
+        }
+
+        return paths
+            .filter { $0.count > 1 }
+            .map { DrawingStroke(points: $0, color: shape.color, lineWidth: shape.lineWidth) }
+    }
+
+    /// Preserves the previous whole-shape erase behavior for shape types that
+    /// have not been converted to sampled paths yet.
+    private func shouldEraseWholeShape(_ shape: ShapeAnnotation, around point: CGPoint) -> Bool {
+        let mid = CGPoint(x: (shape.startPoint.x + shape.endPoint.x) / 2,
+                          y: (shape.startPoint.y + shape.endPoint.y) / 2)
+        let deltaX = mid.x - point.x
+        let deltaY = mid.y - point.y
+        return deltaX * deltaX + deltaY * deltaY <= eraserRadius * eraserRadius * 4
+    }
+
+    /// Returns true when an erase pass did not split or remove any sampled shape
+    /// stroke, allowing the original shape annotation to keep its semantic type.
+    private func strokesAreUnchanged(before original: [DrawingStroke],
+                                     after erased: [DrawingStroke]) -> Bool {
+        guard original.count == erased.count else { return false }
+
+        return zip(original, erased).allSatisfy { originalStroke, erasedStroke in
+            originalStroke.points == erasedStroke.points
+        }
+    }
+
+    /// Samples connected line segments so neighbouring points stay close enough
+    /// for future shape eraser hit-testing to split paths cleanly.
+    private func sampledPolyline(_ vertices: [CGPoint]) -> [CGPoint] {
+        guard let first = vertices.first else { return [] }
+
+        var points: [CGPoint] = [first]
+        for vertex in vertices.dropFirst() {
+            guard let last = points.last else { continue }
+            points.append(contentsOf: resampledPoints(from: last, to: vertex))
+        }
+        return points
+    }
+
     // MARK: - Shape
 
     /// Starts drawing a shape annotation from the given point.
@@ -309,7 +389,8 @@ final class SnipScreenViewModel {
         liveShape = ShapeAnnotation(type: activeShape, startPoint: point, endPoint: point,
                                     color: pencilColor.snipColor, lineWidth: pencilWidth)
     }
-
+/// hvhihvi
+    /// 
     /// Updates the end point of the in-progress shape as the user drags.
     ///
     /// - Parameters:
