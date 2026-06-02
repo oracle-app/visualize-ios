@@ -54,7 +54,7 @@ final class SnipScreenViewModel {
     }
 
     /// Maximum number of undo snapshots retained to bound memory growth.
-    private let maxUndoSnapshots = 50
+    private let maxUndoSnapshots: Int = 50
 
     private var undoStack: [Snapshot] = []
     private var redoStack: [Snapshot] = []
