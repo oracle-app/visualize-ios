@@ -4,6 +4,10 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Main Snipping Tool screen. It presents the captured chart, hosts the
+//  annotation canvas and gestures, manages crop zoom, and exports the edited
+//  image when the user shares it as a new thread.
 
 import SwiftUI
 
@@ -80,7 +84,7 @@ struct SnipEditorScreen: View {
 
         NavigationStack {
         ZStack {
-            Color.white
+            Color.appBackground
                 .overlay {
                     ZStack {
                         Image(uiImage: chartImage)
@@ -131,7 +135,6 @@ struct SnipEditorScreen: View {
         }
         .animation(.spring(duration: 0.22, bounce: 0.1), value: model.isCropInProgress)
         .ignoresSafeArea()
-        .preferredColorScheme(.light)
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarBackground(.hidden, for: .bottomBar)
         .alert("Discard changes?", isPresented: $showDiscardAlert) {

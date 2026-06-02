@@ -4,6 +4,9 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//  State coordinator for the Snipping Tool editor. It owns annotation arrays,
+//  active tool selection, crop state, eraser behavior, and undo/redo snapshots
+//  while keeping rendering details in the SwiftUI canvas layer.
 
 import SwiftUI
 import Observation
@@ -50,6 +53,9 @@ final class SnipScreenViewModel {
         var cropRect: CGRect?
     }
 
+    /// Maximum number of undo snapshots retained to bound memory growth.
+    private let maxUndoSnapshots: Int = 50
+
     private var undoStack: [Snapshot] = []
     private var redoStack: [Snapshot] = []
     private var cropStart: CGPoint?
@@ -59,6 +65,9 @@ final class SnipScreenViewModel {
     private func saveSnapshot() {
         undoStack.append(Snapshot(strokes: strokes, annotations: textAnnotations,
                                   shapes: shapeAnnotations, cropRect: cropRect))
+        if undoStack.count > maxUndoSnapshots {
+            undoStack.removeFirst()
+        }
         redoStack.removeAll()
         canUndo = true
         canRedo = false
@@ -72,6 +81,9 @@ final class SnipScreenViewModel {
         guard let snap = undoStack.popLast() else { return }
         redoStack.append(Snapshot(strokes: strokes, annotations: textAnnotations,
                                   shapes: shapeAnnotations, cropRect: cropRect))
+        if redoStack.count > maxUndoSnapshots {
+            redoStack.removeFirst()
+        }
         apply(snap)
         canUndo = !undoStack.isEmpty
         canRedo = true
@@ -104,7 +116,7 @@ final class SnipScreenViewModel {
     /// - Parameters:
     ///   - point: The canvas coordinate where the stroke begins.
     func beginStroke(at point: CGPoint) {
-        liveStroke = DrawingStroke(points: [point], color: pencilColor, lineWidth: pencilWidth)
+        liveStroke = DrawingStroke(points: [point], color: pencilColor.snipColor, lineWidth: pencilWidth)
     }
 
     /// Appends a point to the in-progress stroke.
@@ -251,7 +263,7 @@ final class SnipScreenViewModel {
     ///   - point: The canvas coordinate where the shape originates.
     func beginShape(at point: CGPoint) {
         liveShape = ShapeAnnotation(type: activeShape, startPoint: point, endPoint: point,
-                                    color: pencilColor, lineWidth: pencilWidth)
+                                    color: pencilColor.snipColor, lineWidth: pencilWidth)
     }
 
     /// Updates the end point of the in-progress shape as the user drags.
@@ -291,7 +303,7 @@ final class SnipScreenViewModel {
         }
         saveSnapshot()
         textAnnotations.append(TextAnnotation(text: draftText, position: pos,
-                                              color: pencilColor, fontSize: 16))
+                                              color: pencilColor.snipColor, fontSize: 16))
         pendingTextPosition = nil
         draftText = ""
     }

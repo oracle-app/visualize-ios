@@ -4,6 +4,10 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Domain use case for the Snipping Tool publishing flow. It owns PNG encoding
+//  plus storage path construction, then uploads via `SnipRepository` and returns
+//  the download URL for subsequent Firestore writes.
 
 import UIKit
 

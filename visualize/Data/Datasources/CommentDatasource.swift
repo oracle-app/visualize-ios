@@ -4,6 +4,10 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Firestore datasource used by the Snipping Tool publishing flow. It owns the
+//  low-level reads/writes for visualization comments, including creating the
+//  empty comment document that carries an uploaded snip image URL.
 
 import FirebaseFirestore
 
