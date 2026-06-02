@@ -158,3 +158,27 @@ struct NavBarView: View {
                 )
                 
                 let deleteProfilePhotoUseCase = DeleteProfilePhotoUseCase(
+                    authRepository: authRepository,
+                    userRepository: userRepository
+                )
+
+                ProfileScreen(
+                    logoutUseCase: LogoutUseCase(repository: authRepository),
+                    getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase(
+                        authRepository: authRepository,
+                        userRepository: userRepository
+                    ),
+                    uploadProfilePhotoUseCase: uploadProfilePhotoUseCase,
+                    deleteProfilePhotoUseCase: deleteProfilePhotoUseCase
+                )
+            }
+            .tabItem { Label("", systemImage: "person.circle") }
+            .tag(Tabs.profile)
+        }
+    }
+}
+
+#Preview {
+    NavBarView()
+        .environment(AppCoordinator())
+}
