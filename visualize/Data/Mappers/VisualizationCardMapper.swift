@@ -5,7 +5,6 @@
 //  Created by Carlos Amador on 15/04/26.
 //
 import Foundation
-internal import FirebaseFirestoreInternal
 
 extension VisualizationDTO {
     func toVisualizationCard(
@@ -23,8 +22,8 @@ extension VisualizationDTO {
                     allUsersDict[member.id] = member
                 }
             }
-            let allUsers = Array(allUsersDict.values)
-     
+            let allUsers = Array(allUsersDict.values).sorted {$0.username < $1.username}
+            
             return VisualizationCard(
                 id: self.id ?? "",
                 title: self.title,

@@ -20,6 +20,14 @@ class ThreadScreenViewModel {
     var isLoading = false
     var error: String?
     var currentUser: AppUser?
+    var permissions: ThreadPermissions? {
+        guard let user = currentUser else { return nil }
+        return ThreadPermissions(
+            currentUserRole: user.role,
+            currentUserID: user.id,
+            visualizationOwnerID: visualizationOwnerID
+        )
+    }
 
     private let visualizationID: String
     private let isPreview: Bool
@@ -30,11 +38,13 @@ class ThreadScreenViewModel {
     private let postReplyUseCase: PostReplyUseCase
     private let deleteCommentUseCase: DeleteCommentUseCase
     private let deleteReplyUseCase: DeleteReplyUseCase
+    private let visualizationOwnerID: String
     
     // MARK: - Init
 
     init(
         visualizationID: String,
+        visualizationOwnerID: String,
         isPreview: Bool = false,
         repository: CommentRepository? = nil,
         userRepository: UserRepository? = nil,
@@ -45,6 +55,7 @@ class ThreadScreenViewModel {
         deleteReplyUseCase: DeleteReplyUseCase? = nil
     ) {
         self.visualizationID = visualizationID
+        self.visualizationOwnerID = visualizationOwnerID
         self.isPreview = isPreview
         self.repository = repository ?? CommentRepositoryImpl()
         self.userRepository = userRepository ?? UserRepositoryImpl(userDatasource: UserDatasource())
@@ -57,7 +68,7 @@ class ThreadScreenViewModel {
 
     #if DEBUG
     static func preview() -> ThreadScreenViewModel {
-        let vm = ThreadScreenViewModel(visualizationID: "preview", isPreview: true)
+        let vm = ThreadScreenViewModel(visualizationID: "preview", visualizationOwnerID: "preview", isPreview: true)
         vm.comments = [
             Comment(
                 id: "c1",

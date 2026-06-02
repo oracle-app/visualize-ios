@@ -69,10 +69,10 @@ struct FSHeaderView: View {
     FSHeaderView(
         title: "Relative performance of major currencies against the dollar",
         members: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria"),
-            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos")
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana", role: .admin),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis", role: .admin),
+            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria", role: .admin),
+            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos", role: .admin)
         ],
         isCompact: false,
         onBack: {}
@@ -83,8 +83,8 @@ struct FSHeaderView: View {
     FSHeaderView(
         title: "Relative performance of major currencies against the dollar",
         members: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis")
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana", role: .admin),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis", role: .admin)
         ],
         isCompact: true,
         onBack: {}

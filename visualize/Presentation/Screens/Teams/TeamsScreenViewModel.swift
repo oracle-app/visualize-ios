@@ -27,6 +27,7 @@ final class TeamsScreenViewModel {
     private(set) var teamPendingDelete: Team?
     var teamToEdit: Team?
     var currentToast: Toast?
+    private(set) var currentUserRole: Role = .consumer
     
     @ObservationIgnored
     private var toastTask: Task<Void, Never>?
@@ -57,6 +58,8 @@ final class TeamsScreenViewModel {
     private func initializeUser() async {
         do {
             self.userID = try await authRepository.getCurrentUserID()
+            let user = try await userRepository.getUserByID(userID: userID)
+            self.currentUserRole = user.role
         } catch {
             self.error = "Failed to authenticate user."
         }
@@ -100,6 +103,7 @@ final class TeamsScreenViewModel {
             do {
                 try await teamRepository.deleteTeam(teamID: team.id)
                 myTeams.removeAll { $0.id == team.id }
+                joinedTeams.removeAll() { $0.id == team.id }
                 showToast("\"\(team.name)\" deleted", type: .success)
             } catch {
                 self.error = "Failed to delete team."
@@ -122,7 +126,7 @@ final class TeamsScreenViewModel {
             teamRepository: teamRepository,
             userRepository: userRepository,
             teamID: team.id,
-            ownerID: userID,
+            ownerID: team.ownerID,
             initialMembers: team.members
         )
     }

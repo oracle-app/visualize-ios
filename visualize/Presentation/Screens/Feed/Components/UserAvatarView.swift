@@ -64,7 +64,8 @@ extension UserAvatarView {
                 id: "",
                 email: "",
                 profilePictureURL: avatarURL,
-                username: username
+                username: username,
+                role: .writer
             ),
             size: size,
             showBorder: showBorder

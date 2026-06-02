@@ -12,10 +12,10 @@
 final class MockTeamRepository: TeamRepository {
 
     private let mockMembers: [AppUser] = [
-        AppUser(id: "u1", email: "ana@example.com", profilePictureURL: nil, username: "Ana García"),
-        AppUser(id: "u2", email: "luis@example.com", profilePictureURL: nil, username: "Luis Pérez"),
-        AppUser(id: "u3", email: "maria@example.com", profilePictureURL: nil, username: "María López"),
-        AppUser(id: "u4", email: "carlos@example.com", profilePictureURL: nil, username: "Carlos Ruiz")
+        AppUser(id: "u1", email: "ana@example.com", profilePictureURL: nil, username: "Ana García", role: .writer),
+        AppUser(id: "u2", email: "luis@example.com", profilePictureURL: nil, username: "Luis Pérez", role: .writer),
+        AppUser(id: "u3", email: "maria@example.com", profilePictureURL: nil, username: "María López", role: .writer),
+        AppUser(id: "u4", email: "carlos@example.com", profilePictureURL: nil, username: "Carlos Ruiz", role: .writer)
     ]
 
     func getTeamsUserOwns(userID: String) async throws -> [Team] {

@@ -25,6 +25,7 @@ struct ThreadReplyRowView: View {
     var onDelete: (String, String, String) -> Void
     
     var isAuthor: Bool { currentUserID == reply.authorID }
+    var canDelete: Bool
 
     // MARK: - Body
 
@@ -95,7 +96,7 @@ struct ThreadReplyRowView: View {
         .padding(.trailing, 14)
         .padding(.vertical, 4)
         .contextMenu {
-            if isAuthor, reply.id != nil {
+            if canDelete, reply.id != nil {
                 Button(role: .destructive) {
                     showDeleteAlert = true
                 } label: {
@@ -133,6 +134,7 @@ struct ThreadReplyRowView: View {
         ),
         currentUserID: "u2",
         commentID: "c1",
-        onDelete: { _, _, _ in }
+        onDelete: { _, _, _ in },
+        canDelete: true
     )
 }
