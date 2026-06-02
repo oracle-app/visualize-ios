@@ -29,13 +29,7 @@ struct FeedCardView: View {
     var isOwner: Bool = false
     let maxAvatars = 3
     
-    /// TO DO: Image Implementation that uses profilePictureURL
-    /// Asigns random color based on ID.
-    private var colors: [Color] {
-        (sharedWith ?? []).map { user in
-            Color.random(from: user.id)
-        }
-    }
+    
     
     private var formattedDate: String {
         let interval = Date().timeIntervalSince(date)
@@ -190,20 +184,7 @@ struct FeedCardView: View {
    }
 }
 
-/// Generates a random color based on the given string
-extension Color {
-    static func random(from string: String) -> Color {
-        var hasher = Hasher()
-        hasher.combine(string)
-        let hash = hasher.finalize()
 
-        let red = Double((hash >> 16) & 0xFF) / 255.0
-        let green = Double((hash >> 8) & 0xFF) / 255.0
-        let blue = Double(hash & 0xFF) / 255.0
-
-        return Color(red: red, green: green, blue: blue)
-    }
-}
 
 #Preview("Con usuarios compartidos") {
     FeedCardView(
