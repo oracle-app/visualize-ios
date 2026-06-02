@@ -59,6 +59,9 @@ final class SnipScreenViewModel {
     private var undoStack: [Snapshot] = []
     private var redoStack: [Snapshot] = []
     private var cropStart: CGPoint?
+    /// Maximum spacing, in canvas points, allowed between consecutive pencil samples.
+    /// This is intentionally local and easy to tune once the final UX distance is chosen.
+    private let maxStrokePointDistance: CGFloat = 8
 
     // MARK: - Undo / Redo
 
@@ -119,11 +122,52 @@ final class SnipScreenViewModel {
         liveStroke = DrawingStroke(points: [point], color: pencilColor.snipColor, lineWidth: pencilWidth)
     }
 
-    /// Appends a point to the in-progress stroke.
+    /// Appends a point to the in-progress stroke, inserting interpolated samples
+    /// when the drag event jumps farther than `maxStrokePointDistance`.
     ///
     /// - Parameters:
     ///   - point: The next canvas coordinate along the stroke path.
-    func continueStroke(at point: CGPoint) { liveStroke?.points.append(point) }
+    func continueStroke(at point: CGPoint) {
+        guard var stroke = liveStroke else { return }
+        guard let lastPoint = stroke.points.last else {
+            stroke.points = [point]
+            liveStroke = stroke
+            return
+        }
+
+        stroke.points.append(contentsOf: resampledPoints(from: lastPoint, to: point))
+        liveStroke = stroke
+    }
+
+    /// Returns the points needed to travel from `start` to `end` without any
+    /// consecutive samples exceeding `maxStrokePointDistance`.
+    ///
+    /// The returned array always includes `end` and excludes `start`, so callers
+    /// can append it directly to an existing stroke without duplicating points.
+    private func resampledPoints(from start: CGPoint, to end: CGPoint) -> [CGPoint] {
+        let deltaX = end.x - start.x
+        let deltaY = end.y - start.y
+        let distance = hypot(deltaX, deltaY)
+
+        guard maxStrokePointDistance > 0, distance > maxStrokePointDistance else {
+            return [end]
+        }
+
+        var points: [CGPoint] = []
+        var travelled = maxStrokePointDistance
+
+        while travelled < distance {
+            let progress = travelled / distance
+            points.append(CGPoint(
+                x: start.x + deltaX * progress,
+                y: start.y + deltaY * progress
+            ))
+            travelled += maxStrokePointDistance
+        }
+
+        points.append(end)
+        return points
+    }
 
     /// Finalises the in-progress stroke and commits it to the canvas.
     ///
