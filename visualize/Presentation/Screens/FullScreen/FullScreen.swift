@@ -193,18 +193,16 @@ struct FullScreen: View {
         )) {
             ThreadScreen(
                 visualizationID: card.id,
+                visualizationOwnerID: card.authorID,
                 isCollapsed: selectedDetent == .fraction(0.08)
             )
-                //.frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.appBackground)
-                //.ignoresSafeArea(edges: .bottom)
                 .interactiveDismissDisabled(true)
                 .presentationDetents([.fraction(0.08), .medium, .large], selection: $selectedDetent)
                 .presentationBackgroundInteraction(.enabled(upThrough: .large))
                 .presentationCornerRadius(24)
                 .presentationDragIndicator(.visible)
         }
-        //.preventScreenShot(isActive: true)
         .onChange(of: isLandscape) { _, newValue in
             if !newValue {
                 showThreads = true
@@ -252,14 +250,14 @@ struct FullScreen: View {
         previewJSON: testPreviewJSON,
         teamsSharedWith: [],
         usersSharedWith: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria")
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana", role: .admin),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis", role: .admin),
+            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria", role: .admin)
         ],
         allUsersSharedWith: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria")
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana", role: .admin),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis", role: .admin),
+            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria", role: .admin)
         ]
     ))
 }

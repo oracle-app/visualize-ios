@@ -4,6 +4,10 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Domain use case that finalizes Snipping Tool sharing. It creates the Firestore
+//  comment document that references the uploaded snip image URL, delegating the
+//  persistence details to `CommentRepository`.
 
 import Foundation
 

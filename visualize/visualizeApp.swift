@@ -52,7 +52,8 @@ struct VisualizeApp: App {
                 viewModel: RootViewModel(
                     authRepository: AuthRepositoryImpl(
                         source: AuthFirebaseDatasource()
-                    )
+                    ),
+                    userRepository: UserRepositoryImpl(userDatasource: UserDatasource())
                 ),
                 coordinator: AppCoordinator()
             )

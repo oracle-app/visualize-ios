@@ -19,6 +19,7 @@ struct ThreadCommentRowView: View {
     
     var comment: Comment
     var currentUserID: String?
+    var canDelete: (String) -> Bool
     var image: UIImage? = nil
 
     @Binding var activeCommentID: String?
@@ -42,6 +43,7 @@ struct ThreadCommentRowView: View {
                 threads: comment.threads,
                 currentUserID: currentUserID,
                 commentID: comment.id,
+                canDelete: canDelete,
                 onDeleteReply: onDeleteReply
             )
         }
@@ -78,31 +80,21 @@ struct ThreadCommentRowView: View {
             Spacer()
             
             Menu {
-                if isAuthor {
-                    Button {
+                Button {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             activeCommentID = comment.id
-                            activeCommentAuthor = "Me"
+                            activeCommentAuthor = isAuthor ? "Me" : (comment.authorName ?? comment.authorID)
                         }
                     } label: {
                         Label("Reply", systemImage:"arrowshape.turn.up.left")
                     }
-                    
-                    Button(role: .destructive) {
-                        showDeleteAlert = true
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                } else {
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            activeCommentID = comment.id
-                            activeCommentAuthor = comment.authorName ?? comment.authorID
+                if canDelete(comment.authorID) {
+                        Button(role: .destructive) {
+                            showDeleteAlert = true
+                        } label: {
+                            Label("Delete", systemImage: "trash")
                         }
-                    } label: {
-                        Label("Reply", systemImage:"arrowshape.turn.up.left")
                     }
-                }
             } label: {
                 ZStack {
                     Circle()
@@ -136,8 +128,6 @@ struct ThreadCommentRowView: View {
     }
 
     /// Visualization image or a placeholder if no image is provided.
-    // ThreadCommentRow.swift
-
     private var imageSection: some View {
         Group {
             if let urlString = comment.imageURL,
@@ -196,6 +186,9 @@ private struct ThreadRepliesList: View {
     let threads: [ThreadReply]
     let currentUserID: String?
     let commentID: String
+    
+    var canDelete: (String) -> Bool
+    
     var onDeleteReply: (String, String, String) -> Void
     
     var body: some View {
@@ -207,7 +200,8 @@ private struct ThreadRepliesList: View {
                     reply: reply,
                     currentUserID: currentUserID,
                     commentID: commentID,
-                    onDelete: onDeleteReply
+                    onDelete: onDeleteReply,
+                    canDelete: canDelete(reply.authorID)
                 )
             }
         }
@@ -236,6 +230,7 @@ private struct ThreadRepliesList: View {
             threads: []
         ),
         currentUserID: "u1",
+        canDelete: { _ in true },
         activeCommentID: .constant(nil),
         activeCommentAuthor: .constant(nil),
         onDeleteComment: { _, _ in },

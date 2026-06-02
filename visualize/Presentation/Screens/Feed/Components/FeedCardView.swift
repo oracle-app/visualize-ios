@@ -24,9 +24,11 @@ struct FeedCardView: View {
     var onTap: () -> Void
     var onHide: () -> Void
     var onDelete: () -> Void
-    var sharedWith: [AppUser]?
+    var sharedWith: [AppUser]? = nil
+    var permissions: VisualizationPermissions
     var isOwner: Bool = false
     let maxAvatars = 3
+    
     /// TO DO: Image Implementation that uses profilePictureURL
     /// Asigns random color based on ID.
     private var colors: [Color] {
@@ -69,22 +71,27 @@ struct FeedCardView: View {
                 }
                 Spacer()
                 Menu {
-                    if isOwner {
+                    if permissions.canShare {
                         Button {
                             onShare()
                         } label: {
                             Label("Share", systemImage: "person.badge.plus")
                         }
+                    }
+                    
+                    if permissions.canHide {
+                        Button(role: .destructive) {
+                            showAlert1.toggle()
+                        } label: {
+                            Label("Delete for me", systemImage: "eye.slash")
+                        }
+                    }
+                    
+                    if permissions.canDelete {
                         Button(role: .destructive) {
                             showAlert2.toggle()
                         } label: {
                             Label("Delete for everyone", systemImage: "trash")
-                        }
-                    } else {
-                        Button(role: .destructive) {
-                            showAlert1.toggle()
-                        } label: {
-                            Label("Delete for me", systemImage: "trash")
                         }
                     }
                 } label: {
@@ -177,11 +184,12 @@ struct FeedCardView: View {
        .frame(height: 390)
        .padding(.bottom, 16)
        .contentShape(Rectangle())
-               .onTapGesture {
-                   onTap()
-               }
+       .onTapGesture {
+           onTap()
+       }
    }
 }
+
 /// Generates a random color based on the given string
 extension Color {
     static func random(from string: String) -> Color {
@@ -209,11 +217,12 @@ extension Color {
         onHide: { print("hide tapped") },
         onDelete: { print("delete tapped") },
         sharedWith: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria"),
-            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos")
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana", role: .admin),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis", role: .admin),
+            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria", role: .admin),
+            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos", role: .admin)
         ],
+        permissions: VisualizationPermissions(userRole: .admin, currentUserID: "1", authorID: "1"),
         isOwner: true
     )
 }
@@ -230,7 +239,7 @@ extension Color {
         onHide: { print("hide tapped") },
         onDelete: { print("delete tapped") },
         sharedWith: nil,
+        permissions: VisualizationPermissions(userRole: .admin, currentUserID: "1", authorID: "1"),
         isOwner: false
     )
 }
- 

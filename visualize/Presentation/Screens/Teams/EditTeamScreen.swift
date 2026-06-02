@@ -151,8 +151,8 @@ struct EditTeamScreen: View {
 private final class PreviewUserRepository: UserRepository {
 
     private let sampleUsers: [AppUser] = [
-        AppUser(id: "u5", email: "sofia@example.com", profilePictureURL: nil, username: "Sofía Torres"),
-        AppUser(id: "u6", email: "diego@example.com", profilePictureURL: nil, username: "Diego Mora")
+        AppUser(id: "u5", email: "sofia@example.com", profilePictureURL: nil, username: "Sofía Torres", role: .writer),
+        AppUser(id: "u6", email: "diego@example.com", profilePictureURL: nil, username: "Diego Mora", role: .writer)
     ]
 
     func getUserByID(userID: String) async throws -> AppUser {
@@ -180,12 +180,12 @@ private final class PreviewUserRepository: UserRepository {
 
 #Preview {
     let members = [
-        AppUser(id: "u1", email: "ana@example.com", profilePictureURL: nil, username: "Ana García"),
-        AppUser(id: "u2", email: "luis@example.com", profilePictureURL: nil, username: "Luis Pérez"),
-        AppUser(id: "u3", email: "maria@example.com", profilePictureURL: nil, username: "María López")
+        AppUser(id: "u1", email: "ana@example.com", profilePictureURL: nil, username: "Ana García", role: .writer),
+        AppUser(id: "u2", email: "luis@example.com", profilePictureURL: nil, username: "Luis Pérez", role: .writer),
+        AppUser(id: "u3", email: "maria@example.com", profilePictureURL: nil, username: "María López", role: .writer)
     ]
 
-    return NavigationStack {
+    NavigationStack {
         EditTeamScreen(
             viewModel: EditTeamScreenViewModel(
                 teamRepository: MockTeamRepository(),
