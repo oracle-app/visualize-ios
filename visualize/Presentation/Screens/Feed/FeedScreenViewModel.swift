@@ -91,18 +91,17 @@ class FeedScreenViewModel {
         do {
             self.currentUserID = try await authRepository.getCurrentUserID()
             self.loadData(forceRefresh: false)
-            self.listenForUnreadNotifications()
         } catch {
             self.state = .error
         }
     }
     
-    private func listenForUnreadNotifications() {
-        Task {
-            let stream = notificationRepository.unreadStream(for: currentUserID)
-            for await hasUnread in stream {
-                self.hasUnreadNotifications = hasUnread
-            }
+    func listenForUnreadNotifications() async {
+        guard !currentUserID.isEmpty else { return }
+            
+        let stream = notificationRepository.unreadStream(for: currentUserID)
+        for await hasUnread in stream {
+            self.hasUnreadNotifications = hasUnread
         }
     }
 

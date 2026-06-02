@@ -163,6 +163,9 @@ struct FeedScreen: View {
                 viewModel.loadData()
             }
         }
+        .task(id: viewModel.currentUserID) {
+            await viewModel.listenForUnreadNotifications()
+        }
         .portraitOrientationLock()
         .scrollDisabled(isScrollDisabled)
         .scrollPosition($scrollPosition)
