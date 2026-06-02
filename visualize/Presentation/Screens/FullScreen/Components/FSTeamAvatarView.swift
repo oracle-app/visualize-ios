@@ -83,10 +83,10 @@ struct TeamAvatarsView: View {
 #Preview {
     TeamAvatarsView(
         members: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria"),
-            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos")
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana", role: .admin),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis", role: .admin),
+            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria", role: .admin),
+            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos", role: .admin)
         ],
         borderColor: Color.appMint,
         diameter: 29

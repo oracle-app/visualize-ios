@@ -335,7 +335,8 @@ struct FeedScreen: View {
                         onTap: { card in selectedCard = card },
                         onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
                         onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
-                        currentUserID: viewModel.currentUserID
+                        currentUserID: viewModel.currentUserID,
+                        currentUserRole: viewModel.currentUserRole
                     )
                 }
             } else {
@@ -352,7 +353,8 @@ struct FeedScreen: View {
                     onTap: { card in selectedCard = card },
                     onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
                     onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
-                    currentUserID: viewModel.currentUserID
+                    currentUserID: viewModel.currentUserID,
+                    currentUserRole: viewModel.currentUserRole
                 )
             }
         }

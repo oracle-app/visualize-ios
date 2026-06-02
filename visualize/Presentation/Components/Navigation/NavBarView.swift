@@ -1,5 +1,5 @@
 //
-//  NavBar.swift
+//  NavBarView.swift
 //  visualize
 //
 //  Created by Kimberly Marquez on 4/15/26.
@@ -30,7 +30,8 @@ struct NavBarView: View {
             hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
             deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo),
             authRepository: authRepository,
-            notificationRepository: notificationRepo
+            notificationRepository: notificationRepo,
+            userRepository: userRepo
         )
     }()
 
@@ -50,11 +51,10 @@ struct NavBarView: View {
             authRepository: authRepo,
             userRepository: userRepo
         )
-        let notifRepo = NotificationRepositoryImpl()
+        
         self.notificationsViewModel = NotificationsScreenViewModel(
             authRepository: authRepo,
-            notificationRepository: notificationsRepo,
-            
+            notificationRepository: notificationsRepo
         )
 
         let appearance = UITabBarAppearance()
@@ -82,23 +82,25 @@ struct NavBarView: View {
             .tag(Tabs.feed)
 
             // Create
-            NavigationStack(path: $coordinator.createPath) {
-                CreateVisualizationScreen()
-                    .navigationDestination(for: CreateRoute.self) { route in
-                        switch route {
-                        case .generatingVisualizations:
-                            GeneratingVisualizationsScreen()
-                                .navigationBarBackButtonHidden(true)
-                        case .vizReady:
-                            VizReadyView(suggestions: coordinator.pendingSuggestions)
-                                .navigationBarBackButtonHidden(true)
-                        default:
-                            EmptyView()
+            if coordinator.currentUser?.role != .consumer {
+                NavigationStack(path: $coordinator.createPath) {
+                    CreateVisualizationScreen()
+                        .navigationDestination(for: CreateRoute.self) { route in
+                            switch route {
+                            case .generatingVisualizations:
+                                GeneratingVisualizationsScreen()
+                                    .navigationBarBackButtonHidden(true)
+                            case .vizReady:
+                                VizReadyView(suggestions: coordinator.pendingSuggestions)
+                                    .navigationBarBackButtonHidden(true)
+                            default:
+                                EmptyView()
+                            }
                         }
-                    }
+                }
+                .tabItem { Label("", systemImage: "plus") }
+                .tag(Tabs.create)
             }
-            .tabItem { Label("", systemImage: "plus") }
-            .tag(Tabs.create)
 
             // Teams
             NavigationStack(path: $coordinator.teamsPath) {
@@ -146,8 +148,6 @@ struct NavBarView: View {
             }
             .tabItem { Label("", systemImage: "person.2") }
             .tag(Tabs.teams)
-
-            // Profile
             NavigationStack(path: $coordinator.profilePath) {
                 let authRepository = AuthRepositoryImpl(source: AuthFirebaseDatasource())
                 let userRepository = UserRepositoryImpl(userDatasource: UserDatasource())
@@ -158,27 +158,3 @@ struct NavBarView: View {
                 )
                 
                 let deleteProfilePhotoUseCase = DeleteProfilePhotoUseCase(
-                    authRepository: authRepository,
-                    userRepository: userRepository
-                )
-
-                ProfileScreen(
-                    logoutUseCase: LogoutUseCase(repository: authRepository),
-                    getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase(
-                        authRepository: authRepository,
-                        userRepository: userRepository
-                    ),
-                    uploadProfilePhotoUseCase: uploadProfilePhotoUseCase,
-                    deleteProfilePhotoUseCase: deleteProfilePhotoUseCase
-                )
-            }
-            .tabItem { Label("", systemImage: "person.circle") }
-            .tag(Tabs.profile)
-        }
-    }
-}
-
-#Preview {
-    NavBarView()
-        .environment(AppCoordinator())
-}

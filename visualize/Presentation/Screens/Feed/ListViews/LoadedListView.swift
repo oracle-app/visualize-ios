@@ -17,10 +17,16 @@ struct LoadedListView: View {
     let onHide: (String) -> Void
     let onDelete: (String) -> Void
     let currentUserID: String
+    let currentUserRole: Role
 
     var body: some View {
         LazyVStack(spacing: 12) {
             ForEach(items, id: \.id) { item in
+                let permissions = VisualizationPermissions(
+                    userRole: currentUserRole,
+                    currentUserID: currentUserID,
+                    authorID: item.authorID
+                )
                 FeedCardView(
                     visualizationID: item.id,
                     previewJSON: item.previewJSON,
@@ -32,7 +38,8 @@ struct LoadedListView: View {
                     onHide: { onHide(item.id) },
                     onDelete: { onDelete(item.id) },
                     sharedWith: item.allUsersSharedWith,
-                    isOwner: item.authorID == currentUserID,
+                    permissions: permissions,
+                    isOwner: item.authorID == currentUserID
                 )
             }
         }

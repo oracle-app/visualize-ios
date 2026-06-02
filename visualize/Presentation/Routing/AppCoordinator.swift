@@ -25,6 +25,7 @@ final class AppCoordinator {
     // MARK: - Auth State
 
     var isAuthenticated: Bool = false
+    var currentUser: AppUser? = nil
     var path: [AppRoute] = []
     var root: RootRoute = .landing
 
@@ -141,7 +142,8 @@ final class AppCoordinator {
 
     // MARK: - Session
 
-    func login() {
+    func login(user: AppUser) {
+        self.currentUser = user
         clearAllPaths()
         selectedTab = .feed
         isAuthenticated = true
@@ -149,6 +151,7 @@ final class AppCoordinator {
 
     func logout() {
         isAuthenticated = false
+        self.currentUser = nil
         selectedTab = .feed
         clearAllPaths()
     }
@@ -184,6 +187,7 @@ final class AppCoordinator {
         pendingSuggestions = suggestions
         pushCreate(.vizReady)
     }
+    
     // MARK: Helpers
     
     private func clearAllPaths() {

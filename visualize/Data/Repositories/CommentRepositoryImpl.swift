@@ -4,6 +4,10 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Data-layer `CommentRepository` implementation used by the Snipping Tool share
+//  flow and comment threads. It composes `CommentDatasource` + `UserDatasource`
+//  and resolves author info when mapping Firestore DTOs into domain models.
 
 import Foundation
 import FirebaseCore
