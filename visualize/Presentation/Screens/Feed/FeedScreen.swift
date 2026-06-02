@@ -136,6 +136,8 @@ struct FeedScreen: View {
                             }
                         }
                 }
+                .accessibilityLabel(String(localized: "Notifications"))
+                .accessibilityValue(viewModel.hasUnreadNotifications ? String(localized: "Unread items") : "")
             }
         } principal: {
             if let title {
