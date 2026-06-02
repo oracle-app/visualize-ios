@@ -116,7 +116,7 @@ final class SnipScreenViewModel {
     /// - Parameters:
     ///   - point: The canvas coordinate where the stroke begins.
     func beginStroke(at point: CGPoint) {
-        liveStroke = DrawingStroke(points: [point], color: pencilColor, lineWidth: pencilWidth)
+        liveStroke = DrawingStroke(points: [point], color: pencilColor.snipColor, lineWidth: pencilWidth)
     }
 
     /// Appends a point to the in-progress stroke.
@@ -263,7 +263,7 @@ final class SnipScreenViewModel {
     ///   - point: The canvas coordinate where the shape originates.
     func beginShape(at point: CGPoint) {
         liveShape = ShapeAnnotation(type: activeShape, startPoint: point, endPoint: point,
-                                    color: pencilColor, lineWidth: pencilWidth)
+                                    color: pencilColor.snipColor, lineWidth: pencilWidth)
     }
 
     /// Updates the end point of the in-progress shape as the user drags.
@@ -303,7 +303,7 @@ final class SnipScreenViewModel {
         }
         saveSnapshot()
         textAnnotations.append(TextAnnotation(text: draftText, position: pos,
-                                              color: pencilColor, fontSize: 16))
+                                              color: pencilColor.snipColor, fontSize: 16))
         pendingTextPosition = nil
         draftText = ""
     }

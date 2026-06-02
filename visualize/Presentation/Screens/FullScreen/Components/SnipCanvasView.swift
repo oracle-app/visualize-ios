@@ -30,7 +30,7 @@ struct AnnotationCanvasView: View {
             ForEach(model.textAnnotations) { ann in
                 Text(ann.text)
                     .font(.system(size: ann.fontSize, weight: .semibold))
-                    .foregroundStyle(ann.color)
+                    .foregroundStyle(ann.color.swiftUIColor)
                     .shadow(color: .black.opacity(0.6), radius: 0.6, x: 0, y: 0.8)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
@@ -90,14 +90,14 @@ struct AnnotationCanvasView: View {
                                           y: firstPoint.y - stroke.lineWidth / 2,
                                           width: stroke.lineWidth,
                                           height: stroke.lineWidth))
-                ctx.fill(dot, with: .color(stroke.color))
+                ctx.fill(dot, with: .color(stroke.color.swiftUIColor))
             }
             return
         }
         var path = Path()
         path.move(to: stroke.points[0])
         stroke.points.dropFirst().forEach { path.addLine(to: $0) }
-        ctx.stroke(path, with: .color(stroke.color),
+        ctx.stroke(path, with: .color(stroke.color.swiftUIColor),
                    style: StrokeStyle(lineWidth: stroke.lineWidth, lineCap: .round, lineJoin: .round))
     }
 
@@ -134,7 +134,7 @@ struct AnnotationCanvasView: View {
             path.closeSubpath()
         }
 
-        ctx.stroke(path, with: .color(shape.color),
+        ctx.stroke(path, with: .color(shape.color.swiftUIColor),
                    style: StrokeStyle(lineWidth: shape.lineWidth, lineCap: .round, lineJoin: .round))
     }
 
@@ -167,7 +167,7 @@ struct SnipGestureOverlayView: View {
                         case .eraser:
                             if model.liveStroke == nil { model.beginErase() }
                             model.liveStroke = DrawingStroke(
-                                points: [value.location], color: .clear, lineWidth: 1)
+                                points: [value.location], color: Color.clear.snipColor, lineWidth: 1)
                             model.erase(at: value.location)
                         case .shape:
                             if model.liveShape == nil {
