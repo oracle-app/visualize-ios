@@ -67,17 +67,17 @@ struct ThreadsPreviewCaptionFieldView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(String(localized: "Caption"))
                     .font(.system(size: headlineFontSize, weight: .bold))
-                    .foregroundStyle(Color.appNavy)
+                    .foregroundStyle(AppColors.Text.primary)
                 Text(String(localized: "Share insights about this edited visualization."))
                     .font(.system(size: captionFontSize))
-                    .foregroundStyle(Color.appTeal)
+                    .foregroundStyle(AppColors.Brand.teal)
             }
 
             // MARK: - Editor + placeholder
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.appLightTeal)
+                    .fill(AppColors.UI.lightTeal)
 
                 // Placeholder is overlaid because TextEditor lacks a native one.
                 // `allowsHitTesting(false)` lets taps fall through to the editor.
@@ -86,7 +86,7 @@ struct ThreadsPreviewCaptionFieldView: View {
                 if isEffectivelyEmpty {
                     Text(placeholder)
                         .font(.system(size: bodyFontSize))
-                        .foregroundStyle(Color.appSubtitle.opacity(0.7))
+                        .foregroundStyle(AppColors.Text.secondary.opacity(0.7))
                         .padding(.horizontal, 16)
                         .padding(.top, 14)
                         .allowsHitTesting(false)
@@ -95,7 +95,7 @@ struct ThreadsPreviewCaptionFieldView: View {
 
                 TextEditor(text: $text)
                     .font(.system(size: bodyFontSize))
-                    .foregroundStyle(Color.appNavy)
+                    .foregroundStyle(AppColors.Text.primary)
                     .scrollContentBackground(.hidden)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
@@ -115,7 +115,7 @@ struct ThreadsPreviewCaptionFieldView: View {
             if text.count >= limit - 50 {
                 Text("\(text.count) / \(limit)")
                     .font(.system(size: captionFontSize, weight: .medium))
-                    .foregroundStyle(text.count >= limit ? Color.appRed : Color.appSubtitle)
+                    .foregroundStyle(text.count >= limit ? AppColors.Status.red : AppColors.Text.secondary)
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .accessibilityHidden(true)
             }

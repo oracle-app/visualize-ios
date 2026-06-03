@@ -29,7 +29,7 @@ struct LandingScreen: View {
         VStack(spacing: 0) {
 
             ZStack(alignment: .bottom) {
-                Color(Color.appTeal)
+                Color(AppColors.Brand.teal)
 //                    .ignoresSafeArea(edges: .top)
 
                 Image("AuthBackground")
@@ -53,19 +53,19 @@ struct LandingScreen: View {
                 VStack(spacing: 6) {
                     Text("Visualize")
                         .font(.system(size: 60, weight: .semibold))
-                        .foregroundColor(Color.appNavy)
+                        .foregroundColor(AppColors.Text.primary)
                         .tracking(5)
                         .padding(.top, 70)
 
                     Text(String(localized: "Turn data into decisions."))
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(Color.appSubtitle)
+                        .foregroundColor(AppColors.Text.secondary)
                 }
                 .padding(.bottom, 32)
 
                 Text(String(localized: "Create, choose, and share AI-powered\ngraphs in seconds.\nFast, simple, and secure."))
                     .font(.system(size: 15))
-                    .foregroundColor(Color.appNavy)
+                    .foregroundColor(AppColors.Text.primary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)
 
@@ -93,14 +93,14 @@ struct LandingScreen: View {
                     } label: {
                         Text("Sign up")
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(Color.appTeal)
+                            .foregroundColor(AppColors.Brand.teal)
                             .frame(maxWidth: 280)
                             .frame(height: 50)
                             .shadow(radius: 10, x: 0, y: 2)
                             .background(
                                 Capsule()
                                     .strokeBorder(
-                                        Color.appTeal,
+                                        AppColors.Brand.teal,
                                         lineWidth: 1.5
                                     )
                             )
@@ -126,7 +126,7 @@ struct LandingScreen: View {
             .clipShape(RoundedRectangle(cornerRadius: 30))
             .ignoresSafeArea(edges: .bottom)
         }
-        .background(Color.appTeal)
+        .background(AppColors.Brand.teal)
         .ignoresSafeArea(edges: .top)
         .toolbar(.hidden, for: .navigationBar)
         .portraitOrientationLock()

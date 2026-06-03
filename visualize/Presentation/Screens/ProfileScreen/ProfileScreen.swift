@@ -70,7 +70,7 @@ struct ProfileScreen: View {
                             email: viewModel.email
                         )
                         Divider()
-                            .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
+                            .background(AppColors.Text.secondary.opacity(Metrics.dividerOpacity))
                         ProfilePreferencesSectionView(
                             availableThemes: ChartColorTheme.allCases,
                             selectedTheme: selectedTheme
@@ -82,7 +82,7 @@ struct ProfileScreen: View {
                             )
                         }
                         Divider()
-                            .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
+                            .background(AppColors.Text.secondary.opacity(Metrics.dividerOpacity))
                         ProfileAboutSectionView(items: viewModel.aboutItems)
                         Button("Log out", action: viewModel.logOut)
                             .font(.title3.weight(.semibold))

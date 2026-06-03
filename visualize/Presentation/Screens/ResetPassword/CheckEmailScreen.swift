@@ -50,7 +50,7 @@ struct CheckEmailScreen: View {
                 Button { coordinator.pop() } label: {
                     Image(systemName: "arrow.backward")
                         .font(.system(size: 22))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                         .frame(width: 48, height: 48)
                         .glassEffect()
                 }
@@ -66,7 +66,7 @@ struct CheckEmailScreen: View {
                     
                     Text("Check your email")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color(Color.appNavy))
+                        .foregroundColor(Color(AppColors.Text.primary))
                         .multilineTextAlignment(.center)
                         .padding(.top, 4)
                         .padding(.bottom, 30)
@@ -75,7 +75,7 @@ struct CheckEmailScreen: View {
                     
                     Text("Please click on the link sent to your email address to reset your password.")
                         .font(.system(size: 17))
-                        .foregroundColor(Color(Color.appSubtitle))
+                        .foregroundColor(Color(AppColors.Text.secondary))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 38)
                         .padding(.bottom, 25)
@@ -90,12 +90,12 @@ struct CheckEmailScreen: View {
                         } label: {
                             Text(viewModel.isResending ? String(localized: "Sending...") : String(localized: "Resend email"))
                                 .underline()
-                                .foregroundColor(Color(Color.primaryOrange))
+                                .foregroundColor(Color(AppColors.Brand.primaryOrange))
                         }
                         .disabled(viewModel.isResending || viewModel.didResend)
                     }
                     .font(.system(size: 17))
-                    .foregroundColor(Color(Color.appSubtitle))
+                    .foregroundColor(Color(AppColors.Text.secondary))
                     .multilineTextAlignment(.center)
      
                 }

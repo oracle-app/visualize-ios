@@ -55,7 +55,7 @@ struct ResetPasswordScreen: View {
                 Button { coordinator.pop() } label: {
                     Image(systemName: "arrow.backward")
                         .font(.system(size: 22))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                         .frame(width: 48, height: 48)
                         .glassEffect()
                 }
@@ -67,7 +67,7 @@ struct ResetPasswordScreen: View {
                 
                 Text("Reset password")
                     .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(Color(Color.appNavy))
+                    .foregroundColor(Color(AppColors.Text.primary))
                     .multilineTextAlignment(.center)
                     .padding(.top, 4)
                     .padding(.bottom, 30)
@@ -76,7 +76,7 @@ struct ResetPasswordScreen: View {
                 
                 Text("Enter the email address associated with your account to receive a recovery link.")
                     .font(.system(size: 17))
-                    .foregroundColor(Color(Color.appSubtitle))
+                    .foregroundColor(Color(AppColors.Text.secondary))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 38)
                     .padding(.bottom, 59)

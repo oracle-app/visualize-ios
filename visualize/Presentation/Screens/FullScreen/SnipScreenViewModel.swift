@@ -28,7 +28,7 @@ final class SnipScreenViewModel {
 
     var activeTool: DrawingTool = .pencil
     var activeShape: ShapeType = .rectangle
-    var pencilColor: Color = .primaryOrange
+    var pencilColor: Color = AppColors.Brand.primaryOrange
     var pencilWidth: CGFloat = 3
     var eraserRadius: CGFloat = 18
 

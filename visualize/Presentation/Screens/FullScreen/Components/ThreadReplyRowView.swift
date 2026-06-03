@@ -72,17 +72,17 @@ struct ThreadReplyRowView: View {
             HStack(alignment: .firstTextBaseline) {
                 Text(isAuthor ? "Me" : reply.authorName)
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
 
                 Spacer()
 
                 Text(reply.timeAgo)
                     .font(.system(size: 13))
-                    .foregroundStyle(Color.primaryText.opacity(0.5))
+                    .foregroundStyle(AppColors.Text.primary.opacity(0.5))
             }
             Text(reply.content)
                 .font(.system(size: 15, weight: .regular))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(AppColors.Text.primary)
                 .fixedSize(horizontal: false, vertical: true)
                 .lineSpacing(2)
         }
@@ -91,7 +91,7 @@ struct ThreadReplyRowView: View {
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color.appBackground)
-                .shadow(color: Color.primaryText.opacity(0.20), radius: 6, x: 3, y: 5)
+                .shadow(color: AppColors.Text.primary.opacity(0.20), radius: 6, x: 3, y: 5)
         )
         .padding(.trailing, 14)
         .padding(.vertical, 4)

@@ -60,10 +60,10 @@ struct InputField: View {
         .padding(.vertical, 18)
         .focused($isFocused)
         .background(
-            hasError ? AppColors.UI.authErrorBackground : Color.appMint
+            hasError ? AppColors.UI.authErrorBackground : AppColors.Brand.mint
         )
         .foregroundStyle(AppColors.Text.authFieldText)
-        .tint(hasError ? .red : Color.appTeal)
+        .tint(hasError ? .red : AppColors.Brand.teal)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
@@ -71,8 +71,8 @@ struct InputField: View {
                     ? Color.red
                     : (
                         isFocused
-                        ? Color.appTeal.opacity(0.7)
-                        : Color.appTeal.opacity(0.15)
+                        ? AppColors.Brand.teal.opacity(0.7)
+                        : AppColors.Brand.teal.opacity(0.15)
                     ),
                     lineWidth: isFocused || hasError ? 1.8 : 1
                 )
@@ -156,7 +156,7 @@ struct PasswordField: View {
             .autocorrectionDisabled()
             .focused($isFocused)
             .foregroundStyle(AppColors.Text.authFieldText)
-            .tint(hasError ? .red : Color.appTeal)
+            .tint(hasError ? .red : AppColors.Brand.teal)
 
             // MARK: Visibility Toggle
             
@@ -170,7 +170,7 @@ struct PasswordField: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 18)
         .background(
-            hasError ? AppColors.UI.authErrorBackground : Color.appMint
+            hasError ? AppColors.UI.authErrorBackground : AppColors.Brand.mint
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -179,8 +179,8 @@ struct PasswordField: View {
                     ? Color.red
                     : (
                         isFocused
-                        ? Color.appTeal.opacity(0.7)
-                        : Color.appTeal.opacity(0.15)
+                        ? AppColors.Brand.teal.opacity(0.7)
+                        : AppColors.Brand.teal.opacity(0.15)
                     ),
                     lineWidth: isFocused || hasError ? 1.8 : 1
                 )

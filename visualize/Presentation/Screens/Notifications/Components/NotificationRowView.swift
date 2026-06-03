@@ -22,21 +22,21 @@ struct NotificationRowView: View {
                 .overlay(alignment: .leading) {
                     if !item.isRead {
                         Circle()
-                            .fill(Color.appRed)
+                            .fill(AppColors.Status.red)
                             .frame(width: 8, height: 8)
                             .offset(x: -28)
                     }
                 }
                 HStack(alignment: .top, spacing: 8) {
                     Text("\(Text(item.boldPrefix).font(.system(size: 16, weight: .semibold)))\(Text(item.message).font(.system(size: 16)))")
-                        .foregroundStyle(Color.appNavy)
+                        .foregroundStyle(AppColors.Text.primary)
                         .lineSpacing(3)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text(item.timestamp)
                         .font(.system(size: 12))
-                        .foregroundStyle(Color.appSubtitle)
+                        .foregroundStyle(AppColors.Text.secondary)
                         .fixedSize()
                 }
             }
@@ -45,7 +45,7 @@ struct NotificationRowView: View {
 
             if showSeparator {
                 Divider()
-                    .background(Color.appNavy.opacity(0.1))
+                    .background(AppColors.Text.primary.opacity(0.1))
                     .padding(.leading, 68)
                     .padding(.trailing, 16)
             }

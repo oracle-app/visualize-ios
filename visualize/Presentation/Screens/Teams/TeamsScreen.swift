@@ -49,7 +49,7 @@ struct TeamsScreen: View {
                                     } label: {
                                         Label("Edit", systemImage: "pencil")
                                     }
-                                    .tint(Color.appTeal)
+                                    .tint(AppColors.Brand.teal)
                                 }
                         }
                     }
@@ -84,7 +84,7 @@ struct TeamsScreen: View {
                                     } label: {
                                         Label("Edit", systemImage: "pencil")
                                     }
-                                    .tint(Color.appTeal)
+                                    .tint(AppColors.Brand.teal)
                                 }
                             
                         } else {
@@ -110,7 +110,7 @@ struct TeamsScreen: View {
                                         }
                                     }
                                     .listRowInsets(EdgeInsets(top: 4, leading: 32, bottom: 4, trailing: 16))
-                                    .listRowBackground(Color.appMint.opacity(0.6))
+                                    .listRowBackground(AppColors.Brand.mint.opacity(0.6))
                                 }
                             }
                         }
@@ -134,7 +134,7 @@ struct TeamsScreen: View {
                             .font(.system(size: 15, weight: .medium))
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(Color.primaryOrange)
+                    .tint(AppColors.Brand.primaryOrange)
                 }
             }
         }
@@ -179,7 +179,7 @@ struct TeamsScreen: View {
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
             .font(.title3.bold())
-            .foregroundStyle(Color.primaryText)
+            .foregroundStyle(AppColors.Text.primary)
             .textCase(nil)
     }
     
@@ -193,7 +193,7 @@ struct TeamsScreen: View {
     private func emptyState(_ message: String) -> some View {
         Text(message)
             .font(.subheadline)
-            .foregroundStyle(Color.appSubtitle)
+            .foregroundStyle(AppColors.Text.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 8)
     }

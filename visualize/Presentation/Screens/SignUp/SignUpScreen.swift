@@ -64,7 +64,7 @@ struct SignUpScreen: View {
                     
                     Text("Create your account")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color.appNavy)
+                        .foregroundColor(AppColors.Text.primary)
                         .multilineTextAlignment(.center)
                         .padding(.top, 58)
                         .padding(.bottom, 58)
@@ -132,7 +132,7 @@ struct SignUpScreen: View {
                     VStack(spacing: 4) {
                         Text("Already have an account?")
                             .font(.system(size: 14))
-                            .foregroundColor(Color(Color.appSubtitle))
+                            .foregroundColor(Color(AppColors.Text.secondary))
 
                         Button {
                             coordinator.replace(path: [.login])
@@ -178,7 +178,7 @@ struct SignUpScreen: View {
             }
         }
         .background(
-            Color(Color.appTeal)
+            Color(AppColors.Brand.teal)
                 .ignoresSafeArea()
         )
         

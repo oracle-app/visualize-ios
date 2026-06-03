@@ -47,7 +47,7 @@ struct UploadingFileCardView: View {
         HStack(spacing: 12) {
             ZStack {
                 Image(systemName: "document.badge.arrow.up")
-                    .foregroundColor(Color.appTeal)
+                    .foregroundColor(AppColors.Brand.teal)
                     .font(.system(size: 28))
             }
 

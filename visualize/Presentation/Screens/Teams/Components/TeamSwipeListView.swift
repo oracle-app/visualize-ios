@@ -21,7 +21,7 @@ struct TeamsSwipeListView: View {
             ForEach(teams) { team in
                 TeamSwipeRow(team: team)
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                    .listRowSeparatorTint(Color.appGray)
+                    .listRowSeparatorTint(AppColors.UI.gray)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) {
                             onDelete(team)
@@ -34,7 +34,7 @@ struct TeamsSwipeListView: View {
                         } label: {
                             Label("Edit", systemImage: "pencil")
                         }
-                        .tint(Color.appTeal)
+                        .tint(AppColors.Brand.teal)
                     }
             }
         }
@@ -56,11 +56,11 @@ struct TeamSwipeRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(team.name)
                     .font(.body.bold())
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
 
                 Text("\(team.memberCount) member\(team.memberCount == 1 ? "" : "s")")
                     .font(.subheadline)
-                    .foregroundStyle(Color.appTeal)
+                    .foregroundStyle(AppColors.Brand.teal)
             }
 
             Spacer()
@@ -68,7 +68,7 @@ struct TeamSwipeRow: View {
             StackedAvatarsView(members: team.members, maxAvatars: maxAvatars)
         }
         .padding(.vertical, 4)
-        .listRowBackground(Color.appMint)
+        .listRowBackground(AppColors.Brand.mint)
     }
 }
 

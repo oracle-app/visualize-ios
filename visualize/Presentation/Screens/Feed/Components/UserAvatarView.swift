@@ -39,7 +39,7 @@ struct UserAvatarView: View {
         .overlay(
             Group {
                 if showBorder {
-                    Circle().stroke(Color.appMint, lineWidth: 2)
+                    Circle().stroke(AppColors.Brand.mint, lineWidth: 2)
                 }
             }
         )

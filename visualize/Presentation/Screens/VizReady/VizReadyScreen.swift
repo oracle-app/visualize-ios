@@ -54,7 +54,7 @@ struct VizReadyView: View {
                     label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(Color.appNavy)
+                            .foregroundStyle(AppColors.Text.primary)
                     }
                 )
                 .alert("Discard generated visualizations?", isPresented: $showDiscardAlert) {
@@ -76,7 +76,7 @@ struct VizReadyView: View {
                     } else {
                         Text("Choose visualization")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Color.appNavy)
+                            .foregroundStyle(AppColors.Text.primary)
                     }
                 }
             }
@@ -88,7 +88,7 @@ struct VizReadyView: View {
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(
                                 viewModel.isSelectionValid
-                                    ? Color.appNavy
+                                    ? AppColors.Text.primary
                                     : Color.gray.opacity(0.35)
                             )
                     }
@@ -110,13 +110,13 @@ struct VizReadyView: View {
             VStack(spacing: 8) {
                 Text(String(localized: "Your visualizations are ready!"))
                     .font(.system(size: 25, weight: .bold))
-                    .foregroundStyle(Color.appNavy)
+                    .foregroundStyle(AppColors.Text.primary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8)
  
                 Text(String(localized: "We've generated several charts based\non your dataset."))
                     .font(.system(size: 16, weight: .regular))
-                    .foregroundStyle(Color.appSubtitle)
+                    .foregroundStyle(AppColors.Text.secondary)
                     .multilineTextAlignment(.center)
                     .tracking(-0.31)
                     .lineSpacing(7)
@@ -126,7 +126,7 @@ struct VizReadyView: View {
  
             Text(String(localized: "Choose the chart that best represents the insights you want to share"))
                 .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Color.appSubtitle.opacity(0.8))
+                .foregroundStyle(AppColors.Text.secondary.opacity(0.8))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)

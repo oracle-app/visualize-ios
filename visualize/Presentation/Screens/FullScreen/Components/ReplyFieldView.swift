@@ -55,7 +55,7 @@ struct ReplyFieldView: View {
             TextField(placeholder, text: $text, axis: .vertical)
                 .focused($focused)
                 .font(.system(size: 17))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(AppColors.Text.primary)
                 .lineLimit(1...4)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 8)
@@ -85,7 +85,7 @@ struct ReplyFieldView: View {
                 .frame(width: 40, height: 40)
                 .background(
                     Circle()
-                        .fill(Color.appTeal)
+                        .fill(AppColors.Brand.teal)
                 )
         }
         .padding(.bottom, 2)

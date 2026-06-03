@@ -38,7 +38,7 @@ struct UploadDropZoneView: View {
                 Image(systemName: "document.badge.arrow.up")
                     .font(.system(size: 48))
                     .foregroundColor(
-                        Color.appTeal
+                        AppColors.Brand.teal
                     )
                     .padding(.bottom, 4)
 
@@ -59,7 +59,7 @@ struct UploadDropZoneView: View {
                 }
                 .font(.system(size: 13))
                 .foregroundColor(
-                    Color.appTeal
+                    AppColors.Brand.teal
                 )
             }
             .padding(.vertical, 36)

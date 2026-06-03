@@ -156,7 +156,7 @@ struct ThreadsPreviewScreen: View {
             // never push it off center, regardless of their widths.
             Text(String(localized: "Preview"))
                 .font(.system(size: titleFontSize, weight: .bold))
-                .foregroundStyle(Color.appNavy)
+                .foregroundStyle(AppColors.Text.primary)
 
             HStack {
                 // MARK: Go back
@@ -168,7 +168,7 @@ struct ThreadsPreviewScreen: View {
                 } label: {
                     Image(systemName: "arrow.backward")
                         .font(.system(size: buttonIconSize))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                         .frame(width: buttonDiameter, height: buttonDiameter)
                         .glassEffect()
                 }
@@ -185,7 +185,7 @@ struct ThreadsPreviewScreen: View {
                         .font(.system(size: buttonIconSize))
                         .foregroundStyle(Color.white)
                         .frame(width: buttonDiameter, height: buttonDiameter)
-                        .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
+                        .glassEffect(.regular.tint(AppColors.Brand.primaryOrange), in: Circle())
                 }
                 .accessibilityLabel("Post to Threads")
             }

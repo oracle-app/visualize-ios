@@ -33,10 +33,10 @@ struct ShareTeammatesScreen: View {
                 VStack(spacing: 5) {
                     Image(systemName: "person.2")
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                     Text("Share to more teammates")
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                 }
                 contentView
             }
@@ -70,7 +70,7 @@ struct ShareTeammatesScreen: View {
                         dismiss()
                     }
                 }
-                .tint(Color.primaryOrange)
+                .tint(AppColors.Brand.primaryOrange)
             }
         }
     }
@@ -195,9 +195,9 @@ struct ShareTeammatesScreen: View {
             withAnimation { isExpanded.wrappedValue.toggle() }
         } label: {
             HStack {
-                Text(title).foregroundStyle(Color.primaryText)
+                Text(title).foregroundStyle(AppColors.Text.primary)
                 Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
             }
         }
     }

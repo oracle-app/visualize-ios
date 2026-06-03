@@ -26,9 +26,9 @@ struct SnipFloatingToolbar: View {
     @Binding var currentColor: Color
     @Binding var openPanel: ToolPanel?
 
-    private let activeIconColor = Color.appTeal
-    private let activeBgColor = Color.appMint
-    private let normalIconColor = Color.primaryText
+    private let activeIconColor = AppColors.Brand.teal
+    private let activeBgColor = AppColors.Brand.mint
+    private let normalIconColor = AppColors.Text.primary
     private let toolCornerRadius: CGFloat = 10
     private let containerRadius: CGFloat = 32
 
@@ -156,10 +156,10 @@ struct SnipShapesPanelView: View {
                 }
                 .labelStyle(.iconOnly)
                 .font(.system(size: 18, weight: .medium))
-                .foregroundStyle(isSelected ? Color.appTeal : Color.appNavy)
+                .foregroundStyle(isSelected ? AppColors.Brand.teal : AppColors.Text.primary)
                 .frame(width: 42, height: 42)
                 .contentShape(Rectangle())
-                .background(isSelected ? Color.appMint : Color.clear)
+                .background(isSelected ? AppColors.Brand.mint : Color.clear)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .animation(.easeInOut(duration: 0.2), value: isSelected)
                 .buttonStyle(.plain)
@@ -179,11 +179,11 @@ struct SnipStrokeWidthPanelView: View {
         VStack(spacing: 8) {
             Text("\(Int(model.pencilWidth)) px")
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(AppColors.Text.primary)
                 .monospacedDigit()
 
             Slider(value: $model.pencilWidth, in: 1...30, step: 1)
-                .tint(Color.appTeal)
+                .tint(AppColors.Brand.teal)
                 .frame(width: 120)
                 .rotationEffect(.degrees(-90))
                 .frame(width: 44, height: 120)
@@ -202,7 +202,7 @@ private struct SnipStrokeWidthIcon: View {
             Capsule().frame(height: 2.5)
             Capsule().frame(height: 4)
         }
-        .foregroundStyle(Color.primaryText)
+        .foregroundStyle(AppColors.Text.primary)
         .frame(width: 22)
     }
 }

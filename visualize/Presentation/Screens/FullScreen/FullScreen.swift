@@ -78,7 +78,7 @@ struct FullScreen: View {
 
     var body: some View {
         ZStack {
-            Color.appMint
+            AppColors.Brand.mint
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -145,7 +145,7 @@ struct FullScreen: View {
                             .font(.system(size: 28))
                             .foregroundStyle(.white)
                             .frame(width: 54, height: 54)
-                            .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
+                            .glassEffect(.regular.tint(AppColors.Brand.primaryOrange), in: Circle())
                     }
                     // Disabled when parsedChart is nil (not yet loaded / parse error),
                     // .unsupported (chart type not yet renderable), or when
@@ -217,10 +217,10 @@ struct FullScreen: View {
         VStack(spacing: 5) {
             Text(String(localized: "Couldn't load"))
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
             Text(String(localized: "Something went wrong."))
                 .font(.system(size: 17))
-                .foregroundStyle(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
                 .multilineTextAlignment(.center)
             Button("Try again") {
                 chartLoadID = UUID()
@@ -229,7 +229,7 @@ struct FullScreen: View {
             .foregroundStyle(.white)
             .padding(.horizontal, 130)
             .padding(.vertical, 15)
-            .background(Color.appTeal)
+            .background(AppColors.Brand.teal)
             .cornerRadius(296)
             .padding(.top, 200)
         }

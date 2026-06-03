@@ -60,7 +60,7 @@ struct Login: View {
                     // Title
                     Text("Welcome")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color.appNavy)
+                        .foregroundColor(AppColors.Text.primary)
                         .multilineTextAlignment(.center)
                         .padding(.top, 58)
                         .padding(.bottom, 58)
@@ -103,7 +103,7 @@ struct Login: View {
                         } label: {
                             Text("Forgot your password?")
                                 .font(.system(size: 13))
-                                .foregroundColor(Color(Color.appSubtitle))
+                                .foregroundColor(Color(AppColors.Text.secondary))
                                 .underline()
                         }
                     }
@@ -119,7 +119,7 @@ struct Login: View {
                     VStack(spacing: 4) {
                         Text("Don't have an account?")
                             .font(.system(size: 14))
-                            .foregroundColor(Color(Color.appSubtitle))
+                            .foregroundColor(Color(AppColors.Text.secondary))
 
                         Button {
                             coordinator.push(.signUp)
@@ -159,7 +159,7 @@ struct Login: View {
             }
         }
         .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
-        .background(Color(Color.appTeal))
+        .background(Color(AppColors.Brand.teal))
         .onChange(of: viewModel.loggedInUser) { _, user in
             if let authenticatedUser = user {
                 coordinator.login(user: authenticatedUser)
