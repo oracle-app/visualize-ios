@@ -76,9 +76,6 @@ struct ThreadsPreviewCaptionFieldView: View {
             // MARK: - Editor + placeholder
 
             ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.appLightTeal)
-
                 // Placeholder is overlaid because TextEditor lacks a native one.
                 // `allowsHitTesting(false)` lets taps fall through to the editor.
                 // Hidden from accessibility because the TextEditor itself carries
@@ -105,6 +102,7 @@ struct ThreadsPreviewCaptionFieldView: View {
                     .accessibilityHint("Optional description for your post")
             }
             .frame(minHeight: editorMinHeight)
+            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
 
             // MARK: - Character counter
             // Shown only when within 50 characters of the limit, so the

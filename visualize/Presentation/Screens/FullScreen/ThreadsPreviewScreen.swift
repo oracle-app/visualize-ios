@@ -158,36 +158,38 @@ struct ThreadsPreviewScreen: View {
                 .font(.system(size: titleFontSize, weight: .bold))
                 .foregroundStyle(Color.appNavy)
 
-            HStack {
-                // MARK: Go back
-                Button {
-                    // Dismiss the keyboard before showing the alert so
-                    // the modal isn't pushed up by the caption field.
-                    isCaptionFocused = false
-                    viewModel.requestDiscard()
-                } label: {
-                    Image(systemName: "arrow.backward")
-                        .font(.system(size: buttonIconSize))
-                        .foregroundStyle(Color.primaryText)
-                        .frame(width: buttonDiameter, height: buttonDiameter)
-                        .glassEffect()
-                }
-                .accessibilityLabel("Go back")
+            GlassEffectContainer(spacing: 24) {
+                HStack {
+                    // MARK: Go back
+                    Button {
+                        // Dismiss the keyboard before showing the alert so
+                        // the modal isn't pushed up by the caption field.
+                        isCaptionFocused = false
+                        viewModel.requestDiscard()
+                    } label: {
+                        Image(systemName: "arrow.backward")
+                            .font(.system(size: buttonIconSize))
+                            .foregroundStyle(Color.primaryText)
+                            .frame(width: buttonDiameter, height: buttonDiameter)
+                            .glassEffect(.regular.interactive(), in: Circle())
+                    }
+                    .accessibilityLabel("Go back")
 
-                Spacer()
+                    Spacer()
 
-                // MARK: Post to Threads
-                Button {
-                    isCaptionFocused = false
-                    viewModel.requestShare()
-                } label: {
-                    Image(systemName: "paperplane.fill")
-                        .font(.system(size: buttonIconSize))
-                        .foregroundStyle(Color.white)
-                        .frame(width: buttonDiameter, height: buttonDiameter)
-                        .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
+                    // MARK: Post to Threads
+                    Button {
+                        isCaptionFocused = false
+                        viewModel.requestShare()
+                    } label: {
+                        Image(systemName: "paperplane.fill")
+                            .font(.system(size: buttonIconSize))
+                            .foregroundStyle(Color.white)
+                            .frame(width: buttonDiameter, height: buttonDiameter)
+                            .glassEffect(.regular.tint(Color.primaryOrange).interactive(), in: Circle())
+                    }
+                    .accessibilityLabel("Post to Threads")
                 }
-                .accessibilityLabel("Post to Threads")
             }
         }
     }
