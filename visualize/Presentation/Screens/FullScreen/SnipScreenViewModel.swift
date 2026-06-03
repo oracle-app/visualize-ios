@@ -336,7 +336,14 @@ final class SnipScreenViewModel {
                 CGPoint(x: rect.minX, y: rect.maxY),
                 CGPoint(x: rect.minX, y: rect.minY)
             ])]
-        case .arrow, .circle, .triangle:
+        case .triangle:
+            paths = [sampledPolyline([
+                CGPoint(x: rect.midX, y: rect.minY),
+                CGPoint(x: rect.maxX, y: rect.maxY),
+                CGPoint(x: rect.minX, y: rect.maxY),
+                CGPoint(x: rect.midX, y: rect.minY)
+            ])]
+        case .arrow, .circle:
             paths = []
         }
 
