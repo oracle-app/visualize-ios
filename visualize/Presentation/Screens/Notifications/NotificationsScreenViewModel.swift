@@ -76,7 +76,7 @@ final class NotificationsScreenViewModel {
                 case .success(let notifications):
                     let groups = group(notifications)
                     let corrected = applyPendingReads(to: groups)
-                    state = corrected.allSatisfy({ $0.items.isEmpty }) ? .empty : .loaded(corrected)
+                    state = .loaded(corrected)
                 case .failure(let error):
                     state = .error(error.localizedDescription)
                 }

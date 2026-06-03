@@ -49,13 +49,15 @@ class FeedScreenViewModel {
 
     // MARK: - Dependencies
     var visualizationFilter: VisualizationFilter
-    let loadVisualizationsUseCase: LoadVisualizationsUseCase
-    let searchVisualizationsUseCase: SearchVisualizationsUseCase
-    let hideVisualizationUseCase: HideVisualizationUseCase
-    let deleteVisualizationUseCase: DeleteVisualizationUseCase
-    let authRepository: any AuthRepository
-    let userRepository: any UserRepository
+    private let loadVisualizationsUseCase: LoadVisualizationsUseCase
+    private let searchVisualizationsUseCase: SearchVisualizationsUseCase
+    private let hideVisualizationUseCase: HideVisualizationUseCase
+    private let deleteVisualizationUseCase: DeleteVisualizationUseCase
+    private let authRepository: any AuthRepository
+    private let notificationRepository: any NotificationRepository
+    private let userRepository: any UserRepository
 
+    var hasUnreadNotifications: Bool = false
     private var allVisualizations: [VisualizationCard] = []
     private(set) var currentUserID: String = ""
     private(set) var currentUserRole: Role = .consumer
@@ -73,6 +75,7 @@ class FeedScreenViewModel {
         hideVisualizationUseCase: HideVisualizationUseCase,
         deleteVisualizationUseCase: DeleteVisualizationUseCase,
         authRepository: any AuthRepository,
+        notificationRepository: any NotificationRepository,
         userRepository: any UserRepository
     ) {
         self.loadVisualizationsUseCase = loadVisualizationsUseCase
@@ -80,6 +83,7 @@ class FeedScreenViewModel {
         self.hideVisualizationUseCase = hideVisualizationUseCase
         self.deleteVisualizationUseCase = deleteVisualizationUseCase
         self.authRepository = authRepository
+        self.notificationRepository = notificationRepository
         self.userRepository = userRepository
         self.visualizationFilter = .all
         Task {
@@ -95,6 +99,15 @@ class FeedScreenViewModel {
             self.loadData(forceRefresh: false)
         } catch {
             self.state = .error
+        }
+    }
+    
+    func listenForUnreadNotifications() async {
+        guard !currentUserID.isEmpty else { return }
+            
+        let stream = notificationRepository.unreadStream(for: currentUserID)
+        for await hasUnread in stream {
+            self.hasUnreadNotifications = hasUnread
         }
     }
 
@@ -281,6 +294,7 @@ extension FeedScreenViewModel {
         let userDS = UserDatasource()
         let teamDS = TeamDatasource()
         let authDS = AuthFirebaseDatasource()
+        let notiDS = NotificationDatasource()
         let visualizationDS = VisualizationDatasource(userDatasource: userDS, teamsDatasource: teamDS)
         let repo = VisualizationRepositoryImpl(
             userDatasource: userDS,
@@ -289,12 +303,14 @@ extension FeedScreenViewModel {
         )
         let userRepo = UserRepositoryImpl(userDatasource: userDS)
         let authRepo = AuthRepositoryImpl(source: authDS)
+        let notificationRepo = NotificationRepositoryImpl(datasource: notiDS)
         return FeedScreenViewModel(
             loadVisualizationsUseCase: LoadVisualizationsUseCase(visualizationRepository: repo),
             searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
             hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
             deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo),
             authRepository: authRepo,
+            notificationRepository: notificationRepo,
             userRepository: userRepo
         )
     }

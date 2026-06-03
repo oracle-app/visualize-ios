@@ -14,6 +14,7 @@ struct NavBarView: View {
         let userDS = UserDatasource()
         let teamsDS = TeamDatasource()
         let authDS = AuthFirebaseDatasource()
+        let notiDS = NotificationDatasource()
         let visualizationDS = VisualizationDatasource(userDatasource: userDS, teamsDatasource: teamsDS)
         let repo = VisualizationRepositoryImpl(
             userDatasource: userDS,
@@ -22,12 +23,14 @@ struct NavBarView: View {
         )
         let authRepository = AuthRepositoryImpl(source: authDS)
         let userRepo = UserRepositoryImpl(userDatasource: userDS)
+        let notificationRepo = NotificationRepositoryImpl(datasource: notiDS)
         return FeedScreenViewModel(
             loadVisualizationsUseCase: LoadVisualizationsUseCase(visualizationRepository: repo),
             searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
             hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
             deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo),
             authRepository: authRepository,
+            notificationRepository: notificationRepo,
             userRepository: userRepo
         )
     }()

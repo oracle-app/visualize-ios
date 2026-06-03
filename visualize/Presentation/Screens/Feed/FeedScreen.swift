@@ -91,7 +91,6 @@ struct FeedScreen: View {
                 .transition(.move(edge: .leading).combined(with: .opacity))
             } else {
                 Button {
-                    
                     if isScrolledPastHeader {
                         searchPressed = true
                         isScrollDisabled = true
@@ -124,9 +123,21 @@ struct FeedScreen: View {
             }
         } trailing: {
             HStack(spacing: 15) {
-                Button("Notifications", systemImage: "bell") {
+                Button {
                     coordinator.push(.notifications)
+                } label: {
+                    Image(systemName: "bell")
+                        .overlay(alignment: .topTrailing){
+                            if viewModel.hasUnreadNotifications {
+                                Circle()
+                                    .fill(Color.red)
+                                    .frame(width: 8, height: 8)
+                                    .offset(x: 2, y: -2)
+                            }
+                        }
                 }
+                .accessibilityLabel(String(localized: "Notifications"))
+                .accessibilityValue(viewModel.hasUnreadNotifications ? String(localized: "Unread items") : "")
             }
         } principal: {
             if let title {
@@ -153,6 +164,9 @@ struct FeedScreen: View {
             if shouldLoad {
                 viewModel.loadData()
             }
+        }
+        .task(id: viewModel.currentUserID) {
+            await viewModel.listenForUnreadNotifications()
         }
         .portraitOrientationLock()
         .scrollDisabled(isScrollDisabled)
