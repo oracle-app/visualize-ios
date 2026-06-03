@@ -315,8 +315,6 @@ final class SnipScreenViewModel {
     }
 
     /// Converts the supported closed/open shape variants into sampled stroke paths.
-    /// Circle support is added separately because its geometry needs dedicated
-    /// ellipse sampling rules.
     private func sampledStrokes(for shape: ShapeAnnotation) -> [DrawingStroke] {
         let start = shape.startPoint
         let end = shape.endPoint
@@ -357,7 +355,7 @@ final class SnipScreenViewModel {
                 sampledPolyline([end, secondHeadPoint])
             ]
         case .circle:
-            paths = []
+            paths = [sampledEllipse(in: rect)]
         }
 
         return paths
@@ -397,6 +395,22 @@ final class SnipScreenViewModel {
             points.append(contentsOf: resampledPoints(from: last, to: vertex))
         }
         return points
+    }
+
+    /// Samples an ellipse perimeter. The first sample is the right-most point of
+    /// the ellipse and the last sample returns to that same point, giving closed
+    /// shapes an explicit seam for stroke splitting.
+    private func sampledEllipse(in rect: CGRect) -> [CGPoint] {
+        let radiusX = rect.width / 2
+        let radiusY = rect.height / 2
+        let circumferenceEstimate = 2 * .pi * sqrt((radiusX * radiusX + radiusY * radiusY) / 2)
+        let sampleCount = max(24, Int(ceil(circumferenceEstimate / maxStrokePointDistance)))
+
+        return (0...sampleCount).map { index in
+            let angle = CGFloat(index) / CGFloat(sampleCount) * 2 * .pi
+            return CGPoint(x: rect.midX + cos(angle) * radiusX,
+                           y: rect.midY + sin(angle) * radiusY)
+        }
     }
 
     // MARK: - Shape
