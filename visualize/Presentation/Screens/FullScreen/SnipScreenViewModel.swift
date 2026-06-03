@@ -314,9 +314,9 @@ final class SnipScreenViewModel {
         return result
     }
 
-    /// Converts the simple closed/open shape variants into sampled stroke paths.
-    /// Arrow and circle support are added separately because their geometry needs
-    /// dedicated arrowhead and ellipse sampling rules.
+    /// Converts the supported closed/open shape variants into sampled stroke paths.
+    /// Circle support is added separately because its geometry needs dedicated
+    /// ellipse sampling rules.
     private func sampledStrokes(for shape: ShapeAnnotation) -> [DrawingStroke] {
         let start = shape.startPoint
         let end = shape.endPoint
@@ -343,7 +343,20 @@ final class SnipScreenViewModel {
                 CGPoint(x: rect.minX, y: rect.maxY),
                 CGPoint(x: rect.midX, y: rect.minY)
             ])]
-        case .arrow, .circle:
+        case .arrow:
+            let angle = atan2(end.y - start.y, end.x - start.x)
+            let length: CGFloat = max(12, shape.lineWidth * 4)
+            let spread: CGFloat = .pi / 6
+            let firstHeadPoint = CGPoint(x: end.x - length * cos(angle - spread),
+                                         y: end.y - length * sin(angle - spread))
+            let secondHeadPoint = CGPoint(x: end.x - length * cos(angle + spread),
+                                          y: end.y - length * sin(angle + spread))
+            paths = [
+                sampledPolyline([start, end]),
+                sampledPolyline([end, firstHeadPoint]),
+                sampledPolyline([end, secondHeadPoint])
+            ]
+        case .circle:
             paths = []
         }
 
