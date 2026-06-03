@@ -20,10 +20,10 @@ struct AnnotationCanvasView: View {
     var body: some View {
         ZStack {
             Canvas { ctx, _ in
-                for shape in model.shapeAnnotations { drawShape(shape, in: ctx) }
-                if let live = model.liveShape { drawShape(live, in: ctx) }
                 for stroke in model.strokes { drawStroke(stroke, in: ctx) }
                 if let live = model.liveStroke { drawStroke(live, in: ctx) }
+                for shape in model.shapeAnnotations { drawShape(shape, in: ctx) }
+                if let live = model.liveShape { drawShape(live, in: ctx) }
             }
             .allowsHitTesting(false)
 
