@@ -101,6 +101,7 @@ struct ThreadsPreviewCaptionFieldView: View {
                     .padding(.vertical, 6)
                     .focused(focus)
                     .accessibilityLabel("Caption")
+                    .accessibilityValue("\(text.count) of \(limit) characters used")
                     .accessibilityHint("Optional description for your post")
             }
             .frame(minHeight: editorMinHeight)

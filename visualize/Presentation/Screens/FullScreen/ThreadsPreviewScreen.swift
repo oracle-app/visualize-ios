@@ -15,8 +15,8 @@
 //  - Unified confirmation alert driven by a single `ThreadsPreviewAlert`
 //    enum on the view model, so discard and share alerts can never race.
 //
-//  This screen is UI-only: it does not integrate with the Threads publishing
-//  logic. The actual upload is delegated to the parent through `onShare`.
+//  The actual upload is delegated to the parent through `onShare` after the
+//  user confirms the preview.
 
 import SwiftUI
 
