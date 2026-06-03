@@ -423,8 +423,7 @@ final class SnipScreenViewModel {
         liveShape = ShapeAnnotation(type: activeShape, startPoint: point, endPoint: point,
                                     color: pencilColor.snipColor, lineWidth: pencilWidth)
     }
-/// hvhihvi
-    /// 
+
     /// Updates the end point of the in-progress shape as the user drags.
     ///
     /// - Parameters:
