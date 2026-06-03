@@ -31,6 +31,10 @@ final class SnipScreenViewModel {
     var pencilColor: Color = .primaryOrange
     var pencilWidth: CGFloat = 3
     var eraserRadius: CGFloat = 18
+    var eraserWidth: CGFloat {
+        get { eraserRadius * 2 }
+        set { eraserRadius = max(1, newValue / 2) }
+    }
 
     var pendingTextPosition: CGPoint?
     var showTextInput: Bool = false
