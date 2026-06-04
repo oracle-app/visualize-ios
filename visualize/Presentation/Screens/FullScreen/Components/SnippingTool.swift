@@ -16,6 +16,7 @@ import SwiftUI
 enum ToolPanel: Equatable {
     case shapes
     case strokeWidth
+    case textStyle
 }
 
 // MARK: - Floating toolbar
@@ -44,7 +45,8 @@ struct SnipFloatingToolbar: View {
     /// declared inside `body`.
     static func panelOffset(for panel: ToolPanel) -> CGFloat {
         switch panel {
-        case .strokeWidth: return 0          // index 3 — centered
+        case .strokeWidth: return 0                 // index 3 — centered
+        case .textStyle:   return buttonStride * 1  // index 4 — one stride right
         case .shapes:      return buttonStride * 2  // index 5 — two strides right
         }
     }
@@ -107,8 +109,9 @@ struct SnipFloatingToolbar: View {
     private var textToolButton: some View {
         let isActive = selectedTool == .text
         return Button("Text", systemImage: "textformat") {
+            let wasActive = selectedTool == .text && openPanel == .textStyle
             selectedTool = .text
-            openPanel = nil
+            openPanel = wasActive ? nil : .textStyle
         }
         .labelStyle(.iconOnly)
         .font(.system(size: 17))
@@ -147,11 +150,42 @@ struct SnipShapesPanelView: View {
 
     var body: some View {
         VStack(spacing: 4) {
-            ForEach(ShapeType.allCases, id: \.label) { shape in
+            ForEach(ShapeType.allCases, id: \.self) { shape in
                 let isSelected = model.activeShape == shape && model.activeTool == .shape
                 Button(shape.label, systemImage: shape.icon) {
                     model.activeShape = shape
                     model.activeTool = .shape
+                    onSelect()
+                }
+                .labelStyle(.iconOnly)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(isSelected ? Color.appTeal : Color.appNavy)
+                .frame(width: 42, height: 42)
+                .contentShape(Rectangle())
+                .background(isSelected ? Color.appMint : Color.clear)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .animation(.easeInOut(duration: 0.2), value: isSelected)
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(8)
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+// MARK: - Text style panel
+
+struct SnipTextStylePanelView: View {
+    var model: SnipScreenViewModel
+    let onSelect: () -> Void
+
+    var body: some View {
+        VStack(spacing: 4) {
+            ForEach(TextStyle.allCases, id: \.self) { style in
+                let isSelected = model.activeTextStyle == style && model.activeTool == .text
+                Button(style.label, systemImage: style.icon) {
+                    model.activeTextStyle = style
+                    model.activeTool = .text
                     onSelect()
                 }
                 .labelStyle(.iconOnly)

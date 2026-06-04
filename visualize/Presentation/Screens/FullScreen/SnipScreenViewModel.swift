@@ -28,6 +28,7 @@ final class SnipScreenViewModel {
 
     var activeTool: DrawingTool = .pencil
     var activeShape: ShapeType = .rectangle
+    var activeTextStyle: TextStyle = .normal
     var pencilColor: Color = .primaryOrange
     var pencilWidth: CGFloat = 3
     var eraserRadius: CGFloat = 18
@@ -461,7 +462,8 @@ final class SnipScreenViewModel {
         }
         saveSnapshot()
         textAnnotations.append(TextAnnotation(text: draftText, position: pos,
-                                              color: pencilColor.snipColor, fontSize: 16))
+                                              color: pencilColor.snipColor, fontSize: 16,
+                                              isItalic: activeTextStyle == .italic))
         pendingTextPosition = nil
         draftText = ""
     }
