@@ -38,11 +38,12 @@ struct TeamsScreen: View {
                         ForEach(viewModel.myTeams) { team in
                             TeamSwipeRow(team: team)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) {
+                                    Button {
                                         viewModel.deleteTeam(team)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
+                                    .tint(.red)
 
                                     Button {
                                         viewModel.beginEditing(team)
@@ -73,11 +74,12 @@ struct TeamsScreen: View {
                         if viewModel.currentUserRole == .admin {
                             TeamSwipeRow(team: team)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) {
+                                    Button {
                                         viewModel.deleteTeam(team)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
+                                    .tint(.red)
                                     
                                     Button {
                                         viewModel.beginEditing(team)
