@@ -57,6 +57,10 @@ final class FullScreenViewModel {
     /// Reference to the live chart's coordinator, set when the chart surface attaches.
     /// Used to read the current zoom/pan viewport at capture time.
     var tooltipCoordinator: ChartTooltipCoordinator?
+    /// Viewport captured before Snipping mode changes the FullScreen view tree.
+    private var pendingViewport: ChartViewport?
+    /// Tooltip state captured before Snipping mode changes the FullScreen view tree.
+    private var pendingTooltipState: ChartTooltipCoordinator.TooltipState?
 
     // MARK: - Upload State
 
@@ -196,9 +200,29 @@ final class FullScreenViewModel {
     /// SciChart's Metal-backed `UIViewRepresentable`, whose first frame is
     /// presented asynchronously via the GPU pipeline. A synchronous
     /// `drawHierarchy` would capture a blank `CALayer`.
+    func prepareChartForEditorCapture() {
+        pendingViewport = tooltipCoordinator?.currentViewport()
+        pendingTooltipState = tooltipCoordinator?.lastTooltipState
+    }
+
     func captureChartForEditor(_ chart: ChartData) async {
-        let viewport = tooltipCoordinator?.currentViewport()
-        let view = ChartRendererView(chart: chart, viewport: viewport)
+        let viewport = pendingViewport ?? tooltipCoordinator?.currentViewport()
+        let tooltipState = pendingTooltipState ?? tooltipCoordinator?.lastTooltipState
+        pendingViewport = nil
+        pendingTooltipState = nil
+
+        let view = ChartRendererView(
+            chart: chart,
+            viewport: viewport,
+            onCoordinatorReady: { coordinator in
+                guard let tooltipState else { return }
+                // Ensure the viewport override has been applied before positioning the tooltip.
+                DispatchQueue.main.async {
+                    coordinator.showTooltip(from: tooltipState)
+                }
+            }
+        )
+
         guard let image = await ViewSnapshot.capture(view, size: chartCaptureSize) else {
             showCaptureError = true
             return

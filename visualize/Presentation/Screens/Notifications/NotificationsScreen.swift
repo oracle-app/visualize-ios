@@ -9,7 +9,7 @@ import SwiftUI
 @MainActor
 struct NotificationsScreen: View {
 
-    var viewModel: NotificationsViewModel
+    var viewModel: NotificationsScreenViewModel
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -75,31 +75,28 @@ struct NotificationsScreen: View {
     private func loadedView(groups: [NotificationDisplayGroup]) -> some View {
         VStack(alignment: .leading, spacing: 20) {
             ForEach(groups) { group in
-                
-                if !group.items.isEmpty || group.id == "Today" || group.id == "Yesterday" {
-                    
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(group.title)
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(Color.appNavy)
-                            .padding(.horizontal, 24)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(group.title)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Color.appNavy)
+                        .padding(.horizontal, 24)
 
-                        if group.items.isEmpty {
-                            Text("No notifications yet.")
-                                .font(.system(size: 16))
-                                .foregroundStyle(Color.appSubtitle)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.bottom, 8)
-                        } else {
-                            NotificationGroupCard(
-                                group: group,
-                                onTap: { id in viewModel.markAsRead(id: id) }
-                            )
-                            .padding(.horizontal, 24)
-                        }
+                    if group.items.isEmpty {
+                        Text("No notifications yet.")
+                            .font(.system(size: 16))
+                            .foregroundStyle(Color.appSubtitle)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.bottom, 8)
+                    } else {
+                        NotificationGroupCardView(
+                            group: group,
+                            onTap: { id in viewModel.markAsRead(id: id) }
+                        )
+                        .padding(.horizontal, 24)
                     }
                 }
             }
+            
             if case .loaded(let groups) = viewModel.state,
                groups.flatMap(\.items).count > 0 {
                 Text("No more notifications.")

@@ -4,6 +4,10 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Data-layer implementation of `SnipRepository` for the Snipping Tool flow.
+//  It delegates binary image uploads to `StorageDatasource`, keeping Firebase
+//  specifics out of the domain use cases.
 
 import Foundation
 

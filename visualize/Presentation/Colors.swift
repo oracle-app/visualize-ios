@@ -37,6 +37,7 @@ extension Color {
     static let appDarkBlue = Color(red: 26/255, green: 47/255, blue: 63/255)
     static let appThreadsPrimary = Color(red: 148/255, green: 182/255, blue: 182/255) // #94B6B6
     static let appThreadsReply = Color(red: 253/255, green: 242/255, blue: 229/255) // #RDF2E5
+    static let appTeamNameBorder = Color(red: 79/255,green: 125/255,blue: 123/255) // #4F7D7B
 
     static let paletteLagoon1 = Color(red: 0/255, green: 191/255, blue: 216/255) // #00BFD8
     static let paletteLagoon2 = Color(red: 68/255, green: 235/255, blue: 182/255) // #44EBB6

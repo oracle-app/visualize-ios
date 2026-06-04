@@ -4,6 +4,9 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Floating Snipping Tool controls. This file contains the bottom toolbar plus
+//  the lightweight panels for selecting shapes and adjusting stroke width.
 
 import SwiftUI
 
@@ -25,7 +28,7 @@ struct SnipFloatingToolbar: View {
 
     private let activeIconColor = Color.appTeal
     private let activeBgColor = Color.appMint
-    private let normalIconColor = Color.appNavy
+    private let normalIconColor = Color.primaryText
     private let toolCornerRadius: CGFloat = 10
     private let containerRadius: CGFloat = 32
 
@@ -139,7 +142,7 @@ struct SnipFloatingToolbar: View {
 // MARK: - Shapes panel
 
 struct SnipShapesPanelView: View {
-    var model: SnipViewModel
+    var model: SnipScreenViewModel
     let onSelect: () -> Void
 
     var body: some View {
@@ -170,13 +173,13 @@ struct SnipShapesPanelView: View {
 // MARK: - Stroke width panel
 
 struct SnipStrokeWidthPanelView: View {
-    @Bindable var model: SnipViewModel
+    @Bindable var model: SnipScreenViewModel
 
     var body: some View {
         VStack(spacing: 8) {
             Text("\(Int(model.pencilWidth)) px")
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.appNavy)
+                .foregroundStyle(Color.primaryText)
                 .monospacedDigit()
 
             Slider(value: $model.pencilWidth, in: 1...30, step: 1)
@@ -199,7 +202,7 @@ private struct SnipStrokeWidthIcon: View {
             Capsule().frame(height: 2.5)
             Capsule().frame(height: 4)
         }
-        .foregroundStyle(Color.appNavy)
+        .foregroundStyle(Color.primaryText)
         .frame(width: 22)
     }
 }

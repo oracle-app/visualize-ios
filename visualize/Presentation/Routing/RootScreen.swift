@@ -36,7 +36,7 @@ struct RootScreen: View {
     var body: some View {
         Group {
             if coordinator.isAuthenticated {
-                NavBar()
+                NavBarView()
             } else {
                 NavigationStack(path: $coordinator.path) {
                     LandingScreen()
@@ -51,13 +51,13 @@ struct RootScreen: View {
                                             repository: AuthRepositoryImpl(
                                                 source: AuthFirebaseDatasource()
                                             )
-                                        )
+                                        ), userRepository: UserRepositoryImpl(userDatasource: UserDatasource())
                                     )
                                 )
                                 .navigationBarBackButtonHidden(true)
                             case .signUp:
-                                SignUp(
-                                    viewModel: SignUpViewModel(
+                                SignUpScreen(
+                                    viewModel: SignUpScreenViewModel(
                                         registerUseCase: RegisterUseCase(
                                             authRepository: AuthRepositoryImpl(
                                                 source: AuthFirebaseDatasource()
@@ -70,8 +70,8 @@ struct RootScreen: View {
                                 )
                                 .navigationBarBackButtonHidden(true)
                             case .resetPassword:
-                                ResetPasswordView(
-                                    viewModel: ResetPasswordViewModel(
+                                ResetPasswordScreen(
+                                    viewModel: ResetPasswordScreenViewModel(
                                         resetPasswordUseCase: ResetPasswordUseCase(
                                             authRepository: AuthRepositoryImpl(
                                                 source: AuthFirebaseDatasource()
@@ -81,8 +81,8 @@ struct RootScreen: View {
                                 )
                                 .navigationBarBackButtonHidden(true)
                             case .checkEmail(let email):
-                                CheckEmailView(
-                                    viewModel: CheckEmailViewModel(
+                                CheckEmailScreen(
+                                    viewModel: CheckEmailScreenViewModel(
                                         email: email,
                                         resetPasswordUseCase: ResetPasswordUseCase(
                                             authRepository: AuthRepositoryImpl(
@@ -105,9 +105,8 @@ struct RootScreen: View {
             }
         }
         .environment(coordinator)
-        .onAppear {
-            viewModel.checkSession()
-            coordinator.isAuthenticated = viewModel.isLoggedIn
+        .task {
+            await viewModel.checkSession(coordinator: coordinator)
         }
     }
 }

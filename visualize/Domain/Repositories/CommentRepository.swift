@@ -4,6 +4,10 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Domain contract for comments used by the Snipping Tool share flow and thread
+//  replies. It exposes operations for posting the snip-backed comment as well as
+//  loading and mutating the surrounding comment/thread data.
 
 import Foundation
 

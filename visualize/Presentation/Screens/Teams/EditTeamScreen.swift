@@ -13,7 +13,7 @@ import SwiftUI
 struct EditTeamScreen: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isFocused: Bool
-    @State private var viewModel: EditTeamViewModel
+    @State private var viewModel: EditTeamScreenViewModel
 
     /// Called after the members list is persisted successfully.
     var onConfirm: () -> Void
@@ -21,7 +21,7 @@ struct EditTeamScreen: View {
     /// - Parameters:
     ///   - viewModel: The view model managing search and member state.
     ///   - onConfirm: Closure executed after the changes are persisted successfully.
-    init(viewModel: EditTeamViewModel, onConfirm: @escaping () -> Void) {
+    init(viewModel: EditTeamScreenViewModel, onConfirm: @escaping () -> Void) {
         _viewModel = State(initialValue: viewModel)
         self.onConfirm = onConfirm
     }
@@ -96,7 +96,7 @@ struct EditTeamScreen: View {
     private func loadedView() -> some View {
         VStack(spacing: 16) {
             ZStack(alignment: .top) {
-                EmailSearchField(
+                EmailSearchFieldView(
                     email: $viewModel.email,
                     onClear: { viewModel.clearEmail() },
                     isFocused: _isFocused
@@ -151,8 +151,8 @@ struct EditTeamScreen: View {
 private final class PreviewUserRepository: UserRepository {
 
     private let sampleUsers: [AppUser] = [
-        AppUser(id: "u5", email: "sofia@example.com", profilePictureURL: nil, username: "Sofía Torres"),
-        AppUser(id: "u6", email: "diego@example.com", profilePictureURL: nil, username: "Diego Mora")
+        AppUser(id: "u5", email: "sofia@example.com", profilePictureURL: nil, username: "Sofía Torres", role: .writer),
+        AppUser(id: "u6", email: "diego@example.com", profilePictureURL: nil, username: "Diego Mora", role: .writer)
     ]
 
     func getUserByID(userID: String) async throws -> AppUser {
@@ -180,14 +180,14 @@ private final class PreviewUserRepository: UserRepository {
 
 #Preview {
     let members = [
-        AppUser(id: "u1", email: "ana@example.com", profilePictureURL: nil, username: "Ana García"),
-        AppUser(id: "u2", email: "luis@example.com", profilePictureURL: nil, username: "Luis Pérez"),
-        AppUser(id: "u3", email: "maria@example.com", profilePictureURL: nil, username: "María López")
+        AppUser(id: "u1", email: "ana@example.com", profilePictureURL: nil, username: "Ana García", role: .writer),
+        AppUser(id: "u2", email: "luis@example.com", profilePictureURL: nil, username: "Luis Pérez", role: .writer),
+        AppUser(id: "u3", email: "maria@example.com", profilePictureURL: nil, username: "María López", role: .writer)
     ]
 
-    return NavigationStack {
+    NavigationStack {
         EditTeamScreen(
-            viewModel: EditTeamViewModel(
+            viewModel: EditTeamScreenViewModel(
                 teamRepository: MockTeamRepository(),
                 userRepository: PreviewUserRepository(),
                 teamID: "t1",
