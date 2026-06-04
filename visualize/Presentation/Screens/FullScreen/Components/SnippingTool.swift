@@ -6,7 +6,7 @@
 //
 //
 //  Floating Snipping Tool controls. This file contains the bottom toolbar plus
-//  the lightweight panels for selecting shapes and adjusting stroke width.
+//  the lightweight panels for selecting shapes and adjusting annotation size.
 
 import SwiftUI
 
@@ -35,7 +35,7 @@ struct SnipFloatingToolbar: View {
 
     // Geometry shared with `SnipEditorView` for panel anchoring.
     // Buttons are 38pt wide with 2pt spacing → 40pt stride between centers.
-    // The stroke-width button (index 3 of 7) sits at the toolbar's center.
+    // The size button (index 3 of 7) sits at the toolbar's center.
     // Offsets below are signed horizontal distances from that center to the
     // owning button's center, used by floating panels to align over them.
     private static let buttonStride: CGFloat = 40
@@ -204,19 +204,21 @@ struct SnipTextStylePanelView: View {
     }
 }
 
-// MARK: - Stroke width panel
+// MARK: - Size panel
 
 struct SnipStrokeWidthPanelView: View {
     @Bindable var model: SnipScreenViewModel
 
     var body: some View {
         VStack(spacing: 8) {
-            Text("\(Int(model.pencilWidth)) px")
+            Text("\(Int(model.annotationSizePercent.rounded()))%")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Color.primaryText)
                 .monospacedDigit()
 
-            Slider(value: $model.pencilWidth, in: 1...30, step: 1)
+            Slider(value: $model.annotationSizePercent,
+                   in: SnipScreenViewModel.annotationSizePercentRange,
+                   step: 1)
                 .tint(Color.appTeal)
                 .frame(width: 120)
                 .rotationEffect(.degrees(-90))
