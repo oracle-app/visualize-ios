@@ -5,16 +5,13 @@
 //  Created by Diana Escalante on 26/05/26.
 //
 
-//
-/// ViewModel for the Edit Team sheet.
-/// Handles searching users by email, adding and removing members,
-/// and persisting the updated members list to the team.
-//
- 
 import SwiftUI
 import Observation
 import Foundation
  
+/// ViewModel for the Edit Team sheet.
+/// Handles searching users by email, adding and removing members,
+/// and persisting the updated members list to the team.
 @MainActor
 @Observable
 final class EditTeamScreenViewModel {
