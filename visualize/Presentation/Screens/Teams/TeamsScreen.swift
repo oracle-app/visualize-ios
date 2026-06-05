@@ -192,6 +192,10 @@ struct TeamsScreen: View {
             .listRowBackground(Color.clear)
     }
 
+    /// Generates a standardized view to display when a list section is empty.
+    ///
+    /// - Parameter message: The text content explaining the empty state.
+    /// - Returns: A descriptive text view styled for empty lists.
     private func emptyState(_ message: String) -> some View {
         Text(message)
             .font(.subheadline)
