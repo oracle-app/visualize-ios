@@ -37,10 +37,9 @@ struct ThreadsPreviewScreen: View {
     /// actually dismisses the keyboard.
     @FocusState private var isCaptionFocused: Bool
 
-    // Dynamic Type-aware sizing for the header.
     @ScaledMetric(relativeTo: .title3) private var titleFontSize: CGFloat = 22
-    @ScaledMetric(relativeTo: .title3) private var buttonIconSize: CGFloat = 22
-    @ScaledMetric(relativeTo: .body) private var buttonDiameter: CGFloat = 48
+    @ScaledMetric(relativeTo: .body) private var buttonIconSize: CGFloat = 17
+    @ScaledMetric(relativeTo: .body) private var buttonDiameter: CGFloat = 36
 
     // MARK: - Init
 
