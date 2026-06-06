@@ -48,15 +48,39 @@ struct VisualizeApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            RootScreen(
-                viewModel: RootViewModel(
-                    authRepository: AuthRepositoryImpl(
-                        source: AuthFirebaseDatasource()
-                    ),
-                    userRepository: UserRepositoryImpl(userDatasource: UserDatasource())
-                ),
-                coordinator: AppCoordinator()
-            )
+            rootView
         }
+    }
+
+    @ViewBuilder
+    private var rootView: some View {
+        #if DEBUG
+        let args = ProcessInfo.processInfo.arguments
+        if args.contains("-uitest-snip-editor") {
+            SnipEditorScreen(
+                chartImage: UIImage(systemName: "chart.bar.fill") ?? UIImage(),
+                onPost: { _ in },
+                onDismiss: {}
+            )
+        } else if args.contains("-uitest-snip-comment") {
+            SnipCommentSampleView()
+        } else {
+            defaultRoot
+        }
+        #else
+        defaultRoot
+        #endif
+    }
+
+    private var defaultRoot: some View {
+        RootScreen(
+            viewModel: RootViewModel(
+                authRepository: AuthRepositoryImpl(
+                    source: AuthFirebaseDatasource()
+                ),
+                userRepository: UserRepositoryImpl(userDatasource: UserDatasource())
+            ),
+            coordinator: AppCoordinator()
+        )
     }
 }
