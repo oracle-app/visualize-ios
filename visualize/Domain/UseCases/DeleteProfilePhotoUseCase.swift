@@ -27,23 +27,20 @@ class DeleteProfilePhotoUseCase {
     /// Deletes the current user's profile photo from storage
     /// and clears the URL from their record in the database.
     ///
-    /// - Throws: `AuthRepository` errors if the user is not logged in,
-    ///   or `UserRepository` errors if the deletion fails.
+    /// - Throws: `DeleteProfilePhotoError.noSession` if no user is logged in,
+    ///   or `UserRepository` errors if the Firestore update fails.
     func execute() async throws {
         guard let user = authRepository.getCurrentUser() else {
             throw DeleteProfilePhotoError.noSession
         }
 
-        // Get current profile to find the exact file URL
         let appUser = try await userRepository.getUserByID(userID: user.uid)
         
-        // Delete file from Storage only if a URL exists
         if let urlString = appUser.profilePictureURL,
            let url = URL(string: urlString) {
             try? await userRepository.deleteProfileImage(byURL: url)
         }
 
-        // Always clear the URL in Firestore
         try await userRepository.updateProfilePictureURL(
             userID: user.uid,
             url: nil
