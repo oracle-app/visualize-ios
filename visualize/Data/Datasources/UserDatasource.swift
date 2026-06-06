@@ -74,11 +74,11 @@ class UserDatasource {
     
     func uploadProfileImage(userID: String, imageData: Data) async throws -> URL {
         let storage = Storage.storage()
+        let timestamp = Int(Date().timeIntervalSince1970)
         let ref = storage.reference()
-            .child("profilePictures/\(userID).jpg")
+            .child("profilePictures/\(userID)_\(timestamp).jpg")
 
         _ = try await ref.putDataAsync(imageData)
-
         let url = try await ref.downloadURL()
         return url
     }
@@ -91,11 +91,9 @@ class UserDatasource {
             ])
     }
     
-    func deleteProfileImage(userID: String) async throws {
+    func deleteProfileImage(byURL url: URL) async throws {
         let storage = Storage.storage()
-        let ref = storage.reference()
-            .child("profilePictures/\(userID).jpg")
-
+        let ref = storage.reference(forURL: url.absoluteString)
         try await ref.delete()
     }
 }

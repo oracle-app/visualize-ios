@@ -33,11 +33,17 @@ class DeleteProfilePhotoUseCase {
         guard let user = authRepository.getCurrentUser() else {
             throw DeleteProfilePhotoError.noSession
         }
-        do {
-            try await userRepository.deleteProfileImage(userID: user.uid)
-        } catch {
-        }
+
+        // Get current profile to find the exact file URL
+        let appUser = try await userRepository.getUserByID(userID: user.uid)
         
+        // Delete file from Storage only if a URL exists
+        if let urlString = appUser.profilePictureURL,
+           let url = URL(string: urlString) {
+            try? await userRepository.deleteProfileImage(byURL: url)
+        }
+
+        // Always clear the URL in Firestore
         try await userRepository.updateProfilePictureURL(
             userID: user.uid,
             url: nil

@@ -36,22 +36,34 @@ class UploadProfilePhotoUseCase {
             throw UploadProfilePhotoError.noSession
         }
 
-        let url = try await userRepository.uploadProfileImage(
+        // 1. Save the current URL before uploading so we can clean it up later
+        let existingUser = try? await userRepository.getUserByID(userID: authUser.uid)
+        let oldURL = existingUser?.profilePictureURL.flatMap { URL(string: $0) }
+
+        // 2. Upload new photo to timestamped path
+        let newURL = try await userRepository.uploadProfileImage(
             userID: authUser.uid,
             imageData: imageData
         )
 
         do {
+            // 3. Save new URL to Firestore
             try await userRepository.updateProfilePictureURL(
                 userID: authUser.uid,
-                url: url
+                url: newURL
             )
         } catch {
-            try? await userRepository.deleteProfileImage(userID: authUser.uid)
+            // Firestore failed — delete the new file, old one is still safe
+            try? await userRepository.deleteProfileImage(byURL: newURL)
             throw error
         }
 
-        return url
+        // 4. Firestore succeeded — now safe to delete the old file
+        if let oldURL {
+            try? await userRepository.deleteProfileImage(byURL: oldURL)
+        }
+
+        return newURL
     }
     
     enum UploadProfilePhotoError: Error {
