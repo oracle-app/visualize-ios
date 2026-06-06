@@ -168,7 +168,7 @@ class CreateTeamViewModel {
             await loadSuggestedUsers()
 
         } catch {
-            self.error = "Failed to authenticate user."
+            self.error = String(localized: "Failed to authenticate user.")
         }
     }
 
@@ -220,7 +220,7 @@ class CreateTeamViewModel {
             self.allAvailableTeammates = Array(uniqueUsers.values)
 
         } catch {
-            self.error = "Could not load suggested teammates."
+            self.error = String(localized: "Could not load suggested teammates.")
         }
     }
 
@@ -277,7 +277,7 @@ class CreateTeamViewModel {
 
         } catch {
             guard searchEmail == query else { return }
-            self.error = "Search failed. Please try again."
+            self.error = String(localized: "Search failed. Please try again.")
         }
     }
 
@@ -324,8 +324,7 @@ class CreateTeamViewModel {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .isEmpty {
 
-            teamNameError =
-                "Required fields cannot be left blank."
+            teamNameError = String(localized: "Required fields cannot be left blank.")
 
             return false
         }
@@ -371,7 +370,7 @@ class CreateTeamViewModel {
 
             showToast(
                 Toast(
-                    message: "Failed to create team. Please try again.",
+                    message: String(localized: "Failed to create team. Please try again."),
                     type: .error
                 )
             )

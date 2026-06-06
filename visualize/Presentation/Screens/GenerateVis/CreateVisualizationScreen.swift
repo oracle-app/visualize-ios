@@ -44,7 +44,7 @@ struct CreateVisualizationScreen: View {
                         .padding(.top, 14)
                         .padding(.bottom, 16)
 
-                    Text("Create data visualizations")
+                    Text(String(localized: "Create data visualizations"))
                         .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(Color.primaryText)
                         .padding(.bottom, 10)
@@ -106,7 +106,7 @@ struct CreateVisualizationScreen: View {
                 if viewModel.isUploadComplete {
                     GenerateVisButtonView {
                         guard let fileURL = viewModel.pickedFileURL else {
-                            viewModel.errorMessage = "Could not read the selected file."
+                            viewModel.errorMessage = String(localized: "Could not read the selected file.")
                             return
                         }
                         // Stores pendingFileURL and pushes .generatingVisualizations atomically.
@@ -141,13 +141,13 @@ struct CreateVisualizationScreen: View {
                 viewModel.errorMessage = String(localized: "Error selecting file: \(error.localizedDescription)")
             }
         }
-        .alert("Delete dataset?", isPresented: $showDeleteAlert) {
-            Button("Delete", role: .destructive) {
+        .alert(String(localized: "Delete dataset?"), isPresented: $showDeleteAlert) {
+            Button(String(localized: "Delete"), role: .destructive) {
                 viewModel.resetFile()
             }
-            Button("Cancel", role: .cancel) { }
+            Button(String(localized: "Cancel"), role: .cancel) { }
         } message: {
-            Text("This will remove the uploaded dataset.")
+            Text(String(localized: "This will remove the uploaded dataset."))
         }
         .portraitOrientationLock()
         .background(Color.appBackground.ignoresSafeArea())

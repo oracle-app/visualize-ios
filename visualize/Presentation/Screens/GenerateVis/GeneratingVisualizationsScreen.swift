@@ -89,7 +89,7 @@ struct GeneratingVisualizationsScreen: View {
             // Pop back to CreateVisualization, discarding the generating screen.
             coordinator.pop()
         } label: {
-            Text("Cancel")
+            Text(String(localized: "Cancel"))
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(Color.appTeal)
                 .frame(maxWidth: .infinity)

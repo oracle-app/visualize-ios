@@ -20,7 +20,7 @@ struct NotificationDisplayItem: Identifiable, Equatable {
 extension Date {
     func relativeFormatted() -> String {
         let seconds = Date().timeIntervalSince(self)
-        if seconds < 60 { return "now" }
+        if seconds < 60 { return String(localized: "now") }
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
         return formatter.localizedString(for: self, relativeTo: Date())

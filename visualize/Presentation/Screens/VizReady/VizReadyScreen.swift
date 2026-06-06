@@ -202,8 +202,8 @@ struct VizReadyView: View {
                 onConfirm: { isShared in
                     coordinator.pendingToast = Toast(
                         message: isShared
-                            ? "Visualization published and shared"
-                            : "Visualization published to your feed",
+                            ? String(localized: "Visualization published and shared")
+                            : String(localized: "Visualization published to your feed"),
                         type: .success
                     )
                     Task {
