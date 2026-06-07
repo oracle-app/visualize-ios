@@ -118,4 +118,4 @@ Swift Package Manager will resolve Firebase and SciChart on the first build.
 
 ## Design
 
-Visualize has its own design system. All colors live in `Presentation/Colors.swift` as tokens (`appNavy`, `appTeal`, `appLightTeal`, `primaryOrange`, etc.), so anything you build stays consistent with the rest of the app. Buttons use a custom `glassEffect` treatment for the soft, depth-rich feel you see throughout the screens.
+Visualize has its own design system. All colors live in `Presentation/Colors.swift`, organized into the grouped `AppColors` namespace: `AppColors.Text.primary`, `AppColors.Text.secondary`, `AppColors.UI.background`, `AppColors.UI.card`, etc. Flat aliases (`appNavy`, `appTeal`, `primaryOrange`, `appLightTeal`, and the chart palettes) are also available for legacy call sites. So anything you build stays consistent with the rest of the app. Buttons use a custom `glassEffect` treatment for the soft, depth-rich feel you see throughout the screens.
