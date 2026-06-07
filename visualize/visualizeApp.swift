@@ -70,7 +70,7 @@ struct VisualizeApp: App {
                     viewModel: TeamsScreenViewModel(
                         teamRepository: MockTeamRepository(),
                         authRepository: MockAuthRepository(),
-                        userRepository: UserRepositoryImpl(userDatasource: UserDatasource())
+                        userRepository: MockUserRepository()
                     )
                 )
                 .environment(AppCoordinator())
