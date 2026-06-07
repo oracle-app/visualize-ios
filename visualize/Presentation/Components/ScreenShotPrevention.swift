@@ -44,24 +44,30 @@ struct ScreenShotPreventer: UIViewRepresentable {
 // MARK: - Modifier actualizado
 struct ScreenShotPreventerModifier: ViewModifier {
     var isActive: Bool = true
+    var showBackground: Bool = true
 
     func body(content: Content) -> some View {
-        if isActive {
-            content
-                .mask {
-                    ScreenShotPreventer()
-                        .ignoresSafeArea()
-                }
-                .background {
-                    ContentUnavailableView(
-                        "Not Allowed",
-                        systemImage: "iphone.slash",
-                        description: Text("Taking screenshots is not allowed for security reasons")
-                    )
-                }
-        } else {
-            content
+        Group {
+            if isActive {
+                content
+                    .mask {
+                        ScreenShotPreventer()
+                            .ignoresSafeArea()
+                    }
+                    .background {
+                        if showBackground {
+                            ContentUnavailableView(
+                                "Not Allowed",
+                                systemImage: "iphone.slash",
+                                description: Text("Taking screenshots is not allowed for security reasons")
+                            )
+                        }
+                    }
+            } else {
+                content
+            }
         }
+        .id(isActive)
     }
 }
 
@@ -69,6 +75,10 @@ struct ScreenShotPreventerModifier: ViewModifier {
 // MARK: - Extension
 extension View {
     func preventScreenShot(isActive: Bool = true) -> some View {
-        self.modifier(ScreenShotPreventerModifier(isActive: isActive))
+        self.modifier(ScreenShotPreventerModifier(isActive: isActive, showBackground: true))
+    }
+    
+    func preventScreenShotSilent(isActive: Bool = true) -> some View {
+        self.modifier(ScreenShotPreventerModifier(isActive: isActive, showBackground: false))
     }
 }

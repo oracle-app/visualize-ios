@@ -195,7 +195,7 @@ struct FullScreen: View {
             )
         }
         .alert("Capture failed", isPresented: $viewModel.showCaptureError) {
-            Button("OK", role: .cancel) {} 
+            Button("OK", role: .cancel) {isSnipping = false} 
         } message: {
             Text("Could not capture the chart. Please try again.")
         }
@@ -218,7 +218,7 @@ struct FullScreen: View {
                 .presentationBackgroundInteraction(.enabled(upThrough: .large))
                 .presentationCornerRadius(24)
                 .presentationDragIndicator(.visible)
-                //.preventScreenShotSilent(isActive: true)
+                .preventScreenShotSilent(isActive: !isSnipping)
         }
         .onChange(of: isLandscape) { _, newValue in
             if !newValue {

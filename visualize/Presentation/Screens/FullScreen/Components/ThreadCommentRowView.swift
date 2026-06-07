@@ -159,7 +159,7 @@ struct ThreadCommentRowView: View {
                         placeholderImage
                     case .empty:
                         ProgressView()
-                            .frame(height: 120)
+                            .frame(height: 200)
                             .frame(maxWidth: .infinity, alignment: .center)
                     @unknown default:
                         placeholderImage
@@ -173,7 +173,7 @@ struct ThreadCommentRowView: View {
     }
 
     private var placeholderImage: some View {
-        RoundedRectangle(cornerRadius: 12)
+        RoundedRectangle(cornerRadius: 10)
             .fill(Color.black.opacity(0.08))
             .frame(height: 200)
             .overlay(Label("", systemImage: "photo").foregroundStyle(.secondary))
