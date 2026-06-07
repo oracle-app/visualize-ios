@@ -175,30 +175,14 @@ struct SnipShapesPanelView: View {
 struct SnipStrokeWidthPanelView: View {
     @Bindable var model: SnipScreenViewModel
 
-    private var activeWidth: Binding<CGFloat> {
-        Binding {
-            model.activeTool == .eraser ? model.eraserWidth : model.pencilWidth
-        } set: { newValue in
-            if model.activeTool == .eraser {
-                model.eraserWidth = newValue
-            } else {
-                model.pencilWidth = newValue
-            }
-        }
-    }
-
-    private var activeWidthRange: ClosedRange<CGFloat> {
-        model.activeTool == .eraser ? 6...60 : 1...30
-    }
-
     var body: some View {
         VStack(spacing: 8) {
-            Text("\(Int(activeWidth.wrappedValue)) px")
+            Text("\(model.activeStrokeWidth, format: .number.precision(.fractionLength(0))) px")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Color.primaryText)
                 .monospacedDigit()
 
-            Slider(value: activeWidth, in: activeWidthRange, step: 1)
+            Slider(value: $model.activeStrokeWidth, in: model.activeStrokeWidthRange, step: 1)
                 .tint(Color.appTeal)
                 .frame(width: 120)
                 .rotationEffect(.degrees(-90))
