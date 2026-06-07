@@ -59,7 +59,7 @@ struct VisualizeApp: App {
         if args.contains("-uitest-snip-editor") {
             SnipEditorScreen(
                 chartImage: UIImage(systemName: "chart.bar.fill") ?? UIImage(),
-                onPost: { _ in },
+                onPost: { _, _ in },
                 onDismiss: {}
             )
         } else if args.contains("-uitest-snip-comment") {

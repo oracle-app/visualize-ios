@@ -42,7 +42,13 @@ private final class MockCommentRepository: CommentRepository {
     var receivedAuthorName: String?
     var stubbedError: Error?
 
-    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL, authorName: String) async throws {
+    func postSnipComment(
+        visualizationID: String,
+        authorID: String,
+        imageURL: URL,
+        authorName: String,
+        caption: String?
+    ) async throws {
         postSnipCallCount += 1
         receivedVisualizationID = visualizationID
         receivedAuthorID = authorID
@@ -178,7 +184,8 @@ final class PostSnipCommentUseCaseTests: XCTestCase {
             visualizationID: "viz-abc",
             authorID: "user-123",
             imageURL: url,
-            authorName: "Nico"
+            authorName: "Nico",
+            caption: "Test caption"
         )
 
         XCTAssertEqual(repo.postSnipCallCount, 1)
@@ -199,7 +206,8 @@ final class PostSnipCommentUseCaseTests: XCTestCase {
                 visualizationID: "viz-abc",
                 authorID: "user-123",
                 imageURL: URL(string: "https://x.example.com/x.png")!,
-                authorName: "Nico"
+                authorName: "Nico",
+                caption: "Test caption"
             )
             XCTFail("Expected repository error to propagate")
         } catch is DummyRepoError {
