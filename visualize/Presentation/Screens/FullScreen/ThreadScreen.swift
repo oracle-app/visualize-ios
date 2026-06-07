@@ -34,17 +34,13 @@ struct ThreadScreen: View {
     init(
         visualizationID: String,
         visualizationOwnerID: String,
-        isCollapsed: Bool = false
+        isCollapsed: Bool = false,
+        viewModel: ThreadScreenViewModel
     ) {
         self.visualizationID = visualizationID
         self.visualizationOwnerID = visualizationOwnerID
         self.isCollapsed = isCollapsed
-        self._viewModel = State(
-            initialValue: ThreadScreenViewModel(
-                visualizationID: visualizationID,
-                visualizationOwnerID: visualizationOwnerID
-            )
-        )
+        self._viewModel = State(initialValue: viewModel)
     }
 
     #if DEBUG
@@ -77,6 +73,7 @@ struct ThreadScreen: View {
                             .padding(.top, 80)
                         Text(String(localized: "Start a new thread or wait for conversations to appear here."))
                             .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
                             .padding(.top, 5)
                             .padding(.horizontal, 30)
                     } else {

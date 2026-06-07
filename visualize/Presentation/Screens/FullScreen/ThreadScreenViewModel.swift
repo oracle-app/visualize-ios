@@ -46,29 +46,45 @@ class ThreadScreenViewModel {
         visualizationID: String,
         visualizationOwnerID: String,
         isPreview: Bool = false,
-        repository: CommentRepository? = nil,
-        userRepository: UserRepository? = nil,
-        authRepository: (any AuthRepository)? = nil,
-        postCommentUseCase: PostCommentUseCase? = nil,
-        postReplyUseCase: PostReplyUseCase? = nil,
-        deleteCommentUseCase: DeleteCommentUseCase? = nil,
-        deleteReplyUseCase: DeleteReplyUseCase? = nil
+        repository: CommentRepository,
+        userRepository: UserRepository,
+        authRepository: any AuthRepository,
+        postCommentUseCase: PostCommentUseCase,
+        postReplyUseCase: PostReplyUseCase,
+        deleteCommentUseCase: DeleteCommentUseCase,
+        deleteReplyUseCase: DeleteReplyUseCase
     ) {
         self.visualizationID = visualizationID
         self.visualizationOwnerID = visualizationOwnerID
         self.isPreview = isPreview
-        self.repository = repository ?? CommentRepositoryImpl()
-        self.userRepository = userRepository ?? UserRepositoryImpl(userDatasource: UserDatasource())
-        self.authRepository = authRepository ?? AuthRepositoryImpl(source: AuthFirebaseDatasource())
-        self.postCommentUseCase = postCommentUseCase ?? PostCommentUseCase()
-        self.postReplyUseCase = postReplyUseCase ?? PostReplyUseCase()
-        self.deleteCommentUseCase = deleteCommentUseCase ?? DeleteCommentUseCase()
-        self.deleteReplyUseCase = deleteReplyUseCase ?? DeleteReplyUseCase()
+        self.repository = repository
+        self.userRepository = userRepository
+        self.authRepository = authRepository
+        self.postCommentUseCase = postCommentUseCase
+        self.postReplyUseCase = postReplyUseCase
+        self.deleteCommentUseCase = deleteCommentUseCase
+        self.deleteReplyUseCase = deleteReplyUseCase
     }
 
     #if DEBUG
     static func preview() -> ThreadScreenViewModel {
-        let vm = ThreadScreenViewModel(visualizationID: "preview", visualizationOwnerID: "preview", isPreview: true)
+        let mockCommentRepo = CommentRepositoryImpl()
+        let mockUserRepo = UserRepositoryImpl(userDatasource: UserDatasource())
+        let mockAuthRepo = AuthRepositoryImpl(source: AuthFirebaseDatasource())
+        
+        let vm = ThreadScreenViewModel(
+            visualizationID: "preview",
+            visualizationOwnerID: "preview",
+            isPreview: true,
+            repository: mockCommentRepo,
+            userRepository: mockUserRepo,
+            authRepository: mockAuthRepo,
+            postCommentUseCase: PostCommentUseCase(),
+            postReplyUseCase: PostReplyUseCase(),
+            deleteCommentUseCase: DeleteCommentUseCase(),
+            deleteReplyUseCase: DeleteReplyUseCase()
+        )
+        
         vm.comments = [
             Comment(
                 id: "c1",
@@ -88,7 +104,6 @@ class ThreadScreenViewModel {
                         timeAgo: "5 min ago"
                     )
                 ],
-                timeAgo: "just now"
             )
         ]
         return vm

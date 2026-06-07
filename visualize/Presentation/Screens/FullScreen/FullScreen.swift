@@ -21,6 +21,7 @@ struct FullScreen: View {
     // MARK: - State
 
     @State private var viewModel: FullScreenViewModel
+    @State private var threadsViewModel: ThreadScreenViewModel
     @State private var chartLoadID = UUID()
     @State private var showThreads = true
     @State private var isSnipping = false
@@ -53,6 +54,7 @@ struct FullScreen: View {
         let userRepository = UserRepositoryImpl(
             userDatasource: userDatasource
         )
+        let commentRepository = CommentRepositoryImpl(commentDatasource: commentDatasource)
         self._viewModel = State(initialValue: FullScreenViewModel(
             teamRepository: TeamRepositoryImpl(
                 teamDatasource: teamDatasource,
@@ -71,6 +73,18 @@ struct FullScreen: View {
             postSnipCommentUseCase: PostSnipCommentUseCase(
                 commentRepository: CommentRepositoryImpl(commentDatasource: commentDatasource)
             )
+        ))
+        self._threadsViewModel = State(initialValue: ThreadScreenViewModel(
+            visualizationID: card.id,
+            visualizationOwnerID: card.authorID,
+            isPreview: false,
+            repository: commentRepository,
+            userRepository: userRepository,
+            authRepository: authRepository,
+            postCommentUseCase: PostCommentUseCase(),
+            postReplyUseCase: PostReplyUseCase(),
+            deleteCommentUseCase: DeleteCommentUseCase(),
+            deleteReplyUseCase: DeleteReplyUseCase()
         ))
     }
 
@@ -181,7 +195,7 @@ struct FullScreen: View {
             )
         }
         .alert("Capture failed", isPresented: $viewModel.showCaptureError) {
-            Button("OK", role: .cancel) {}
+            Button("OK", role: .cancel) {} 
         } message: {
             Text("Could not capture the chart. Please try again.")
         }
@@ -195,7 +209,8 @@ struct FullScreen: View {
             ThreadScreen(
                 visualizationID: card.id,
                 visualizationOwnerID: card.authorID,
-                isCollapsed: selectedDetent == .fraction(0.08)
+                isCollapsed: selectedDetent == .fraction(0.08),
+                viewModel: threadsViewModel
             )
                 .background(Color.appBackground)
                 .interactiveDismissDisabled(true)
@@ -203,6 +218,7 @@ struct FullScreen: View {
                 .presentationBackgroundInteraction(.enabled(upThrough: .large))
                 .presentationCornerRadius(24)
                 .presentationDragIndicator(.visible)
+                //.preventScreenShotSilent(isActive: true)
         }
         .onChange(of: isLandscape) { _, newValue in
             if !newValue {
