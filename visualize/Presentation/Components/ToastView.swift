@@ -31,6 +31,8 @@ struct Toast: Equatable {
     let type: ToastType
 }
 
+/// A compact, floating notification overlay used to display transient feedback messages.
+/// Automatically styled based on the success or error state with a customized glass effect.
 struct ToastView: View {
     let toast: Toast
 

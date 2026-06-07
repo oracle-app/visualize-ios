@@ -14,6 +14,7 @@ import Foundation
 /// Maintains UI state and communicates with the service layer to fetch users.
 @Observable
 class ShareTeammatesScreenViewModel {
+    
     // MARK: - Dependencies
     private let teamRepository: any TeamRepository
     private let userRepository: any UserRepository
@@ -24,7 +25,6 @@ class ShareTeammatesScreenViewModel {
     
     // MARK: IDs
     private(set) var userID: String = ""
-//    private let userID = "oEJtQz0gdbRpTZ8ETPCy"
     private let initialTeamIDs: [String]
     private let visualizationID: String
     
@@ -39,6 +39,7 @@ class ShareTeammatesScreenViewModel {
     }
     
     // MARK: - UI State
+    
     /// Users state
     var selectedUsers: [AppUser] = []
     var suggestedUsers: [AppUser] = []
@@ -52,8 +53,10 @@ class ShareTeammatesScreenViewModel {
     /// Loading and error state
     var isLoading = false
     var error: String?
+    
     /// Search task used for debounce
     private var searchTask: Task<Void, Never>?
+    
     // MARK: - Initialization
     /// - Parameters:
     ///   - userRepository: Repository used to search for users by email.
@@ -95,6 +98,7 @@ class ShareTeammatesScreenViewModel {
     }
     
     // MARK: - Search Logic (Debounce)
+    
     /// Cancels any pending search and schedules a new one after a debounce delay.
     private func scheduleSearch() {
         searchTask?.cancel() // Cancel previous search if user keeps typing
@@ -110,6 +114,7 @@ class ShareTeammatesScreenViewModel {
             }
         }
     }
+    
     /// Executes the email search and updates `suggestedUsers`, excluding already selected ones.
     @MainActor
     private func performSearch() async {
@@ -125,10 +130,12 @@ class ShareTeammatesScreenViewModel {
             self.error = String(localized: "Failed to search users")
         }
     }
+    
     // MARK: - Actions
+    
     /// Adds a user to the selected list and clears the search state.
-    /// - Parameters:
-    ///   - user: The `AppUser` to add.
+    ///
+    /// - Parameter user: The `AppUser` to add to the selection.
     func addUser(_ user: AppUser) {
         if !selectedUsers.contains(where: { $0.id == user.id }) {
             selectedUsers.append(user)
@@ -136,12 +143,14 @@ class ShareTeammatesScreenViewModel {
         email = "" // Clear search after adding
         suggestedUsers = []
     }
+    
     /// Removes a user from the selected list.
-    /// - Parameters:
-    ///   - user: The `AppUser` to remove.
+    ///
+    /// - Parameter user: The `AppUser` to remove from the selection.
     func removeUser(_ user: AppUser) {
         selectedUsers.removeAll { $0.id == user.id }
     }
+    
     /// Persists the current `selectedUsers` list to Firestore, replacing the previous one.
     func confirmShare() async throws {
         let selectedTeams = (myTeams + joinedTeams).filter { selectedTeamIDs.contains($0.id) }
@@ -154,7 +163,8 @@ class ShareTeammatesScreenViewModel {
         self.selectedUsers = result.users
         self.selectedTeamIDs = Set(result.teamIDs)
     }
-    /// Clears the email input and dismisses any suggestions.
+    
+    /// Clears the email input text and dismisses any active user suggestions.
     func clearEmail() {
         email = ""
         suggestedUsers = []
@@ -182,6 +192,7 @@ class ShareTeammatesScreenViewModel {
         }
 
     /// Toggles the selection state of a team by its ID.
+    ///
     /// - Parameter team: The team to select or deselect.
     func toggleSelection(_ team: Team) {
         if selectedTeamIDs.contains(team.id) {
@@ -192,8 +203,9 @@ class ShareTeammatesScreenViewModel {
     }
 
     /// Returns whether the given team is currently selected.
-    /// - Parameter team: The team to check.
-    /// - Returns: `true` if the team is selected, otherwise `false`.
+    ///
+    /// - Parameter team: The team to check against the selection set.
+    /// - Returns: `true` if the team ID is contained in the selection; otherwise, `false`.
     func isSelected(_ team: Team) -> Bool {
         selectedTeamIDs.contains(team.id)
     }
