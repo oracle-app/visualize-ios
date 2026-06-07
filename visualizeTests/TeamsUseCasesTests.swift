@@ -148,12 +148,12 @@ final class CreateTeamUseCaseTests: XCTestCase {
         let sut = CreateTeamUseCase(teamRepository: repo)
 
         try await sut.execute(
-            name: "   Mi Equipo   ",
+            name: "   My Team   ",
             ownerID: "owner-1",
             memberIDs: ["u2"]
         )
 
-        XCTAssertEqual(repo.receivedName, "Mi Equipo")
+        XCTAssertEqual(repo.receivedName, "My Team")
     }
 
     // TEAM-005 — owner is removed from initialMembers if duplicated, and duplicates collapsed
