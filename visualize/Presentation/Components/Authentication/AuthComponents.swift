@@ -225,7 +225,7 @@ struct AuthButton: View {
                 .frame(height: 50)
                 .background(
                     RoundedRectangle(cornerRadius: 50)
-                        .fill(AppColors.Text.teriary)
+                        .fill(AppColors.Text.tertiary)
                 )
         }
     }

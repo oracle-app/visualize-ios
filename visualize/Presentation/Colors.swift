@@ -18,12 +18,18 @@ extension View {
 }
 
 enum AppColors {
+    // MARK: Base
+    enum Base {
+        static let mint = Color("ComponentBackground")
+        static let teal = Color("ColorTeal")
+        static let navy = Color("ColorNavy")
+    }
     
     // MARK: Text
     enum Text {
-        static let primary = Color("TextPrimary")
+        static let primary = Base.navy
         static let secondary = Color("TextSecondary")
-        static let teriary = Color("TextTertiary")
+        static let tertiary = Base.teal
         static let placeholder = Color("TextPlaceholder")
         static let authFieldText = Color("AuthFieldText")
         static let authButtonText = Color("AuthButtonText")
@@ -31,23 +37,23 @@ enum AppColors {
 
     // MARK: UI
     enum UI {
-        static let background = Color("ComponentBackground")
+        static let background = Base.mint
         static let card = Color("Card")
         static let screenBackground = Color("AppBackground")
         static let authErrorBackground = Color("AuthErrorBackground")
         static let authButtonIcon = Color("AuthButtonIcon")
         static let authButton = Color("AuthButton")
-        
+
         static let lightTeal = Color(red: 230/255, green: 237/255, blue: 236/255)
         static let gray = Color(red: 217/255, green: 217/255, blue: 217/255)
     }
 
     // MARK: Core Colors
     enum Brand {
-        static let mint = UI.background
-        static let teal = Text.teriary
-        static let navy = Text.primary
-        
+        static let mint = Base.mint
+        static let teal = Base.teal
+        static let navy = Base.navy
+
         static let orange = Color(red: 255/255, green: 122/255, blue: 0/255)
         static let primaryOrange = Color(red: 235/255, green: 150/255, blue: 50/255)
     }
