@@ -28,15 +28,18 @@ class UploadProfilePhotoUseCase {
 
     /// Uploads a new profile photo for the current user.
     ///
-    /// - Parameter image: The UIImage captured from camera or gallery.
-    /// - Returns: The updated photo URL (or whatever your backend returns).
-    /// - Throws: `UploadProfilePhotoError.noSession` if user is not logged in.
+    /// - Parameter imageData: The compressed image data to upload.
+    /// - Returns: The download URL of the newly uploaded photo.
+    /// - Throws: `UploadProfilePhotoError.noSession` if no user is logged in.
     func execute(imageData: Data) async throws -> URL {
         guard let authUser = authRepository.getCurrentUser() else {
             throw UploadProfilePhotoError.noSession
         }
 
-        let url = try await userRepository.uploadProfileImage(
+        let existingUser = try? await userRepository.getUserByID(userID: authUser.uid)
+        let oldURL = existingUser?.profilePictureURL.flatMap { URL(string: $0) }
+
+        let newURL = try await userRepository.uploadProfileImage(
             userID: authUser.uid,
             imageData: imageData
         )
@@ -44,14 +47,18 @@ class UploadProfilePhotoUseCase {
         do {
             try await userRepository.updateProfilePictureURL(
                 userID: authUser.uid,
-                url: url
+                url: newURL
             )
         } catch {
-            try? await userRepository.deleteProfileImage(userID: authUser.uid)
+            try? await userRepository.deleteProfileImage(byURL: newURL)
             throw error
         }
 
-        return url
+        if let oldURL {
+            try? await userRepository.deleteProfileImage(byURL: oldURL)
+        }
+
+        return newURL
     }
     
     enum UploadProfilePhotoError: Error {

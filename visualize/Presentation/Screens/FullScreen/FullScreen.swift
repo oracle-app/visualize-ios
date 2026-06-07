@@ -182,9 +182,9 @@ struct FullScreen: View {
         .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
             SnipEditorScreen(
                 chartImage: wrapped.image,
-                onPost: { image in
+                onPost: { image, caption in
                     Task {
-                        _ = await viewModel.uploadSnip(image, visualizationID: card.id)
+                        _ = await viewModel.uploadSnip(image, visualizationID: card.id, caption: caption)
                     }
                 },
                 onDismiss: {

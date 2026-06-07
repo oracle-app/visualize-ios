@@ -26,8 +26,8 @@ class UserRepositoryImpl: UserRepository {
     func updateProfilePictureURL(userID: String, url: URL?) async throws {
         try await userDatasource.updateProfilePictureURL(userID: userID, url: url)
     }
-    func deleteProfileImage(userID: String) async throws {
-        try await userDatasource.deleteProfileImage(userID: userID)
+    func deleteProfileImage(byURL url: URL) async throws {
+        try await userDatasource.deleteProfileImage(byURL: url)
     }
     
     func uploadProfileImage(userID: String, imageData: Data) async throws -> URL {
