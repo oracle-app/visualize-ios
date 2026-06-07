@@ -34,6 +34,38 @@ final class SnipScreenViewModel {
     var pencilColor: Color = .primaryOrange
     var annotationSizePercent: CGFloat = defaultAnnotationSizePercent
     var eraserRadius: CGFloat = 18
+    var eraserWidth: CGFloat {
+        get { eraserRadius * 2 }
+        set { eraserRadius = max(1, newValue / 2) }
+    }
+
+    /// Size value bound to the toolbar slider.
+    ///
+    /// Eraser keeps its pixel-based diameter control, while pencil, shape, and
+    /// text share the annotation-size percentage introduced by the text tools.
+    var activeAnnotationSizeValue: CGFloat {
+        get { activeTool == .eraser ? eraserWidth : annotationSizePercent }
+        set {
+            if activeTool == .eraser {
+                eraserWidth = newValue
+            } else {
+                annotationSizePercent = newValue
+            }
+        }
+    }
+
+    /// Valid range for the toolbar size slider based on the active tool.
+    /// Eraser minimum is 6 px (intentional — finer values aren't useful for erasing).
+    var activeAnnotationSizeRange: ClosedRange<CGFloat> {
+        activeTool == .eraser ? 6...60 : Self.annotationSizePercentRange
+    }
+
+    var activeAnnotationSizeLabel: String {
+        if activeTool == .eraser {
+            return "\(Int(activeAnnotationSizeValue.rounded())) px"
+        }
+        return "\(Int(activeAnnotationSizeValue.rounded()))%"
+    }
 
     var annotationLineWidth: CGFloat {
         Self.mappedSize(for: annotationSizePercent, in: Self.strokeWidthRange)

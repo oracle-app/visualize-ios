@@ -211,13 +211,13 @@ struct SnipStrokeWidthPanelView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            Text("\(Int(model.annotationSizePercent.rounded()))%")
+            Text(model.activeAnnotationSizeLabel)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Color.primaryText)
                 .monospacedDigit()
 
-            Slider(value: $model.annotationSizePercent,
-                   in: SnipScreenViewModel.annotationSizePercentRange,
+            Slider(value: $model.activeAnnotationSizeValue,
+                   in: model.activeAnnotationSizeRange,
                    step: 1)
                 .tint(Color.appTeal)
                 .frame(width: 120)

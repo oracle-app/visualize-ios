@@ -90,6 +90,7 @@ struct SnipEditorScreen: View {
                         Image(uiImage: chartImage)
                             .resizable()
                             .scaledToFit()
+                            .accessibilityIdentifier("SnipChartImage")
 
                         AnnotationCanvasView(model: model)
                         SnipGestureOverlayView(model: model)
@@ -196,6 +197,7 @@ struct SnipEditorScreen: View {
             }
         }
         } // NavigationStack
+        .accessibilityIdentifier("SnipEditorScreen")
     }
 
     private struct FloatingControls: View {
