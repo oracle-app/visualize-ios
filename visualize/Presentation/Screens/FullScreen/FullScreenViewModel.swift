@@ -241,8 +241,9 @@ final class FullScreenViewModel {
     /// - Parameters:
     ///   - image: The annotated snip image from `SnipEditorView`.
     ///   - visualizationID: The ID of the current visualization.
+    ///   - caption: Optional comment text typed in the Threads preview screen.
     /// - Returns: The download URL on success, `nil` on failure.
-    func uploadSnip(_ image: UIImage, visualizationID: String) async -> URL? {
+    func uploadSnip(_ image: UIImage, visualizationID: String, caption: String?) async -> URL? {
         isUploading = true
         uploadError = nil
         do {
@@ -258,7 +259,8 @@ final class FullScreenViewModel {
                 visualizationID: visualizationID,
                 authorID: userID,
                 imageURL: url,
-                authorName: name
+                authorName: name,
+                caption: caption
             )
             isUploading = false
             dismissEditor()

@@ -25,5 +25,11 @@ protocol CommentRepository {
 
     // MARK: - Snip
     
-    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL, authorName: String) async throws
+    func postSnipComment(
+        visualizationID: String,
+        authorID: String,
+        imageURL: URL,
+        authorName: String,
+        caption: String?
+    ) async throws
 }
