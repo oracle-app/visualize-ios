@@ -19,7 +19,6 @@ extension CommentDTO {
             imageURL: self.imageURL,
             createdAt: self.createdAt,
             threads: threads,
-            timeAgo: self.createdAt.timeAgoDisplay()
         )
     }
 }

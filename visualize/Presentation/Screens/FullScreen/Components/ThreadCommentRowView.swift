@@ -72,7 +72,7 @@ struct ThreadCommentRowView: View {
                     .font(.body.weight(.bold))
                     .foregroundStyle(Color.primaryText)
 
-                Text(comment.timeAgo)
+                Text(comment.createdAt.timeAgoDisplay())
                     .font(.subheadline)
                     .foregroundStyle(Color.primaryText.opacity(0.5))
             }

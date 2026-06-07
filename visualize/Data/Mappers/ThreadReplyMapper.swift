@@ -17,7 +17,6 @@ extension ThreadReplyDTO {
             authorAvatarURL: resolvedAvatarURL,
             createdAt: self.createdAt,
             content: self.content,
-            timeAgo: self.createdAt.timeAgoShort()
         )
     }
 }
