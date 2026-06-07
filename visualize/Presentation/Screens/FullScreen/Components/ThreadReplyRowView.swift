@@ -76,7 +76,7 @@ struct ThreadReplyRowView: View {
 
                 Spacer()
 
-                Text(reply.timeAgo)
+                Text(reply.createdAt.timeAgoShort())
                     .font(.system(size: 13))
                     .foregroundStyle(Color.primaryText.opacity(0.5))
             }
@@ -130,7 +130,6 @@ struct ThreadReplyRowView: View {
             authorAvatarURL: nil,
             createdAt: Date(),
             content: "This is a test reply",
-            timeAgo: "5m"
         ),
         currentUserID: "u2",
         commentID: "c1",
