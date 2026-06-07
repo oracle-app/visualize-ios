@@ -31,9 +31,7 @@ struct StackedAvatarsView: View {
                         .zIndex(Double(maxAvatars - 1))
                 }
                 .zIndex(0)
-            }
-            
-            else if remainingCount > 1 {
+            } else if remainingCount > 1 {
                 ZStack {
                     Circle()
                         .fill(Color.appBackground)

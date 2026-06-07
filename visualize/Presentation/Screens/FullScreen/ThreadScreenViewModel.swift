@@ -85,10 +85,8 @@ class ThreadScreenViewModel {
                         authorAvatarURL: nil,
                         createdAt: Date(),
                         content: "This is a test reply",
-                        timeAgo: "5 min ago"
                     )
                 ],
-                timeAgo: "just now"
             )
         ]
         return vm

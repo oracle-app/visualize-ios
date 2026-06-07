@@ -16,7 +16,7 @@ extension Notification {
             id: id,
             boldPrefix: senderName.isEmpty ? "" : "\(senderName) ",
             message: senderName.isEmpty ? body : String(body.dropFirst(senderName.count + 1)),
-            timestamp: createdAt.relativeFormatted(),
+            timestamp: createdAt,
             isRead: isRead,
             avatarInitials: senderName.initials,
             avatarColor: type.avatarColor,
