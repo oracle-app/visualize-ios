@@ -1,5 +1,5 @@
 //
-//  CreateVisualizationViewModel.swift
+//  CreateVisualizationScreenViewModel.swift
 //  VisualizeApp
 //
 //  Created by Libia Fv on 14/04/26.
@@ -27,8 +27,20 @@ class CreateVisualizationScreenViewModel {
     var uploadProgress: Double = 0.0
     var isUploadComplete: Bool = false
     
-    var fileSize: String = "0 MB"
+    var fileSizeBytes: Int = 0
     var pickedFileURL: URL? = nil
+    
+    /// Formatted file size for display in the UI.
+    /// Bytes are kept in `fileSizeBytes`; formatting happens only at the view boundary.
+    var fileSize: String {
+        let kb = Double(fileSizeBytes) / 1024
+        let mb = kb / 1024
+        if mb >= 1 {
+            return String(format: "%.1f MB", mb)
+        } else {
+            return String(format: "%.0f KB", kb)
+        }
+    }
  
     private var timer: Timer?
  
@@ -74,15 +86,8 @@ class CreateVisualizationScreenViewModel {
             return
         }
 
-        let kb = Double(size) / 1024
-        let mb = kb / 1024
-
-        if mb >= 1 {
-            fileSize = String(format: "%.1f MB", mb)
-        } else {
-            fileSize = String(format: "%.0f KB", kb)
-        }
-
+        fileSizeBytes = size
+ 
         selectedFileName = url.lastPathComponent
         pickedFileURL = dest
         errorMessage = nil
@@ -98,12 +103,17 @@ class CreateVisualizationScreenViewModel {
             withTimeInterval: 0.05,
             repeats: true
         ) { timer in
-            if self.uploadProgress < 1.0 {
+            if self.uploadProgress < 0.98 {
                 self.uploadProgress += 0.02
             } else {
+                // Pin to exactly 1.0 so the bar and text both show 100%.
+                self.uploadProgress = 1.0
                 timer.invalidate()
-                self.isUploading = false
-                self.isUploadComplete = true
+                Task {
+                    try? await Task.sleep(for: .milliseconds(400))
+                    self.isUploading = false
+                    self.isUploadComplete = true
+                }
             }
         }
     }
@@ -124,7 +134,7 @@ class CreateVisualizationScreenViewModel {
         isUploading = false
         selectedFileName = nil
         uploadProgress = 0.0
-        fileSize = "0 MB"
+        fileSizeBytes = 0
         removeTempFile()
         pickedFileURL = nil
     }
