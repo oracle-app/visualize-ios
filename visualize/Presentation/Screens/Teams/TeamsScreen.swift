@@ -26,7 +26,7 @@ struct TeamsScreen: View {
         List {
             // MARK: - My Teams
             
-            if (viewModel.currentUserRole != .consumer) {
+            if viewModel.currentUserRole != .consumer {
                 Section {
                     if viewModel.isLoading && !viewModel.hasLoadedOnce {
                             loadingState

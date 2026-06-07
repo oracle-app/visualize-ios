@@ -40,6 +40,7 @@ class UpdateSharingUseCase {
         var allUsersToUnhide = users
         for team in teams {
             for member in team.members {
+                // swiftlint:disable:next for_where
                 if !allUsersToUnhide.contains(where: { $0.id == member.id }) {
                     allUsersToUnhide.append(member)
                 }
