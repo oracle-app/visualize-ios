@@ -1,5 +1,5 @@
 //
-//  AuthMocks.swift
+//  MockAuthRepositories.swift
 //  visualize
 //
 //  Created by Libia Fv on 06/06/26.
@@ -70,11 +70,11 @@ final class MockAuthRepository: AuthRepository {
     }
 }
 
-// MARK: - MockUserRepository
+// MARK: - MockUserRepositoryAuth
 
 /// Configurable mock of UserRepository.
 /// Only used in RegisterUseCase; all other methods are no-ops.
-final class MockUserRepository: UserRepository {
+final class MockUserRepositoryAuth: UserRepository {
 
     var createUserError: Error?
     var createUserResult: AppUser?
