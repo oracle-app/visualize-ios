@@ -31,6 +31,29 @@ final class SnipScreenViewModel {
     var pencilColor: Color = .primaryOrange
     var pencilWidth: CGFloat = 3
     var eraserRadius: CGFloat = 18
+    var eraserWidth: CGFloat {
+        get { eraserRadius * 2 }
+        set { eraserRadius = max(1, newValue / 2) }
+    }
+
+    /// Stroke width bound to the toolbar slider. Routes to eraser or pencil
+    /// based on the active tool so the View only binds to a single property.
+    var activeStrokeWidth: CGFloat {
+        get { activeTool == .eraser ? eraserWidth : pencilWidth }
+        set {
+            if activeTool == .eraser {
+                eraserWidth = newValue
+            } else {
+                pencilWidth = newValue
+            }
+        }
+    }
+
+    /// Valid range for `activeStrokeWidth` based on the active tool.
+    /// Eraser minimum is 6 px (intentional — finer values aren't useful for erasing).
+    var activeStrokeWidthRange: ClosedRange<CGFloat> {
+        activeTool == .eraser ? 6...60 : 1...30
+    }
 
     var pendingTextPosition: CGPoint?
     var showTextInput: Bool = false
