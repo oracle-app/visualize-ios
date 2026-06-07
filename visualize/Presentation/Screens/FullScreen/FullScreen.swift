@@ -225,6 +225,12 @@ struct FullScreen: View {
                 showThreads = true
             }
         }
+        .onChange(of: viewModel.snipPosted) { _, posted in
+            if posted {
+                Task { await threadsViewModel.appendNewComments() }
+                viewModel.snipPosted = false
+            }
+        }
     }
 
     // MARK: - Private

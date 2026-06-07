@@ -4,11 +4,13 @@
 //
 //  Created by Kimberly Marquez on 4/28/26.
 //
-//  Displays a single comment card with its image and nested replies.
-//  - Shows the author avatar, name, and timestamp in a header
-//  - Renders the associated visualization image or a placeholder
-//  - Lists all thread replies below the image
-//  - Toggles the reply input bar when the reply button is tapped
+///  A SwiftUI View that handles the presentation layout for a master parent comment card.
+///
+///  Responsibilities:
+///  - Renders user metadata context, timestamp indicators, and textual data layers.
+///  - Uses AsyncImage phase blocks to safely retrieve structural remote snap snapshots.
+///  - Integrates contextual interactive controls for inline responding or secure record removals.
+///  - Cascades parent validation privileges down into encapsulated subordinate reply collections.
 
 import SwiftUI
 import FirebaseCore
