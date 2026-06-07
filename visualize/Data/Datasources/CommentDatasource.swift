@@ -7,7 +7,7 @@
 //
 //  Firestore datasource used by the Snipping Tool publishing flow. It owns the
 //  low-level reads/writes for visualization comments, including creating the
-//  empty comment document that carries an uploaded snip image URL.
+//  comment document that carries an uploaded snip image URL.
 
 import FirebaseFirestore
 
@@ -20,11 +20,17 @@ final class CommentDatasource {
         self.firebase = firebase
     }
     
-    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL, authorName: String) async throws {
+    func postSnipComment(
+        visualizationID: String,
+        authorID: String,
+        imageURL: URL,
+        authorName: String,
+        caption: String?
+    ) async throws {
         let data: [String: Any] = [
             "authorID": authorID,
             "authorName": authorName,
-            "content": "",
+            "content": caption ?? "",
             "createdAt": Timestamp(),
             "imageURL": imageURL.absoluteString
         ]

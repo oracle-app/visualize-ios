@@ -17,7 +17,6 @@ struct Comment: Identifiable, Codable {
     var imageURL: String?
     var createdAt: Date
     var threads: [ThreadReply] = []
-    var timeAgo: String = ""
     
     enum CodingKeys: String, CodingKey {
         case id, authorID, authorName, authorAvatarURL, content, imageURL, createdAt
