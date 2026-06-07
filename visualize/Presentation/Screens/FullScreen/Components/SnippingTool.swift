@@ -177,12 +177,12 @@ struct SnipStrokeWidthPanelView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            Text("\(Int(model.pencilWidth)) px")
+            Text("\(model.activeStrokeWidth, format: .number.precision(.fractionLength(0))) px")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Color.primaryText)
                 .monospacedDigit()
 
-            Slider(value: $model.pencilWidth, in: 1...30, step: 1)
+            Slider(value: $model.activeStrokeWidth, in: model.activeStrokeWidthRange, step: 1)
                 .tint(Color.appTeal)
                 .frame(width: 120)
                 .rotationEffect(.degrees(-90))
