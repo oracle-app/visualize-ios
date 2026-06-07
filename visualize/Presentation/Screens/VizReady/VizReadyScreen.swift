@@ -16,6 +16,7 @@ struct VizReadyView: View {
     // MARK: - State
  
     @Environment(AppCoordinator.self) private var coordinator
+    @Environment(CreateFlowState.self) private var createFlowState
     /// Backing state machine for chart selection and title editing.
     @State private var viewModel: VizReadyScreenViewModel
     /// Controls presentation of the share sheet after the user taps proceed.
@@ -59,7 +60,7 @@ struct VizReadyView: View {
                 )
                 .alert("Discard generated visualizations?", isPresented: $showDiscardAlert) {
                     Button("Discard", role: .destructive) {
-                        coordinator.resetCreateFlow()
+                        createFlowState.resetCreateFlow(coordinator: coordinator)
                     }
                     Button("Cancel", role: .cancel) { }
                 } message: {
@@ -124,7 +125,7 @@ struct VizReadyView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
  
-            Text(String(localized: "Choose the chart that best represents the insights you want to share"))
+            Text(String(localized: "Choose the charts that best represents the insights you want to share"))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Color.appSubtitle.opacity(0.8))
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -177,10 +178,20 @@ struct VizReadyView: View {
             teamsDatasource: teamDatasource
         )
         let authDatasource = AuthFirebaseDatasource()
-        let suggestion = viewModel.selectedSuggestion
         let authRepository = AuthRepositoryImpl(
             source: authDatasource
         )
+        
+        // Build one ChartPublishItem per selected suggestion.
+        // The proceed button is always disabled when selectedIDs is empty,
+        // so this array is never empty when the sheet is presented.
+        let charts = viewModel.selectedSuggestions.map { suggestion in
+            ChartPublishItem(
+                title: viewModel.displayTitle(for: suggestion),
+                configJSON: suggestion.configJSON,
+                previewJSON: suggestion.previewJSON
+            )
+        }
  
         return NavigationStack {
             ShareSheetView(
@@ -194,22 +205,22 @@ struct VizReadyView: View {
                     createVisualizationUseCase: CreateVisualizationUseCase(
                         visualizationRepository: vizRepository
                     ),
-                    chartTitle: suggestion.map { viewModel.displayTitle(for: $0) } ?? "",
-                    chartConfigJSON: suggestion?.configJSON ?? "",
-                    chartPreviewJSON: suggestion?.previewJSON ?? ""
+                    charts: charts
                 ),
                 sheetSize: $sheetSize,
                 onConfirm: { isShared in
-                    coordinator.pendingToast = Toast(
+                    let count = charts.count
+                    let noun = count == 1 ? "Visualization" : "\(count) visualizations"
+                    createFlowState.pendingToast = Toast(
                         message: isShared
-                            ? "Visualization published and shared"
-                            : "Visualization published to your feed",
+                            ? "\(noun) published and shared"
+                            : "\(noun) published to your feed",
                         type: .success
                     )
                     Task {
                         try? await Task.sleep(for: .milliseconds(350))
                         await MainActor.run {
-                            coordinator.finishCreateFlow()
+                            createFlowState.finishCreateFlow(coordinator: coordinator)
                         }
                     }
                 },
