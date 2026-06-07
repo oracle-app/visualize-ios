@@ -33,6 +33,8 @@ final class MockUserRepository: UserRepository {
     func removeHiddenVisualization(userID: String, visualizationID: String) async throws {}
 
     func updateProfilePictureURL(userID: String, url: URL?) async throws {}
+    
+    func deleteProfileImage(byURL url: URL) async throws {}
 
     func uploadProfileImage(userID: String, imageData: Data) async throws -> URL {
         URL(string: "https://example.com/preview.png")!

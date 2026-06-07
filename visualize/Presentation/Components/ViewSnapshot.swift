@@ -67,6 +67,20 @@ enum ViewSnapshot {
         host.view.frame = CGRect(origin: .zero, size: size)
         host.view.backgroundColor = .clear
         host.view.frame.origin = CGPoint(x: window.bounds.width + 1000, y: 0)
+
+        // Cancel safe-area insets inherited from the host UIWindow (Dynamic Island,
+        // notch, home indicator). Without this, UIHostingController pushes the
+        // SwiftUI content down by `window.safeAreaInsets.top`, and drawHierarchy
+        // captures the empty band above the actual content.
+        // Must be applied before layoutIfNeeded so the first layout uses zero insets.
+        let insets = window.safeAreaInsets
+        host.additionalSafeAreaInsets = UIEdgeInsets(
+            top: -insets.top,
+            left: -insets.left,
+            bottom: -insets.bottom,
+            right: -insets.right
+        )
+
         window.addSubview(host.view)
         host.view.layoutIfNeeded()
 

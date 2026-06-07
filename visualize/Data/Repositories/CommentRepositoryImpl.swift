@@ -27,12 +27,19 @@ final class CommentRepositoryImpl: CommentRepository {
         self.userDatasource = userDatasource
     }
 
-    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL, authorName: String) async throws {
+    func postSnipComment(
+        visualizationID: String,
+        authorID: String,
+        imageURL: URL,
+        authorName: String,
+        caption: String?
+    ) async throws {
         try await commentDatasource.postSnipComment(
             visualizationID: visualizationID,
             authorID: authorID,
             imageURL: imageURL,
-            authorName: authorName
+            authorName: authorName,
+            caption: caption
         )
     }
     
@@ -131,7 +138,7 @@ final class CommentRepositoryImpl: CommentRepository {
     }
 
     private func resolveUserInfo(userID: String) async -> (String, String?) {
-        if let cached = userCache[userID]{
+        if let cached = userCache[userID] {
             return (cached.username, cached.profilePictureURL)
         }
         guard let user = try? await userDatasource.getUserByID(userID: userID).toAppUser() else {
