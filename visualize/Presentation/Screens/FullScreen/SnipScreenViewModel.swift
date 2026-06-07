@@ -61,10 +61,12 @@ final class SnipScreenViewModel {
     }
 
     var activeAnnotationSizeLabel: String {
+        let formatted = Double(activeAnnotationSizeValue)
+            .formatted(.number.precision(.fractionLength(0)))
         if activeTool == .eraser {
-            return "\(Int(activeAnnotationSizeValue.rounded())) px"
+            return "\(formatted) px"
         }
-        return "\(Int(activeAnnotationSizeValue.rounded()))%"
+        return "\(formatted)%"
     }
 
     var annotationLineWidth: CGFloat {
