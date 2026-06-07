@@ -1,5 +1,5 @@
 //
-//  RegisterUseCaseTests.swift
+//  RegisterUseCasesTests.swift
 //  visualize
 //
 //  Created by Libia Fv on 06/06/26.
