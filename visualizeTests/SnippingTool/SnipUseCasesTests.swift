@@ -76,7 +76,7 @@ private func makeValidImage() -> UIImage {
     let size = CGSize(width: 1, height: 1)
     let renderer = UIGraphicsImageRenderer(size: size)
     return renderer.image { ctx in
-        UIColor.red.setFill()
+        UIAppColors.Status.red.setFill()
         ctx.fill(CGRect(origin: .zero, size: size))
     }
 }

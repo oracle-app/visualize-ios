@@ -131,7 +131,7 @@ struct FeedScreen: View {
                         .overlay(alignment: .topTrailing) {
                             if viewModel.hasUnreadNotifications {
                                 Circle()
-                                    .fill(Color.red)
+                                    .fill(AppColors.Status.red)
                                     .frame(width: 8, height: 8)
                                     .offset(x: 2, y: -2)
                             }

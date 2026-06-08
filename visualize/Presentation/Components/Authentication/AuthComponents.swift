@@ -68,7 +68,7 @@ struct InputField: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
                     hasError
-                    ? Color.red
+                    ? AppColors.Status.red
                     : (
                         isFocused
                         ? AppColors.Brand.teal.opacity(0.7)
@@ -176,7 +176,7 @@ struct PasswordField: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
                     hasError
-                    ? Color.red
+                    ? AppColors.Status.red
                     : (
                         isFocused
                         ? AppColors.Brand.teal.opacity(0.7)
