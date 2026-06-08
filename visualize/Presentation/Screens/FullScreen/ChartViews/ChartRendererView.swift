@@ -133,12 +133,8 @@ struct ChartRendererView: View {
             .id(themeRaw)
  
         // MARK: Tile
-        case .tile:
-            ContentUnavailableView(
-                "Coming Soon",
-                systemImage: "chart.xyaxis.line",
-                description: Text("This chart type will be available soon.")
-            )
+        case .tile(_, let values, let labels):
+            TileChartView(labels: labels, values: values)
         
         // MARK: Unsupported
         case .unsupported(let type):

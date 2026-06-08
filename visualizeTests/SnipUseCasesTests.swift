@@ -43,7 +43,13 @@ private final class MockCommentRepository: CommentRepository {
     var receivedCaption: String?
     var stubbedError: Error?
 
-    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL, authorName: String, caption: String?) async throws {
+    func postSnipComment(
+        visualizationID: String,
+        authorID: String,
+        imageURL: URL,
+        authorName: String,
+        caption: String?
+    ) async throws {
         postSnipCallCount += 1
         receivedVisualizationID = visualizationID
         receivedAuthorID = authorID

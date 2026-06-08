@@ -1,5 +1,5 @@
 //
-//  CreateVisualizationView.swift
+//  CreateVisualizationScreen.swift
 //  VisualizeApp
 //
 //  Created by Libia Fv on 12/04/26.
@@ -19,6 +19,7 @@ import UniformTypeIdentifiers
 struct CreateVisualizationScreen: View {
     
     @Environment(AppCoordinator.self) private var coordinator
+    @Environment(CreateFlowState.self) private var createFlowState
 
     @State
     private var viewModel =
@@ -106,11 +107,11 @@ struct CreateVisualizationScreen: View {
                 if viewModel.isUploadComplete {
                     GenerateVisButtonView {
                         guard let fileURL = viewModel.pickedFileURL else {
-                            viewModel.errorMessage = "Could not read the selected file."
+                            viewModel.errorMessage = String(localized: "Could not read the selected file.")
                             return
                         }
                         // Stores pendingFileURL and pushes .generatingVisualizations atomically.
-                        coordinator.startGeneration(with: fileURL)
+                        createFlowState.startGeneration(with: fileURL, coordinator: coordinator)
                     }
                     .padding(.bottom, 43)
                 } else {
@@ -121,7 +122,7 @@ struct CreateVisualizationScreen: View {
             .padding(.horizontal, 20)
         
         }
-        .onChange(of: coordinator.createFlowResetID) { _, _ in
+        .onChange(of: createFlowState.createFlowResetID) { _, _ in
             viewModel.resetFile()
         }
         .fileImporter(

@@ -236,6 +236,14 @@ struct SnipEditorScreen: View {
                                 .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
                         }
 
+                        if openPanel == .textStyle {
+                            SnipTextStylePanelView(model: model) {
+                                withAnimation(.easeOut(duration: 0.15)) { openPanel = nil }
+                            }
+                            .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
+                            .offset(x: SnipFloatingToolbar.panelOffset(for: .textStyle))
+                        }
+
                         if openPanel == .shapes {
                             SnipShapesPanelView(model: model) {
                                 withAnimation(.easeOut(duration: 0.15)) { openPanel = nil }

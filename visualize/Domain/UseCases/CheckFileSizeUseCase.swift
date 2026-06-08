@@ -14,4 +14,3 @@ struct CheckFileSizeUseCase {
         return size <= maxSize
     }
 }
-

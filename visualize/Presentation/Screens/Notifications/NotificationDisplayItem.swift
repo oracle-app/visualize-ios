@@ -16,3 +16,5 @@ struct NotificationDisplayItem: Identifiable, Equatable {
     let avatarColor: Color
     var avatarURL: String? = nil
 }
+
+

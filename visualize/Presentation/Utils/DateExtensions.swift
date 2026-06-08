@@ -23,6 +23,7 @@ extension Date {
         let components = Calendar.current.dateComponents([.second, .minute], from: self, to: now)
         if let seconds = components.second, seconds < 60, (components.minute ?? 0) == 0 {
             return String(localized: "just_now", defaultValue: "Just now", comment: "Label displayed when content was just posted")
+
         }
         
         let oneWeekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: now) ?? now
@@ -109,6 +110,7 @@ extension Date {
         } else {
             let unit = String(localized: "m_unit", defaultValue: "m", comment: "Minutes abbreviation e.g. 5m")
             return "\(minutes)\(unit)"
+
         }
     }
 }

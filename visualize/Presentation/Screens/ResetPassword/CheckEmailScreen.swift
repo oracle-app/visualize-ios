@@ -105,7 +105,7 @@ struct CheckEmailScreen: View {
                 
                 // MARK: - Back to Login Button
                 
-                AuthButton(title: "Back to log in") {
+                AuthButton(title: String(localized: "Back to log in")) {
                     coordinator.replace(path: [.login])
                 }
                 
