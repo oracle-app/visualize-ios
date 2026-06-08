@@ -66,7 +66,7 @@ struct CheckEmailScreen: View {
                     
                     Text("Check your email")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color(AppColors.Text.primary))
+                        .foregroundStyle(AppColors.Text.primary)
                         .multilineTextAlignment(.center)
                         .padding(.top, 4)
                         .padding(.bottom, 30)
@@ -75,7 +75,7 @@ struct CheckEmailScreen: View {
                     
                     Text("Please click on the link sent to your email address to reset your password.")
                         .font(.system(size: 17))
-                        .foregroundColor(Color(AppColors.Text.secondary))
+                        .foregroundStyle(AppColors.Text.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 38)
                         .padding(.bottom, 25)
@@ -90,12 +90,12 @@ struct CheckEmailScreen: View {
                         } label: {
                             Text(viewModel.isResending ? String(localized: "Sending...") : String(localized: "Resend email"))
                                 .underline()
-                                .foregroundColor(Color(AppColors.Brand.primaryOrange))
+                                .foregroundStyle(AppColors.Brand.primaryOrange)
                         }
                         .disabled(viewModel.isResending || viewModel.didResend)
                     }
                     .font(.system(size: 17))
-                    .foregroundColor(Color(AppColors.Text.secondary))
+                    .foregroundStyle(AppColors.Text.secondary)
                     .multilineTextAlignment(.center)
      
                 }
@@ -113,7 +113,7 @@ struct CheckEmailScreen: View {
                 
                 Text("V 1.0.0")
                     .font(.system(size: 11))
-                    .foregroundColor(
+                    .foregroundStyle(
                         Color(red: 121/255, green: 139/255, blue: 138/255)
                             .opacity(0.6)
                     )

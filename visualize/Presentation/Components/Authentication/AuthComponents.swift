@@ -49,7 +49,7 @@ struct InputField: View {
             "",
             text: $text,
             prompt: Text(placeholder)
-                .foregroundColor(
+                .foregroundStyle(
                     hasError ? .red : Color.gray.opacity(0.8)
                 )
         )
@@ -83,7 +83,7 @@ struct InputField: View {
         .overlay(alignment: .bottomLeading) {
             Text(errorMessage ?? "")
                 .font(.system(size: 13))
-                .foregroundColor(.red)
+                .foregroundStyle(.red)
                 .opacity(hasError ? 1 : 0)
                 .offset(x: 8, y: 19)
         }
@@ -136,7 +136,7 @@ struct PasswordField: View {
                     "",
                     text: $text,
                     prompt: Text(placeholder)
-                        .foregroundColor(
+                        .foregroundStyle(
                             hasError ? .red : Color.gray.opacity(0.8)
                         )
                 )
@@ -146,7 +146,7 @@ struct PasswordField: View {
                     "",
                     text: $text,
                     prompt: Text(placeholder)
-                        .foregroundColor(
+                        .foregroundStyle(
                             hasError ? .red : Color.gray.opacity(0.8)
                         )
                 )
@@ -164,7 +164,7 @@ struct PasswordField: View {
                 isVisible.toggle()
             } label: {
                 Image(systemName: isVisible ? "eye.slash" : "eye")
-                    .foregroundColor(AppColors.UI.authButtonIcon)
+                    .foregroundStyle(AppColors.UI.authButtonIcon)
             }
         }
         .padding(.horizontal, 16)
@@ -191,7 +191,7 @@ struct PasswordField: View {
         .overlay(alignment: .bottomLeading) {
             Text(errorMessage ?? "")
                 .font(.system(size: 13))
-                .foregroundColor(.red)
+                .foregroundStyle(.red)
                 .opacity(hasError ? 1 : 0)
                 .offset(x: 8, y: 19)
         }
@@ -220,7 +220,7 @@ struct AuthButton: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(AppColors.Text.authButtonText)
+                .foregroundStyle(AppColors.Text.authButtonText)
                 .frame(maxWidth: 150)
                 .frame(height: 50)
                 .background(

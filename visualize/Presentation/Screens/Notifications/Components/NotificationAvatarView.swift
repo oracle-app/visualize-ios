@@ -41,7 +41,7 @@ struct NotificationAvatarView: View {
             Color(UIColor.systemGray4)
             Text(String(initials.prefix(1)).uppercased())
                 .font(.system(size: size * 0.45, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
         }
     }
 }

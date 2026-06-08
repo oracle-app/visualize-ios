@@ -32,13 +32,13 @@ struct ExampleTableView: View {
 
             Text(String(localized: "Upload a table-formatted dataset with column headers in the first row."))
                 .font(.system(size: 15))
-                .foregroundColor(AppColors.Text.secondary)
+                .foregroundStyle(AppColors.Text.secondary)
                 .lineSpacing(3)
                 .padding(.bottom, 14)
 
             Text(String(localized: "Example"))
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(AppColors.Brand.teal)
+                .foregroundStyle(AppColors.Brand.teal)
                 .padding(.bottom, 8)
 
             VStack(spacing: 0) {
@@ -63,7 +63,7 @@ struct ExampleTableView: View {
                         ForEach(Array(row.enumerated()), id: \.offset) { _, cell in
                             Text(cell)
                                 .font(.system(size: 13))
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.vertical, 9)
                                 .padding(.horizontal, 10)
@@ -90,7 +90,7 @@ struct ExampleTableView: View {
                 Text(String(localized: "Avoid empty rows or merged cells."))
             }
             .font(.system(size: 15))
-            .foregroundColor(AppColors.Text.secondary)
+            .foregroundStyle(AppColors.Text.secondary)
             .padding(.top, 14)
         }
     }

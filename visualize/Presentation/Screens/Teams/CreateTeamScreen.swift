@@ -90,7 +90,7 @@ struct CreateTeamScreen: View {
                             "",
                             text: $vm.teamName,
                             prompt: Text("Team's name")
-                                .foregroundColor(
+                                .foregroundStyle(
                                     vm.teamNameError != nil
                                     ? AppColors.Status.red
                                     : AppColors.Text.primary.opacity(0.5)
@@ -125,7 +125,7 @@ struct CreateTeamScreen: View {
                         .overlay(alignment: .bottomLeading) {
                             Text(vm.teamNameError ?? "")
                                 .font(.system(size: 13))
-                                .foregroundColor(AppColors.Status.red)
+                                .foregroundStyle(AppColors.Status.red)
                                 .opacity(vm.teamNameError != nil ? 1 : 0)
                                 .offset(x: 8, y: 19)
                         }

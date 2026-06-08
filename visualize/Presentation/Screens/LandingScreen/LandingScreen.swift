@@ -29,7 +29,7 @@ struct LandingScreen: View {
         VStack(spacing: 0) {
 
             ZStack(alignment: .bottom) {
-                Color(AppColors.Brand.teal)
+                (AppColors.Brand.teal)
 //                    .ignoresSafeArea(edges: .top)
 
                 Image("AuthBackground")
@@ -53,19 +53,19 @@ struct LandingScreen: View {
                 VStack(spacing: 6) {
                     Text("Visualize")
                         .font(.system(size: 60, weight: .semibold))
-                        .foregroundColor(AppColors.Text.primary)
+                        .foregroundStyle(AppColors.Text.primary)
                         .tracking(5)
                         .padding(.top, 70)
 
                     Text(String(localized: "Turn data into decisions."))
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(AppColors.Text.secondary)
+                        .foregroundStyle(AppColors.Text.secondary)
                 }
                 .padding(.bottom, 32)
 
                 Text(String(localized: "Create, choose, and share AI-powered\ngraphs in seconds.\nFast, simple, and secure."))
                     .font(.system(size: 15))
-                    .foregroundColor(AppColors.Text.primary)
+                    .foregroundStyle(AppColors.Text.primary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)
 
@@ -77,7 +77,7 @@ struct LandingScreen: View {
                     } label: {
                         Text("Log in")
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(AppColors.Text.authButtonText)
+                            .foregroundStyle(AppColors.Text.authButtonText)
                             .frame(maxWidth: 280)
                             .frame(height: 50)
                             .shadow(radius: 10, x: 0, y: 2)
@@ -93,7 +93,7 @@ struct LandingScreen: View {
                     } label: {
                         Text("Sign up")
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(AppColors.Brand.teal)
+                            .foregroundStyle(AppColors.Brand.teal)
                             .frame(maxWidth: 280)
                             .frame(height: 50)
                             .shadow(radius: 10, x: 0, y: 2)
@@ -111,7 +111,7 @@ struct LandingScreen: View {
 
                 Text("V 1.0.0")
                     .font(.system(size: 11))
-                    .foregroundColor(
+                    .foregroundStyle(
                         Color(
                             red: 121/255,
                             green: 139/255,

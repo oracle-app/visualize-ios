@@ -59,7 +59,7 @@ struct CreateVisualizationScreen: View {
                         }
                     }
                     .font(.system(size: 15))
-                    .foregroundColor(AppColors.Text.secondary)
+                    .foregroundStyle(AppColors.Text.secondary)
                     .lineSpacing(3)
                     .padding(.bottom, 20)
 
@@ -94,7 +94,7 @@ struct CreateVisualizationScreen: View {
                     if let error = viewModel.errorMessage {
                         Text(error)
                             .font(.system(size: 13))
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                             .padding(.bottom, 8)
                     }
                 }
