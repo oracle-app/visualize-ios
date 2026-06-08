@@ -128,7 +128,7 @@ struct FeedScreen: View {
                     coordinator.push(.notifications)
                 } label: {
                     Image(systemName: "bell")
-                        .overlay(alignment: .topTrailing){
+                        .overlay(alignment: .topTrailing) {
                             if viewModel.hasUnreadNotifications {
                                 Circle()
                                     .fill(Color.red)
