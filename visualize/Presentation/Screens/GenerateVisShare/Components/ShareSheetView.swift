@@ -129,7 +129,8 @@ struct ShareSheetView: View {
             }
 
             if selectedOption == .personal {
-                Text(String(localized: "You can share this with teammates later."))                    .font(.subheadline)
+                Text("You can share this with teammates later.")
+                    .font(.subheadline)
                     .foregroundStyle(.gray)
                     .transition(.opacity)
             }
@@ -269,7 +270,7 @@ struct ShareSheetView: View {
     private var toolbar: some ToolbarContent {
         Group {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel", systemImage: "xmark") {
+                Button("Cancel", systemImage: "xmark")  {
                     sheetSize = .fraction(0.28)
                     selectedOption = nil
                     dismiss()
@@ -346,9 +347,13 @@ struct ShareSheetView: View {
                         teamsDatasource: teamDatasource
                     )
                 ),
-                chartTitle: "Survival Rate by Passenger Class",
-                chartConfigJSON: MockChartJSONs.verticalBarConfig,
-                chartPreviewJSON: MockChartJSONs.verticalBarPreview
+                charts: [
+                    ChartPublishItem(
+                        title: "Survival Rate by Passenger Class",
+                        configJSON: MockChartJSONs.verticalBarConfig,
+                        previewJSON: MockChartJSONs.verticalBarPreview
+                    )
+                ]
             ),
             sheetSize: .constant(.large)
         )

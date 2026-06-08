@@ -122,7 +122,7 @@ struct SignUpScreen: View {
 
                     // MARK: Sign Up Button
                     
-                    AuthButton(title: "Sign up") {
+                    AuthButton(title: String(localized: "Sign up")) {
                         viewModel.signUp()
                     }
                     .padding(.bottom, 20)

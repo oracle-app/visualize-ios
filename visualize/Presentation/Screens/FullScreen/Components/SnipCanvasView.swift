@@ -30,6 +30,7 @@ struct AnnotationCanvasView: View {
             ForEach(model.textAnnotations) { ann in
                 Text(ann.text)
                     .font(.system(size: ann.fontSize, weight: .semibold))
+                    .italic(ann.isItalic)
                     .foregroundStyle(ann.color.swiftUIColor)
                     .shadow(color: .black.opacity(0.6), radius: 0.6, x: 0, y: 0.8)
                     .padding(.horizontal, 6)

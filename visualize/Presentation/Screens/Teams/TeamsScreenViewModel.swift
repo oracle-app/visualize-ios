@@ -61,7 +61,7 @@ final class TeamsScreenViewModel {
             let user = try await userRepository.getUserByID(userID: userID)
             self.currentUserRole = user.role
         } catch {
-            self.error = "Failed to authenticate user."
+            self.error = String(localized: "Failed to authenticate user.")
         }
     }
     
@@ -86,7 +86,7 @@ final class TeamsScreenViewModel {
             myTeams = try await ownedRequest
             joinedTeams = try await joinedRequest
         } catch {
-            self.error = "Failed to load teams."
+            self.error = String(localized: "Failed to load teams.")
         }
     }
     
@@ -104,10 +104,10 @@ final class TeamsScreenViewModel {
                 try await teamRepository.deleteTeam(teamID: team.id)
                 myTeams.removeAll { $0.id == team.id }
                 joinedTeams.removeAll { $0.id == team.id }
-                showToast("\"\(team.name)\" deleted", type: .success)
+                showToast(String(localized: "\"\(team.name)\" deleted"), type: .success)
             } catch {
-                self.error = "Failed to delete team."
-                showToast("Failed to delete \"\(team.name)\"", type: .error)
+                self.error = String(localized: "Failed to delete team.")
+                showToast(String(localized: "Failed to delete \"\(team.name)\""), type: .error)
             }
             teamPendingDelete = nil
         }
@@ -133,7 +133,7 @@ final class TeamsScreenViewModel {
     
     /// Reloads teams after the edit sheet confirms changes and shows a toast.
     func didFinishEditing(teamName: String) {
-        showToast("\"\(teamName)\" updated", type: .success)
+        showToast(String(localized: "\"\(teamName)\" updated"), type: .success)
         Task { await loadTeams() }
     }
     

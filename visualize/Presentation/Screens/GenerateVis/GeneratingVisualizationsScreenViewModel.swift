@@ -1,5 +1,5 @@
 //
-//  EditVisualizationViewModel.swift
+//  GeneratingVisualizationsScreenViewModel.swift
 //  VisualizeApp
 //
 //  Created by Zuleyca Guadalupe Balles Soto on 11/04/26.
@@ -41,19 +41,32 @@ final class GeneratingVisualizationsScreenViewModel {
     /// Uploads the dataset and fetches chart suggestions from the repository.
     /// The view reads `suggestions` after this returns and navigates via the coordinator.
     func startLoading(fileURL: URL) async {
-        isLoading = true
-        errorMessage = nil
-        suggestions = []
-        
-        do {
-            // Step 1: upload the file and obtain a task identifier.
-            let id = try await analyzeRepository.uploadDataset(fileURL: fileURL)
-
-            // Step 2: poll for the generated chart suggestions.
-            suggestions = try await chartSuggestionsRepository.getSuggestions(taskId: id)
-        } catch {
-            errorMessage = error.localizedDescription
+            isLoading = true
+            errorMessage = nil
+            suggestions = []
+            
+            do {
+                // Step 1: upload the file and obtain a task identifier.
+                let id = try await analyzeRepository.uploadDataset(fileURL: fileURL)
+     
+                // Step 2: poll for the generated chart suggestions.
+                suggestions = try await chartSuggestionsRepository.getSuggestions(taskId: id)
+            } catch let urlError as URLError {
+                switch urlError.code {
+                case .timedOut:
+                    errorMessage = String(localized: "Analysis timed out. The server took too long to respond. Please try again.")
+                case .resourceUnavailable:
+                    errorMessage = String(localized: "Analysis failed on the server. Please try again with a different dataset.")
+                case .cannotParseResponse:
+                    errorMessage = String(localized: "No visualizations could be generated from this dataset. Please try a different file.")
+                case .badServerResponse:
+                    errorMessage = String(localized: "Could not connect to the server. Please check your connection and try again.")
+                default:
+                    errorMessage = String(localized: "Something went wrong: \(urlError.localizedDescription)")
+                }
+            } catch {
+                errorMessage = String(localized: "Something went wrong: \(error.localizedDescription)")
+            }
+            isLoading = false
         }
-        isLoading = false
     }
-}
