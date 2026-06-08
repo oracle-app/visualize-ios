@@ -91,7 +91,7 @@ struct ThreadsPreviewScreen: View {
                         isCaptionFocused = false
                         viewModel.requestDiscard()
                     }
-                    .tint(Color.appNavy)
+                    .tint(AppColors.Brand.navy)
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -102,33 +102,40 @@ struct ThreadsPreviewScreen: View {
                     .tint(AppColors.Brand.primaryOrange)
                 }
             }
-            .alert(item: $viewModel.presentedAlert) { kind in
-                switch kind {
-                case .discard:
-                    return Alert(
-                        title: Text("Discard changes?"),
-                        message: Text("If you go back, your caption will not be saved."),
-                        primaryButton: .destructive(Text("Discard")) {
-                            viewModel.dismissAlert()
-                            onDismiss()
-                        },
-                        secondaryButton: .cancel(Text("Continue")) {
-                            viewModel.dismissAlert()
-                        }
-                    )
-                case .share:
-                    return Alert(
-                        title: Text("Share as new thread?"),
-                        message: Text("This edited visualization will be shared as a new thread."),
-                        primaryButton: .default(Text("Share")) {
-                            onShare(editedImage, viewModel.captionForShare)
-                            viewModel.dismissAlert()
-                            onDismiss()
-                        },
-                        secondaryButton: .cancel(Text("Cancel")) {
-                            viewModel.dismissAlert()
-                        }
-                    )
+            .alert(
+                viewModel.presentedAlert == .discard
+                    ? "Discard changes?"
+                    : "Share as new thread?",
+                isPresented: Binding(
+                    get: { viewModel.presentedAlert != nil },
+                    set: { if !$0 { viewModel.dismissAlert() } }
+                )
+            ) {
+                if viewModel.presentedAlert == .discard {
+                    Button("Discard", role: .destructive) {
+                        viewModel.dismissAlert()
+                        onDismiss()
+                    }
+                    
+                    Button("Continue", role: .cancel) {
+                        viewModel.dismissAlert()
+                    }
+                } else if viewModel.presentedAlert == .share {
+                    Button("Share") {
+                        onShare(editedImage, viewModel.captionForShare)
+                        viewModel.dismissAlert()
+                        onDismiss()
+                    }
+                    
+                    Button("Cancel", role: .cancel) {
+                        viewModel.dismissAlert()
+                    }
+                }
+            } message: {
+                if viewModel.presentedAlert == .discard {
+                    Text("If you go back, your caption will not be saved.")
+                } else {
+                    Text("This edited visualization will be shared as a new thread.")
                 }
             }
         }

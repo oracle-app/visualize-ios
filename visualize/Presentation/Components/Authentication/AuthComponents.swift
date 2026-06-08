@@ -50,7 +50,7 @@ struct InputField: View {
             text: $text,
             prompt: Text(placeholder)
                 .foregroundStyle(
-                    hasError ? .red : Color.gray.opacity(0.8)
+                    hasError ? AppColors.Status.red : Color.gray.opacity(0.8)
                 )
         )
         .keyboardType(keyboardType)
@@ -63,7 +63,7 @@ struct InputField: View {
             hasError ? AppColors.UI.authErrorBackground : AppColors.Brand.mint
         )
         .foregroundStyle(AppColors.Text.authFieldText)
-        .tint(hasError ? .red : AppColors.Brand.teal)
+        .tint(hasError ? AppColors.Status.red : AppColors.Brand.teal)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
@@ -137,7 +137,7 @@ struct PasswordField: View {
                     text: $text,
                     prompt: Text(placeholder)
                         .foregroundStyle(
-                            hasError ? .red : Color.gray.opacity(0.8)
+                            hasError ? AppColors.Status.red : Color.gray.opacity(0.8)
                         )
                 )
                 .opacity(isVisible ? 0 : 1)
@@ -147,7 +147,7 @@ struct PasswordField: View {
                     text: $text,
                     prompt: Text(placeholder)
                         .foregroundStyle(
-                            hasError ? .red : Color.gray.opacity(0.8)
+                            hasError ? AppColors.Status.red : Color.gray.opacity(0.8)
                         )
                 )
                 .opacity(isVisible ? 1 : 0)
@@ -156,7 +156,7 @@ struct PasswordField: View {
             .autocorrectionDisabled()
             .focused($isFocused)
             .foregroundStyle(AppColors.Text.authFieldText)
-            .tint(hasError ? .red : AppColors.Brand.teal)
+            .tint(hasError ? AppColors.Status.red : AppColors.Brand.teal)
 
             // MARK: Visibility Toggle
             
