@@ -52,6 +52,39 @@
                ReferencedContainer = "container:visualize.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DEA344702FD5DA8B002FC59E"
+               BuildableName = "SnipUITests.xctest"
+               BlueprintName = "SnipUITests"
+               ReferencedContainer = "container:visualize.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DEA3447F2FD5DABF002FC59E"
+               BuildableName = "visualize2UITests.xctest"
+               BlueprintName = "visualize2UITests"
+               ReferencedContainer = "container:visualize.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DEA3448E2FD5DB1D002FC59E"
+               BuildableName = "visualizUITests.xctest"
+               BlueprintName = "visualizUITests"
+               ReferencedContainer = "container:visualize.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
