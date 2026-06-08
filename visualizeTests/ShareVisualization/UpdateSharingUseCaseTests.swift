@@ -12,14 +12,14 @@ import XCTest
 
 final class UpdateSharingUseCaseTests: XCTestCase {
 
-    var visualizationRepo: MockVisualizationRepository!
-    var userRepo: MockUserRepository!
+    var visualizationRepo: SharingTestsMockVisualizationRepository!
+    var userRepo: SharingTestsMockUserRepository!
     var sut: UpdateSharingUseCase!
 
     override func setUp() {
         super.setUp()
-        visualizationRepo = MockVisualizationRepository()
-        userRepo = MockUserRepository()
+        visualizationRepo = SharingTestsMockVisualizationRepository()
+        userRepo = SharingTestsMockUserRepository()
         sut = UpdateSharingUseCase(visualizationRepository: visualizationRepo, userRepository: userRepo)
     }
 

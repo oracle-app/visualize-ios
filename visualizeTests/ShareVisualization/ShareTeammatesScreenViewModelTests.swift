@@ -12,19 +12,19 @@ import XCTest
 
 final class ShareTeammatesScreenViewModelTests: XCTestCase {
 
-    var userRepo: MockUserRepository!
-    var teamRepo: MockTeamRepository!
-    var authRepo: MockAuthRepository!
-    var visualizationRepo: MockVisualizationRepository!
+    var userRepo: SharingTestsMockUserRepository!
+    var teamRepo: SharingTestsMockTeamRepository!
+    var authRepo: SharingTestsMockAuthRepository!
+    var visualizationRepo: SharingTestsMockVisualizationRepository!
     var useCase: UpdateSharingUseCase!
     var sut: ShareTeammatesScreenViewModel!
 
     override func setUp() {
         super.setUp()
-        userRepo = MockUserRepository()
-        teamRepo = MockTeamRepository()
-        authRepo = MockAuthRepository()
-        visualizationRepo = MockVisualizationRepository()
+        userRepo = SharingTestsMockUserRepository()
+        teamRepo = SharingTestsMockTeamRepository()
+        authRepo = SharingTestsMockAuthRepository()
+        visualizationRepo = SharingTestsMockVisualizationRepository()
         
         useCase = UpdateSharingUseCase(visualizationRepository: visualizationRepo, userRepository: userRepo)
         
@@ -37,7 +37,6 @@ final class ShareTeammatesScreenViewModelTests: XCTestCase {
         )
     }
 
-    // SHAR-004: Search user by email
     // SHAR-004: Search user by email
         @MainActor
         func test_searchByEmail_whenMoreThanThreeCharacters_populatesSuggestedUsers() async throws {

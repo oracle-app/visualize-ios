@@ -10,7 +10,7 @@ import XCTest
 
 // MARK: - Mocks
 
-final class MockVisualizationRepository: VisualizationRepository {
+final class SharingTestsMockVisualizationRepository: VisualizationRepository {
     func getAllVisualizations(userID: String) async throws -> [visualize.VisualizationCard] {fatalError()}
     
     func searchVisualizations(userID: String, query: String) async throws -> [visualize.VisualizationCard] {fatalError()}
@@ -38,7 +38,7 @@ final class MockVisualizationRepository: VisualizationRepository {
     }
 }
 
-final class MockUserRepository: UserRepository {
+final class SharingTestsMockUserRepository: UserRepository {
     var removeHiddenCallCount = 0
     var removedHiddenVisualizations: [(userID: String, visualizationID: String)] = []
     
@@ -65,7 +65,7 @@ final class MockUserRepository: UserRepository {
     func uploadProfileImage(userID: String, imageData: Data) async throws -> URL { fatalError() }
 }
 
-final class MockAuthRepository: AuthRepository {
+final class SharingTestsMockAuthRepository: AuthRepository {
     func login(email: String, password: String) async throws -> visualize.AuthUser {fatalError()}
     
     func register(email: String, password: String) async throws -> visualize.AuthUser {fatalError()}
@@ -82,7 +82,7 @@ final class MockAuthRepository: AuthRepository {
     func getCurrentUserID() async throws -> String { return stubbedUserID }
 }
 
-final class MockTeamRepository: TeamRepository {
+final class SharingTestsMockTeamRepository: TeamRepository {
     var stubbedMyTeams: [Team] = []
     var stubbedJoinedTeams: [Team] = []
     
