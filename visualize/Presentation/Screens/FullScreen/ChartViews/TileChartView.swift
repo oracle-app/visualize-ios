@@ -120,14 +120,14 @@ struct TileChartView: View {
             return "\(sign)\(formatCompact(absValue / 1_000))K"
         default:
             return value.truncatingRemainder(dividingBy: 1) == 0
-                ? "\(Int(value))"
+                ? value.formatted(.number.precision(.fractionLength(0)))
                 : value.formatted(.number.precision(.fractionLength(2)))
         }
     }
 
     private func formatCompact(_ value: Double) -> String {
         value.truncatingRemainder(dividingBy: 1) == 0
-            ? "\(Int(value))"
+            ? value.formatted(.number.precision(.fractionLength(0)))
             : value.formatted(.number.precision(.fractionLength(1)))
     }
 }

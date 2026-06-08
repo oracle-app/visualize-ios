@@ -35,13 +35,13 @@ class CreateVisualizationScreenViewModel {
     var fileSize: String {
         let kb = Double(fileSizeBytes) / 1024
         let mb = kb / 1024
+
         if mb >= 1 {
-            return String(format: "%.1f MB", mb)
+            return "\(mb.formatted(.number.precision(.fractionLength(1)))) MB"
         } else {
-            return String(format: "%.0f KB", kb)
+            return "\(kb.formatted(.number.precision(.fractionLength(0)))) KB"
         }
     }
- 
     private var timer: Timer?
  
     private let validateFileUseCase: ValidateFileUseCase
