@@ -18,25 +18,6 @@
 import SwiftUI
 import Observation
 
-// MARK: - Test Use Cases
-protocol LoadVisualizationsUseCaseProtocol {
-    func execute(userID: String) async throws -> [VisualizationCard]
-}
-protocol SearchVisualizationsUseCaseProtocol {
-    func execute(userID: String, query: String) async throws -> [VisualizationCard]
-}
-protocol HideVisualizationUseCaseProtocol {
-    func execute(userID: String, visualizationID: String) async throws
-}
-protocol DeleteVisualizationUseCaseProtocol {
-    func execute(visualizationID: String) async throws
-}
-
-extension LoadVisualizationsUseCase: LoadVisualizationsUseCaseProtocol {}
-extension SearchVisualizationsUseCase: SearchVisualizationsUseCaseProtocol {}
-extension HideVisualizationUseCase: HideVisualizationUseCaseProtocol {}
-extension DeleteVisualizationUseCase: DeleteVisualizationUseCaseProtocol {}
-
 // MARK: - Feed State
 
 enum FeedState {
@@ -68,10 +49,10 @@ class FeedScreenViewModel {
 
     // MARK: - Dependencies
     var visualizationFilter: VisualizationFilter
-    private let loadVisualizationsUseCase: any LoadVisualizationsUseCaseProtocol
-    private let searchVisualizationsUseCase: any SearchVisualizationsUseCaseProtocol
-    private let hideVisualizationUseCase: any HideVisualizationUseCaseProtocol
-    private let deleteVisualizationUseCase: any DeleteVisualizationUseCaseProtocol
+    private let loadVisualizationsUseCase: LoadVisualizationsUseCase
+    private let searchVisualizationsUseCase: SearchVisualizationsUseCase
+    private let hideVisualizationUseCase: HideVisualizationUseCase
+    private let deleteVisualizationUseCase: DeleteVisualizationUseCase
     private let authRepository: any AuthRepository
     private let notificationRepository: any NotificationRepository
     private let userRepository: any UserRepository
@@ -89,10 +70,10 @@ class FeedScreenViewModel {
 
     // MARK: - Initialization
     init(
-        loadVisualizationsUseCase: any LoadVisualizationsUseCaseProtocol,
-        searchVisualizationsUseCase: any SearchVisualizationsUseCaseProtocol,
-        hideVisualizationUseCase: any HideVisualizationUseCaseProtocol,
-        deleteVisualizationUseCase: any DeleteVisualizationUseCaseProtocol,
+        loadVisualizationsUseCase: LoadVisualizationsUseCase,
+        searchVisualizationsUseCase: SearchVisualizationsUseCase,
+        hideVisualizationUseCase: HideVisualizationUseCase,
+        deleteVisualizationUseCase: DeleteVisualizationUseCase,
         authRepository: any AuthRepository,
         notificationRepository: any NotificationRepository,
         userRepository: any UserRepository

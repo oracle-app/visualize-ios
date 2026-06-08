@@ -1,5 +1,5 @@
 //
-//  FeedViewModelTests.swift
+//  FeedUseCasesTests.swift
 //  VisualizeTests
 //
 //  Unit tests for FeedScreenViewModel.
@@ -15,7 +15,7 @@ import XCTest
 // MARK: - Test Suite
 
 @MainActor
-final class FeedViewModelTests: XCTestCase {
+final class FeedUseCasesTests: XCTestCase {
 
     // MARK: - Properties
 

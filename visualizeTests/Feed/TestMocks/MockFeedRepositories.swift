@@ -27,13 +27,13 @@ private final class MockVisualizationRepository: VisualizationRepository {
 
 // MARK: - MockLoadVisualizationsUseCase
 
-final class MockLoadVisualizationsUseCase: LoadVisualizationsUseCaseProtocol {
+final class MockLoadVisualizationsUseCase: LoadVisualizationsUseCase {
     var stubbedItems: [VisualizationCard] = []
     var shouldThrow: Bool = false
-    var shouldBlockForever: Bool = false  // ← reemplaza stubbedDelay
+    var shouldBlockForever: Bool = false
     private(set) var executeCallCount: Int = 0
-
-    func execute(userID: String) async throws -> [VisualizationCard] {
+    init() { super.init(visualizationRepository: MockVisualizationRepository()) }
+    override func execute(userID: String) async throws -> [VisualizationCard] {
         executeCallCount += 1
         if shouldBlockForever {
             try await Task.sleep(for: .seconds(9_999))
@@ -61,11 +61,18 @@ final class MockSearchVisualizationsUseCase: SearchVisualizationsUseCase {
 
 // MARK: - MockHideVisualizationUseCase
 
-final class MockHideVisualizationUseCase: HideVisualizationUseCaseProtocol {
+final class MockHideVisualizationUseCase: HideVisualizationUseCase {
     var shouldThrow: Bool = false
     private(set) var hiddenVisualizationID: String?
-
-    func execute(userID: String, visualizationID: String) async throws {
+    
+    init() {
+        super.init(
+            userRepository: MockUserRepository(),
+            visualizationRepository: MockVisualizationRepository()
+        )
+    }
+    
+    override func execute(userID: String, visualizationID: String) async throws {
         if shouldThrow { throw URLError(.notConnectedToInternet) }
         hiddenVisualizationID = visualizationID
     }
@@ -73,11 +80,13 @@ final class MockHideVisualizationUseCase: HideVisualizationUseCaseProtocol {
 
 // MARK: - MockDeleteVisualizationUseCase
 
-final class MockDeleteVisualizationUseCase: DeleteVisualizationUseCaseProtocol {
+final class MockDeleteVisualizationUseCase: DeleteVisualizationUseCase {
     var shouldThrow: Bool = false
     private(set) var deletedVisualizationID: String?
 
-    func execute(visualizationID: String) async throws {
+    init() { super.init(visualizationRepository: MockVisualizationRepository()) }
+
+    override func execute(visualizationID: String) async throws {
         if shouldThrow { throw URLError(.notConnectedToInternet) }
         deletedVisualizationID = visualizationID
     }
