@@ -8,12 +8,24 @@
 import XCTest
 @testable import visualize
 
+// MARK: - Mock Errors
+
+enum MockError: Error {
+    case unimplemented
+}
+
 // MARK: - Mocks
 
 final class SharingTestsMockVisualizationRepository: VisualizationRepository {
-    func getAllVisualizations(userID: String) async throws -> [visualize.VisualizationCard] {fatalError()}
+    func getAllVisualizations(userID: String) async throws -> [visualize.VisualizationCard] {
+        XCTFail("getAllVisualizations(userID:) was called but is not implemented.")
+        throw MockError.unimplemented
+    }
     
-    func searchVisualizations(userID: String, query: String) async throws -> [visualize.VisualizationCard] {fatalError()}
+    func searchVisualizations(userID: String, query: String) async throws -> [visualize.VisualizationCard] {
+        XCTFail("searchVisualizations(userID:query:) was called but is not implemented.")
+        throw MockError.unimplemented
+    }
     
     func deleteVisualization(visualizationID: String) async throws {}
     
@@ -21,7 +33,10 @@ final class SharingTestsMockVisualizationRepository: VisualizationRepository {
     
     func createVisualization(title: String, authorID: String, configJSON: String, previewJSON: String, userIDs: [String], teamIDs: [String]) async throws {}
     
-    func fetchConfigJSON(visualizationID: String) async throws -> String? {fatalError()}
+    func fetchConfigJSON(visualizationID: String) async throws -> String? {
+        XCTFail("fetchConfigJSON(visualizationID:) was called but is not implemented.")
+        throw MockError.unimplemented
+    }
     
     var updateSharingCallCount = 0
     var receivedVisualizationID: String?
@@ -57,22 +72,43 @@ final class SharingTestsMockUserRepository: UserRepository {
         return stubbedSuggestedUsers
     }
     
-    func getUserByID(userID: String) async throws -> AppUser { fatalError() }
-    func createUser(user: AppUser) async throws -> AppUser { fatalError() }
+    func getUserByID(userID: String) async throws -> AppUser {
+        XCTFail("getUserByID(userID:) was called but is not implemented.")
+        throw MockError.unimplemented
+    }
+    
+    func createUser(user: AppUser) async throws -> AppUser {
+        XCTFail("createUser(user:) was called but is not implemented.")
+        throw MockError.unimplemented
+    }
+    
     func addHiddenVisualization(userID: String, visualizationID: String) async throws {}
     func updateProfilePictureURL(userID: String, url: URL?) async throws {}
     func deleteProfileImage(byURL url: URL) async throws {}
-    func uploadProfileImage(userID: String, imageData: Data) async throws -> URL { fatalError() }
+    
+    func uploadProfileImage(userID: String, imageData: Data) async throws -> URL {
+        XCTFail("uploadProfileImage(userID:imageData:) was called but is not implemented.")
+        throw MockError.unimplemented
+    }
 }
 
 final class SharingTestsMockAuthRepository: AuthRepository {
-    func login(email: String, password: String) async throws -> visualize.AuthUser {fatalError()}
+    func login(email: String, password: String) async throws -> visualize.AuthUser {
+        XCTFail("login(email:password:) was called but is not implemented.")
+        throw MockError.unimplemented
+    }
     
-    func register(email: String, password: String) async throws -> visualize.AuthUser {fatalError()}
+    func register(email: String, password: String) async throws -> visualize.AuthUser {
+        XCTFail("register(email:password:) was called but is not implemented.")
+        throw MockError.unimplemented
+    }
     
     func logout() throws {}
     
-    func getCurrentUser() -> visualize.AuthUser? {fatalError()}
+    func getCurrentUser() -> visualize.AuthUser? {
+        XCTFail("getCurrentUser() was called but is not implemented.")
+        return nil
+    }
     
     func deleteCurrentUser() async throws {}
     
