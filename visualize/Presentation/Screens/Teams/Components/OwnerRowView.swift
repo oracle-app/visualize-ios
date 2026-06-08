@@ -29,11 +29,11 @@ struct OwnerRowView: View {
 
                 Text(user.username)
                     .font(.body.weight(.bold))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
 
                 Text(user.email)
                     .font(.subheadline)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
                     .opacity(0.5)
             }
 
@@ -41,7 +41,7 @@ struct OwnerRowView: View {
 
             Text("owner")
                 .font(.system(size: 13))
-                .foregroundStyle(Color.appSubtitle)
+                .foregroundStyle(AppColors.Text.secondary)
                 .fontWeight(.semibold)
         }
         .padding(8)

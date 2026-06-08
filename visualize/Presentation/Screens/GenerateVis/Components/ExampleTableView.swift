@@ -26,19 +26,19 @@ struct ExampleTableView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(String(localized: "Dataset format requirements"))
                 .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(AppColors.Text.primary)
                 .padding(.bottom, 8)
                 .padding(.top, 20)
 
             Text(String(localized: "Upload a table-formatted dataset with column headers in the first row."))
                 .font(.system(size: 15))
-                .foregroundColor(Color.appSubtitle)
+                .foregroundStyle(AppColors.Text.secondary)
                 .lineSpacing(3)
                 .padding(.bottom, 14)
 
             Text(String(localized: "Example"))
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
                 .padding(.bottom, 8)
 
             VStack(spacing: 0) {
@@ -46,7 +46,7 @@ struct ExampleTableView: View {
                     ForEach(columns, id: \.self) { col in
                         Text(col)
                             .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(AppColors.Text.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.vertical, 10)
                             .padding(.horizontal, 10)
@@ -63,7 +63,7 @@ struct ExampleTableView: View {
                         ForEach(Array(row.enumerated()), id: \.offset) { _, cell in
                             Text(cell)
                                 .font(.system(size: 13))
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.vertical, 9)
                                 .padding(.horizontal, 10)
@@ -90,7 +90,7 @@ struct ExampleTableView: View {
                 Text(String(localized: "Avoid empty rows or merged cells."))
             }
             .font(.system(size: 15))
-            .foregroundColor(Color.appSubtitle)
+            .foregroundStyle(AppColors.Text.secondary)
             .padding(.top, 14)
         }
     }

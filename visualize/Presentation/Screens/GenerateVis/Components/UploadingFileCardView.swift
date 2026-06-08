@@ -47,7 +47,7 @@ struct UploadingFileCardView: View {
         HStack(spacing: 12) {
             ZStack {
                 Image(systemName: "document.badge.arrow.up")
-                    .foregroundColor(Color.appTeal)
+                    .foregroundStyle(AppColors.Brand.teal)
                     .font(.system(size: 28))
             }
             
@@ -58,7 +58,7 @@ struct UploadingFileCardView: View {
                 
                 Text("\(uploadedSize) / \(fileSize)")
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
@@ -79,12 +79,12 @@ struct UploadingFileCardView: View {
                 Button(action: onCancel) {
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .padding(.bottom, 18)
                 }
                 Text("\(Int(progress * 100))%")
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(12)

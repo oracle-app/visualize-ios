@@ -71,7 +71,7 @@ struct ThreadScreen: View {
         VStack(spacing: 0) {
             Text("Threads")
                 .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 25)
             
@@ -83,7 +83,7 @@ struct ThreadScreen: View {
                     } else if viewModel.comments.isEmpty {
                         Text(String(localized: "No threads yet"))
                             .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(Color.appTeal)
+                            .foregroundStyle(AppColors.Brand.teal)
                             .padding(.top, 80)
                         Text(String(localized: "Start a new thread or wait for conversations to appear here."))
                             .foregroundStyle(.secondary)
@@ -159,11 +159,11 @@ struct ThreadScreen: View {
                 HStack {
                     Image(systemName: "arrowshape.turn.up.left.fill")
                         .font(.system(size: 12))
-                        .foregroundStyle(Color.appTeal)
+                        .foregroundStyle(AppColors.Brand.teal)
                     
                     Text("Replying to \(author)")
                         .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(Color.appTeal)
+                        .foregroundStyle(AppColors.Brand.teal)
                     
                     Spacer()
                     

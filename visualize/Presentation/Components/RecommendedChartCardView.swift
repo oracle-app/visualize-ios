@@ -31,17 +31,17 @@ struct RecommendedChartCardView: View {
             chartPreview
         }
         .padding(16)
-        .background(isSelected ? Color.appTeal : Color.appMint)
+        .background(isSelected ? AppColors.Brand.teal : AppColors.Brand.mint)
         .cornerRadius(10)
         .overlay(selectionBorder)
         .shadow(
-            color: isSelected ? Color.appOrange.opacity(0.20) : Color.black.opacity(0.15),
+            color: isSelected ? AppColors.Brand.orange.opacity(0.20) : Color.black.opacity(0.15),
             radius: 5,
             x: 0,
             y: isSelected ? 0 : 2
         )
         .shadow(
-            color: isSelected ? Color.appOrange.opacity(0.08) : .clear,
+            color: isSelected ? AppColors.Brand.orange.opacity(0.08) : .clear,
             radius: 10,
             x: 0, y: 0
         )
@@ -57,7 +57,7 @@ struct RecommendedChartCardView: View {
         HStack(alignment: .top, spacing: 12) {
             Text(title)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(isSelected ? .white : Color.primaryText)
+                .foregroundStyle(isSelected ? .white : AppColors.Text.primary)
                 .minimumScaleFactor(0.5)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
