@@ -64,6 +64,17 @@ struct VisualizeApp: App {
             )
         } else if args.contains("-uitest-snip-comment") {
             SnipCommentSampleView()
+        } else if args.contains("-uitest-teams-list") {
+            NavigationStack {
+                TeamsScreen(
+                    viewModel: TeamsScreenViewModel(
+                        teamRepository: MockTeamRepository(),
+                        authRepository: MockAuthRepository(),
+                        userRepository: MockUserRepository()
+                    )
+                )
+                .environment(AppCoordinator())
+            }
         } else {
             defaultRoot
         }
