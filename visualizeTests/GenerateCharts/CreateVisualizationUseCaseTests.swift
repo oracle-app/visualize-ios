@@ -13,7 +13,7 @@ import XCTest
 
 // MARK: - Mocks
 
-private final class MockVisualizationRepository: VisualizationRepository {
+private final class GenTestsMockVisualizationRepository: VisualizationRepository {
     var createVisualizationCallCount = 0
     var receivedTitle: String?
     var receivedAuthorID: String?
@@ -78,7 +78,7 @@ final class CreateVisualizationUseCaseTests: XCTestCase {
 
     // GENV-007 — CreateVisualizationUseCase forwards chart data and sharing configuration to repository.
     func test_execute_createsVisualizationWithTitleAndConfiguration() async throws {
-        let repository = MockVisualizationRepository()
+        let repository = GenTestsMockVisualizationRepository()
         let sut = CreateVisualizationUseCase(visualizationRepository: repository)
 
         try await sut.execute(
@@ -101,7 +101,7 @@ final class CreateVisualizationUseCaseTests: XCTestCase {
 
     // Repository errors should propagate so the UI can show a failure state.
     func test_execute_whenRepositoryThrows_propagatesError() async {
-        let repository = MockVisualizationRepository()
+        let repository = GenTestsMockVisualizationRepository()
         repository.stubbedError = DummyVisualizationRepositoryError()
         let sut = CreateVisualizationUseCase(visualizationRepository: repository)
 
