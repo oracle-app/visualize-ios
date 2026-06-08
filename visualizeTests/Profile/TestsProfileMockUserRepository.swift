@@ -20,7 +20,7 @@ import Foundation
 /// existingUser must be set before any test that calls getUserByID; force-unwrapping
 /// is intentional so a missing setup causes an immediate, obvious test crash rather
 /// than a silent wrong-data failure.
-final class MockUserRepository: UserRepository {
+final class TestsProfileMockUserRepository: UserRepository {
 
     // MARK: - Call counters
 

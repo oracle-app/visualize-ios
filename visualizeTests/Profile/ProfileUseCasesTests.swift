@@ -16,7 +16,7 @@ import XCTest
 /// - PROF-006: If the Firestore update fails after a successful upload, the uploaded
 ///             image is deleted from Storage (rollback) and the error is propagated.
 ///
-/// All tests use MockAuthRepository and MockUserRepository to avoid any
+/// All tests use MockAuthRepository and TestsProfileMockUserRepository to avoid any
 /// network or Firebase dependency. Execution is fully synchronous from the
 /// test runner's perspective via async/await.
 
@@ -43,7 +43,7 @@ final class UploadProfilePhotoUseCaseTests: XCTestCase {
         let auth = MockAuthRepository()
         auth.currentUser = AuthUser(uid: "user-123", email: "test@mail.com")
 
-        let userRepo = MockUserRepository()
+        let userRepo = TestsProfileMockUserRepository()
         userRepo.existingUser = AppUser(
             id: "user-123",
             email: "test@mail.com",
@@ -74,7 +74,7 @@ final class UploadProfilePhotoUseCaseTests: XCTestCase {
 
         let sut = UploadProfilePhotoUseCase(
             authRepository: auth,
-            userRepository: MockUserRepository()
+            userRepository: TestsProfileMockUserRepository()
         )
 
         do {
@@ -94,7 +94,7 @@ final class UploadProfilePhotoUseCaseTests: XCTestCase {
         let auth = MockAuthRepository()
         auth.currentUser = AuthUser(uid: "user-123", email: "test@mail.com")
 
-        let userRepo = MockUserRepository()
+        let userRepo = TestsProfileMockUserRepository()
         userRepo.existingUser = AppUser(
             id: "user-123",
             email: "test@mail.com",

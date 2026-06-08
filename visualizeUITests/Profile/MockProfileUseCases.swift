@@ -8,8 +8,7 @@
 #if DEBUG
 import UIKit
 import Foundation
-
-/// Lightweight test doubles for the Profile feature's repositories and use cases.
+/// Lightweight test doubles for the Profile feature's use cases.
 ///
 /// These mocks are used exclusively by:
 ///   - ProfileUITests (via the -uitest-profile launch argument)
@@ -18,37 +17,14 @@ import Foundation
 /// Every override short-circuits the real implementation so no network call,
 /// Firebase read, or Storage upload is ever triggered during UI tests or Previews.
 ///
-/// Naming convention: types are suffixed with "Profile" (e.g. MockAuthRepositoryProfile)
-/// to avoid collisions with mocks defined for other features in the same module.
-
-// MARK: - MockAuthRepositoryProfile
-
-/// Stub auth repository that always returns a fixed mock user.
-/// Only the methods required by the Profile use cases are meaningful here;
-/// the rest satisfy the AuthRepository protocol contract and are never called.
-final class MockAuthRepositoryProfile: AuthRepository {
-    func login(email: String, password: String) async throws -> AuthUser {
-        AuthUser(uid: "mock-uid", email: "mariana@test.com")
-    }
-    func register(email: String, password: String) async throws -> AuthUser {
-        AuthUser(uid: "mock-uid", email: "mariana@test.com")
-    }
-    func logout() throws {}
-    func getCurrentUser() -> AuthUser? {
-        AuthUser(uid: "mock-uid", email: "mariana@test.com")
-    }
-    func deleteCurrentUser() async throws {}
-    func sendPasswordReset(to email: String) async throws {}
-    func getCurrentUserID() async throws -> String {
-        "mock-uid"
-    }
-}
+/// Auth dependencies are satisfied by the shared MockAuthRepository defined in
+/// MockAuthRepositories.swift, which is already used across all feature unit tests.
 
 // MARK: - MockUserRepositoryProfile
 
 /// Stub user repository that returns a hardcoded AppUser and no-ops all write operations.
-/// uploadProfileImage returns a fake Storage URL so the ViewModel can update profilePictureURL
-/// without hitting Firebase.
+/// uploadProfileImage returns a fake Storage URL so the ViewModel can update
+/// profilePictureURL without hitting Firebase.
 final class MockUserRepositoryProfile: UserRepository {
     func getUserByID(userID: String) async throws -> AppUser {
         AppUser(
@@ -75,7 +51,7 @@ final class MockUserRepositoryProfile: UserRepository {
 /// No-op logout — prevents the coordinator from navigating away during UI tests.
 final class MockLogoutUseCase: LogoutUseCase {
     init() {
-        super.init(repository: MockAuthRepositoryProfile())
+        super.init(repository: MockAuthRepository())
     }
     override func execute() throws {}
 }
@@ -88,7 +64,7 @@ final class MockLogoutUseCase: LogoutUseCase {
 final class MockGetCurrentUserProfileUseCase: GetCurrentUserProfileUseCase {
     init() {
         super.init(
-            authRepository: MockAuthRepositoryProfile(),
+            authRepository: MockAuthRepository(),
             userRepository: MockUserRepositoryProfile()
         )
     }
@@ -110,7 +86,7 @@ final class MockGetCurrentUserProfileUseCase: GetCurrentUserProfileUseCase {
 final class MockUploadProfilePhotoUseCase: UploadProfilePhotoUseCase {
     init() {
         super.init(
-            authRepository: MockAuthRepositoryProfile(),
+            authRepository: MockAuthRepository(),
             userRepository: MockUserRepositoryProfile()
         )
     }
@@ -125,7 +101,7 @@ final class MockUploadProfilePhotoUseCase: UploadProfilePhotoUseCase {
 final class MockDeleteProfilePhotoUseCase: DeleteProfilePhotoUseCase {
     init() {
         super.init(
-            authRepository: MockAuthRepositoryProfile(),
+            authRepository: MockAuthRepository(),
             userRepository: MockUserRepositoryProfile()
         )
     }

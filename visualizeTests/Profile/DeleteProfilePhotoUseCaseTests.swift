@@ -18,7 +18,7 @@ import XCTest
 /// - PROF-004C: Attempting to delete without an active session throws noSession
 ///              before any repository method is called.
 ///
-/// All tests use MockAuthRepository and MockUserRepository to avoid any
+/// All tests use MockAuthRepository and TestsProfileMockUserRepository to avoid any
 /// network or Firebase dependency.
 
 @MainActor
@@ -32,7 +32,7 @@ final class DeleteProfilePhotoUseCaseTests: XCTestCase {
         let auth = MockAuthRepository()
         auth.currentUser = AuthUser(uid: "user-123", email: "test@mail.com")
 
-        let userRepo = MockUserRepository()
+        let userRepo = TestsProfileMockUserRepository()
         userRepo.existingUser = AppUser(
             id: "user-123",
             email: "test@mail.com",
@@ -61,7 +61,7 @@ final class DeleteProfilePhotoUseCaseTests: XCTestCase {
         let auth = MockAuthRepository()
         auth.currentUser = AuthUser(uid: "user-123", email: "test@mail.com")
 
-        let userRepo = MockUserRepository()
+        let userRepo = TestsProfileMockUserRepository()
         userRepo.existingUser = AppUser(
             id: "user-123",
             email: "test@mail.com",
@@ -91,7 +91,7 @@ final class DeleteProfilePhotoUseCaseTests: XCTestCase {
 
         let sut = DeleteProfilePhotoUseCase(
             authRepository: auth,
-            userRepository: MockUserRepository()
+            userRepository: TestsProfileMockUserRepository()
         )
 
         do {
