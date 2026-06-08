@@ -146,7 +146,7 @@ struct CreateVisualizationScreen: View {
             Button("Delete", role: .destructive) {
                 viewModel.resetFile()
             }
-            Button(String(localized: "Cancel"), role: .cancel) { }
+            Button("Cancel", role: .cancel) { }
         } message: {
             Text("This will remove the uploaded dataset.")
         }
