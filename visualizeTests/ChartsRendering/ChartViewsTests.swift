@@ -274,7 +274,7 @@ final class ChartViewsTests: XCTestCase {
         XCTAssertEqual(values.count, labels.count, "values and labels must have the same count")
     }
 
-    func test_FSRT011_tile_emptyField1_usesZeroFallback() throws {
+    func test_FSRT011_tile_emptyData_producesEmptyValues() throws {
         let json = """
         {
             "chartType": "Tile",

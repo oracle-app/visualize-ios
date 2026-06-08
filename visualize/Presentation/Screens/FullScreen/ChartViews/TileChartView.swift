@@ -18,7 +18,9 @@ struct TileChartView: View {
 
     // MARK: - Properties
 
+    /// Descriptive label displayed above the value (e.g. "Revenue", "# of Orders").
     let labels: [String]
+    /// Numeric values to display (e.g. 800_000_000, 674).
     let values: [Double]
     let theme: ChartColorTheme  // ← agrega esto
 
@@ -28,6 +30,10 @@ struct TileChartView: View {
     // MARK: - Body
 
     var body: some View {
+        // GeometryReader is used here instead of containerRelativeFrame() because
+        // we need both available width (for tileWidth) and available height (for
+        // maxTileHeight to prevent landscape clipping). containerRelativeFrame()
+        // only provides one dimension at a time.
         GeometryReader { geometry in
             let availableWidth = geometry.size.width
             let availableHeight = geometry.size.height
@@ -107,7 +113,13 @@ struct TileChartView: View {
     }
 
     // MARK: - Formatting
-
+    /// Abbreviates the value into a human-readable string.
+    /// - 1 200 000 000 -> "1.2B"
+    /// - 800 000 000 -> "800M"
+    /// - 1 200 000 -> "1.2M"
+    /// - 45 000 -> "45K"
+    /// - 758 -> "758"
+    /// - 0.75 -> "0.75"
     private func formatValue(_ value: Double) -> String {
         let absValue = abs(value)
         let sign = value < 0 ? "-" : ""
