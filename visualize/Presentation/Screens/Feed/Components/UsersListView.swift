@@ -10,7 +10,6 @@ import SwiftUI
 /// A scrollable list view that displays multiple users.
 /// Each user is rendered using UserRowView and supports removal actions.
 /// Includes separators between items for better visual organization.
-
 struct UsersListView: View {
     
     let users: [AppUser]
