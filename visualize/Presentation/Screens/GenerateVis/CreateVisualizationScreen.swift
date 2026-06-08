@@ -44,7 +44,7 @@ struct CreateVisualizationScreen: View {
                         .padding(.top, 14)
                         .padding(.bottom, 16)
 
-                    Text(String(localized: "Create data visualizations"))
+                    Text("Create data visualizations")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(Color.primaryText)
                         .padding(.bottom, 10)
@@ -141,13 +141,13 @@ struct CreateVisualizationScreen: View {
                 viewModel.errorMessage = String(localized: "Error selecting file: \(error.localizedDescription)")
             }
         }
-        .alert(String(localized: "Delete dataset?"), isPresented: $showDeleteAlert) {
-            Button(String(localized: "Delete"), role: .destructive) {
+        .alert("Delete dataset?", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) {
                 viewModel.resetFile()
             }
             Button(String(localized: "Cancel"), role: .cancel) { }
         } message: {
-            Text(String(localized: "This will remove the uploaded dataset."))
+            Text("This will remove the uploaded dataset.")
         }
         .portraitOrientationLock()
         .background(Color.appBackground.ignoresSafeArea())

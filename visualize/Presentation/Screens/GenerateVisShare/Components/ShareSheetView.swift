@@ -113,7 +113,7 @@ struct ShareSheetView: View {
             Button {
                 selectedOption = .personal
             } label: {
-                Text(String(localized: "Save in personal feed"))
+                Text("Save in personal feed")
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(selectedOption == .personal ? .white : Color.appTeal)
                     .frame(maxWidth: 360)
@@ -129,7 +129,8 @@ struct ShareSheetView: View {
             }
 
             if selectedOption == .personal {
-                Text(String(localized: "You can share this with teammates later."))                    .font(.subheadline)
+                Text("You can share this with teammates later.")
+                    .font(.subheadline)
                     .foregroundStyle(.gray)
                     .transition(.opacity)
             }
@@ -140,7 +141,7 @@ struct ShareSheetView: View {
                 sheetSize = .large
                 vm.loadData()
             } label: {
-                Text(String(localized: "Share with teammates"))
+                Text("Share with teammates")
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(Color.appTeal)
                     .frame(maxWidth: 360)
@@ -158,7 +159,7 @@ struct ShareSheetView: View {
     /// Expanded view showing user search, selected users, and team selection lists.
     private var teammatesView: some View {
         VStack(spacing: 16) {
-            Text(String(localized: "Share with teammates"))
+            Text("Share with teammates")
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(Color.primaryText)
 
@@ -269,7 +270,7 @@ struct ShareSheetView: View {
     private var toolbar: some ToolbarContent {
         Group {
             ToolbarItem(placement: .cancellationAction) {
-                Button(String(localized: "Cancel"), systemImage: "xmark")  {
+                Button("Cancel", systemImage: "xmark")  {
                     sheetSize = .fraction(0.28)
                     selectedOption = nil
                     dismiss()
@@ -278,7 +279,7 @@ struct ShareSheetView: View {
             }
 
             ToolbarItem(placement: .confirmationAction) {
-                Button(String(localized: "Confirm"), systemImage: "paperplane.fill") {
+                Button("Confirm", systemImage: "paperplane.fill") {
                     Task {
                         isConfirming = true
                         defer { isConfirming = false }
