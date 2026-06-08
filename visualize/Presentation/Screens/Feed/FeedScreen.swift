@@ -24,6 +24,7 @@ import Foundation
 struct FeedScreen: View {
 
     @Environment(AppCoordinator.self) private var coordinator
+    @Environment(CreateFlowState.self) private var createFlowState
 
     // MARK: - States
 
@@ -230,11 +231,11 @@ struct FeedScreen: View {
             }
         }
         .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
-        .onChange(of: coordinator.pendingToast) { _, toast in
+        .onChange(of: createFlowState.pendingToast) { _, toast in
             guard let toast else { return }
             viewModel.showToast(toast)
             viewModel.loadData(forceRefresh: true)
-            coordinator.pendingToast = nil
+            createFlowState.pendingToast = nil
         }
         .onGeometryChange(for: EdgeInsets.self) {
             $0.safeAreaInsets

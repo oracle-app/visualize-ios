@@ -5,12 +5,12 @@
 //  Created by Mariana Carrillo Holguin on 20/05/26.
 //
 
-/// `Decodable` DTOs for the two response shapes returned by the analyze microservice.
+/// Decodable DTOs for the response shapes returned by the analyze microservice.
 ///
 /// # Endpoint map
 /// ```
 /// POST /analyzeData -> AnalyzeTaskResponseDTO (contains task_id)
-/// /// GET  /results/{taskId} -> TaskStatusDTO (status check only)
+/// GET  /results/{taskId} -> TaskStatusDTO (status check only)
 /// GET  /results/{taskId}?chart=N&preview=true -> ChartResponseDTO (single chart, preview)
 /// GET  /results/{taskId}?chart=N&page=N -> ChartResponseDTO (single chart, full detail)
 /// ```

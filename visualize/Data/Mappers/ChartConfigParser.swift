@@ -253,8 +253,7 @@ struct ChartConfigParser {
             return .area(title: chartName, data: areaData, stackNames: field1Strings)
  
         case .tile:
-            let value = field1Doubles.first ?? 0
-            return .tile(title: chartName, value: value, label: field1Label)
+            return .tile(title: chartName, values: field2Doubles, labels: field1Strings)
         }
     }
 }
