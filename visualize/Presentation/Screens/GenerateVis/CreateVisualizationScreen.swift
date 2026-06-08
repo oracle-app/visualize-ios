@@ -95,7 +95,7 @@ struct CreateVisualizationScreen: View {
                     if let error = viewModel.errorMessage {
                         Text(error)
                             .font(.system(size: 13))
-                            .foregroundStyle(.red)
+                            .foregroundStyle(AppColors.Status.red)
                             .padding(.bottom, 8)
                     }
                 }

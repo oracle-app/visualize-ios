@@ -86,7 +86,7 @@ struct ShareSheetView: View {
                 if let error = vm.confirmError {
                     Text(error)
                         .font(.caption)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(AppColors.Status.red)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                         .transition(.opacity)

@@ -71,7 +71,7 @@ struct GeneratingVisualizationsScreen: View {
             if let error = viewModel.errorMessage {
                 Text(error)
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(AppColors.Status.red)
                     .multilineTextAlignment(.center)
                     .padding(.top, 12)
             }

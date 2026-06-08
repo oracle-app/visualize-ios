@@ -83,7 +83,7 @@ struct InputField: View {
         .overlay(alignment: .bottomLeading) {
             Text(errorMessage ?? "")
                 .font(.system(size: 13))
-                .foregroundStyle(.red)
+                .foregroundStyle(AppColors.Status.red)
                 .opacity(hasError ? 1 : 0)
                 .offset(x: 8, y: 19)
         }
@@ -191,7 +191,7 @@ struct PasswordField: View {
         .overlay(alignment: .bottomLeading) {
             Text(errorMessage ?? "")
                 .font(.system(size: 13))
-                .foregroundStyle(.red)
+                .foregroundStyle(AppColors.Status.red)
                 .opacity(hasError ? 1 : 0)
                 .offset(x: 8, y: 19)
         }

@@ -43,7 +43,7 @@ struct TeamsScreen: View {
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
-                                    .tint(.red)
+                                    .tint(AppColors.Status.red)
 
                                     Button {
                                         viewModel.beginEditing(team)
@@ -79,7 +79,7 @@ struct TeamsScreen: View {
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
-                                    .tint(.red)
+                                    .tint(AppColors.Status.red)
                                     
                                     Button {
                                         viewModel.beginEditing(team)

@@ -156,7 +156,7 @@ struct VizReadyView: View {
             if let error = viewModel.titleValidationError {
                 Text(error)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(.red)
+                    .foregroundStyle(AppColors.Status.red)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 24)
             }

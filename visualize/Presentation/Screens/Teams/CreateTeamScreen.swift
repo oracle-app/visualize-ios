@@ -98,7 +98,7 @@ struct CreateTeamScreen: View {
                         )
                         .focused($isTeamNameFocused)
                         .foregroundStyle(AppColors.Text.authFieldText)
-                        .tint(vm.teamNameError != nil ? .red : AppColors.Brand.teal)
+                        .tint(vm.teamNameError != nil ? AppColors.Status.red : AppColors.Brand.teal)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 16)
                         .background(

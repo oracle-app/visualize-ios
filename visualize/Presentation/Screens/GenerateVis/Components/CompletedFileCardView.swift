@@ -43,12 +43,12 @@ struct CompletedFileCardView: View {
             Button(action: onDelete) {
                 Image(systemName: "trash")
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(.red)
+                    .foregroundStyle(AppColors.Status.red)
                     .frame(width: 36, height: 36)
-                    .glassEffect(.regular.tint(.red.opacity(0.1)).interactive(), in: Circle())
+                    .glassEffect(.regular.tint(AppColors.Status.red.opacity(0.1)).interactive(), in: Circle())
 //                ZStack {
 //                    Circle()
-//                        .fill(AppColors.Status.red.opacity(0.1))
+//                        .fill(Color.red.opacity(0.1))
 //                        .frame(width: 36, height: 36)
 //                    Image(systemName: "trash")
 //                        .font(.system(size: 15))
