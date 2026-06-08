@@ -1,29 +1,25 @@
 //
-//  MockUserRepository.swift
+//  StubUserRepository.swift
 //  visualize
 //
 //  Created by Diana Escalante on 07/06/26.
 //
 
-#if DEBUG
 import Foundation
+@testable import visualize
 
-// MARK: - MockUserRepository
-/// Mock implementation of UserRepository for use in SwiftUI previews and the
-/// debug-only UI test scenes in `VisualizeApp`. Returns a hardcoded writer user
-/// so screens that depend on role-based rendering (e.g. TeamsScreen) display
-/// their full layout without a Firestore round-trip.
-///
-/// This type is excluded from release builds via `#if DEBUG`.
+/// Empty UserRepository implementation that exists only to satisfy
+///  initializers that require one. Tests using this stub never read
+///  the returned values — they assert against other collaborators.
 
-final class MockUserRepository: UserRepository {
+final class StubUserRepository: UserRepository {
 
     func getUserByID(userID: String) async throws -> AppUser {
         AppUser(
             id: userID,
-            email: "preview@example.com",
+            email: "stub@example.com",
             profilePictureURL: nil,
-            username: "Preview User",
+            username: "stub",
             role: .writer
         )
     }
@@ -39,9 +35,20 @@ final class MockUserRepository: UserRepository {
     func updateProfilePictureURL(userID: String, url: URL?) async throws {}
 
     func uploadProfileImage(userID: String, imageData: Data) async throws -> URL {
-        URL(string: "https://example.com/preview.png")!
+        URL(string: "https://example.com/stub.png")!
     }
 
     func deleteProfileImage(byURL url: URL) async throws {}
 }
-#endif
+
+// MARK: - Test helpers
+
+func makeUser(_ id: String) -> AppUser {
+    AppUser(
+        id: id,
+        email: "\(id)@example.com",
+        profilePictureURL: nil,
+        username: id,
+        role: .writer
+    )
+}
