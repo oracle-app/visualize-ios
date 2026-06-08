@@ -64,17 +64,10 @@ struct VisualizeApp: App {
             )
         } else if args.contains("-uitest-snip-comment") {
             SnipCommentSampleView()
-        } else if args.contains("-uitest-teams-list") {
-            NavigationStack {
-                TeamsScreen(
-                    viewModel: TeamsScreenViewModel(
-                        teamRepository: MockTeamRepository(),
-                        authRepository: MockAuthRepository(),
-                        userRepository: MockUserRepository()
-                    )
-                )
-                .environment(AppCoordinator())
-            }
+        } else if args.contains("-uitest-notifications-loaded") {
+            NotificationsUITestLoadedView()
+        } else if args.contains("-uitest-notifications-empty") {
+            NotificationsEmptyView()
         } else {
             defaultRoot
         }
@@ -95,3 +88,68 @@ struct VisualizeApp: App {
         )
     }
 }
+
+#if DEBUG
+private struct NotificationsUITestLoadedView: View {
+    private let groups: [NotificationDisplayGroup] = [
+        NotificationDisplayGroup(
+            id: "Today",
+            items: [
+                NotificationDisplayItem(
+                    id: "notification-today-1",
+                    boldPrefix: "Nico ",
+                    message: "commented on your visualization.",
+                    timestamp: Date(),
+                    isRead: false,
+                    avatarInitials: "NP",
+                    avatarColor: Color.appTeal
+                )
+            ]
+        ),
+        NotificationDisplayGroup(
+            id: "Yesterday",
+            items: [
+                NotificationDisplayItem(
+                    id: "notification-yesterday-1",
+                    boldPrefix: "Ana ",
+                    message: "shared a visualization with you.",
+                    timestamp: Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date(),
+                    isRead: true,
+                    avatarInitials: "AR",
+                    avatarColor: Color.primaryOrange
+                )
+            ]
+        )
+    ]
+
+    var body: some View {
+        NavigationStack {
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 20) {
+                    ForEach(groups) { group in
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(group.title)
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundStyle(Color.appNavy)
+                                .padding(.horizontal, 24)
+
+                            NotificationGroupCardView(group: group)
+                                .padding(.horizontal, 24)
+                        }
+                    }
+
+                    Text("No more notifications.")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Color.appSubtitle)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 8)
+                }
+                .padding(.bottom, 100)
+            }
+            .background(Color.appBackground)
+            .navigationTitle("Notifications")
+            .navigationBarTitleDisplayMode(.large)
+        }
+    }
+}
+#endif
