@@ -40,6 +40,7 @@ private final class MockCommentRepository: CommentRepository {
     var receivedAuthorID: String?
     var receivedImageURL: URL?
     var receivedAuthorName: String?
+    var receivedCaption: String?
     var stubbedError: Error?
 
     func postSnipComment(
@@ -54,6 +55,7 @@ private final class MockCommentRepository: CommentRepository {
         receivedAuthorID = authorID
         receivedImageURL = imageURL
         receivedAuthorName = authorName
+        receivedCaption = caption
         if let error = stubbedError { throw error }
     }
 
