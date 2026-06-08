@@ -1,8 +1,8 @@
 //
-//  FeedUseCasesTests.swift
+//  FeedViewModelTests.swift
 //  VisualizeTests
 //
-//  Unit tests for FeedScreenViewModel.
+//  Unit tests for FeedViewModelTests.
 //  Covers: FEED-001, FEED-003, FEED-004, FEED-005, FEED-006,
 //          FEED-007, FEED-008, FEED-009, FEED-010, FEED-011,
 //          FEED-012, FEED-014
@@ -15,7 +15,7 @@ import XCTest
 // MARK: - Test Suite
 
 @MainActor
-final class FeedUseCasesTests: XCTestCase {
+final class FeedViewModelTests: XCTestCase {
 
     // MARK: - Properties
 

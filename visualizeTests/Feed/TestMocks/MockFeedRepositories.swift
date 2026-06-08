@@ -144,14 +144,17 @@ final class MockNotificationRepository: NotificationRepository {
 // MARK: - FeedMockUserRepository
 
 final class FeedMockUserRepository: UserRepository {
+    var role: Role = .consumer
+    var shouldThrow: Bool = false
 
     func getUserByID(userID: String) async throws -> AppUser {
-        AppUser(
+        if shouldThrow { throw URLError(.resourceUnavailable) }
+        return AppUser(
             id: userID,
-            email: "preview@example.com",
+            email: "test@test.com",
             profilePictureURL: nil,
-            username: "Preview User",
-            role: .writer
+            username: "Test User",
+            role: role
         )
     }
 
