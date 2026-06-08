@@ -74,7 +74,7 @@ struct StackedBarChartView: UIViewRepresentable {
             let xData = SCIDoubleValues()
             let yData = SCIDoubleValues()
  
-            for (catIndex, _) in categories.enumerated() {
+            for catIndex in categories.indices {
                 xData.add(Double(catIndex))
                 let value: Double = catIndex < stackValues.count ? stackValues[catIndex] : 0
                 yData.add(value)

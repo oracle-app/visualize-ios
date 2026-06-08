@@ -77,7 +77,7 @@ struct ProfileScreen: View {
                         ) { theme in
                             selectedThemeRaw = theme.rawValue
                             activeToast = Toast(
-                                message: String(localized: "\(theme.title) theme applied"),
+                                message: String(localized: "\(theme.title) theme applied", comment: "Theme name followed by 'theme applied'"),
                                 type: .success
                             )
                         }
@@ -126,7 +126,7 @@ struct ProfileScreen: View {
                             await MainActor.run {
                                 selectedItem = nil
                                 activeToast = Toast(
-                                    message: "Could not load the selected photo",
+                                    message: String(localized: "Could not load the selected photo"),
                                     type: .error
                                 )
                             }

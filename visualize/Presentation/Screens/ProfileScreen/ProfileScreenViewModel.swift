@@ -82,7 +82,7 @@ final class ProfileScreenViewModel {
     /// Uploads a new profile image for the current user.
     func uploadProfileImage(image: UIImage) {
         guard let imageData = image.jpegData(compressionQuality: 0.6) else {
-            profileError = "Could not process image"
+            profileError = String(localized: "Could not process image")
             return
         }
         isUploadingPhoto = true

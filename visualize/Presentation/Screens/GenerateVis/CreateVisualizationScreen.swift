@@ -107,7 +107,7 @@ struct CreateVisualizationScreen: View {
                 if viewModel.isUploadComplete {
                     GenerateVisButtonView {
                         guard let fileURL = viewModel.pickedFileURL else {
-                            viewModel.errorMessage = "Could not read the selected file."
+                            viewModel.errorMessage = String(localized: "Could not read the selected file.")
                             return
                         }
                         // Stores pendingFileURL and pushes .generatingVisualizations atomically.

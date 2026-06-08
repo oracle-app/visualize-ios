@@ -9,11 +9,9 @@ import UIKit
 import SciChart
 import os.log
 
-// swiftlint:disable file_length
 class ChartTooltipCoordinator: NSObject {
-
+    
     // MARK: - Supporting Types
-
     struct AreaSeriesEntry {
         let xValues: [Double]
         let yValues: [Double]
@@ -30,7 +28,6 @@ class ChartTooltipCoordinator: NSObject {
     }
 
     // MARK: - Properties
-
     weak var surface: SCIChartSurface?
     private weak var tooltipLabel: UILabel?
     private weak var tooltipArrow: UIView?
@@ -45,18 +42,15 @@ class ChartTooltipCoordinator: NSObject {
     var isHorizontalChart: Bool = false
     var isScatterChart: Bool = false
     var isLineChart: Bool = false
-
     private(set) var lastTooltipState: TooltipState?
     
     // MARK: - Init
-
     init(xLabel: String, yLabel: String) {
         self.xLabel = xLabel
         self.yLabel = yLabel
     }
 
     // MARK: - Tap Handler
-
     @objc func handleTap(_ gesture: UITapGestureRecognizer) {
         guard let surface,
               let seriesArea = surface.renderableSeriesArea as? UIView
@@ -352,10 +346,8 @@ class ChartTooltipCoordinator: NSObject {
     }
 
     // MARK: - Tooltip
-
     // Builds and displays the tooltip bubble + arrow at the given surface-space point.
     // Exposed as internal so chart views using tapOverride can call it directly.
-    // swiftlint:disable:next function_body_length
     func showTooltip(
         at point: CGPoint,
         xValue: Double,
@@ -506,7 +498,6 @@ class ChartTooltipCoordinator: NSObject {
     }
 
     // MARK: - Remove
-
     func removeTooltip() {
         tooltipLabel?.removeFromSuperview()
         tooltipLabel = nil
@@ -516,7 +507,6 @@ class ChartTooltipCoordinator: NSObject {
     }
 
     // MARK: - Attach
-
     func attach(
         to surface: SCIChartSurface,
         zoomDirection: SCIDirection2D = .xyDirection,
@@ -555,7 +545,6 @@ class ChartTooltipCoordinator: NSObject {
     }
 
     // MARK: - Viewport Snapshot
-
     /// Reads the current X/Y visible ranges from the live surface.
     /// Returns nil only when surface is nil; a single-axis cast failure
     /// defaults that axis to nil while the other is still returned.
@@ -589,7 +578,6 @@ class ChartTooltipCoordinator: NSObject {
     }
 
     // MARK: - Lifecycle
-
     func cleanup() {
         removeTooltip()
     }
@@ -600,10 +588,8 @@ class ChartTooltipCoordinator: NSObject {
 }
 
 // MARK: - UIGestureRecognizerDelegate
-
 extension ChartTooltipCoordinator: UIGestureRecognizerDelegate {
-    // Allow the pan gesture to run simultaneously with SciChart's own pan modifier
-    // so drag-start detection doesn't block chart interaction
+    // Allow the pan gesture to run simultaneously with SciChart's own pan modifier so drag-start detection doesn't block chart interaction
     func gestureRecognizer(
         _ gestureRecognizer: UIGestureRecognizer,
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer

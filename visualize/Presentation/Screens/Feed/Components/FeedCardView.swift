@@ -24,12 +24,10 @@ struct FeedCardView: View {
     var onTap: () -> Void
     var onHide: () -> Void
     var onDelete: () -> Void
-    var sharedWith: [AppUser]? = nil
+    var sharedWith: [AppUser]?
     var permissions: VisualizationPermissions
     var isOwner: Bool = false
     let maxAvatars = 3
-    
-    
     
     var body: some View {
         VStack(spacing: 12) {
@@ -169,8 +167,6 @@ struct FeedCardView: View {
        }
    }
 }
-
-
 
 #Preview("Con usuarios compartidos") {
     FeedCardView(

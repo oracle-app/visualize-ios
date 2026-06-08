@@ -95,7 +95,7 @@ struct ResetPasswordScreen: View {
                 
                 // MARK: - Send Button
                 
-                AuthButton(title: "Send") {
+                AuthButton(title: String(localized: "Send")) {
                     viewModel.submit()
                 }
                 
