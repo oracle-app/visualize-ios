@@ -23,9 +23,9 @@ struct IdentifiableImage: Identifiable {
 @MainActor
 @Observable
 final class FullScreenViewModel {
-
+    
     // MARK: - State
-
+    
     var title: String?
     var author: String?
     var createdAt: String?
@@ -67,6 +67,7 @@ final class FullScreenViewModel {
     var isUploading: Bool = false
     var uploadError: String?
     var userName: String?
+    var snipPosted: Bool = false
 
     // MARK: - Dependencies
 
@@ -264,6 +265,7 @@ final class FullScreenViewModel {
             )
             isUploading = false
             dismissEditor()
+            snipPosted = true
             return url
         } catch {
             uploadError = error.localizedDescription

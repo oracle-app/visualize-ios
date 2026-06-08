@@ -33,7 +33,7 @@ extension Date {
         
         return self.formatted(
             .relative(
-                presentation: .named,
+                presentation: .numeric,
                 unitsStyle: .wide
             )
         )
