@@ -114,7 +114,7 @@ struct ThreadCommentRowView: View {
                         }
                         Button("Cancel", role: .cancel) {}
                     } message: {
-                        Text(String(localized: "This will permanently remove the thread and all its replies. This action cannot be undone."))
+                        Text("This will permanently remove the thread and all its replies. This action cannot be undone.")
                     }
                 } else {
                     Button {
