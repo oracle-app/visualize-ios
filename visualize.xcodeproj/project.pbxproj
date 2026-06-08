@@ -55,6 +55,22 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DE36898F2FD6B69E00FF6045 /* Exceptions for "visualizeUITests" folder in "visualize" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Profile/MockProfileUseCases.swift,
+				"Profile/test-avatar.jpg",
+			);
+			target = 053BEF1A2F8AEC41008A3D6B /* visualize */;
+		};
+		DE3689902FD6B6A200FF6045 /* Exceptions for "visualizeUITests" folder in "visualizeUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Profile/MockProfileUseCases.swift,
+				"Profile/test-avatar.jpg",
+			);
+			target = DD71EFEB2FD3A87100EE00C1 /* visualizeUITests */;
+		};
 		E480294E2FAAEC560043CC15 /* Exceptions for "visualize" folder in "visualize" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -80,6 +96,10 @@
 		};
 		DD71EFED2FD3A87100EE00C1 /* visualizeUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DE36898F2FD6B69E00FF6045 /* Exceptions for "visualizeUITests" folder in "visualize" target */,
+				DE3689902FD6B6A200FF6045 /* Exceptions for "visualizeUITests" folder in "visualizeUITests" target */,
+			);
 			path = visualizeUITests;
 			sourceTree = "<group>";
 		};

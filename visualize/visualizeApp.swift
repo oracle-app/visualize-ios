@@ -55,7 +55,7 @@ struct VisualizeApp: App {
     @ViewBuilder
     private var rootView: some View {
         #if DEBUG
-        let args = ProcessInfo.processInfo.arguments
+        let args = CommandLine.arguments
         if args.contains("-uitest-snip-editor") {
             SnipEditorScreen(
                 chartImage: UIImage(systemName: "chart.bar.fill") ?? UIImage(),
@@ -72,6 +72,16 @@ struct VisualizeApp: App {
                         authRepository: MockAuthRepository(),
                         userRepository: MockUserRepository()
                     )
+                )
+                .environment(AppCoordinator())
+            }
+        } else if args.contains("-uitest-profile") {
+            NavigationStack {
+                ProfileScreen(
+                    logoutUseCase: MockLogoutUseCase(),
+                    getCurrentUserProfileUseCase: MockGetCurrentUserProfileUseCase(),
+                    uploadProfilePhotoUseCase: MockUploadProfilePhotoUseCase(),
+                    deleteProfilePhotoUseCase: MockDeleteProfilePhotoUseCase()
                 )
                 .environment(AppCoordinator())
             }
