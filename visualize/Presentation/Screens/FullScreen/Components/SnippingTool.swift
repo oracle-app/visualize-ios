@@ -6,7 +6,7 @@
 //
 //
 //  Floating Snipping Tool controls. This file contains the bottom toolbar plus
-//  the lightweight panels for selecting shapes and adjusting stroke width.
+//  the lightweight panels for selecting shapes and adjusting annotation size.
 
 import SwiftUI
 
@@ -16,6 +16,7 @@ import SwiftUI
 enum ToolPanel: Equatable {
     case shapes
     case strokeWidth
+    case textStyle
 }
 
 // MARK: - Floating toolbar
@@ -34,7 +35,7 @@ struct SnipFloatingToolbar: View {
 
     // Geometry shared with `SnipEditorView` for panel anchoring.
     // Buttons are 38pt wide with 2pt spacing → 40pt stride between centers.
-    // The stroke-width button (index 3 of 7) sits at the toolbar's center.
+    // The size button (index 3 of 7) sits at the toolbar's center.
     // Offsets below are signed horizontal distances from that center to the
     // owning button's center, used by floating panels to align over them.
     private static let buttonStride: CGFloat = 40
@@ -44,7 +45,8 @@ struct SnipFloatingToolbar: View {
     /// declared inside `body`.
     static func panelOffset(for panel: ToolPanel) -> CGFloat {
         switch panel {
-        case .strokeWidth: return 0          // index 3 — centered
+        case .strokeWidth: return 0                 // index 3 — centered
+        case .textStyle:   return buttonStride * 1  // index 4 — one stride right
         case .shapes:      return buttonStride * 2  // index 5 — two strides right
         }
     }
@@ -107,8 +109,9 @@ struct SnipFloatingToolbar: View {
     private var textToolButton: some View {
         let isActive = selectedTool == .text
         return Button("Text", systemImage: "textformat") {
+            let wasActive = selectedTool == .text && openPanel == .textStyle
             selectedTool = .text
-            openPanel = nil
+            openPanel = wasActive ? nil : .textStyle
         }
         .labelStyle(.iconOnly)
         .font(.system(size: 17))
@@ -147,7 +150,7 @@ struct SnipShapesPanelView: View {
 
     var body: some View {
         VStack(spacing: 4) {
-            ForEach(ShapeType.allCases, id: \.label) { shape in
+            ForEach(ShapeType.allCases, id: \.self) { shape in
                 let isSelected = model.activeShape == shape && model.activeTool == .shape
                 Button(shape.label, systemImage: shape.icon) {
                     model.activeShape = shape
@@ -170,19 +173,52 @@ struct SnipShapesPanelView: View {
     }
 }
 
-// MARK: - Stroke width panel
+// MARK: - Text style panel
+
+struct SnipTextStylePanelView: View {
+    var model: SnipScreenViewModel
+    let onSelect: () -> Void
+
+    var body: some View {
+        VStack(spacing: 4) {
+            ForEach(TextStyle.allCases, id: \.self) { style in
+                let isSelected = model.activeTextStyle == style && model.activeTool == .text
+                Button(style.label, systemImage: style.icon) {
+                    model.activeTextStyle = style
+                    model.activeTool = .text
+                    onSelect()
+                }
+                .labelStyle(.iconOnly)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(isSelected ? Color.appTeal : Color.appNavy)
+                .frame(width: 42, height: 42)
+                .contentShape(Rectangle())
+                .background(isSelected ? Color.appMint : Color.clear)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .animation(.easeInOut(duration: 0.2), value: isSelected)
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(8)
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+// MARK: - Size panel
 
 struct SnipStrokeWidthPanelView: View {
     @Bindable var model: SnipScreenViewModel
 
     var body: some View {
         VStack(spacing: 8) {
-            Text("\(model.activeStrokeWidth, format: .number.precision(.fractionLength(0))) px")
+            Text(model.activeAnnotationSizeLabel)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Color.primaryText)
                 .monospacedDigit()
 
-            Slider(value: $model.activeStrokeWidth, in: model.activeStrokeWidthRange, step: 1)
+            Slider(value: $model.activeAnnotationSizeValue,
+                   in: model.activeAnnotationSizeRange,
+                   step: 1)
                 .tint(Color.appTeal)
                 .frame(width: 120)
                 .rotationEffect(.degrees(-90))

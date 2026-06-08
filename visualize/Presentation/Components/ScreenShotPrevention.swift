@@ -65,7 +65,6 @@ struct ScreenShotPreventerModifier: ViewModifier {
     }
 }
 
-
 // MARK: - Extension
 extension View {
     func preventScreenShot(isActive: Bool = true) -> some View {

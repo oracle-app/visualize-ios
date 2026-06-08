@@ -33,10 +33,34 @@ enum DrawingTool: String, CaseIterable {
     }
 }
 
+// MARK: - Text style
+
+/// The typographic style applied to a text annotation.
+enum TextStyle: CaseIterable, Hashable {
+    case normal
+    case italic
+
+    /// SF Symbol name representing this style in the UI.
+    var icon: String {
+        switch self {
+        case .normal: return "textformat"
+        case .italic: return "italic"
+        }
+    }
+
+    /// Human-readable label used for accessibility and button titles.
+    var label: String {
+        switch self {
+        case .normal: return "Normal"
+        case .italic: return "Italic"
+        }
+    }
+}
+
 // MARK: - Shape type
 
 /// The geometric shape used when drawing a shape annotation.
-enum ShapeType: CaseIterable {
+enum ShapeType: CaseIterable, Hashable {
     case arrow, line, triangle, rectangle, circle
 
     /// SF Symbol name representing this shape in the UI.
@@ -115,4 +139,6 @@ struct TextAnnotation: Identifiable {
     var color: SnipColor
     /// Font size in points.
     var fontSize: CGFloat
+    /// Whether the annotation renders in italic style.
+    var isItalic: Bool = false
 }
