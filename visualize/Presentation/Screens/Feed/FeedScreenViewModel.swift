@@ -283,10 +283,10 @@ class FeedScreenViewModel {
                 allVisualizations.removeAll { $0.id == visualizationID }
                 searchResults.removeAll { $0.id == visualizationID }
                 applyLocalFilter()
-                await showToast(Toast(message: String(localized: "Visualization removed from your feed"), type: .success))
+                showToast(Toast(message: String(localized: "Visualization removed from your feed"), type: .success))
             } catch {
                 print("Error hiding visualization: \(error)")
-                await showToast(Toast(message: String(localized: "Failed to remove visualization"), type: .error))
+                showToast(Toast(message: String(localized: "Failed to remove visualization"), type: .error))
             }
         }
     }
@@ -297,10 +297,10 @@ class FeedScreenViewModel {
                 allVisualizations.removeAll { $0.id == visualizationID }
                 searchResults.removeAll { $0.id == visualizationID }
                 applyLocalFilter()
-                await showToast(Toast(message: String(localized: "Visualization deleted for everyone"), type: .success))
+                showToast(Toast(message: String(localized: "Visualization deleted for everyone"), type: .success))
             } catch {
                 print("Error deleting visualization: \(error)")
-                await showToast(Toast(message: String(localized: "Failed to delete visualization"), type: .error))
+                showToast(Toast(message: String(localized: "Failed to delete visualization"), type: .error))
             }
         }
     }

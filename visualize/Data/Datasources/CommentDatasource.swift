@@ -47,6 +47,7 @@ final class CommentDatasource {
             .collection("visualizations")
             .document(visualizationID)
             .collection("comments")
+            .order(by: "createdAt", descending: false)
             .getDocuments()
         
         return snapshot.documents.compactMap {
@@ -105,6 +106,7 @@ final class CommentDatasource {
             .collection("comments")
             .document(commentID)
             .collection("threads")
+            .order(by: "createdAt", descending: false)
             .getDocuments()
         
         return snapshot.documents.compactMap {
