@@ -26,7 +26,7 @@ struct TeamsScreen: View {
         List {
             // MARK: - My Teams
             
-            if (viewModel.currentUserRole != .consumer) {
+            if viewModel.currentUserRole != .consumer {
                 Section {
                     if viewModel.isLoading && !viewModel.hasLoadedOnce {
                             loadingState
@@ -38,11 +38,12 @@ struct TeamsScreen: View {
                         ForEach(viewModel.myTeams) { team in
                             TeamSwipeRow(team: team)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) {
+                                    Button {
                                         viewModel.deleteTeam(team)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
+                                    .tint(.red)
 
                                     Button {
                                         viewModel.beginEditing(team)
@@ -73,11 +74,12 @@ struct TeamsScreen: View {
                         if viewModel.currentUserRole == .admin {
                             TeamSwipeRow(team: team)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) {
+                                    Button {
                                         viewModel.deleteTeam(team)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
+                                    .tint(.red)
                                     
                                     Button {
                                         viewModel.beginEditing(team)
@@ -190,6 +192,10 @@ struct TeamsScreen: View {
             .listRowBackground(Color.clear)
     }
 
+    /// Generates a standardized view to display when a list section is empty.
+    ///
+    /// - Parameter message: The text content explaining the empty state.
+    /// - Returns: A descriptive text view styled for empty lists.
     private func emptyState(_ message: String) -> some View {
         Text(message)
             .font(.subheadline)

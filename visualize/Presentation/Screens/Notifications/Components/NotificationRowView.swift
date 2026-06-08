@@ -34,7 +34,7 @@ struct NotificationRowView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text(item.timestamp)
+                    Text(item.timestamp.relativeFormatted())
                         .font(.system(size: 12))
                         .foregroundStyle(AppColors.Text.secondary)
                         .fixedSize()

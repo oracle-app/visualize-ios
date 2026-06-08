@@ -38,8 +38,7 @@ struct ThreadsPreviewImageContainerView: View {
             content
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: minContainerHeight)
-                .background(Color.appBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
 

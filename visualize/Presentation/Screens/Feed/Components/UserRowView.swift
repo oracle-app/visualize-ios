@@ -13,7 +13,7 @@ import SwiftUI
 struct UserRowView: View {
     
     let user: AppUser
-    var onRemove: (() -> Void)? = nil
+    var onRemove: (() -> Void)?
     
     @State private var isPressed = false
     @State private var showConfirmAlert = false

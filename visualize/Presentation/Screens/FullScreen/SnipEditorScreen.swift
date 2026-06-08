@@ -21,18 +21,18 @@ struct SnipEditorScreen: View {
     @State private var model: SnipScreenViewModel
     @State private var openPanel: ToolPanel?
     @State private var showDiscardAlert: Bool = false
-    @State private var showPostAlert: Bool = false
+    @State private var previewImage: IdentifiableImage?
     @State private var canvasSize: CGSize = .zero
 
     @Environment(\.displayScale) private var displayScale
 
     let chartImage: UIImage
-    let onPost: (UIImage) -> Void
+    let onPost: (UIImage, String?) -> Void
     let onDismiss: () -> Void
 
     // MARK: - Init
 
-    init(chartImage: UIImage, onPost: @escaping (UIImage) -> Void, onDismiss: @escaping () -> Void) {
+    init(chartImage: UIImage, onPost: @escaping (UIImage, String?) -> Void, onDismiss: @escaping () -> Void) {
         self.chartImage = chartImage
         self.onPost = onPost
         self.onDismiss = onDismiss
@@ -90,6 +90,7 @@ struct SnipEditorScreen: View {
                         Image(uiImage: chartImage)
                             .resizable()
                             .scaledToFit()
+                            .accessibilityIdentifier("SnipChartImage")
 
                         AnnotationCanvasView(model: model)
                         SnipGestureOverlayView(model: model)
@@ -143,12 +144,6 @@ struct SnipEditorScreen: View {
         } message: {
             Text("If you cancel, your annotations will not be saved.")
         }
-        .alert("Share as new thread?", isPresented: $showPostAlert) {
-            Button("Share") { exportAndPost() }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This edited visualization will be shared as a new thread.")
-        }
         .alert("Add text annotation", isPresented: $bindable.showTextInput) {
             TextField(String(localized: "Type something…"), text: $bindable.draftText)
                 .onChange(of: bindable.draftText) { _, new in
@@ -177,7 +172,7 @@ struct SnipEditorScreen: View {
             }
 
             ToolbarItem(placement: .confirmationAction) {
-                Button("Confirm", systemImage: "checkmark") { showPostAlert = true }
+                Button("Confirm", systemImage: "checkmark") { exportForPreview() }
                     .tint(AppColors.Brand.primaryOrange)
                     .disabled(model.isCropInProgress)
             }
@@ -196,6 +191,19 @@ struct SnipEditorScreen: View {
             }
         }
         } // NavigationStack
+        .fullScreenCover(item: $previewImage) { wrapped in
+            ThreadsPreviewScreen(
+                editedImage: wrapped.image,
+                onShare: { image, caption in
+                    onPost(image, caption)
+                    onDismiss()
+                },
+                onDismiss: {
+                    previewImage = nil
+                }
+            )
+        }
+        .accessibilityIdentifier("SnipEditorScreen")
     }
 
     private struct FloatingControls: View {
@@ -228,6 +236,14 @@ struct SnipEditorScreen: View {
                                 .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
                         }
 
+                        if openPanel == .textStyle {
+                            SnipTextStylePanelView(model: model) {
+                                withAnimation(.easeOut(duration: 0.15)) { openPanel = nil }
+                            }
+                            .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
+                            .offset(x: SnipFloatingToolbar.panelOffset(for: .textStyle))
+                        }
+
                         if openPanel == .shapes {
                             SnipShapesPanelView(model: model) {
                                 withAnimation(.easeOut(duration: 0.15)) { openPanel = nil }
@@ -254,7 +270,7 @@ struct SnipEditorScreen: View {
 
     // MARK: - Export
 
-    private func exportAndPost() {
+    private func exportForPreview() {
         let canvas = ZStack {
             Image(uiImage: chartImage)
                 .resizable()
@@ -287,7 +303,6 @@ struct SnipEditorScreen: View {
             final = exported
         }
 
-        onPost(final)
-        onDismiss()
+        previewImage = IdentifiableImage(image: final)
     }
 }

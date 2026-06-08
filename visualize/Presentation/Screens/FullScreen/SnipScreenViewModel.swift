@@ -28,9 +28,54 @@ final class SnipScreenViewModel {
 
     var activeTool: DrawingTool = .pencil
     var activeShape: ShapeType = .rectangle
+    static let annotationSizePercentRange: ClosedRange<CGFloat> = 0...100
+
+    var activeTextStyle: TextStyle = .normal
     var pencilColor: Color = AppColors.Brand.primaryOrange
-    var pencilWidth: CGFloat = 3
+    var annotationSizePercent: CGFloat = defaultAnnotationSizePercent
     var eraserRadius: CGFloat = 18
+    var eraserWidth: CGFloat {
+        get { eraserRadius * 2 }
+        set { eraserRadius = max(1, newValue / 2) }
+    }
+
+    /// Size value bound to the toolbar slider.
+    ///
+    /// Eraser keeps its pixel-based diameter control, while pencil, shape, and
+    /// text share the annotation-size percentage introduced by the text tools.
+    var activeAnnotationSizeValue: CGFloat {
+        get { activeTool == .eraser ? eraserWidth : annotationSizePercent }
+        set {
+            if activeTool == .eraser {
+                eraserWidth = newValue
+            } else {
+                annotationSizePercent = newValue
+            }
+        }
+    }
+
+    /// Valid range for the toolbar size slider based on the active tool.
+    /// Eraser minimum is 6 px (intentional — finer values aren't useful for erasing).
+    var activeAnnotationSizeRange: ClosedRange<CGFloat> {
+        activeTool == .eraser ? 6...60 : Self.annotationSizePercentRange
+    }
+
+    var activeAnnotationSizeLabel: String {
+        let formatted = Double(activeAnnotationSizeValue)
+            .formatted(.number.precision(.fractionLength(0)))
+        if activeTool == .eraser {
+            return "\(formatted) px"
+        }
+        return "\(formatted)%"
+    }
+
+    var annotationLineWidth: CGFloat {
+        Self.mappedSize(for: annotationSizePercent, in: Self.strokeWidthRange)
+    }
+
+    var annotationFontSize: CGFloat {
+        Self.mappedSize(for: annotationSizePercent, in: Self.textFontSizeRange)
+    }
 
     var pendingTextPosition: CGPoint?
     var showTextInput: Bool = false
@@ -61,7 +106,30 @@ final class SnipScreenViewModel {
     private var cropStart: CGPoint?
     /// Maximum spacing, in canvas points, allowed between consecutive pencil samples.
     /// This is intentionally local and easy to tune once the final UX distance is chosen.
+    private static let strokeWidthRange: ClosedRange<CGFloat> = 1...30
+    private static let textFontSizeRange: ClosedRange<CGFloat> = 14...42
+    private static let defaultAnnotationLineWidth: CGFloat = 3
+    private static let defaultAnnotationSizePercent: CGFloat = {
+        let range = strokeWidthRange.upperBound - strokeWidthRange.lowerBound
+        return (defaultAnnotationLineWidth - strokeWidthRange.lowerBound) / range * annotationSizePercentRange.upperBound
+    }()
+
     private let maxStrokePointDistance: CGFloat = 8
+
+    // MARK: - Size mapping
+
+    /// Maps the normalized annotation size percentage into a concrete rendering range.
+    ///
+    /// - Parameters:
+    ///   - percent: The current shared size percentage selected by the user.
+    ///   - range: The concrete rendering range for the active annotation type.
+    /// - Returns: A clamped value within `range` derived from `percent`.
+    private static func mappedSize(for percent: CGFloat, in range: ClosedRange<CGFloat>) -> CGFloat {
+        let clampedPercent = min(max(percent, annotationSizePercentRange.lowerBound), annotationSizePercentRange.upperBound)
+        let percentSpan = annotationSizePercentRange.upperBound - annotationSizePercentRange.lowerBound
+        let progress = (clampedPercent - annotationSizePercentRange.lowerBound) / percentSpan
+        return range.lowerBound + progress * (range.upperBound - range.lowerBound)
+    }
 
     // MARK: - Undo / Redo
 
@@ -119,7 +187,7 @@ final class SnipScreenViewModel {
     /// - Parameters:
     ///   - point: The canvas coordinate where the stroke begins.
     func beginStroke(at point: CGPoint) {
-        liveStroke = DrawingStroke(points: [point], color: pencilColor.snipColor, lineWidth: pencilWidth)
+        liveStroke = DrawingStroke(points: [point], color: pencilColor.snipColor, lineWidth: annotationLineWidth)
     }
 
     /// Appends a point to the in-progress stroke, inserting interpolated samples
@@ -421,7 +489,7 @@ final class SnipScreenViewModel {
     ///   - point: The canvas coordinate where the shape originates.
     func beginShape(at point: CGPoint) {
         liveShape = ShapeAnnotation(type: activeShape, startPoint: point, endPoint: point,
-                                    color: pencilColor.snipColor, lineWidth: pencilWidth)
+                                    color: pencilColor.snipColor, lineWidth: annotationLineWidth)
     }
 
     /// Updates the end point of the in-progress shape as the user drags.
@@ -461,7 +529,8 @@ final class SnipScreenViewModel {
         }
         saveSnapshot()
         textAnnotations.append(TextAnnotation(text: draftText, position: pos,
-                                              color: pencilColor.snipColor, fontSize: 16))
+                                              color: pencilColor.snipColor, fontSize: annotationFontSize,
+                                              isItalic: activeTextStyle == .italic))
         pendingTextPosition = nil
         draftText = ""
     }

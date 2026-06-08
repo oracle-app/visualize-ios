@@ -31,5 +31,5 @@ protocol UserRepository {
     
     func updateProfilePictureURL(userID: String, url: URL?) async throws
     func uploadProfileImage(userID: String, imageData: Data) async throws -> URL
-    func deleteProfileImage(userID: String) async throws
+    func deleteProfileImage(byURL url: URL) async throws
 }

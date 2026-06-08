@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+/// A custom text field component used to search for teammates by their email addresses.
+/// Includes visual focus states, an explicit clear button, and customized shadow effects.
 struct EmailSearchFieldView: View {
     
     @Binding var email: String
