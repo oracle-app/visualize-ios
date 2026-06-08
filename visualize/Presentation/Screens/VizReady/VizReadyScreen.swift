@@ -210,11 +210,10 @@ struct VizReadyView: View {
                 sheetSize: $sheetSize,
                 onConfirm: { isShared in
                     let count = charts.count
-                    let noun = count == 1 ? "Visualization" : "\(count) visualizations"
                     createFlowState.pendingToast = Toast(
                         message: isShared
-                            ? String(localized: "\(noun) published and shared")
-                            : String(localized: "\(noun) published to your feed"),
+                            ? String(localized: "^[\(count) visualization](inflect: true) published and shared")
+                            : String(localized: "^[\(count) visualization](inflect: true) published to your feed"),
                         type: .success
                     )
                     Task {
