@@ -26,7 +26,7 @@ final class FeedUseCasesTests: XCTestCase {
     var mockDelete: MockDeleteVisualizationUseCase!
     var mockAuth: FeedMockAuthRepository!
     var mockNotifications: MockNotificationRepository!
-    var mockUser: MockUserRepository!
+    var mockUser: FeedMockUserRepository!
 
     // MARK: - Setup / Teardown
 
@@ -38,7 +38,7 @@ final class FeedUseCasesTests: XCTestCase {
         mockDelete      = MockDeleteVisualizationUseCase()
         mockAuth        = FeedMockAuthRepository()
         mockNotifications = MockNotificationRepository()
-        mockUser        = MockUserRepository()
+        mockUser        = FeedMockUserRepository()
     }
 
     override func tearDown() async throws {

@@ -67,7 +67,7 @@ final class MockHideVisualizationUseCase: HideVisualizationUseCase {
     
     init() {
         super.init(
-            userRepository: MockUserRepository(),
+            userRepository: FeedMockUserRepository(),
             visualizationRepository: MockVisualizationRepository()
         )
     }
@@ -141,20 +141,17 @@ final class MockNotificationRepository: NotificationRepository {
     func markAllAsRead(userID: String) async throws {}
 }
 
-// MARK: - MockUserRepository
+// MARK: - FeedMockUserRepository
 
 final class FeedMockUserRepository: UserRepository {
-    var role: Role = .consumer
-    var shouldThrow: Bool = false
 
     func getUserByID(userID: String) async throws -> AppUser {
-        if shouldThrow { throw URLError(.resourceUnavailable) }
-        return AppUser(
+        AppUser(
             id: userID,
-            email: "test@test.com",
+            email: "preview@example.com",
             profilePictureURL: nil,
-            username: "Test User",
-            role: role
+            username: "Preview User",
+            role: .writer
         )
     }
 
@@ -163,7 +160,9 @@ final class FeedMockUserRepository: UserRepository {
     func addHiddenVisualization(userID: String, visualizationID: String) async throws {}
     func removeHiddenVisualization(userID: String, visualizationID: String) async throws {}
     func updateProfilePictureURL(userID: String, url: URL?) async throws {}
-    func uploadProfileImage(userID: String, imageData: Data) async throws -> URL { URL(string: "https://test.com")! }
+    func uploadProfileImage(userID: String, imageData: Data) async throws -> URL {
+        URL(string: "https://example.com/preview.png")!
+    }
     func deleteProfileImage(byURL url: URL) async throws {}
 }
 

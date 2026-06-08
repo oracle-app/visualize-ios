@@ -40,6 +40,7 @@ struct ErrorListView: View {
         }
         .hCenter()
         .padding(.top, 200)
+        .accessibilityElement()
         .accessibilityIdentifier("errorListView")
     }
 }
