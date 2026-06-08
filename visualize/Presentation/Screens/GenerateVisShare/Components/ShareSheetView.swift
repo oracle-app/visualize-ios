@@ -346,9 +346,13 @@ struct ShareSheetView: View {
                         teamsDatasource: teamDatasource
                     )
                 ),
-                chartTitle: "Survival Rate by Passenger Class",
-                chartConfigJSON: MockChartJSONs.verticalBarConfig,
-                chartPreviewJSON: MockChartJSONs.verticalBarPreview
+                charts: [
+                    ChartPublishItem(
+                        title: "Survival Rate by Passenger Class",
+                        configJSON: MockChartJSONs.verticalBarConfig,
+                        previewJSON: MockChartJSONs.verticalBarPreview
+                    )
+                ]
             ),
             sheetSize: .constant(.large)
         )

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct NavBarView: View {
     @Environment(AppCoordinator.self) private var coordinator
+    @State private var createFlowState = CreateFlowState()
 
     @State private var feedViewModel: FeedScreenViewModel = {
         let userDS = UserDatasource()
@@ -91,7 +92,7 @@ struct NavBarView: View {
                                 GeneratingVisualizationsScreen()
                                     .navigationBarBackButtonHidden(true)
                             case .vizReady:
-                                VizReadyView(suggestions: coordinator.pendingSuggestions)
+                                VizReadyView(suggestions: createFlowState.pendingSuggestions)
                                     .navigationBarBackButtonHidden(true)
                             default:
                                 EmptyView()
@@ -175,6 +176,7 @@ struct NavBarView: View {
             .tabItem { Label("", systemImage: "person.circle") }
             .tag(Tabs.profile)
         }
+        .environment(createFlowState)
     }
 }
 
