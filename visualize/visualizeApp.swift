@@ -108,9 +108,14 @@ struct VisualizeApp: App {
     @ViewBuilder
     private func feedUITestRoot(args: [String]) -> some View {
         let vm = FeedScreenViewModel.uitestMock(args: args)
+
+        let coordinator = AppCoordinator()
+        let createFlowState = CreateFlowState()
+
         NavigationStack {
             FeedScreen(viewModel: vm, shouldLoad: false)
-                .environment(AppCoordinator())
+                .environment(coordinator)
+                .environment(createFlowState)
         }
     }
     #endif

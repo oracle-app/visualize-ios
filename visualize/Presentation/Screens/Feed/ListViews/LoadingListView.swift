@@ -18,6 +18,7 @@ struct LoadingListView: View {
             .padding(.top, 10)
         }
         .disabled(true)
+        .accessibilityElement()
         .accessibilityIdentifier("loadingListView")
     }
 }
