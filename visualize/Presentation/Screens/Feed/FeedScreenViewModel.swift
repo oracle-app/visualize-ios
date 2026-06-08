@@ -1,5 +1,5 @@
 //
-//  FeedViewModel.swift
+//  FeedScreenViewModel.swift
 //  Visualize
 //
 //  Created by Jorge Flores on 13/04/26.
@@ -17,6 +17,25 @@
 
 import SwiftUI
 import Observation
+
+// MARK: - Test Use Cases
+protocol LoadVisualizationsUseCaseProtocol {
+    func execute(userID: String) async throws -> [VisualizationCard]
+}
+protocol SearchVisualizationsUseCaseProtocol {
+    func execute(userID: String, query: String) async throws -> [VisualizationCard]
+}
+protocol HideVisualizationUseCaseProtocol {
+    func execute(userID: String, visualizationID: String) async throws
+}
+protocol DeleteVisualizationUseCaseProtocol {
+    func execute(visualizationID: String) async throws
+}
+
+extension LoadVisualizationsUseCase: LoadVisualizationsUseCaseProtocol {}
+extension SearchVisualizationsUseCase: SearchVisualizationsUseCaseProtocol {}
+extension HideVisualizationUseCase: HideVisualizationUseCaseProtocol {}
+extension DeleteVisualizationUseCase: DeleteVisualizationUseCaseProtocol {}
 
 // MARK: - Feed State
 
@@ -49,10 +68,10 @@ class FeedScreenViewModel {
 
     // MARK: - Dependencies
     var visualizationFilter: VisualizationFilter
-    private let loadVisualizationsUseCase: LoadVisualizationsUseCase
-    private let searchVisualizationsUseCase: SearchVisualizationsUseCase
-    private let hideVisualizationUseCase: HideVisualizationUseCase
-    private let deleteVisualizationUseCase: DeleteVisualizationUseCase
+    private let loadVisualizationsUseCase: any LoadVisualizationsUseCaseProtocol
+    private let searchVisualizationsUseCase: any SearchVisualizationsUseCaseProtocol
+    private let hideVisualizationUseCase: any HideVisualizationUseCaseProtocol
+    private let deleteVisualizationUseCase: any DeleteVisualizationUseCaseProtocol
     private let authRepository: any AuthRepository
     private let notificationRepository: any NotificationRepository
     private let userRepository: any UserRepository
@@ -70,10 +89,10 @@ class FeedScreenViewModel {
 
     // MARK: - Initialization
     init(
-        loadVisualizationsUseCase: LoadVisualizationsUseCase,
-        searchVisualizationsUseCase: SearchVisualizationsUseCase,
-        hideVisualizationUseCase: HideVisualizationUseCase,
-        deleteVisualizationUseCase: DeleteVisualizationUseCase,
+        loadVisualizationsUseCase: any LoadVisualizationsUseCaseProtocol,
+        searchVisualizationsUseCase: any SearchVisualizationsUseCaseProtocol,
+        hideVisualizationUseCase: any HideVisualizationUseCaseProtocol,
+        deleteVisualizationUseCase: any DeleteVisualizationUseCaseProtocol,
         authRepository: any AuthRepository,
         notificationRepository: any NotificationRepository,
         userRepository: any UserRepository
@@ -315,3 +334,54 @@ extension FeedScreenViewModel {
         )
     }
 }
+
+
+// MARK: - UI Test Mock
+
+#if DEBUG
+extension FeedScreenViewModel {
+    /// Mock ViewModel driven by launch arguments for UI testing.
+    static func uitestMock(args: [String]) -> FeedScreenViewModel {
+
+        // Stub use cases ─ no real network calls
+        let loadUC   = MockLoadVisualizationsUseCase()
+        let searchUC = MockSearchVisualizationsUseCase()
+        let hideUC   = MockHideVisualizationUseCase()
+        let deleteUC = MockDeleteVisualizationUseCase()
+        let authRepo = FeedMockAuthRepository()
+        let notiRepo = MockNotificationRepository()
+        let userRepo = MockUserRepository()
+
+        // Decide which state to inject based on the launch argument
+        if args.contains("loading") {
+            // Never resolves → ViewModel stays in .loading
+            loadUC.shouldBlockForever = true
+        } else if args.contains("loaded") {
+            loadUC.stubbedItems = [
+                VisualizationCard.make(id: "card-1", title: "Sales Q1", authorID: "other-user"),
+                VisualizationCard.make(id: "card-2", title: "Inventory", authorID: "user-123")
+            ]
+        }
+
+        let vm = FeedScreenViewModel(
+            loadVisualizationsUseCase: loadUC,
+            searchVisualizationsUseCase: searchUC,
+            hideVisualizationUseCase: hideUC,
+            deleteVisualizationUseCase: deleteUC,
+            authRepository: authRepo,
+            notificationRepository: notiRepo,
+            userRepository: userRepo
+        )
+
+        // FEED-013: auto-trigger hide so the toast fires without UI interaction
+        if args.contains("-triggerHide") {
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(300))
+                vm.hideVisualization(visualizationID: "card-1")
+            }
+        }
+
+        return vm
+    }
+}
+#endif

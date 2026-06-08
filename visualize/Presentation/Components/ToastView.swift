@@ -48,6 +48,8 @@ struct ToastView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .glassEffect(.regular.tint(toast.type.color.opacity(0.08)), in: .capsule)
+        .accessibilityIdentifier("toastView") 
+
     }
 }
 

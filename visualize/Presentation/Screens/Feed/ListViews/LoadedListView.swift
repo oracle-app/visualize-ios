@@ -43,5 +43,6 @@ struct LoadedListView: View {
                 )
             }
         }
+        .accessibilityIdentifier("loadedListView")
     }
 }
