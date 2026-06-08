@@ -4,27 +4,38 @@
 //
 //  Created by Kimberly Marquez on 4/28/26.
 //
-//  Displays a single reply within a comment thread.
-//  - Shows the author name, relative timestamp, and reply content
-//  - Renders a vertical connector line linking replies to their parent comment
-//  - Adjusts the connector height based on whether it's the first reply
+///  A SwiftUI View that renders an individual reply card within a nested thread tree.
+///
+///  Responsibilities:
+///  - Displays user profile data, contextual timestamps, and the textual content of a reply.
+///  - Draws conditional connector lines depending on the cell's index position inside the thread collection.
+///  - Offers an interactive contextual menu with secure access paths for content deletion rules.
+///  - Triggers a safety confirmation alert modal prior to execution of structural delete block tasks.
 
 import SwiftUI
 import FirebaseFirestore
 
 struct ThreadReplyRowView: View {
-
+    
     // MARK: - Properties
     @State private var showDeleteAlert = false
-
-    var isFirst: Bool = false  // Controls the top connector line height
-    var isLast: Bool = false
-    var reply: ThreadReply
-    var currentUserID: String?
-    var commentID: String
-    var onDelete: (String, String, String) -> Void
+    /// A conditional layout modifier that alters the height configuration of the top thread connector path.
     
+    var isFirst: Bool = false
+    /// A conditional indicator that stops rendering the lower structural line segment if this cell node is the ultimate thread element.
+    var isLast: Bool = false
+    /// The data entity model structure carrying the payload contents of the individual reply node.
+    var reply: ThreadReply
+    /// The identifier reference string of the authenticated user currently interacting with the system view.
+    var currentUserID: String?
+    /// The relational master identifier link indicating which parent comment node encapsulates this reply thread tracking timeline.
+    var commentID: String
+    /// The asynchronous completion handle block executed when an asset structural removal task is confirmed by the system user.
+    /// Passes back explicit indices: (commentID, replyID, authorID)
+    var onDelete: (String, String, String) -> Void
+    /// Evaluates whether the currently logged-in account identity matches the origin author account reference metadata of this reply segment.
     var isAuthor: Bool { currentUserID == reply.authorID }
+    /// Structural authorization context state indicating if the active viewer owns privileges sufficient to perform destructive operations on this element.
     var canDelete: Bool
 
     // MARK: - Body
