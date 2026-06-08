@@ -87,12 +87,12 @@ struct ThreadCommentRowView: View {
                                 activeCommentAuthor = isAuthor ? "Me" : (comment.authorName ?? comment.authorID)
                             }
                         } label: {
-                            Label(String(localized: "Reply"), systemImage: "arrowshape.turn.up.left")
+                            Label("Reply", systemImage: "arrowshape.turn.up.left")
                         }
                         Button(role: .destructive) {
                             showDeleteAlert = true
                         } label: {
-                            Label(String(localized: "Delete"), systemImage: "trash")
+                            Label("Delete", systemImage: "trash")
                         }
                     } label: {
                         ZStack {
@@ -108,11 +108,11 @@ struct ThreadCommentRowView: View {
                     }
                     .buttonStyle(.plain)
                     .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
-                    .alert(String(localized: "Delete thread?"), isPresented: $showDeleteAlert) {
-                        Button(String(localized: "Delete"), role: .destructive) {
+                    .alert("Delete thread?", isPresented: $showDeleteAlert) {
+                        Button("Delete", role: .destructive) {
                             onDeleteComment(comment.id, comment.authorID)
                         }
-                        Button(String(localized: "Cancel"), role: .cancel) {}
+                        Button("Cancel", role: .cancel) {}
                     } message: {
                         Text(String(localized: "This will permanently remove the thread and all its replies. This action cannot be undone."))
                     }
