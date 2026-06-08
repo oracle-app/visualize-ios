@@ -47,7 +47,7 @@ final class ShareTeammatesScreenViewModelTests: XCTestCase {
             // Act
             sut.email = "test@"
             
-            try await Task.sleep(nanoseconds: 600_000_000)
+            try await Task.sleep(for: .milliseconds(600))
             
             // Assert SHAR-004
             XCTAssertEqual(userRepo.searchEmailCallCount, 1)
