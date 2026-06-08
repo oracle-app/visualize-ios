@@ -50,13 +50,13 @@ final class FeedViewModelTests: XCTestCase {
     private func makeSUT(cards: [VisualizationCard] = []) async -> FeedScreenViewModel {
         mockLoad.stubbedItems = cards
         let vm = FeedScreenViewModel(
-            loadVisualizationsUseCase: mockLoad,
-            searchVisualizationsUseCase: mockSearch,
-            hideVisualizationUseCase: mockHide,
-            deleteVisualizationUseCase: mockDelete,
-            authRepository: mockAuth,
-            notificationRepository: mockNotifications,
-            userRepository: mockUser
+            loadVisualizationsUseCase: mockLoad!,
+            searchVisualizationsUseCase: mockSearch!,
+            hideVisualizationUseCase: mockHide!,
+            deleteVisualizationUseCase: mockDelete!,
+            authRepository: mockAuth!,
+            notificationRepository: mockNotifications!,
+            userRepository: mockUser!
         )
         // Allow async initialization to settle.
         try? await Task.sleep(for: .milliseconds(100))

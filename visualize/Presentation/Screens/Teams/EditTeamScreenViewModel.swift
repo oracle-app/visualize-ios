@@ -112,7 +112,7 @@ final class EditTeamScreenViewModel {
                 !members.contains(where: { $0.id == candidate.id })
             }
         } catch {
-            showToast("Failed to search users", type: .error)
+            showToast(String(localized: "Failed to search users"), type: .error)
         }
     }
     
@@ -166,7 +166,7 @@ final class EditTeamScreenViewModel {
             let membersIDs = nonOwnerMembers.map { $0.id }
             try await teamRepository.updateTeamMembers(teamID: teamID, membersIDs: membersIDs)
         } catch {
-            showToast("Failed to update team", type: .error)
+            showToast(String(localized: "Failed to update team"), type: .error)
             throw error
         }
     }

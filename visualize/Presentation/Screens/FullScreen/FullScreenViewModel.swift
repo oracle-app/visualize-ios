@@ -105,7 +105,7 @@ final class FullScreenViewModel {
         do {
             self.userID = try await authRepository.getCurrentUserID()
         } catch {
-            self.error = "Could not load user session."
+            self.error = String(localized: "Could not load user session.")
         }
     }
 

@@ -110,7 +110,7 @@ struct Login: View {
                     .padding(.bottom, 36)
 
                     // Login button
-                    AuthButton(title: "Log in") {
+                    AuthButton(title: String(localized: "Log in")) {
                         viewModel.login()
                     }
                     .padding(.bottom, 20)

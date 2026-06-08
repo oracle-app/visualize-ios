@@ -22,8 +22,10 @@ enum MockChartJSONs {
         (config: stackedBarConfig,   preview: stackedBarPreview),
         (config: lineConfig,         preview: linePreview),
         (config: pieConfig,          preview: piePreview),
+        (config: donutConfig,          preview: donutPreview),
         (config: horizontalBarConfig,      preview: horizontalBarPreview),
-        (config: areaConfig,         preview: areaPreview)
+        (config: areaConfig,         preview: areaPreview),
+        (config: tileConfig,          preview: tilePreview)
     ]
  
     // MARK: - Chart 0 · Vertical Bar
@@ -259,7 +261,7 @@ enum MockChartJSONs {
     }
     """
  
-    // MARK: - Chart 6 · Donut (not in allCharts)
+    // MARK: - Chart 6 · Donut
  
     /// Survived/Died by Embarkation Port , 6 segments (full for FullScreenView)
     /// S: 217 survived 427 died, C: 93 survived 75 died, Q: 30 survived 47 died
@@ -280,7 +282,7 @@ enum MockChartJSONs {
     """
  
     /// Passenger Count by Embarkation Port , 3 segments (reduced for card preview)
-    /// Southampton: 644, Cherbourg: 168, Queenstown: 77 → total 889
+    /// Southampton: 644, Cherbourg: 168, Queenstown: 77 -> total 889
     static let donutPreview: String = """
     {
         "chartIndex": 7,
@@ -296,31 +298,51 @@ enum MockChartJSONs {
     }
     """
  
-    // MARK: - Chart 7 · Tile (renderer pending)
+    // MARK: - Chart 7 · Tile
  
-    /// Total Passengers KPI , full stat for FullScreenView
+    /// Key dataset metrics, full config for FullScreenView.
     static let tileConfig: String = """
     {
         "chartIndex": 8,
-        "chartName": "Total Passengers",
+        "chartName": "Key Metrics Overview",
         "chartType": "Tile",
-        "data": { "field1": ["891"], "field2": [] },
-        "metrics": { "field1": "Count" },
-        "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 1
+        "data": {
+            "field1": ["Passengers", "Survived", "Avg Fare", "Avg Age", "Classes"],
+            "field2": ["891", "342", "32.20", "29.70", "3"]
+        },
+        "metrics": {
+            "field1": "Metric",
+            "field2": "Value"
+        },
+        "page": 0,
+        "pageSize": 5000,
+        "preview": false,
+        "status": "COMPLETED",
+        "totalPages": 1,
+        "totalPoints": 5
     }
     """
- 
-    /// Total Survivors KPI , reduced for card preview
+
+    /// Key dataset metrics, reduced preview for VizReady cards and feed cards.
     static let tilePreview: String = """
     {
         "chartIndex": 8,
-        "chartName": "Total Passengers",
+        "chartName": "Key Metrics Overview",
         "chartType": "Tile",
-        "data": { "field1": ["342"], "field2": [] },
-        "metrics": { "field1": "Survived" },
-        "page": 0, "pageSize": 100, "preview": true,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 1
+        "data": {
+            "field1": ["Passengers", "Survived", "Avg Fare", "Avg Age", "Classes"],
+            "field2": ["891", "342", "32.20", "29.70", "3"]
+        },
+        "metrics": {
+            "field1": "Metric",
+            "field2": "Value"
+        },
+        "page": 0,
+        "pageSize": 100,
+        "preview": true,
+        "status": "COMPLETED",
+        "totalPages": 1,
+        "totalPoints": 5
     }
     """
     

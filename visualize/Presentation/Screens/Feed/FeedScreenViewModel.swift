@@ -350,7 +350,7 @@ extension FeedScreenViewModel {
         let deleteUC = MockDeleteVisualizationUseCase()
         let authRepo = FeedMockAuthRepository()
         let notiRepo = MockNotificationRepository()
-        let userRepo = MockUserRepository()
+        let userRepo = FeedMockUserRepository()
 
         // Decide which state to inject based on the launch argument
         if args.contains("loading") {

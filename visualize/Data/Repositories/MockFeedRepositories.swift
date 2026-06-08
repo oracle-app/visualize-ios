@@ -1,5 +1,5 @@
 //
-//  FeedMocks.swift
+//  MockFeedRepositories.swift
 //  visualize
 //
 //  Created by Jorge Flores on 07/06/26.
@@ -134,7 +134,7 @@ final class MockNotificationRepository: NotificationRepository {
 
 // MARK: - MockUserRepository
 
-final class MockUserRepository: UserRepository {
+final class FeedMockUserRepository: UserRepository {
     var role: Role = .consumer
     var shouldThrow: Bool = false
 
