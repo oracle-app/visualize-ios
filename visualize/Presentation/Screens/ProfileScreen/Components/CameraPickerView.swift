@@ -55,7 +55,7 @@ struct CameraPickerView: UIViewControllerRepresentable {
 
         func imagePickerController(
             _ picker: UIImagePickerController,
-            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
+            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
         ) {
             guard let uiImage = info[.originalImage] as? UIImage else {
                 parent.dismiss()

@@ -175,7 +175,7 @@ private final class PreviewUserRepository: UserRepository {
         URL(string: "https://example.com/profile.jpg")!
     }
 
-    func deleteProfileImage(userID: String) async throws {}
+    func deleteProfileImage(byURL url: URL) async throws {}
 }
 
 #Preview {

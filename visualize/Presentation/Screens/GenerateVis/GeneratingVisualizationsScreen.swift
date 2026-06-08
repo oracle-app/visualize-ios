@@ -1,5 +1,5 @@
 //
-//  EditVisualizationView.swift
+//  GeneratingVisualizationsScreen
 //  VisualizeApp
 //
 //  Created by Zuleyca Guadalupe Balles Soto on 11/04/26.
@@ -10,6 +10,7 @@ import SwiftUI
 struct GeneratingVisualizationsScreen: View {
     @State private var viewModel = GeneratingVisualizationsScreenViewModel()
     @Environment(AppCoordinator.self) private var coordinator
+    @Environment(CreateFlowState.self) private var createFlowState
 
     var body: some View {
         ZStack {
@@ -28,7 +29,7 @@ struct GeneratingVisualizationsScreen: View {
             .appBackground()
         }
         .task {
-            guard let fileURL = coordinator.pendingFileURL else {
+            guard let fileURL = createFlowState.pendingFileURL else {
                 viewModel.errorMessage = String(localized: "No dataset to analyze. Please go back and select a file.")
                 return
             }
@@ -39,7 +40,7 @@ struct GeneratingVisualizationsScreen: View {
             // navigateToVizReady(with:) stores the suggestions and pushes the route in one call,
             // so the route is never pushed without its data.
             if !viewModel.suggestions.isEmpty {
-                coordinator.navigateToVizReady(with: viewModel.suggestions)
+                createFlowState.navigateToVizReady(with: viewModel.suggestions, coordinator: coordinator)
             }
         }
         .portraitOrientationLock()
