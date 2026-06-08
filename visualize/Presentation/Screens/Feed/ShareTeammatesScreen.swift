@@ -18,8 +18,10 @@ struct ShareTeammatesScreen: View {
     @State private var isSharingExpanded = true
     @State private var isMyTeamsExpanded = true
     @State private var isJoinedTeamsExpanded = true
+    
     /// Called after a successful share confirmation.
     var onConfirm: () -> Void
+    
     /// - Parameters:
     ///   - viewModel: The view model managing search and selection state.
     ///   - onConfirm: Closure executed after the share is persisted successfully.
@@ -27,6 +29,7 @@ struct ShareTeammatesScreen: View {
         _vm = State(initialValue: viewModel)
         self.onConfirm = onConfirm
     }
+    
     var body: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 16) {
@@ -74,10 +77,12 @@ struct ShareTeammatesScreen: View {
             }
         }
     }
+    
     @ViewBuilder
     private var contentView: some View {
         loadedView()
     }
+    
     private func loadedView() -> some View {
         VStack(spacing: 16) {
             ZStack(alignment: .top) {

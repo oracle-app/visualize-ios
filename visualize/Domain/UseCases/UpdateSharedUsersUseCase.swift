@@ -24,6 +24,7 @@ class UpdateSharingUseCase {
     ///   - visualizationID: The ID of the visualization to update.
     ///   - users: The new list of `AppUser` to share with.
     ///   - teamIDs: The new list of team IDs to share with.
+    ///   - teams: The full models of the teams being shared with.
     /// - Returns: A tuple with the confirmed users and teamIDs.
     func execute(
         visualizationID: String,
