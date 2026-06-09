@@ -17,6 +17,7 @@ struct ProfileScreen: View {
     @AppStorage("selectedChartTheme") private var selectedThemeRaw: String = ChartColorTheme.lagoon.rawValue
     @State private var activeToast: Toast?
     @State private var toastTask: Task<Void, Never>?
+    @State private var showLogoutAlert = false
     @State private var showPhotoPicker = false
     @State private var selectedItem: PhotosPickerItem?
     @State private var pendingImage: UIImage?
@@ -97,20 +98,31 @@ struct ProfileScreen: View {
                         Divider()
                             .background(AppColors.Text.secondary.opacity(Metrics.dividerOpacity))
                         ProfileAboutSectionView(items: viewModel.aboutItems)
-                        Button("Log out", action: viewModel.logOut)
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(AppColors.Status.red)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, Metrics.buttonVerticalPadding)
-                            .background {
-                                Capsule()
-                                    .fill(Color.appBackground)
-                                    .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
-                            }
-                            .overlay {
-                                Capsule()
-                                    .strokeBorder(AppColors.Status.red, lineWidth: Metrics.borderWidth)
-                            }
+                        Button {
+                            showLogoutAlert = true
+                        } label: {
+                            Text("Log out")
+                                .font(.title3.weight(.semibold))
+                                .foregroundStyle(AppColors.Status.red)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, Metrics.buttonVerticalPadding)
+                                .background {
+                                    Capsule()
+                                        .fill(Color.appBackground)
+                                        .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
+                                }
+                                .overlay {
+                                    Capsule()
+                                        .strokeBorder(AppColors.Status.red, lineWidth: Metrics.borderWidth)
+                                }
+                                .contentShape(Capsule())
+                        }
+                        .alert("Log out", isPresented: $showLogoutAlert) {
+                            Button("Log out", role: .destructive, action: viewModel.logOut)
+                            Button("Cancel", role: .cancel) { }
+                        } message: {
+                            Text("Are you sure you want to log out?")
+                        }
                     }
                     .padding(.horizontal, Metrics.horizontalPadding)
                 }
