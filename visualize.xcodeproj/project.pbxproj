@@ -26,6 +26,7 @@
 		053BF01C2F8C7462008A3D6B /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01B2F8C7462008A3D6B /* FirebaseRemoteConfig */; };
 		053BF01E2F8C7462008A3D6B /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01D2F8C7462008A3D6B /* FirebaseStorage */; };
 		053BF0202F8C7462008A3D6B /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 053BF01F2F8C7462008A3D6B /* FirebaseStorageCombine-Community */; };
+		DE94792E2FD7F00F005C63AF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE94792D2FD7F00F005C63AF /* GoogleService-Info.plist */; };
 		DEA32D1F2FC7EFBC002FC59E /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DEA32D1E2FC7EFBC002FC59E /* Config.xcconfig */; };
 		E46E46BF2FA9937000E87EF6 /* SciChart in Frameworks */ = {isa = PBXBuildFile; productRef = E46E46BE2FA9937000E87EF6 /* SciChart */; };
 /* End PBXBuildFile section */
@@ -51,6 +52,7 @@
 		053BEF1B2F8AEC41008A3D6B /* visualize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = visualize.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD1B65E22FD3A0A00002F60E /* visualizeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = visualizeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD71EFEC2FD3A87100EE00C1 /* visualizeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = visualizeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE94792D2FD7F00F005C63AF /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DEA32D1E2FC7EFBC002FC59E /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -59,6 +61,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Feed/TestMocks/MockFeedRepositories.swift,
+				Notifications/TestMocks/MockNotificationRepository.swift,
 			);
 			target = 053BEF1A2F8AEC41008A3D6B /* visualize */;
 		};
@@ -66,6 +69,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Feed/TestMocks/MockFeedRepositories.swift,
+				Notifications/TestMocks/MockNotificationRepository.swift,
 			);
 			target = DD1B65E12FD3A0A00002F60E /* visualizeTests */;
 		};
@@ -156,6 +160,7 @@
 				DD1B65E32FD3A0A00002F60E /* visualizeTests */,
 				DD71EFED2FD3A87100EE00C1 /* visualizeUITests */,
 				053BEF1C2F8AEC41008A3D6B /* Products */,
+				DE94792D2FD7F00F005C63AF /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -317,6 +322,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DEA32D1F2FC7EFBC002FC59E /* Config.xcconfig in Resources */,
+				DE94792E2FD7F00F005C63AF /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
