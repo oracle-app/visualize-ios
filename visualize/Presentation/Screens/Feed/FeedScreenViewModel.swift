@@ -325,12 +325,12 @@ extension FeedScreenViewModel {
     static func uitestMock(args: [String]) -> FeedScreenViewModel {
 
         // Stub use cases ─ no real network calls
-        let loadUC   = MockLoadVisualizationsUseCase()
-        let searchUC = MockSearchVisualizationsUseCase()
-        let hideUC   = MockHideVisualizationUseCase()
-        let deleteUC = MockDeleteVisualizationUseCase()
+        let loadUC   = FeedMockLoadVisualizationsUseCase()
+        let searchUC = FeedMockSearchVisualizationsUseCase()
+        let hideUC   = FeedMockHideVisualizationUseCase()
+        let deleteUC = FeedMockDeleteVisualizationUseCase()
         let authRepo = FeedMockAuthRepository()
-        let notiRepo = MockNotificationRepository()
+        let notiRepo = FeedMockNotificationRepository()
         let userRepo = FeedMockUserRepository()
 
         // Decide which state to inject based on the launch argument

@@ -20,24 +20,24 @@ final class FeedViewModelTests: XCTestCase {
     // MARK: - Properties
 
     var sut: FeedScreenViewModel!
-    var mockLoad: MockLoadVisualizationsUseCase!
-    var mockSearch: MockSearchVisualizationsUseCase!
-    var mockHide: MockHideVisualizationUseCase!
-    var mockDelete: MockDeleteVisualizationUseCase!
+    var mockLoad: FeedMockLoadVisualizationsUseCase!
+    var mockSearch: FeedMockSearchVisualizationsUseCase!
+    var mockHide: FeedMockHideVisualizationUseCase!
+    var mockDelete: FeedMockDeleteVisualizationUseCase!
     var mockAuth: FeedMockAuthRepository!
-    var mockNotifications: MockNotificationRepository!
+    var mockNotifications: FeedMockNotificationRepository!
     var mockUser: FeedMockUserRepository!
 
     // MARK: - Setup / Teardown
 
     override func setUp() async throws {
         try await super.setUp()
-        mockLoad        = MockLoadVisualizationsUseCase()
-        mockSearch      = MockSearchVisualizationsUseCase()
-        mockHide        = MockHideVisualizationUseCase()
-        mockDelete      = MockDeleteVisualizationUseCase()
+        mockLoad        = FeedMockLoadVisualizationsUseCase()
+        mockSearch      = FeedMockSearchVisualizationsUseCase()
+        mockHide        = FeedMockHideVisualizationUseCase()
+        mockDelete      = FeedMockDeleteVisualizationUseCase()
         mockAuth        = FeedMockAuthRepository()
-        mockNotifications = MockNotificationRepository()
+        mockNotifications = FeedMockNotificationRepository()
         mockUser        = FeedMockUserRepository()
     }
 

@@ -13,9 +13,9 @@
 #if DEBUG
 import Foundation
 
-// MARK: - MockVisualizationRepository (privado, solo para inicializar mocks)
+// MARK: - FeedMockVisualizationRepository (privado, solo para inicializar mocks)
 
-private final class MockVisualizationRepository: VisualizationRepository {
+private final class FeedMockVisualizationRepository: VisualizationRepository {
     func updateSharing(visualizationID: String, userIDs: [String], teamIDs: [String]) async throws {}
     func getAllVisualizations(userID: String) async throws -> [VisualizationCard] { [] }
     func searchVisualizations(userID: String, query: String) async throws -> [VisualizationCard] { [] }
@@ -25,14 +25,14 @@ private final class MockVisualizationRepository: VisualizationRepository {
     func fetchConfigJSON(visualizationID: String) async throws -> String? { nil }
 }
 
-// MARK: - MockLoadVisualizationsUseCase
+// MARK: - FeedMockLoadVisualizationsUseCase
 
-final class MockLoadVisualizationsUseCase: LoadVisualizationsUseCase {
+final class FeedMockLoadVisualizationsUseCase: LoadVisualizationsUseCase {
     var stubbedItems: [VisualizationCard] = []
     var shouldThrow: Bool = false
     var shouldBlockForever: Bool = false
     private(set) var executeCallCount: Int = 0
-    init() { super.init(visualizationRepository: MockVisualizationRepository()) }
+    init() { super.init(visualizationRepository: FeedMockVisualizationRepository()) }
     override func execute(userID: String) async throws -> [VisualizationCard] {
         executeCallCount += 1
         if shouldBlockForever {
@@ -43,14 +43,14 @@ final class MockLoadVisualizationsUseCase: LoadVisualizationsUseCase {
     }
 }
 
-// MARK: - MockSearchVisualizationsUseCase
+// MARK: - FeedMockSearchVisualizationsUseCase
 
-final class MockSearchVisualizationsUseCase: SearchVisualizationsUseCase {
+final class FeedMockSearchVisualizationsUseCase: SearchVisualizationsUseCase {
     var stubbedResults: [VisualizationCard] = []
     var shouldThrow: Bool = false
 
     init() {
-        super.init(visualizationRepository: MockVisualizationRepository())
+        super.init(visualizationRepository: FeedMockVisualizationRepository())
     }
 
     override func execute(userID: String, query: String) async throws -> [VisualizationCard] {
@@ -59,16 +59,16 @@ final class MockSearchVisualizationsUseCase: SearchVisualizationsUseCase {
     }
 }
 
-// MARK: - MockHideVisualizationUseCase
+// MARK: - FeedMockHideVisualizationUseCase
 
-final class MockHideVisualizationUseCase: HideVisualizationUseCase {
+final class FeedMockHideVisualizationUseCase: HideVisualizationUseCase {
     var shouldThrow: Bool = false
     private(set) var hiddenVisualizationID: String?
     
     init() {
         super.init(
             userRepository: FeedMockUserRepository(),
-            visualizationRepository: MockVisualizationRepository()
+            visualizationRepository: FeedMockVisualizationRepository()
         )
     }
     
@@ -78,13 +78,13 @@ final class MockHideVisualizationUseCase: HideVisualizationUseCase {
     }
 }
 
-// MARK: - MockDeleteVisualizationUseCase
+// MARK: - FeedMockDeleteVisualizationUseCase
 
-final class MockDeleteVisualizationUseCase: DeleteVisualizationUseCase {
+final class FeedMockDeleteVisualizationUseCase: DeleteVisualizationUseCase {
     var shouldThrow: Bool = false
     private(set) var deletedVisualizationID: String?
 
-    init() { super.init(visualizationRepository: MockVisualizationRepository()) }
+    init() { super.init(visualizationRepository: FeedMockVisualizationRepository()) }
 
     override func execute(visualizationID: String) async throws {
         if shouldThrow { throw URLError(.notConnectedToInternet) }
@@ -117,9 +117,9 @@ final class FeedMockAuthRepository: AuthRepository {
     func sendPasswordReset(to email: String) async throws {}
 }
 
-// MARK: - MockNotificationRepository
+// MARK: - FeedMockNotificationRepository
 
-final class MockNotificationRepository: NotificationRepository {
+final class FeedMockNotificationRepository: NotificationRepository {
     var hasUnread: Bool = false
 
     func notificationsStream(for userID: String) -> AsyncStream<Result<[Notification], Error>> {
