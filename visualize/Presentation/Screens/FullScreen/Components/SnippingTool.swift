@@ -190,10 +190,10 @@ struct SnipTextStylePanelView: View {
                 }
                 .labelStyle(.iconOnly)
                 .font(.system(size: 18, weight: .medium))
-                .foregroundStyle(isSelected ? Color.appTeal : Color.appNavy)
+                .foregroundStyle(isSelected ? AppColors.Brand.teal : AppColors.Brand.navy)
                 .frame(width: 42, height: 42)
                 .contentShape(Rectangle())
-                .background(isSelected ? Color.appMint : Color.clear)
+                .background(isSelected ? AppColors.Brand.mint : Color.clear)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .animation(.easeInOut(duration: 0.2), value: isSelected)
                 .buttonStyle(.plain)
