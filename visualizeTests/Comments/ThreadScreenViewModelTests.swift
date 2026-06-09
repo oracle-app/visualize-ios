@@ -44,8 +44,12 @@ final class ThreadScreenViewModelTests: XCTestCase {
     ///
     /// * ViewModel Concern: `vm.comments` updates reactivity with new nodes; `vm.error` resets to `nil`.
     func test_COMM001_postComment_success_updatesUIState() async throws {
-        // Arrange
+        // Arrange — Tightened to seed an empty array to prevent false-positive validation passes
         let commentRepo = MockThreadCommentRepository()
+        commentRepo.stubbedComments = []
+        let vm = makeCommentTestViewModel(commentRepo: commentRepo, currentUser: currentUser)
+        
+        // Simular que el repositorio responderá con el nuevo item tras el proceso de guardado exitoso
         commentRepo.stubbedComments = [
             Comment(
                 id: "c1",
@@ -57,14 +61,14 @@ final class ThreadScreenViewModelTests: XCTestCase {
                 threads: []
             )
         ]
-        let vm = makeCommentTestViewModel(commentRepo: commentRepo, currentUser: currentUser)
 
         // Act
         await vm.postComment(content: "Hola mundo")
 
         // Assert — UI state
         XCTAssertNil(vm.error, "ViewModel internal error reference must be nil following a successful text post completion.")
-        XCTAssertFalse(vm.comments.isEmpty, "ViewModel published collection must append and display the newly created comment object.")
+        XCTAssertEqual(vm.comments.count, 1, "ViewModel published collection must append and display exactly 1 newly created comment object.")
+        XCTAssertEqual(vm.comments.first?.content, "Hola mundo", "The mapped comment node property must match the verified action payload text.")
     }
 
     // MARK: - COMM-002: Handle Empty Comment UI Validation
@@ -97,7 +101,7 @@ final class ThreadScreenViewModelTests: XCTestCase {
     ///
     /// * ViewModel Concern: Target reply item appends into the parent thread container within `vm.comments`.
     func test_COMM003_postReply_success_nestedUnderParentInUI() async throws {
-        // Arrange
+        // Arrange — Tightened to seed zero replies initially so the assertion strictly tests the action mutation
         let commentRepo = MockThreadCommentRepository()
         commentRepo.stubbedComments = [
             Comment(
@@ -107,20 +111,24 @@ final class ThreadScreenViewModelTests: XCTestCase {
                 content: "Comentario padre",
                 imageURL: nil,
                 createdAt: Date(),
-                threads: [
-                    ThreadReply(
-                        id: "r1",
-                        authorID: "u1",
-                        authorName: "testuser",
-                        authorAvatarURL: nil,
-                        createdAt: Date(),
-                        content: "Mi reply"
-                    )
-                ]
+                threads: [] // Isolated state: zero pre-existing replies
             )
         ]
         let vm = makeCommentTestViewModel(commentRepo: commentRepo, currentUser: currentUser)
         await vm.loadComments()
+        XCTAssertEqual(vm.comments.first(where: { $0.id == "c1" })?.threads.count, 0, "Pre-condition: Target parent node must initialize with an empty thread array.")
+
+        // Simular la mutación de persistencia interna esperada tras la inyección del nodo hijo
+        commentRepo.stubbedComments[0].threads = [
+            ThreadReply(
+                id: "r1",
+                authorID: "u1",
+                authorName: "testuser",
+                authorAvatarURL: nil,
+                createdAt: Date(),
+                content: "Mi reply"
+            )
+        ]
 
         // Act
         await vm.postReply(to: "c1", content: "Mi reply")
@@ -128,7 +136,7 @@ final class ThreadScreenViewModelTests: XCTestCase {
         // Assert — UI state
         XCTAssertNil(vm.error, "Active error flags must remain nil upon successful insertion of a sub-thread message.")
         let replies = vm.comments.first(where: { $0.id == "c1" })?.threads
-        XCTAssertEqual(replies?.count, 1, "The nested thread replies array must cleanly reflect the appended message in the UI dataset.")
+        XCTAssertEqual(replies?.count, 1, "The nested thread replies array must cleanly pass from 0 to 1 to reflect the appended message in the UI dataset.")
         XCTAssertEqual(replies?.first?.content, "Mi reply", "The visible nested message string properties must correspond to user input values.")
     }
 
