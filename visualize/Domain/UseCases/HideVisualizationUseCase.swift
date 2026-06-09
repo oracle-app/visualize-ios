@@ -7,7 +7,7 @@
 
 /// Hides a visualization for the current user by adding it to their
 /// hiddenVisualizations list and removing them from the visualization's sharedWithUsers.
-struct HideVisualizationUseCase {
+class HideVisualizationUseCase {
     private let userRepository: any UserRepository
     private let visualizationRepository: any VisualizationRepository
 

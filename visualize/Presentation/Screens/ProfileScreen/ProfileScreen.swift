@@ -16,6 +16,8 @@ struct ProfileScreen: View {
     @State private var viewModel: ProfileScreenViewModel
     @AppStorage("selectedChartTheme") private var selectedThemeRaw: String = ChartColorTheme.lagoon.rawValue
     @State private var activeToast: Toast?
+    @State private var toastTask: Task<Void, Never>?
+    @State private var showLogoutAlert = false
     @State private var showPhotoPicker = false
     @State private var selectedItem: PhotosPickerItem?
     @State private var pendingImage: UIImage?
@@ -42,6 +44,18 @@ struct ProfileScreen: View {
 
     private var selectedTheme: ChartColorTheme {
         ChartColorTheme(rawValue: selectedThemeRaw) ?? .lagoon
+    }
+
+    /// Shows a toast and schedules its automatic dismissal, cancelling any
+    /// previously scheduled dismissal so rapid changes don't leave it stuck.
+    private func showToast(_ toast: Toast) {
+        toastTask?.cancel()
+        activeToast = toast
+        toastTask = Task {
+            try? await Task.sleep(for: .seconds(Metrics.toastDuration))
+            guard !Task.isCancelled else { return }
+            activeToast = nil
+        }
     }
     
     // MARK: - Body
@@ -76,28 +90,39 @@ struct ProfileScreen: View {
                             selectedTheme: selectedTheme
                         ) { theme in
                             selectedThemeRaw = theme.rawValue
-                            activeToast = Toast(
+                            showToast(Toast(
                                 message: String(localized: "\(theme.title) theme applied", comment: "Theme name followed by 'theme applied'"),
                                 type: .success
-                            )
+                            ))
                         }
                         Divider()
                             .background(AppColors.Text.secondary.opacity(Metrics.dividerOpacity))
                         ProfileAboutSectionView(items: viewModel.aboutItems)
-                        Button("Log out", action: viewModel.logOut)
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(AppColors.Status.red)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, Metrics.buttonVerticalPadding)
-                            .background {
-                                Capsule()
-                                    .fill(Color.appBackground)
-                                    .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
-                            }
-                            .overlay {
-                                Capsule()
-                                    .strokeBorder(AppColors.Status.red, lineWidth: Metrics.borderWidth)
-                            }
+                        Button {
+                            showLogoutAlert = true
+                        } label: {
+                            Text("Log out")
+                                .font(.title3.weight(.semibold))
+                                .foregroundStyle(AppColors.Status.red)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, Metrics.buttonVerticalPadding)
+                                .background {
+                                    Capsule()
+                                        .fill(Color.appBackground)
+                                        .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
+                                }
+                                .overlay {
+                                    Capsule()
+                                        .strokeBorder(AppColors.Status.red, lineWidth: Metrics.borderWidth)
+                                }
+                                .contentShape(Capsule())
+                        }
+                        .alert("Log out", isPresented: $showLogoutAlert) {
+                            Button("Log out", role: .destructive, action: viewModel.logOut)
+                            Button("Cancel", role: .cancel) { }
+                        } message: {
+                            Text("Are you sure you want to log out?")
+                        }
                     }
                     .padding(.horizontal, Metrics.horizontalPadding)
                 }
@@ -125,10 +150,10 @@ struct ProfileScreen: View {
                         } else {
                             await MainActor.run {
                                 selectedItem = nil
-                                activeToast = Toast(
+                                showToast(Toast(
                                     message: String(localized: "Could not load the selected photo"),
                                     type: .error
-                                )
+                                ))
                             }
                         }
                     }
@@ -168,7 +193,7 @@ private enum Metrics {
     static let shadowRadius: CGFloat = 5
     static let shadowY: CGFloat = 2
     static let toastBottomPadding: CGFloat = 24
-    static let toastDuration: TimeInterval = 2.5
+    static let toastDuration: TimeInterval = 3
 }
 
 #Preview {
