@@ -41,13 +41,13 @@ struct CreateVisualizationScreen: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Image(systemName: "chart.bar.xaxis")
                         .font(.system(size: 36))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                         .padding(.top, 14)
                         .padding(.bottom, 16)
 
                     Text("Create data visualizations")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                         .padding(.bottom, 10)
 
                     Group {
@@ -60,7 +60,7 @@ struct CreateVisualizationScreen: View {
                         }
                     }
                     .font(.system(size: 15))
-                    .foregroundColor(Color.appSubtitle)
+                    .foregroundStyle(AppColors.Text.secondary)
                     .lineSpacing(3)
                     .padding(.bottom, 20)
 
@@ -95,7 +95,7 @@ struct CreateVisualizationScreen: View {
                     if let error = viewModel.errorMessage {
                         Text(error)
                             .font(.system(size: 13))
-                            .foregroundColor(.red)
+                            .foregroundStyle(AppColors.Status.red)
                             .padding(.bottom, 8)
                     }
                 }

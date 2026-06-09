@@ -1,5 +1,5 @@
 //
-//  FeedViewModel.swift
+//  FeedScreenViewModel.swift
 //  Visualize
 //
 //  Created by Jorge Flores on 13/04/26.
@@ -264,10 +264,10 @@ class FeedScreenViewModel {
                 allVisualizations.removeAll { $0.id == visualizationID }
                 searchResults.removeAll { $0.id == visualizationID }
                 applyLocalFilter()
-                await showToast(Toast(message: String(localized: "Visualization removed from your feed"), type: .success))
+                showToast(Toast(message: String(localized: "Visualization removed from your feed"), type: .success))
             } catch {
                 print("Error hiding visualization: \(error)")
-                await showToast(Toast(message: String(localized: "Failed to remove visualization"), type: .error))
+                showToast(Toast(message: String(localized: "Failed to remove visualization"), type: .error))
             }
         }
     }
@@ -278,10 +278,10 @@ class FeedScreenViewModel {
                 allVisualizations.removeAll { $0.id == visualizationID }
                 searchResults.removeAll { $0.id == visualizationID }
                 applyLocalFilter()
-                await showToast(Toast(message: String(localized: "Visualization deleted for everyone"), type: .success))
+                showToast(Toast(message: String(localized: "Visualization deleted for everyone"), type: .success))
             } catch {
                 print("Error deleting visualization: \(error)")
-                await showToast(Toast(message: String(localized: "Failed to delete visualization"), type: .error))
+                showToast(Toast(message: String(localized: "Failed to delete visualization"), type: .error))
             }
         }
     }
@@ -315,3 +315,54 @@ extension FeedScreenViewModel {
         )
     }
 }
+
+
+// MARK: - UI Test Mock
+
+#if DEBUG
+extension FeedScreenViewModel {
+    /// Mock ViewModel driven by launch arguments for UI testing.
+    static func uitestMock(args: [String]) -> FeedScreenViewModel {
+
+        // Stub use cases ─ no real network calls
+        let loadUC   = FeedMockLoadVisualizationsUseCase()
+        let searchUC = FeedMockSearchVisualizationsUseCase()
+        let hideUC   = FeedMockHideVisualizationUseCase()
+        let deleteUC = FeedMockDeleteVisualizationUseCase()
+        let authRepo = FeedMockAuthRepository()
+        let notiRepo = FeedMockNotificationRepository()
+        let userRepo = FeedMockUserRepository()
+
+        // Decide which state to inject based on the launch argument
+        if args.contains("loading") {
+            // Never resolves → ViewModel stays in .loading
+            loadUC.shouldBlockForever = true
+        } else if args.contains("loaded") {
+            loadUC.stubbedItems = [
+                VisualizationCard.make(id: "card-1", title: "Sales Q1", authorID: "other-user"),
+                VisualizationCard.make(id: "card-2", title: "Inventory", authorID: "user-123")
+            ]
+        }
+
+        let vm = FeedScreenViewModel(
+            loadVisualizationsUseCase: loadUC,
+            searchVisualizationsUseCase: searchUC,
+            hideVisualizationUseCase: hideUC,
+            deleteVisualizationUseCase: deleteUC,
+            authRepository: authRepo,
+            notificationRepository: notiRepo,
+            userRepository: userRepo
+        )
+
+        // FEED-013: auto-trigger hide so the toast fires without UI interaction
+        if args.contains("-triggerHide") {
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(300))
+                vm.hideVisualization(visualizationID: "card-1")
+            }
+        }
+
+        return vm
+    }
+}
+#endif

@@ -43,7 +43,7 @@ struct TeamRowView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .listRowBackground(Color.appMint)
+        .listRowBackground(AppColors.Brand.mint)
     }
 
     // MARK: - Selection Indicator
@@ -52,12 +52,12 @@ struct TeamRowView: View {
     private var selectionIndicator: some View {
         ZStack {
             Circle()
-                .stroke(isSelected ? Color.appTeal : Color.gray.opacity(0.4), lineWidth: 2)
+                .stroke(isSelected ? AppColors.Brand.teal : Color.gray.opacity(0.4), lineWidth: 2)
                 .frame(width: 24, height: 24)
 
             if isSelected {
                 Circle()
-                    .fill(Color.appTeal)
+                    .fill(AppColors.Brand.teal)
                     .frame(width: 24, height: 24)
                     .transition(.scale.combined(with: .opacity))
 
@@ -77,11 +77,11 @@ struct TeamRowView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(team.name)
                 .font(.body)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(AppColors.Text.primary)
 
             Text("^[\(team.members.count) member](inflect: true)")
                 .font(.system(size: 13))
-                .foregroundStyle(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
         }
         .padding(.leading, 6)
     }
@@ -108,7 +108,7 @@ struct TeamRowView: View {
                         .foregroundStyle(Color(red: 68/255, green: 68/255, blue: 68/255))
                 }
                 .frame(width: 33, height: 33)
-                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
+                .overlay(Circle().stroke(AppColors.Brand.mint, lineWidth: 2))
                 .padding(.leading, 10)
             }
         }

@@ -23,19 +23,19 @@ struct CompletedFileCardView: View {
         HStack(spacing: 12) {
             ZStack {
                 Image(systemName: "document.badge.arrow.up")
-                    .foregroundColor(Color.appTeal)
+                    .foregroundStyle(AppColors.Brand.teal)
                     .font(.system(size: 28))
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(fileName)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
 
                 Text("\(fileSize)")
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
             }
 
             Spacer()
@@ -43,23 +43,23 @@ struct CompletedFileCardView: View {
             Button(action: onDelete) {
                 Image(systemName: "trash")
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(.red)
+                    .foregroundStyle(AppColors.Status.red)
                     .frame(width: 36, height: 36)
-                    .glassEffect(.regular.tint(.red.opacity(0.1)).interactive(), in: Circle())
+                    .glassEffect(.regular.tint(AppColors.Status.red.opacity(0.1)).interactive(), in: Circle())
 //                ZStack {
 //                    Circle()
 //                        .fill(Color.red.opacity(0.1))
 //                        .frame(width: 36, height: 36)
 //                    Image(systemName: "trash")
 //                        .font(.system(size: 15))
-//                        .foregroundColor(.red)
+//                        .foregroundStyle(.red)
 //                }
             }
         }
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(Color.appTeal.opacity(0.4), lineWidth: 1)
+                .strokeBorder(AppColors.Brand.teal.opacity(0.4), lineWidth: 1)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color(.systemBackground))

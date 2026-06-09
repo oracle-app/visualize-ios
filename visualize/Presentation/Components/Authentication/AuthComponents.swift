@@ -49,8 +49,8 @@ struct InputField: View {
             "",
             text: $text,
             prompt: Text(placeholder)
-                .foregroundColor(
-                    hasError ? .red : Color.gray.opacity(0.8)
+                .foregroundStyle(
+                    hasError ? AppColors.Status.red : Color.gray.opacity(0.8)
                 )
         )
         .keyboardType(keyboardType)
@@ -60,19 +60,19 @@ struct InputField: View {
         .padding(.vertical, 18)
         .focused($isFocused)
         .background(
-            hasError ? AppColors.UI.authErrorBackground : Color.appMint
+            hasError ? AppColors.UI.authErrorBackground : AppColors.Brand.mint
         )
         .foregroundStyle(AppColors.Text.authFieldText)
-        .tint(hasError ? .red : Color.appTeal)
+        .tint(hasError ? AppColors.Status.red : AppColors.Brand.teal)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
                     hasError
-                    ? Color.red
+                    ? AppColors.Status.red
                     : (
                         isFocused
-                        ? Color.appTeal.opacity(0.7)
-                        : Color.appTeal.opacity(0.15)
+                        ? AppColors.Brand.teal.opacity(0.7)
+                        : AppColors.Brand.teal.opacity(0.15)
                     ),
                     lineWidth: isFocused || hasError ? 1.8 : 1
                 )
@@ -83,7 +83,7 @@ struct InputField: View {
         .overlay(alignment: .bottomLeading) {
             Text(errorMessage ?? "")
                 .font(.system(size: 13))
-                .foregroundColor(.red)
+                .foregroundStyle(AppColors.Status.red)
                 .opacity(hasError ? 1 : 0)
                 .offset(x: 8, y: 19)
         }
@@ -136,8 +136,8 @@ struct PasswordField: View {
                     "",
                     text: $text,
                     prompt: Text(placeholder)
-                        .foregroundColor(
-                            hasError ? .red : Color.gray.opacity(0.8)
+                        .foregroundStyle(
+                            hasError ? AppColors.Status.red : Color.gray.opacity(0.8)
                         )
                 )
                 .opacity(isVisible ? 0 : 1)
@@ -146,8 +146,8 @@ struct PasswordField: View {
                     "",
                     text: $text,
                     prompt: Text(placeholder)
-                        .foregroundColor(
-                            hasError ? .red : Color.gray.opacity(0.8)
+                        .foregroundStyle(
+                            hasError ? AppColors.Status.red : Color.gray.opacity(0.8)
                         )
                 )
                 .opacity(isVisible ? 1 : 0)
@@ -156,7 +156,7 @@ struct PasswordField: View {
             .autocorrectionDisabled()
             .focused($isFocused)
             .foregroundStyle(AppColors.Text.authFieldText)
-            .tint(hasError ? .red : Color.appTeal)
+            .tint(hasError ? AppColors.Status.red : AppColors.Brand.teal)
 
             // MARK: Visibility Toggle
             
@@ -164,23 +164,23 @@ struct PasswordField: View {
                 isVisible.toggle()
             } label: {
                 Image(systemName: isVisible ? "eye.slash" : "eye")
-                    .foregroundColor(AppColors.UI.authButtonIcon)
+                    .foregroundStyle(AppColors.UI.authButtonIcon)
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 18)
         .background(
-            hasError ? AppColors.UI.authErrorBackground : Color.appMint
+            hasError ? AppColors.UI.authErrorBackground : AppColors.Brand.mint
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
                     hasError
-                    ? Color.red
+                    ? AppColors.Status.red
                     : (
                         isFocused
-                        ? Color.appTeal.opacity(0.7)
-                        : Color.appTeal.opacity(0.15)
+                        ? AppColors.Brand.teal.opacity(0.7)
+                        : AppColors.Brand.teal.opacity(0.15)
                     ),
                     lineWidth: isFocused || hasError ? 1.8 : 1
                 )
@@ -191,7 +191,7 @@ struct PasswordField: View {
         .overlay(alignment: .bottomLeading) {
             Text(errorMessage ?? "")
                 .font(.system(size: 13))
-                .foregroundColor(.red)
+                .foregroundStyle(AppColors.Status.red)
                 .opacity(hasError ? 1 : 0)
                 .offset(x: 8, y: 19)
         }
@@ -220,12 +220,12 @@ struct AuthButton: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(AppColors.Text.authButtonText)
+                .foregroundStyle(AppColors.Text.authButtonText)
                 .frame(maxWidth: 150)
                 .frame(height: 50)
                 .background(
                     RoundedRectangle(cornerRadius: 50)
-                        .fill(AppColors.Text.teriary)
+                        .fill(AppColors.Text.tertiary)
                 )
         }
     }

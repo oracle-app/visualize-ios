@@ -134,7 +134,9 @@ struct ChartRendererView: View {
  
         // MARK: Tile
         case .tile(_, let values, let labels):
-            TileChartView(labels: labels, values: values)
+            TileChartView(labels: labels, values: values, theme: theme)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(10)
         
         // MARK: Unsupported
         case .unsupported(let type):

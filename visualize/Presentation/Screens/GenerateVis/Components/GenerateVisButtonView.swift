@@ -45,7 +45,7 @@ struct GenerateVisButtonView: View {
                 
                 Text(String(localized:"Generate visualizations"))
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 44)

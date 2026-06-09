@@ -31,7 +31,7 @@ final class SnipScreenViewModel {
     static let annotationSizePercentRange: ClosedRange<CGFloat> = 0...100
 
     var activeTextStyle: TextStyle = .normal
-    var pencilColor: Color = .primaryOrange
+    var pencilColor: Color = AppColors.Brand.primaryOrange
     var annotationSizePercent: CGFloat = defaultAnnotationSizePercent
     var eraserRadius: CGFloat = 18
     var eraserWidth: CGFloat {

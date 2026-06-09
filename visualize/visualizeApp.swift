@@ -64,6 +64,10 @@ struct VisualizeApp: App {
             )
         } else if args.contains("-uitest-snip-comment") {
             SnipCommentSampleView()
+
+        } else if args.contains("-feedState") {
+                feedUITestRoot(args: args)
+
         } else if args.contains("-uitest-teams-list") {
             NavigationStack {
                 TeamsScreen(
@@ -75,6 +79,7 @@ struct VisualizeApp: App {
                 )
                 .environment(AppCoordinator())
             }
+
         } else {
             defaultRoot
         }
@@ -94,4 +99,24 @@ struct VisualizeApp: App {
             coordinator: AppCoordinator()
         )
     }
+    
+    
+    // MARK: - Feed UI Test Root
+    #if DEBUG
+    /// Builds a standalone FeedScreen with a mock ViewModel for UI testing.
+    /// Controlled entirely by launch arguments — no Firebase, no network calls.
+    @ViewBuilder
+    private func feedUITestRoot(args: [String]) -> some View {
+        let vm = FeedScreenViewModel.uitestMock(args: args)
+
+        let coordinator = AppCoordinator()
+        let createFlowState = CreateFlowState()
+
+        NavigationStack {
+            FeedScreen(viewModel: vm, shouldLoad: false)
+                .environment(coordinator)
+                .environment(createFlowState)
+        }
+    }
+    #endif
 }

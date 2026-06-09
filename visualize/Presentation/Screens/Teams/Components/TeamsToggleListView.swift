@@ -22,11 +22,11 @@ struct TeamToggleRowView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(team.name)
                         .font(.body.bold())
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
 
                     Text("\(team.memberCount) member\(team.memberCount == 1 ? "" : "s")")
                         .font(.subheadline)
-                        .foregroundStyle(Color.appTeal)
+                        .foregroundStyle(AppColors.Brand.teal)
                 }
 
                 Spacer()
@@ -37,11 +37,11 @@ struct TeamToggleRowView: View {
 
                 Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                     .font(.subheadline)
-                    .foregroundStyle(Color.appSubtitle)
+                    .foregroundStyle(AppColors.Text.secondary)
             }
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .listRowBackground(Color.appMint)
+        .listRowBackground(AppColors.Brand.mint)
     }
 }

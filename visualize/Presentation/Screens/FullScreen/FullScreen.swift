@@ -21,6 +21,7 @@ struct FullScreen: View {
     // MARK: - State
 
     @State private var viewModel: FullScreenViewModel
+    @State private var threadsViewModel: ThreadScreenViewModel
     @State private var chartLoadID = UUID()
     @State private var showThreads = true
     @State private var isSnipping = false
@@ -53,6 +54,7 @@ struct FullScreen: View {
         let userRepository = UserRepositoryImpl(
             userDatasource: userDatasource
         )
+        let commentRepository = CommentRepositoryImpl(commentDatasource: commentDatasource)
         self._viewModel = State(initialValue: FullScreenViewModel(
             teamRepository: TeamRepositoryImpl(
                 teamDatasource: teamDatasource,
@@ -72,13 +74,25 @@ struct FullScreen: View {
                 commentRepository: CommentRepositoryImpl(commentDatasource: commentDatasource)
             )
         ))
+        self._threadsViewModel = State(initialValue: ThreadScreenViewModel(
+            visualizationID: card.id,
+            visualizationOwnerID: card.authorID,
+            isPreview: false,
+            repository: commentRepository,
+            userRepository: userRepository,
+            authRepository: authRepository,
+            postCommentUseCase: PostCommentUseCase(),
+            postReplyUseCase: PostReplyUseCase(),
+            deleteCommentUseCase: DeleteCommentUseCase(),
+            deleteReplyUseCase: DeleteReplyUseCase()
+        ))
     }
 
     // MARK: - Body
 
     var body: some View {
         ZStack {
-            Color.appMint
+            AppColors.Brand.mint
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -145,7 +159,7 @@ struct FullScreen: View {
                             .font(.system(size: 28))
                             .foregroundStyle(.white)
                             .frame(width: 54, height: 54)
-                            .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
+                            .glassEffect(.regular.tint(AppColors.Brand.primaryOrange), in: Circle())
                     }
                     // Disabled when parsedChart is nil (not yet loaded / parse error),
                     // .unsupported (chart type not yet renderable), or when
@@ -181,7 +195,7 @@ struct FullScreen: View {
             )
         }
         .alert("Capture failed", isPresented: $viewModel.showCaptureError) {
-            Button("OK", role: .cancel) {}
+            Button("OK", role: .cancel) {isSnipping = false} 
         } message: {
             Text("Could not capture the chart. Please try again.")
         }
@@ -195,7 +209,8 @@ struct FullScreen: View {
             ThreadScreen(
                 visualizationID: card.id,
                 visualizationOwnerID: card.authorID,
-                isCollapsed: selectedDetent == .fraction(0.08)
+                isCollapsed: selectedDetent == .fraction(0.08),
+                viewModel: threadsViewModel
             )
                 .background(Color.appBackground)
                 .interactiveDismissDisabled(true)
@@ -203,10 +218,17 @@ struct FullScreen: View {
                 .presentationBackgroundInteraction(.enabled(upThrough: .large))
                 .presentationCornerRadius(24)
                 .presentationDragIndicator(.visible)
+                .preventScreenShotSilent(isActive: !isSnipping)
         }
         .onChange(of: isLandscape) { _, newValue in
             if !newValue {
                 showThreads = true
+            }
+        }
+        .onChange(of: viewModel.snipPosted) { _, posted in
+            if posted {
+                Task { await threadsViewModel.appendNewComments() }
+                viewModel.snipPosted = false
             }
         }
     }
@@ -217,10 +239,10 @@ struct FullScreen: View {
         VStack(spacing: 5) {
             Text(String(localized: "Couldn't load"))
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
             Text(String(localized: "Something went wrong."))
                 .font(.system(size: 17))
-                .foregroundStyle(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
                 .multilineTextAlignment(.center)
             Button("Try again") {
                 chartLoadID = UUID()
@@ -229,7 +251,7 @@ struct FullScreen: View {
             .foregroundStyle(.white)
             .padding(.horizontal, 130)
             .padding(.vertical, 15)
-            .background(Color.appTeal)
+            .background(AppColors.Brand.teal)
             .cornerRadius(296)
             .padding(.top, 200)
         }

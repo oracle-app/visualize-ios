@@ -18,7 +18,7 @@ import UIKit
 
 // MARK: - Mocks
 
-private final class MockSnipRepository: SnipRepository {
+private final class SnippingToolTestsMockSnipRepository: SnipRepository {
     var uploadCallCount = 0
     var receivedData: Data?
     var receivedPath: String?
@@ -34,7 +34,7 @@ private final class MockSnipRepository: SnipRepository {
     }
 }
 
-private final class MockCommentRepository: CommentRepository {
+private final class SnippingToolTestsMockCommentRepository: CommentRepository {
     var postSnipCallCount = 0
     var receivedVisualizationID: String?
     var receivedAuthorID: String?
@@ -91,8 +91,9 @@ private func makeInvalidImage() -> UIImage {
 final class UploadSnipUseCaseTests: XCTestCase {
 
     // SNIP-002 — happy path
+    @MainActor
     func test_execute_returnsURL_andCallsRepositoryOnce() async throws {
-        let repo = MockSnipRepository()
+        let repo = SnippingToolTestsMockSnipRepository()
         let sut = UploadSnipUseCase(snipRepository: repo)
 
         let url = try await sut.execute(
@@ -108,8 +109,9 @@ final class UploadSnipUseCaseTests: XCTestCase {
     }
 
     // Path format: "snips/{userID}/{visualizationID}_{timestamp}.png"
+    @MainActor
     func test_execute_buildsNamespacedStoragePath() async throws {
-        let repo = MockSnipRepository()
+        let repo = SnippingToolTestsMockSnipRepository()
         let sut = UploadSnipUseCase(snipRepository: repo)
 
         _ = try await sut.execute(
@@ -130,8 +132,9 @@ final class UploadSnipUseCaseTests: XCTestCase {
     }
 
     // SNIP-003 — PNG conversion fails
+    @MainActor
     func test_execute_whenPNGConversionFails_throwsImageConversionFailed() async {
-        let repo = MockSnipRepository()
+        let repo = SnippingToolTestsMockSnipRepository()
         let sut = UploadSnipUseCase(snipRepository: repo)
 
         do {
@@ -152,8 +155,9 @@ final class UploadSnipUseCaseTests: XCTestCase {
     }
 
     // Repository error must propagate untouched.
+    @MainActor
     func test_execute_whenRepositoryThrows_propagatesError() async {
-        let repo = MockSnipRepository()
+        let repo = SnippingToolTestsMockSnipRepository()
         repo.stubbedError = DummyRepoError()
         let sut = UploadSnipUseCase(snipRepository: repo)
 
@@ -177,8 +181,9 @@ final class UploadSnipUseCaseTests: XCTestCase {
 final class PostSnipCommentUseCaseTests: XCTestCase {
 
     // SNIP-002 — happy path (the Firestore write side)
+    @MainActor
     func test_execute_forwardsAllParametersToRepository() async throws {
-        let repo = MockCommentRepository()
+        let repo = SnippingToolTestsMockCommentRepository()
         let sut = PostSnipCommentUseCase(commentRepository: repo)
         let url = URL(string: "https://storage.example.com/snip.png")!
 
@@ -198,8 +203,9 @@ final class PostSnipCommentUseCaseTests: XCTestCase {
     }
 
     // Repository error must propagate untouched.
+    @MainActor
     func test_execute_whenRepositoryThrows_propagatesError() async {
-        let repo = MockCommentRepository()
+        let repo = SnippingToolTestsMockCommentRepository()
         repo.stubbedError = DummyRepoError()
         let sut = PostSnipCommentUseCase(commentRepository: repo)
 
