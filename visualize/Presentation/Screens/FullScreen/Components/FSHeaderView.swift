@@ -35,7 +35,7 @@ struct FSHeaderView: View {
             Button(action: onBack) {
                 Image(systemName: "arrow.backward")
                     .font(.system(size: 22))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
                     .frame(width: 48, height: 48)
                     .glassEffect()
             }
@@ -58,7 +58,7 @@ struct FSHeaderView: View {
         .frame(maxWidth: .infinity)
         .padding(.horizontal)
         .padding(.vertical, isCompact ? 8 : 16)
-        .background(Color.appTeal.opacity(0.75))
+        .background(AppColors.Brand.teal.opacity(0.75))
         .background(.ultraThinMaterial.opacity(0.7))
     }
 }

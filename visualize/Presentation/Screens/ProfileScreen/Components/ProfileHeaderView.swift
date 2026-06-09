@@ -106,7 +106,7 @@ struct ProfileHeaderView: View {
     
     private var fallbackAvatar: some View {
         ZStack {
-            Color.appGray
+            AppColors.UI.gray
             Text(String(username.prefix(1)).uppercased())
                 .font(.system(size: Metrics.avatarIconSize * 1, weight: .semibold))
                 .foregroundStyle(.white)
@@ -117,7 +117,7 @@ struct ProfileHeaderView: View {
         ZStack(alignment: .bottomTrailing) {
             ZStack {
                 if isUploading {
-                    Color.appGray
+                    AppColors.UI.gray
                     ProgressView()
                         .progressViewStyle(.circular)
                         .tint(.white)
@@ -140,7 +140,7 @@ struct ProfileHeaderView: View {
                 }
             }
             .frame(width: Metrics.avatarSize, height: Metrics.avatarSize)
-            .background(Color.appGray)
+            .background(AppColors.UI.gray)
             .clipShape(.circle)
             .overlay {
                 Circle()
@@ -156,7 +156,7 @@ struct ProfileHeaderView: View {
             .bold()
             .foregroundStyle(.white)
             .frame(width: Metrics.editButtonSize, height: Metrics.editButtonSize)
-            .background(Color.appTeal)
+            .background(AppColors.Brand.teal)
             .clipShape(.circle)
             .overlay {
                 Circle()

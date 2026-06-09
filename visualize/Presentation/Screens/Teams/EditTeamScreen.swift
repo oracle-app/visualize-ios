@@ -32,10 +32,10 @@ struct EditTeamScreen: View {
                 VStack(spacing: 5) {
                     Image(systemName: "person.2")
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                     Text("Edit your team")
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                 }
                 loadedView()
                 Spacer()
@@ -87,7 +87,7 @@ struct EditTeamScreen: View {
                         }
                     }
                 }
-                .tint(Color.primaryOrange)
+                .tint(AppColors.Brand.primaryOrange)
             }
         }
         .portraitOrientationLock()
@@ -134,7 +134,7 @@ struct EditTeamScreen: View {
                     }
                 } header: {
                     Text("Members")
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                 }
             }
             .listStyle(.insetGrouped)

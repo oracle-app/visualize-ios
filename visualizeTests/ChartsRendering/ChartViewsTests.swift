@@ -259,6 +259,54 @@ final class ChartViewsTests: XCTestCase {
         }
         XCTAssertEqual(data, [100.0, 0.0, 50.0], "Zero value must be preserved, not dropped")
     }
+    // MARK: - FSRT-011: Tile
+
+    func test_FSRT011_tileConfig_parsesToTileCase() throws {
+        let chart = try XCTUnwrap(
+            ChartConfigParser.parse(from: MockChartJSONs.tileConfig),
+            "tileConfig should parse without returning nil"
+        )
+        guard case .tile(let title, let values, let labels) = chart else {
+            return XCTFail("FSRT-011 — Expected .tile, got \(chart)")
+        }
+        XCTAssertFalse(title.isEmpty)
+        XCTAssertFalse(values.isEmpty, "Tile should have at least one value")
+        XCTAssertEqual(values.count, labels.count, "values and labels must have the same count")
+    }
+
+    func test_FSRT011_tile_emptyData_producesEmptyValues() throws {
+        let json = """
+        {
+            "chartType": "Tile",
+            "chartName": "KPI",
+            "data": { "field1": [], "field2": [] },
+            "metrics": { "field1": "Count" }
+        }
+        """
+        let chart = try XCTUnwrap(ChartConfigParser.parse(from: json))
+        guard case .tile(_, let values, _) = chart else {
+            return XCTFail("Expected .tile")
+        }
+        XCTAssertTrue(values.isEmpty, "Empty field1 should produce empty values array")
+    }
+
+    func test_FSRT011_tile_singleValue_parsesCorrectly() throws {
+        let json = """
+        {
+            "chartType": "Tile",
+            "chartName": "Total",
+            "data": { "field1": ["Passengers"], "field2": ["891"] },
+            "metrics": { "field1": "X", "field2": "Y" }
+        }
+        """
+        let chart = try XCTUnwrap(ChartConfigParser.parse(from: json))
+        guard case .tile(let title, let values, let labels) = chart else {
+            return XCTFail("Expected .tile")
+        }
+        XCTAssertEqual(title, "Total")
+        XCTAssertEqual(values.first ?? 0, 891.0, accuracy: 0.001)
+        XCTAssertEqual(labels.first, "Passengers")
+    }
 
     // MARK: - FSRT-009: Unsupported type
 
