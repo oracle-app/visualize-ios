@@ -98,19 +98,22 @@ class CreateVisualizationScreenViewModel {
         isUploading = true
         isUploadComplete = false
         uploadProgress = 0.0
- 
+
+        timer?.invalidate()
         timer = Timer.scheduledTimer(
             withTimeInterval: 0.05,
             repeats: true
         ) { timer in
             if self.uploadProgress < 0.98 {
-                self.uploadProgress += 0.02
+                self.uploadProgress = min(self.uploadProgress + 0.04, 1.0)
             } else {
                 // Pin to exactly 1.0 so the bar and text both show 100%.
                 self.uploadProgress = 1.0
                 timer.invalidate()
+                self.timer = nil
+
                 Task {
-                    try? await Task.sleep(for: .milliseconds(400))
+                    try? await Task.sleep(for: .milliseconds(250))
                     self.isUploading = false
                     self.isUploadComplete = true
                 }
