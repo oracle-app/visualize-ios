@@ -56,14 +56,14 @@ struct SkeletonFeedCard: View {
                     Circle()
                         .frame(width: 33, height: 33)
                         .skeletonEffect()
-                        .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
+                        .overlay(Circle().stroke(AppColors.Brand.mint, lineWidth: 2))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 10)
         }
         .padding(16)
-        .background(Color.appMint)
+        .background(AppColors.Brand.mint)
         .cornerRadius(10)
         .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 2)
         .padding(.horizontal, 20)

@@ -13,36 +13,57 @@
 ///
  
 import SwiftUI
- 
+
 struct TileChartView: View {
- 
+
     // MARK: - Properties
- 
+
     /// Descriptive label displayed above the value (e.g. "Revenue", "# of Orders").
     let labels: [String]
     /// Numeric values to display (e.g. 800_000_000, 674).
     let values: [Double]
-    
+    let theme: ChartColorTheme  // ← agrega esto
+
     private let columnsPerRow: Int = 3
     private let spacing: CGFloat = 8
- 
+
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: spacing) {
-            ForEach(rows.indices, id: \.self) { rowIndex in
-                HStack(spacing: spacing) {
-                    ForEach(rows[rowIndex].indices, id: \.self) { itemIndex in
-                        let item = rows[rowIndex][itemIndex]
+        // GeometryReader is used here instead of containerRelativeFrame() because
+        // we need both available width (for tileWidth) and available height (for
+        // maxTileHeight to prevent landscape clipping). containerRelativeFrame()
+        // only provides one dimension at a time.
+        GeometryReader { geometry in
+            let availableWidth = geometry.size.width
+            let availableHeight = geometry.size.height
+            let tileWidth = (availableWidth - spacing * CGFloat(columnsPerRow - 1)) / CGFloat(columnsPerRow)
+            let maxTileHeight = (availableHeight - spacing * CGFloat(rows.count - 1)) / CGFloat(rows.count)
+            let tileHeight = min(tileWidth * 0.75, maxTileHeight)
 
-                        tileCard(label: item.label, value: item.value)
-                            .frame(width: tileWidth)
+            VStack {
+                Spacer()
+                VStack(spacing: spacing) {
+                    ForEach(rows.indices, id: \.self) { rowIndex in
+                        HStack(spacing: spacing) {
+                            ForEach(rows[rowIndex].indices, id: \.self) { itemIndex in
+                                let item = rows[rowIndex][itemIndex]
+                                tileCard(
+                                    label: item.label,
+                                    value: item.value,
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    color: theme.swiftUIColors[itemIndex % theme.swiftUIColors.count]
+                                )
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
+                Spacer()
             }
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Private Properties
@@ -58,13 +79,9 @@ struct TileChartView: View {
         }
     }
 
-    private var tileWidth: CGFloat {
-        88
-    }
-
     // MARK: - Private Methods
 
-    private func tileCard(label: String, value: Double) -> some View {
+    private func tileCard(label: String, value: Double, width: CGFloat, height: CGFloat, color: Color) -> some View {
         VStack(spacing: 7) {
             Text(label)
                 .font(.subheadline)
@@ -84,20 +101,17 @@ struct TileChartView: View {
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 6)
-        .frame(width: tileWidth)
-        .frame(height: 74)
+        .frame(width: width, height: height)
         .background(
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color(red: 247 / 255, green: 247 / 255, blue: 247 / 255))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(
-                    Color(red: 90 / 255, green: 115 / 255, blue: 114 / 255).opacity(0.3), lineWidth: 1
-            )
+                .stroke(color.opacity(0.6), lineWidth: 2)  // ← usa el color del tema
         )
     }
-    
+
     // MARK: - Formatting
     /// Abbreviates the value into a human-readable string.
     /// - 1 200 000 000 -> "1.2B"
@@ -106,7 +120,6 @@ struct TileChartView: View {
     /// - 45 000 -> "45K"
     /// - 758 -> "758"
     /// - 0.75 -> "0.75"
-
     private func formatValue(_ value: Double) -> String {
         let absValue = abs(value)
         let sign = value < 0 ? "-" : ""
@@ -140,7 +153,8 @@ private struct TileItem: Hashable {
 #Preview("Tile chart") {
     TileChartView(
         labels: ["Passengers", "Survived", "Avg Fare", "Avg Age", "Classes"],
-        values: [891, 342, 32.2, 29.7, 3]
+        values: [891, 342, 32.2, 29.7, 3],
+        theme: .lagoon
     )
     .padding()
 }

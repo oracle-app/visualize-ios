@@ -50,12 +50,12 @@ struct GeneratingVisualizationsScreen: View {
         VStack(spacing: 0) {
             Text(viewModel.title)
                 .font(.title.weight(.bold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(AppColors.Text.primary)
                 .multilineTextAlignment(.center)
 
             Text(viewModel.message)
                 .font(.body.weight(.regular))
-                .foregroundStyle(Color.appSubtitle)
+                .foregroundStyle(AppColors.Text.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 20)
                 .padding(.horizontal, 10)
@@ -71,14 +71,14 @@ struct GeneratingVisualizationsScreen: View {
             if let error = viewModel.errorMessage {
                 Text(error)
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(AppColors.Status.red)
                     .multilineTextAlignment(.center)
                     .padding(.top, 12)
             }
 
             Text(viewModel.footerMessage)
                 .font(.body.weight(.regular))
-                .foregroundStyle(Color.appSubtitle)
+                .foregroundStyle(AppColors.Text.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 26)
         }
@@ -92,7 +92,7 @@ struct GeneratingVisualizationsScreen: View {
         } label: {
             Text("Cancel")
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
                 .background(
@@ -108,7 +108,7 @@ struct GeneratingVisualizationsScreen: View {
                 )
                 .overlay(
                     Capsule()
-                        .stroke(Color.appTeal, lineWidth: 1)
+                        .stroke(AppColors.Brand.teal, lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)

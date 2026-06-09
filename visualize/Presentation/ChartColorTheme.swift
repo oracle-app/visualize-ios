@@ -27,13 +27,13 @@ enum ChartColorTheme: String, CaseIterable, Identifiable {
     var swiftUIColors: [Color] {
         switch self {
         case .lagoon:
-            [.paletteLagoon1, .paletteLagoon2, .paletteLagoon3, .paletteLagoon4, .paletteLagoon5]
+            return [AppColors.Palette.Lagoon.c1, AppColors.Palette.Lagoon.c2, AppColors.Palette.Lagoon.c3, AppColors.Palette.Lagoon.c4, AppColors.Palette.Lagoon.c5]
         case .sunset:
-            [.paletteSunset1, .paletteSunset2, .paletteSunset3, .paletteSunset4, .paletteSunset5]
+            return [AppColors.Palette.Sunset.c1, AppColors.Palette.Sunset.c2, AppColors.Palette.Sunset.c3, AppColors.Palette.Sunset.c4, AppColors.Palette.Sunset.c5]
         case .harvest:
-            [.paletteHarvest1, .paletteHarvest2, .paletteHarvest3, .paletteHarvest4, .paletteHarvest5]
+            return [AppColors.Palette.Harvest.c1, AppColors.Palette.Harvest.c2, AppColors.Palette.Harvest.c3, AppColors.Palette.Harvest.c4, AppColors.Palette.Harvest.c5]
         case .petal:
-            [.palettePetal1, .palettePetal2, .palettePetal3, .palettePetal4, .palettePetal5]
+            return [AppColors.Palette.Petal.c1, AppColors.Palette.Petal.c2, AppColors.Palette.Petal.c3, AppColors.Palette.Petal.c4, AppColors.Palette.Petal.c5]
         }
     }
 

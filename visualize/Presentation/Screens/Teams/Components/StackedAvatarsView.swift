@@ -37,10 +37,10 @@ struct StackedAvatarsView: View {
                         .fill(Color.appBackground)
                     Text("+\(remainingCount)")
                         .font(.system(size: avatarSize * 0.4, weight: .regular))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                 }
                 .frame(width: avatarSize, height: avatarSize)
-                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
+                .overlay(Circle().stroke(AppColors.Brand.mint, lineWidth: 2))
                 .zIndex(0)
             }
             

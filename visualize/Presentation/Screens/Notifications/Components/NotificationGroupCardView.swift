@@ -21,7 +21,7 @@ struct NotificationGroupCardView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 26)
-                .fill(Color.appMint)
+                .fill(AppColors.Brand.mint)
         )
     }
 }

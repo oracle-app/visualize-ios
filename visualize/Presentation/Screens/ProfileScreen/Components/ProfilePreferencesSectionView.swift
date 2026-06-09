@@ -18,7 +18,7 @@ struct ProfilePreferencesSectionView: View {
         VStack(alignment: .leading, spacing: Metrics.sectionSpacing) {
             Label("Chart theme", systemImage: "paintpalette.fill")
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(AppColors.Text.primary)
 
             LazyVGrid(columns: columns, spacing: Metrics.rowSpacing) {
                 ForEach(availableThemes) { theme in
@@ -33,7 +33,7 @@ struct ProfilePreferencesSectionView: View {
                                 if selectedTheme == theme {
                                     ZStack {
                                         RoundedRectangle(cornerRadius: Metrics.themeCornerRadius)
-                                            .strokeBorder(Color.primaryText, lineWidth: Metrics.selectedBorderWidth)
+                                            .strokeBorder(AppColors.Text.primary, lineWidth: Metrics.selectedBorderWidth)
                                         RoundedRectangle(cornerRadius: Metrics.themeCornerRadius)
                                             .inset(by: Metrics.selectedBorderWidth)
                                             .strokeBorder(Color.appBackground, lineWidth: Metrics.selectionPadding)

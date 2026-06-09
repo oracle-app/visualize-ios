@@ -51,7 +51,7 @@ struct ThreadCommentRowView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.appThreadsPrimary.opacity(0.5))
+                .fill(AppColors.Threads.primary.opacity(0.5))
         )
         .padding(.horizontal, 20)
     }
@@ -71,10 +71,11 @@ struct ThreadCommentRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(isAuthor ? "Me" : (comment.authorName ?? comment.authorID))
                     .font(.body.weight(.bold))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
+
                 Text(comment.createdAt.timeAgoDisplay())
                     .font(.subheadline)
-                    .foregroundStyle(Color.primaryText.opacity(0.5))
+                    .foregroundStyle(AppColors.Text.primary.opacity(0.5))
             }
 
             Spacer()
@@ -125,7 +126,7 @@ struct ThreadCommentRowView: View {
                     } label: {
                         Image(systemName: "arrowshape.turn.up.left")
                             .font(.system(size: 20))
-                            .foregroundStyle(Color.appTeal)
+                            .foregroundStyle(AppColors.Brand.teal)
                             .frame(width: 37, height: 37)
                             .background(Circle().fill(.ultraThinMaterial))
                     }
@@ -138,7 +139,7 @@ struct ThreadCommentRowView: View {
         }
         .background(
             UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20)
-                .fill(Color.appThreadsPrimary.opacity(0.5))
+                .fill(AppColors.Threads.primary.opacity(0.5))
         )
     }
 
@@ -187,7 +188,7 @@ struct ThreadCommentRowView: View {
             if let content = comment.content, !content.isEmpty {
                 Text(content)
                     .font(.system(size: 15))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 18)
                     .padding(.top, 10)

@@ -18,13 +18,13 @@ struct ProfileUserInfoView: View {
             Text(username)
                 .font(.title)
                 .bold()
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(AppColors.Text.primary)
                 .accessibilityIdentifier("ProfileUsername")
 
             Text(email)
                 .font(.body)
                 .fontWeight(.semibold)
-                .foregroundStyle(Color.appSubtitle)
+                .foregroundStyle(AppColors.Text.secondary)
                 .accessibilityIdentifier("ProfileEmail")
         }
         .multilineTextAlignment(.center)

@@ -32,17 +32,17 @@ struct ProfileAboutSectionView: View {
         VStack(alignment: .leading, spacing: Metrics.sectionSpacing) {
             Label("About", systemImage: "info.circle.fill")
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(AppColors.Text.primary)
 
             VStack(alignment: .leading, spacing: Metrics.itemSpacing) {
                 ForEach(items) { item in
                     switch item {
                     case .info(let text):
                         Text(text)
-                            .foregroundStyle(Color.appSubtitle)
+                            .foregroundStyle(AppColors.Text.secondary)
                     case .action(let text, let action):
                         Button(text, action: action)
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(AppColors.Text.primary)
                     }
                 }
             }

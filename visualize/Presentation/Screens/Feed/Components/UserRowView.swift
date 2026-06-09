@@ -26,11 +26,11 @@ struct UserRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.username)
                     .font(.body.weight(.bold))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
                 
                 Text(user.email)
                     .font(.subheadline)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
                     .opacity(0.5)
             }
             
