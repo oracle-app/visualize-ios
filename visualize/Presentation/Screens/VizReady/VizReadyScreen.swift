@@ -214,12 +214,12 @@ struct VizReadyView: View {
 
                     if isShared {
                         message = count == 1
-                            ? "Visualization published and shared"
-                            : "\(count) visualizations published and shared"
+                            ? String(localized: "Visualization published and shared")
+                            : String(localized: "\(count) visualizations published and shared")
                     } else {
                         message = count == 1
-                            ? "Visualization published to your feed"
-                            : "\(count) visualizations published to your feed"
+                            ? String(localized: "Visualization published to your feed")
+                            : String(localized: "\(count) visualizations published to your feed")
                     }
 
                     createFlowState.pendingToast = Toast(
