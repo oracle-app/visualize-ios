@@ -168,12 +168,12 @@ struct SnipEditorScreen: View {
 
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Cancel", systemImage: "xmark") { showDiscardAlert = true }
-                    .tint(Color.appNavy)
+                    .tint(AppColors.Text.primary)
             }
 
             ToolbarItem(placement: .confirmationAction) {
                 Button("Confirm", systemImage: "checkmark") { exportForPreview() }
-                    .tint(Color.primaryOrange)
+                    .tint(AppColors.Brand.primaryOrange)
                     .disabled(model.isCropInProgress)
             }
 

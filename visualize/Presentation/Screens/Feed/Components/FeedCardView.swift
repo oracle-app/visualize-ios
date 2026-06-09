@@ -35,7 +35,7 @@ struct FeedCardView: View {
                 VStack(alignment: .leading, spacing: 5) {
                     Text(title)
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                         .lineLimit(2)
                         .minimumScaleFactor(0.6)
                     HStack(spacing: 12) {
@@ -45,7 +45,7 @@ struct FeedCardView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(Color.appTeal)
+                    .foregroundStyle(AppColors.Brand.teal)
                 }
                 Spacer()
                 Menu {
@@ -155,7 +155,7 @@ struct FeedCardView: View {
             }
        }
        .padding(16)
-       .background(Color.appMint)
+       .background(AppColors.Brand.mint)
        .cornerRadius(10)
        .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 2)
        .padding(.horizontal, 20)

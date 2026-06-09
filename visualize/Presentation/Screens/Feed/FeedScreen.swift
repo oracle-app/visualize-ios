@@ -128,10 +128,10 @@ struct FeedScreen: View {
                     coordinator.push(.notifications)
                 } label: {
                     Image(systemName: "bell")
-                        .overlay(alignment: .topTrailing){
+                        .overlay(alignment: .topTrailing) {
                             if viewModel.hasUnreadNotifications {
                                 Circle()
-                                    .fill(Color.red)
+                                    .fill(AppColors.Status.red)
                                     .frame(width: 8, height: 8)
                                     .offset(x: 2, y: -2)
                             }
@@ -274,7 +274,7 @@ struct FeedScreen: View {
                 HStack(spacing: 10) {
                     Text(selectedFeed.title)
                         .font(.title.bold())
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                         .onGeometryChange(for: Bool.self) {
                             let height = $0.size.height
                             let offset = $0.frame(in: .named("scroll")).minY
@@ -287,7 +287,7 @@ struct FeedScreen: View {
                         }
                     Image(systemName: "control")
                         .font(.body.bold())
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                         .rotationEffect(.degrees(180))
                         .padding(.trailing, 10)
                 }
@@ -317,7 +317,7 @@ struct FeedScreen: View {
                     VStack {
                         Text(String(localized: "No results for \"\(viewModel.searchQuery)\""))
                             .font(.body.bold())
-                            .foregroundStyle(Color.appTeal)
+                            .foregroundStyle(AppColors.Brand.teal)
                         Text(String(localized: "Try a different search term"))                            .foregroundStyle(.gray)
                     }
                     .hCenter()

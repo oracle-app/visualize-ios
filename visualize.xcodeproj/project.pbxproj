@@ -55,6 +55,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		528EAC8A2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualize" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Feed/TestMocks/MockFeedRepositories.swift,
+			);
+			target = 053BEF1A2F8AEC41008A3D6B /* visualize */;
+		};
+		528EAC8B2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualizeTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Feed/TestMocks/MockFeedRepositories.swift,
+			);
+			target = DD1B65E12FD3A0A00002F60E /* visualizeTests */;
+		};
 		E480294E2FAAEC560043CC15 /* Exceptions for "visualize" folder in "visualize" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -75,6 +89,10 @@
 		};
 		DD1B65E32FD3A0A00002F60E /* visualizeTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				528EAC8A2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualize" target */,
+				528EAC8B2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualizeTests" target */,
+			);
 			path = visualizeTests;
 			sourceTree = "<group>";
 		};
@@ -252,7 +270,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2650;
+				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					053BEF1A2F8AEC41008A3D6B = {
@@ -546,7 +564,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 52LXMA75A8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = visualize/Info.plist;
@@ -585,7 +603,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 52LXMA75A8;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = visualize/Info.plist;

@@ -39,7 +39,7 @@ struct UserAvatarView: View {
         .overlay(
             Group {
                 if showBorder {
-                    Circle().stroke(Color.appMint, lineWidth: 2)
+                    Circle().stroke(AppColors.Brand.mint, lineWidth: 2)
                 }
             }
         )
@@ -52,7 +52,7 @@ struct UserAvatarView: View {
             Text(String(user.username.prefix(1)).uppercased())
         
                 .font(.system(size: size * 0.45, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
         }
     }
 }

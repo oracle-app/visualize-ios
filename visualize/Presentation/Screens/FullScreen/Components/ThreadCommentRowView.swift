@@ -1,14 +1,16 @@
 //
-//  ThreadCommentRow.swift
+//  ThreadCommentRowView.swift
 //  visualize
 //
 //  Created by Kimberly Marquez on 4/28/26.
 //
-//  Displays a single comment card with its image and nested replies.
-//  - Shows the author avatar, name, and timestamp in a header
-//  - Renders the associated visualization image or a placeholder
-//  - Lists all thread replies below the image
-//  - Toggles the reply input bar when the reply button is tapped
+///  A SwiftUI View that handles the presentation layout for a master parent comment card.
+///
+///  Responsibilities:
+///  - Renders user metadata context, timestamp indicators, and textual data layers.
+///  - Uses AsyncImage phase blocks to safely retrieve structural remote snap snapshots.
+///  - Integrates contextual interactive controls for inline responding or secure record removals.
+///  - Cascades parent validation privileges down into encapsulated subordinate reply collections.
 
 import SwiftUI
 import FirebaseCore
@@ -26,7 +28,7 @@ struct ThreadCommentRowView: View {
     @Binding var activeCommentAuthor: String?
     @State private var showDeleteAlert = false
     
-    var isReplying: Bool { activeCommentID == comment.id }  // True when this comment is active
+    var isReplying: Bool { activeCommentID == comment.id } 
     var isAuthor: Bool { currentUserID == comment.authorID }
     
     var onDeleteComment: (String, String) -> Void
@@ -49,7 +51,7 @@ struct ThreadCommentRowView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.appThreadsPrimary.opacity(0.5))
+                .fill(AppColors.Threads.primary.opacity(0.5))
         )
         .padding(.horizontal, 20)
     }
@@ -59,7 +61,6 @@ struct ThreadCommentRowView: View {
     /// Author avatar, name, timestamp, and reply toggle button.
     private var commentHeader: some View {
         HStack(spacing: 8) {
-            
             UserAvatarView(
                 username: comment.authorName ?? "",
                 avatarURL: comment.authorAvatarURL,
@@ -70,60 +71,75 @@ struct ThreadCommentRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(isAuthor ? "Me" : (comment.authorName ?? comment.authorID))
                     .font(.body.weight(.bold))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
 
                 Text(comment.createdAt.timeAgoDisplay())
                     .font(.subheadline)
-                    .foregroundStyle(Color.primaryText.opacity(0.5))
+                    .foregroundStyle(AppColors.Text.primary.opacity(0.5))
             }
 
             Spacer()
-            
-            Menu {
-                Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            activeCommentID = comment.id
-                            activeCommentAuthor = isAuthor ? "Me" : (comment.authorName ?? comment.authorID)
-                        }
-                    } label: {
-                        Label("Reply", systemImage:"arrowshape.turn.up.left")
-                    }
+            Group {
                 if canDelete(comment.authorID) {
+                    Menu {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                activeCommentID = comment.id
+                                activeCommentAuthor = isAuthor ? "Me" : (comment.authorName ?? comment.authorID)
+                            }
+                        } label: {
+                            Label("Reply", systemImage: "arrowshape.turn.up.left")
+                        }
                         Button(role: .destructive) {
                             showDeleteAlert = true
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
-                    }
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(.ultraThinMaterial)
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(.ultraThinMaterial)
+                                .frame(width: 37, height: 37)
+                            Image(systemName: "ellipsis")
+                                .font(.system(size: 22))
+                                .foregroundStyle(AppColors.Brand.teal)
+                        }
                         .frame(width: 37, height: 37)
-
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 22))
-                        .foregroundStyle(Color.appTeal)
+                        .contentShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                    .alert("Delete thread?", isPresented: $showDeleteAlert) {
+                        Button("Delete", role: .destructive) {
+                            onDeleteComment(comment.id, comment.authorID)
+                        }
+                        Button("Cancel", role: .cancel) {}
+                    } message: {
+                        Text("This will permanently remove the thread and all its replies. This action cannot be undone.")
+                    }
+                } else {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            activeCommentID = comment.id
+                            activeCommentAuthor = comment.authorName ?? comment.authorID
+                        }
+                    } label: {
+                        Image(systemName: "arrowshape.turn.up.left")
+                            .font(.system(size: 20))
+                            .foregroundStyle(AppColors.Brand.teal)
+                            .frame(width: 37, height: 37)
+                            .background(Circle().fill(.ultraThinMaterial))
+                    }
+                    .buttonStyle(.plain)
+                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                 }
-                .frame(width: 37, height: 37)
-                .contentShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
-            .alert("Delete thread?", isPresented: $showDeleteAlert) {
-                Button("Delete", role: .destructive) {
-                    onDeleteComment(comment.id, comment.authorID)
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("This will permanently remove the thread and all its replies. This action cannot be undone.")
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 18)
         }
         .background(
             UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20)
-                .fill(Color.appThreadsPrimary.opacity(0.5))
+                .fill(AppColors.Threads.primary.opacity(0.5))
         )
     }
 
@@ -140,13 +156,14 @@ struct ThreadCommentRowView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     case .failure:
                         placeholderImage
                     case .empty:
                         ProgressView()
-                            .frame(height: 120)
+                            .frame(height: 200)
+                            .frame(maxWidth: .infinity, alignment: .center)
                     @unknown default:
                         placeholderImage
                     }
@@ -154,14 +171,16 @@ struct ThreadCommentRowView: View {
             }
         }
         .padding(.horizontal, 18)
-        .padding(.vertical, 10)
+        .padding(.top, (comment.content?.isEmpty ?? true) ? 16 : 8) 
+        .padding(.bottom, comment.threads.isEmpty ? 12 : 6)
     }
 
     private var placeholderImage: some View {
-        RoundedRectangle(cornerRadius: 12)
+        RoundedRectangle(cornerRadius: 10)
             .fill(Color.black.opacity(0.08))
             .frame(height: 200)
             .overlay(Label("", systemImage: "photo").foregroundStyle(.secondary))
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var contentSection: some View {
@@ -169,7 +188,7 @@ struct ThreadCommentRowView: View {
             if let content = comment.content, !content.isEmpty {
                 Text(content)
                     .font(.system(size: 15))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 18)
                     .padding(.top, 10)

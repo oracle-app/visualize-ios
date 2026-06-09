@@ -11,12 +11,12 @@ struct NotificationsEmptyView: View {
         VStack(spacing: 6) {
             Text("No notifications yet")
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
                 .multilineTextAlignment(.center)
 
             Text("We'll notify you when there's something new.")
                 .font(.system(size: 17))
-                .foregroundStyle(Color.appSubtitle)
+                .foregroundStyle(AppColors.Text.secondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
