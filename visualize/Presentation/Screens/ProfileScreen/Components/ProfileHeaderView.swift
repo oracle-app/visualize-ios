@@ -112,7 +112,7 @@ struct ProfileHeaderView: View {
                 .font(.system(size: Metrics.avatarIconSize * 1, weight: .semibold))
                 .foregroundStyle(.white)
         }
-        .accessibilityIdentifier("ProfileAvatar")
+        .accessibilityIdentifier("ProfileAvatarFallback")
     }
     
     private var profileAvatar: some View {
@@ -128,7 +128,7 @@ struct ProfileHeaderView: View {
                     AsyncImage(url: url) { phase in
                         switch phase {
                         case .success(let image):
-                            image.resizable().scaledToFill().accessibilityIdentifier("ProfileAvatar")
+                            image.resizable().scaledToFill().accessibilityIdentifier("ProfileAvatarLoaded")
                         case .failure:
                             fallbackAvatar
                         case .empty:
