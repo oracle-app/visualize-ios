@@ -6,7 +6,7 @@
 //
 
 /// Permanently deletes a visualization for all users.
-struct DeleteVisualizationUseCase {
+class DeleteVisualizationUseCase {
     private let visualizationRepository: any VisualizationRepository
 
     init(visualizationRepository: any VisualizationRepository) {

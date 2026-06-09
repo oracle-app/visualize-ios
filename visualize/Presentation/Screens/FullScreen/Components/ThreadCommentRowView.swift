@@ -102,7 +102,7 @@ struct ThreadCommentRowView: View {
                                 .frame(width: 37, height: 37)
                             Image(systemName: "ellipsis")
                                 .font(.system(size: 22))
-                                .foregroundStyle(Color.appTeal)
+                                .foregroundStyle(AppColors.Brand.teal)
                         }
                         .frame(width: 37, height: 37)
                         .contentShape(Circle())

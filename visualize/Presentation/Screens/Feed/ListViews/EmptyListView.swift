@@ -41,5 +41,8 @@ struct EmptyListView: View {
         }
         .hCenter()
         .padding(.top, 200)
+        .accessibilityElement()
+        .accessibilityIdentifier("emptyListView")
+
     }
 }

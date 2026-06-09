@@ -55,21 +55,19 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		DE36898F2FD6B69E00FF6045 /* Exceptions for "visualizeUITests" folder in "visualize" target */ = {
+		528EAC8A2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualize" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Profile/MockProfileUseCases.swift,
-				"Profile/test-avatar.jpg",
+				Feed/TestMocks/MockFeedRepositories.swift,
 			);
 			target = 053BEF1A2F8AEC41008A3D6B /* visualize */;
 		};
-		DE3689902FD6B6A200FF6045 /* Exceptions for "visualizeUITests" folder in "visualizeUITests" target */ = {
+		528EAC8B2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualizeTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Profile/MockProfileUseCases.swift,
-				"Profile/test-avatar.jpg",
+				Feed/TestMocks/MockFeedRepositories.swift,
 			);
-			target = DD71EFEB2FD3A87100EE00C1 /* visualizeUITests */;
+			target = DD1B65E12FD3A0A00002F60E /* visualizeTests */;
 		};
 		E480294E2FAAEC560043CC15 /* Exceptions for "visualize" folder in "visualize" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -91,6 +89,10 @@
 		};
 		DD1B65E32FD3A0A00002F60E /* visualizeTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				528EAC8A2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualize" target */,
+				528EAC8B2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualizeTests" target */,
+			);
 			path = visualizeTests;
 			sourceTree = "<group>";
 		};
