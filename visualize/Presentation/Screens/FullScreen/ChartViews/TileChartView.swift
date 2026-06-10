@@ -36,8 +36,8 @@ struct TileChartView: View {
 
     var body: some View {
         if displayedItems.isEmpty {
-            Text(String(localized: "Chart data could not be parsed."))
-                .font(.system(size: 13, weight: .medium))
+            Text("Chart data could not be parsed.")
+                .font(.footnote)
                 .foregroundStyle(AppColors.Text.secondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
