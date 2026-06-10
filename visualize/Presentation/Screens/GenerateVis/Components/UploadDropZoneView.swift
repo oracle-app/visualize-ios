@@ -42,16 +42,17 @@ struct UploadDropZoneView: View {
                     )
                     .padding(.bottom, 4)
 
-                HStack(spacing: 0) {
+                (
                     Text("Choose a ", comment: "from Choose a .xlsx or .csv file.")
-                    Text(".xlsx", comment: "from Choose a .xlsx or .csv file.").fontWeight(.semibold)
-                    Text(" or ", comment: "from Choose a .xlsx or .csv file.")
-                    Text(".csv", comment: "from Choose a .xlsx or .csv file.").fontWeight(.semibold)
-                    Text(" file.", comment: "from Choose a .xlsx or .csv file.")
-                }
+                    + Text(".xlsx", comment: "from Choose a .xlsx or .csv file.").fontWeight(.semibold)
+                    + Text(" or ", comment: "from Choose a .xlsx or .csv file.")
+                    + Text(".csv", comment: "from Choose a .xlsx or .csv file.").fontWeight(.semibold)
+                    + Text(" file.", comment: "from Choose a .xlsx or .csv file.")
+                )
                 .font(.system(size: 15))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
 
                 VStack(spacing: 2) {
                     Text(String(localized: "Maximum file size: 100 MB"))
