@@ -33,6 +33,7 @@ enum AppColors {
         static let placeholder = Color("TextPlaceholder")
         static let authFieldText = Color("AuthFieldText")
         static let authButtonText = Color("AuthButtonText")
+        static let versionText = Color(red: 121/255, green: 139/255, blue: 138/255)
     }
 
     // MARK: UI
