@@ -24,6 +24,8 @@ struct ChartRendererView: View {
     var viewport: ChartViewport?
     /// Callback invoked once the coordinator attaches to the live surface.
     var onCoordinatorReady: ((ChartTooltipCoordinator) -> Void)?
+    /// Whether the chart is being rendered inside a small card preview.
+    var isFeedCard: Bool = false
     
     // MARK: - Private
 
@@ -134,9 +136,14 @@ struct ChartRendererView: View {
  
         // MARK: Tile
         case .tile(_, let values, let labels):
-            TileChartView(labels: labels, values: values, theme: theme)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(10)
+            TileChartView(
+                labels: labels,
+                values: values,
+                theme: theme,
+                isFeedCard: isFeedCard
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(10)
         
         // MARK: Unsupported
         case .unsupported(let type):

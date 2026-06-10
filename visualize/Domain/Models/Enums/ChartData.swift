@@ -21,6 +21,6 @@ enum ChartData: Hashable, Equatable {
     case donut(title: String, data: [Double], fieldNames: [String])
     case scatter(title: String, data: [ScatterPoint], fieldNames: [String])
     case area(title: String, data: [String: [Double]], stackNames: [String])
-    case tile(title: String, values: [Double], labels: [String])
+    case tile(title: String, values: [String], labels: [String])
     case unsupported(type: String)
 }
