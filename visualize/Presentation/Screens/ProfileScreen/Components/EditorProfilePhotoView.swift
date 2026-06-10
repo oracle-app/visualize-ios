@@ -199,6 +199,7 @@ struct EditProfilePhotoView: View {
             }
             .foregroundStyle(.white)
             .font(.body)
+            .accessibilityIdentifier("SavePhotoButton")
         }
         .padding(.horizontal, 24)
     }
