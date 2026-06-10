@@ -15,11 +15,16 @@
 import SwiftUI
 
 struct ExampleTableView: View {
-    let columns = ["Date", "Product", "Sales", "Region"]
+    let columns = [
+        String(localized: "Date"),
+        String(localized: "Product"),
+        String(localized: "Sales"),
+        String(localized: "Region"),
+    ]
     let rows: [[String]] = [
-        ["Jan", "A", "120", "North"],
-        ["Feb", "B", "95", "South"],
-        ["Mar", "A", "150", "North"],
+        [String(localized: "Jan"), "A", "120", String(localized: "North")],
+        [String(localized: "Feb"), "B", "95", String(localized: "South")],
+        [String(localized: "Mar"), "A", "150", String(localized: "North")],
     ]
 
     var body: some View {

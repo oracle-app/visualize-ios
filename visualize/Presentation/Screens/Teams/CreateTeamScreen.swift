@@ -357,7 +357,7 @@ struct CreateTeamScreen: View {
                             // Show success toast.
                             vm.showToast(
                                 Toast(
-                                    message: "Team created successfully",
+                                    message: String(localized: "Team created successfully"),
                                     type: .success
                                 )
                             )

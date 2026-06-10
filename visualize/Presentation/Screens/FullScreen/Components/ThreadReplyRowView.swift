@@ -81,7 +81,7 @@ struct ThreadReplyRowView: View {
     private var replyBubble: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
-                Text(isAuthor ? "Me" : reply.authorName)
+                Text(isAuthor ? String(localized: "Me") : reply.authorName)
                     .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(AppColors.Text.primary)
 
