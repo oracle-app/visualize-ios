@@ -21,7 +21,7 @@ struct ReplyFieldView: View {
     /// A two-way reactive data connection mirroring the textual contents managed by the parent container frame.
     @Binding var text: String
     /// The localized contextual string placeholder displayed prior to user character input. Defaults to `"Start a new thread. . ."`.
-    var placeholder: String = "Start a new thread. . ."
+    var placeholder: String = String(localized: "Start a new thread. . .")
     /// An initial state flag to determine if this input cell should gain first responder status upon rendering.
     var isActive: Bool = false
     /// An execution closure action block triggered when the user commits their data entry payload by clicking the send element.

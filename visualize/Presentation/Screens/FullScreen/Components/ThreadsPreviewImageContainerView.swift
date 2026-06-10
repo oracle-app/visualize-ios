@@ -57,7 +57,7 @@ struct ThreadsPreviewImageContainerView: View {
                 // layout off-screen — the image shrinks instead.
                 .scaledToFit()
                 .padding(8)
-                .accessibilityLabel("Preview of the edited visualization")
+                .accessibilityLabel(Text("Preview of the edited visualization"))
         } else {
             failedState
         }
