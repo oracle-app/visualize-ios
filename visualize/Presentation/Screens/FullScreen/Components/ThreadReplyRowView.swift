@@ -123,7 +123,7 @@ struct ThreadReplyRowView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This will permanently remove your reply. This action cannot be undone.")
+            Text("This will permanently remove the reply. This action cannot be undone.")
         }
     }
 }
