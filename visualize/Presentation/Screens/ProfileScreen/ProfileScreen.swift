@@ -65,23 +65,33 @@ struct ProfileScreen: View {
             Color.appBackground
                 .ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: Metrics.sectionSpacing) {
-                    ProfileHeaderView(
-                        onPickerRequested: { showPhotoPicker = true },
-                        onDelete: { viewModel.deleteProfileImage() },
-                        profilePictureURL: viewModel.profilePictureURL,
-                        onUpload: { image in viewModel.uploadProfileImage(image: image) },
-                        isUploading: viewModel.isUploadingPhoto,
+            VStack(spacing: Metrics.sectionSpacing) {
+                ProfileHeaderView(
+                    onPickerRequested: { showPhotoPicker = true },
+                    onDelete: { viewModel.deleteProfileImage() },
+                    profilePictureURL: viewModel.profilePictureURL,
+                    onUpload: { image in viewModel.uploadProfileImage(image: image) },
+                    isUploading: viewModel.isUploadingPhoto,
+                    username: viewModel.username,
+                    pendingImage: $pendingImage,
+                    showImageEditor: $showImageEditor,
+                    isCameraActive: $isCameraActive
+                )
+                VStack(spacing: Metrics.contentSpacing) {
+                    ProfileUserInfoView(
                         username: viewModel.username,
-                        pendingImage: $pendingImage,
-                        showImageEditor: $showImageEditor,
-                        isCameraActive: $isCameraActive
+                        email: viewModel.email
                     )
-                    VStack(spacing: Metrics.contentSpacing) {
-                        ProfileUserInfoView(
-                            username: viewModel.username,
-                            email: viewModel.email
+                    Divider()
+                        .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
+                    ProfilePreferencesSectionView(
+                        availableThemes: ChartColorTheme.allCases,
+                        selectedTheme: selectedTheme
+                    ) { theme in
+                        selectedThemeRaw = theme.rawValue
+                        activeToast = Toast(
+                            message: String(localized: "\(theme.title) theme applied", comment: "Theme name followed by 'theme applied'"),
+                            type: .success
                         )
                         Divider()
                             .background(AppColors.Text.secondary.opacity(Metrics.dividerOpacity))
@@ -124,11 +134,27 @@ struct ProfileScreen: View {
                             Text("Are you sure you want to log out?")
                         }
                     }
-                    .padding(.horizontal, Metrics.horizontalPadding)
+                    Divider()
+                        .background(Color.appSubtitle.opacity(Metrics.dividerOpacity))
+                    ProfileAboutSectionView(items: viewModel.aboutItems)
+                    Button("Log out", action: viewModel.logOut)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.red)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, Metrics.buttonVerticalPadding)
+                        .background {
+                            Capsule()
+                                .fill(Color.appBackground)
+                                .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
+                        }
+                        .overlay {
+                            Capsule()
+                                .strokeBorder(.red, lineWidth: Metrics.borderWidth)
+                        }
                 }
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal, Metrics.horizontalPadding)
             }
-            .scrollIndicators(.hidden)
+            .frame(maxWidth: .infinity)
             .ignoresSafeArea(edges: .top)
 
             Color.clear

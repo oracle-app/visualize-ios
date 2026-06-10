@@ -89,6 +89,17 @@ struct VisualizeApp: App {
                 )
                 .environment(AppCoordinator())
             }
+        } else if args.contains("-uitest-notifications-loaded") {
+            NavigationStack {
+                NotificationsScreen(
+                    viewModel: NotificationsScreenViewModel(
+                        authRepository: MockAuthRepository(),
+                        notificationRepository: NotificationsMockNotificationRepository()
+                    )
+                )
+            }
+        } else if args.contains("-uitest-notifications-empty") {
+            NotificationsEmptyView()
         } else {
             defaultRoot
         }

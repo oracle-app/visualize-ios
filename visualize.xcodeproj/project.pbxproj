@@ -59,6 +59,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Feed/TestMocks/MockFeedRepositories.swift,
+				Notifications/TestMocks/MockNotificationRepository.swift,
 			);
 			target = 053BEF1A2F8AEC41008A3D6B /* visualize */;
 		};
@@ -66,6 +67,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Feed/TestMocks/MockFeedRepositories.swift,
+				Notifications/TestMocks/MockNotificationRepository.swift,
 			);
 			target = DD1B65E12FD3A0A00002F60E /* visualizeTests */;
 		};
