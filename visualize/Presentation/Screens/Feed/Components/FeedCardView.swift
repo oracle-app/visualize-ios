@@ -39,7 +39,7 @@ struct FeedCardView: View {
                         .lineLimit(2)
                         .minimumScaleFactor(0.6)
                     HStack(spacing: 12) {
-                        Text(String(localized: "by \(isOwner ? "me" : author)"))
+                        Text(isOwner ? String(localized: "by me") : String(localized: "by \(author)"))
                         Text("•")
                         Text(date.timeAgoDisplay())
                     }

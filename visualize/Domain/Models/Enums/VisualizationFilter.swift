@@ -4,6 +4,7 @@
 //
 //  Created by Carlos Amador on 15/04/26.
 //
+import Foundation
 
 enum VisualizationFilter: CaseIterable {
     case all
@@ -11,15 +12,14 @@ enum VisualizationFilter: CaseIterable {
     case shared
     
     var title: String {
-            switch self {
-            case .all:
-                return "All Feed"
-            case .personal:
-                return "Personal Feed"
-            case .shared:
-                return "Shared Feed"
-            }
+        switch self {
+        case .all:
+            String(localized: "All Feed")
+        case .personal:
+            String(localized: "Personal Feed")
+        case .shared:
+            String(localized: "Shared Feed")
         }
-    
+    }
     
 }

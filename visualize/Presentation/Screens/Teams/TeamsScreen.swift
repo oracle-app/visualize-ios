@@ -178,7 +178,7 @@ struct TeamsScreen: View {
 
     // MARK: Helpers
 
-    private func sectionHeader(_ title: String) -> some View {
+    private func sectionHeader(_ title: LocalizedStringKey) -> some View {
         Text(title)
             .font(.title3.bold())
             .foregroundStyle(AppColors.Text.primary)
