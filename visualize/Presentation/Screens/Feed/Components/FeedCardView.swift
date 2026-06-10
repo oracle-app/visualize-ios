@@ -114,7 +114,7 @@ struct FeedCardView: View {
             }
             ZStack {
                 if let chartData = chart {
-                    ChartRendererView(chart: chartData)
+                    ChartRendererView(chart: chartData, isFeedCard: true)
                         .allowsHitTesting(false)
                         .transition(.opacity)
                 } else {

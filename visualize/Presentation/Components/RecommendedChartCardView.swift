@@ -100,7 +100,7 @@ struct RecommendedChartCardView: View {
     private var chartPreview: some View {
         Group {
             if let chart {
-                ChartRendererView(chart: chart)
+                ChartRendererView(chart: chart, isFeedCard: true)
                     .allowsHitTesting(false)
                     .padding(15)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
