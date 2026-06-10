@@ -185,7 +185,7 @@ struct ThreadScreen: View {
             
             ReplyFieldView(
                 text: $replyText,
-                placeholder: activeCommentID == nil ? "Start a new thread. . ." : "Write your reply...",
+                placeholder: activeCommentID == nil ? String(localized: "Start a new thread. . .") : String(localized: "Write your reply..."),
                 isActive: true
             ) {
                 submitReply()

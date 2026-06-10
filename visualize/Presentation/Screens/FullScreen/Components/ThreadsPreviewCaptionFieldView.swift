@@ -97,9 +97,9 @@ struct ThreadsPreviewCaptionFieldView: View {
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .focused(focus)
-                    .accessibilityLabel("Caption")
-                    .accessibilityValue("\(text.count) of \(limit) characters used")
-                    .accessibilityHint("Optional description for your post")
+                    .accessibilityLabel(Text("Caption"))
+                    .accessibilityValue(Text("\(text.count) of \(limit) characters used"))
+                    .accessibilityHint(Text("Optional description for your post"))
             }
             .frame(minHeight: editorMinHeight)
             .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12, style: .continuous))

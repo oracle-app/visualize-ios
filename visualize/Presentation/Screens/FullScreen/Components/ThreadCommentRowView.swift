@@ -69,7 +69,7 @@ struct ThreadCommentRowView: View {
             .padding(.horizontal)
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(isAuthor ? "Me" : (comment.authorName ?? comment.authorID))
+                Text(isAuthor ? String(localized: "Me") : (comment.authorName ?? comment.authorID))
                     .font(.body.weight(.bold))
                     .foregroundStyle(AppColors.Text.primary)
 
