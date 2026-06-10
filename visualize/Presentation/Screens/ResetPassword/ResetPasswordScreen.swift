@@ -104,8 +104,7 @@ struct ResetPasswordScreen: View {
                 Text("V 1.0.0")
                     .font(.system(size: 11))
                     .foregroundStyle(
-                        Color(red: 121/255, green: 139/255, blue: 138/255)
-                            .opacity(0.6)
+                        AppColors.Text.versionText
                     )
                     .padding(.top, 75)
                     .padding(.bottom, 85)
