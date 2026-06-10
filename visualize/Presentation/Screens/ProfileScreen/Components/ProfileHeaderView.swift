@@ -45,7 +45,8 @@ struct ProfileHeaderView: View {
     var body: some View {
         ZStack(alignment: .top) {
             headerBackground
-            
+                .accessibilityIdentifier("ProfileHeaderBackground")
+
             profileAvatar
                 .padding(.top, Metrics.avatarTopPadding)
         }
@@ -111,6 +112,7 @@ struct ProfileHeaderView: View {
                 .font(.system(size: Metrics.avatarIconSize * 1, weight: .semibold))
                 .foregroundStyle(.white)
         }
+        .accessibilityIdentifier("ProfileAvatarFallback")
     }
     
     private var profileAvatar: some View {
@@ -126,7 +128,7 @@ struct ProfileHeaderView: View {
                     AsyncImage(url: url) { phase in
                         switch phase {
                         case .success(let image):
-                            image.resizable().scaledToFill()
+                            image.resizable().scaledToFill().accessibilityIdentifier("ProfileAvatarLoaded")
                         case .failure:
                             fallbackAvatar
                         case .empty:
@@ -160,8 +162,9 @@ struct ProfileHeaderView: View {
             .clipShape(.circle)
             .overlay {
                 Circle()
-                    .strokeBorder(.white, lineWidth: Metrics.editButtonBorderWidth)
+                    .strokeBorder(.white, lineWidth: Metrics.avatarBorderWidth)
             }
+            .accessibilityIdentifier("ProfileEditPhotoButton")
             .confirmationDialog(
                 "Profile Photo",
                 isPresented: $isShowingPhotoOptions

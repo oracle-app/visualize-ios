@@ -188,6 +188,13 @@ struct ProfileScreen: View {
         .appBackground()
         .onAppear {
             viewModel.loadProfile()
+            
+            #if DEBUG
+            if CommandLine.arguments.contains("-uitest-camera-photo") {
+                pendingImage = UIImage(named: "test-avatar")
+                showImageEditor = true
+            }
+            #endif
         }
         .portraitOrientationLock(!isCameraActive)
         .onChange(of: viewModel.isLoggedOut) { _, loggedOut in
