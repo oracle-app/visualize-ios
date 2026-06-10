@@ -124,7 +124,7 @@ struct ProfileScreen: View {
                             }
                             .contentShape(Capsule())
                     }
-                    .alert("Log out", isPresented: $showLogoutAlert) {
+                    .alert("Log out?", isPresented: $showLogoutAlert) {
                         Button("Log out", role: .destructive, action: viewModel.logOut)
                         Button("Cancel", role: .cancel) { }
                     } message: {

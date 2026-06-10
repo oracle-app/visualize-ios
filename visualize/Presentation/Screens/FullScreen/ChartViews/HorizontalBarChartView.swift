@@ -27,12 +27,47 @@ private final class BarFillPaletteProvider: SCIPaletteProviderBase<SCIStackedCol
     var fillColors = SCIUnsignedIntegerValues()
     var strokeColors = SCIUnsignedIntegerValues()
 
+    /// ARGB codes for the palette, keyed by absolute data-point index.
+    private let paletteARGB: [UInt32]
+    private let clearARGB = UIColor.clear.colorARGBCode()
+
     init(colors: [UIColor]) {
-        for color in colors {
-            fillColors.add(color.colorARGBCode())
-            strokeColors.add(UIColor.clear.colorARGBCode())
-        }
+        paletteARGB = colors.map { $0.colorARGBCode() }
         super.init(renderableSeriesType: SCIStackedColumnRenderableSeries.self)
+    }
+
+    /// Rebuilds the colour arrays on every render pass. SciChart only draws the
+    /// points currently inside the viewport and reads the palette arrays by
+    /// *render-pass index* (0, 1, 2 … for the visible bars). If the arrays are
+    /// built once against the full dataset, zooming/panning shifts that index
+    /// and the colours appear to rotate across the bars.
+    ///
+    /// To keep each bar's colour fixed, we read the real x-value of every
+    /// visible point from the render-pass data (which equals its absolute
+    /// category index) and map that back into the palette.
+    override func update() {
+        guard !paletteARGB.isEmpty,
+              let renderPassData = renderableSeries?.currentRenderPassData else {
+            return
+        }
+
+        let count = renderPassData.pointsCount
+        fillColors.count = count
+        strokeColors.count = count
+
+        let xValues = (renderPassData as? SCIXyRenderPassData)?.xValues
+
+        for renderIndex in 0..<count {
+            let absoluteIndex: Int
+            if let xValues = xValues, renderIndex < xValues.count {
+                absoluteIndex = Int(xValues.getValueAt(renderIndex).rounded())
+            } else {
+                absoluteIndex = renderIndex
+            }
+            let paletteIndex = ((absoluteIndex % paletteARGB.count) + paletteARGB.count) % paletteARGB.count
+            fillColors.set(paletteARGB[paletteIndex], at: renderIndex)
+            strokeColors.set(clearARGB, at: renderIndex)
+        }
     }
 }
 
