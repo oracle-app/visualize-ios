@@ -57,7 +57,7 @@ struct ProfileScreen: View {
             activeToast = nil
         }
     }
-    
+
     // MARK: - Body
 
     var body: some View {
@@ -89,68 +89,47 @@ struct ProfileScreen: View {
                         selectedTheme: selectedTheme
                     ) { theme in
                         selectedThemeRaw = theme.rawValue
-                        activeToast = Toast(
-                            message: String(localized: "\(theme.title) theme applied", comment: "Theme name followed by 'theme applied'"),
+                        showToast(Toast(
+                            message: String(
+                                localized: "\(theme.title) theme applied",
+                                comment: "Theme name followed by 'theme applied'"
+                            ),
                             type: .success
-                        )
-                        Divider()
-                            .background(AppColors.Text.secondary.opacity(Metrics.dividerOpacity))
-                        ProfilePreferencesSectionView(
-                            availableThemes: ChartColorTheme.allCases,
-                            selectedTheme: selectedTheme
-                        ) { theme in
-                            selectedThemeRaw = theme.rawValue
-                            showToast(Toast(
-                                message: String(localized: "\(theme.title) theme applied", comment: "Theme name followed by 'theme applied'"),
-                                type: .success
-                            ))
-                        }
-                        Divider()
-                            .background(AppColors.Text.secondary.opacity(Metrics.dividerOpacity))
-                        ProfileAboutSectionView(items: viewModel.aboutItems)
-                        Button {
-                            showLogoutAlert = true
-                        } label: {
-                            Text("Log out")
-                                .font(.title3.weight(.semibold))
-                                .foregroundStyle(AppColors.Status.red)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, Metrics.buttonVerticalPadding)
-                                .background {
-                                    Capsule()
-                                        .fill(Color.appBackground)
-                                        .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
-                                }
-                                .overlay {
-                                    Capsule()
-                                        .strokeBorder(AppColors.Status.red, lineWidth: Metrics.borderWidth)
-                                }
-                                .contentShape(Capsule())
-                        }
-                        .alert("Log out", isPresented: $showLogoutAlert) {
-                            Button("Log out", role: .destructive, action: viewModel.logOut)
-                            Button("Cancel", role: .cancel) { }
-                        } message: {
-                            Text("Are you sure you want to log out?")
-                        }
+                        ))
                     }
                     Divider()
                         .background(AppColors.Text.secondary.opacity(Metrics.dividerOpacity))
                     ProfileAboutSectionView(items: viewModel.aboutItems)
-                    Button("Log out", action: viewModel.logOut)
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(.red)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Metrics.buttonVerticalPadding)
-                        .background {
-                            Capsule()
-                                .fill(Color.appBackground)
-                                .shadow(color: .black.opacity(Metrics.shadowOpacity), radius: Metrics.shadowRadius, x: 0, y: Metrics.shadowY)
-                        }
-                        .overlay {
-                            Capsule()
-                                .strokeBorder(.red, lineWidth: Metrics.borderWidth)
-                        }
+                    Button {
+                        showLogoutAlert = true
+                    } label: {
+                        Text("Log out")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(AppColors.Status.red)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, Metrics.buttonVerticalPadding)
+                            .background {
+                                Capsule()
+                                    .fill(Color.appBackground)
+                                    .shadow(
+                                        color: .black.opacity(Metrics.shadowOpacity),
+                                        radius: Metrics.shadowRadius,
+                                        x: 0,
+                                        y: Metrics.shadowY
+                                    )
+                            }
+                            .overlay {
+                                Capsule()
+                                    .strokeBorder(AppColors.Status.red, lineWidth: Metrics.borderWidth)
+                            }
+                            .contentShape(Capsule())
+                    }
+                    .alert("Log out", isPresented: $showLogoutAlert) {
+                        Button("Log out", role: .destructive, action: viewModel.logOut)
+                        Button("Cancel", role: .cancel) { }
+                    } message: {
+                        Text("Are you sure you want to log out?")
+                    }
                 }
                 .padding(.horizontal, Metrics.horizontalPadding)
             }
@@ -188,7 +167,7 @@ struct ProfileScreen: View {
         .appBackground()
         .onAppear {
             viewModel.loadProfile()
-            
+
             #if DEBUG
             if CommandLine.arguments.contains("-uitest-camera-photo") {
                 pendingImage = UIImage(named: "test-avatar")
