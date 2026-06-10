@@ -35,76 +35,85 @@ struct CreateVisualizationScreen: View {
         UTType.commaSeparatedText
     ]
 
-    var body: some View {
+    // Intro + upload area. Shared by both layouts (scrolling and anchored).
+    @ViewBuilder
+    private var topSection: some View {
         VStack(alignment: .leading, spacing: 0) {
+            Image(systemName: "chart.bar.xaxis")
+                .font(.system(size: 36))
+                .foregroundStyle(AppColors.Text.primary)
+                .padding(.top, 14)
+                .padding(.bottom, 16)
 
-                VStack(alignment: .leading, spacing: 0) {
-                    Image(systemName: "chart.bar.xaxis")
-                        .font(.system(size: 36))
-                        .foregroundStyle(AppColors.Text.primary)
-                        .padding(.top, 14)
-                        .padding(.bottom, 16)
+            Text("Create data visualizations")
+                .font(.system(size: 28, weight: .bold))
+                .foregroundStyle(AppColors.Text.primary)
+                .padding(.bottom, 10)
+                .fixedSize(horizontal: false, vertical: true)
 
-                    Text("Create data visualizations")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundStyle(AppColors.Text.primary)
-                        .padding(.bottom, 10)
-
-                    Group {
-                        if viewModel.isUploading {
-                            Text(String(localized: "Uploading your dataset..."))
-                        } else if viewModel.isUploadComplete {
-                            Text(String(localized: "Your dataset is ready! Generate visualizations to explore your data."))
-                        } else {
-                            Text(String(localized: "Upload a dataset and we'll generate the best visualizations to help you understand your data."))
-                        }
-                    }
-                    .font(.system(size: 15))
-                    .foregroundStyle(AppColors.Text.secondary)
-                    .lineSpacing(3)
-                    .padding(.bottom, 20)
-
-                    ZStack {
-                        if viewModel.isUploading {
-                             UploadingFileCardView(
-                                 fileName: viewModel.selectedFileName ?? "",
-                                 fileSize: viewModel.fileSize,
-                                 progress: viewModel.uploadProgress,
-                                 onCancel: { viewModel.cancelUpload() }
-                             )
-                         } else if viewModel.isUploadComplete {
-                             CompletedFileCardView(
-                                 fileName: viewModel.selectedFileName ?? "",
-                                 fileSize: viewModel.fileSize,
-                                 onDelete: { showDeleteAlert = true }
-                             )
-                         } else {
-                             Button {
-                                 isFilePickerPresented = true
-                             } label: {
-                                 UploadDropZoneView()
-                             }
-                             .buttonStyle(.plain)
-                         }
-                     }
-                    .frame(minHeight: 160, alignment: .top)
-                    .animation(.easeInOut(duration: 0.2), value: viewModel.isUploading)
-                    .animation(.easeInOut(duration: 0.2), value: viewModel.isUploadComplete)
-                    .padding(.bottom, 8)
-
-                    if let error = viewModel.errorMessage {
-                        Text(error)
-                            .font(.system(size: 13))
-                            .foregroundStyle(AppColors.Status.red)
-                            .padding(.bottom, 8)
-                    }
+            Group {
+                if viewModel.isUploading {
+                    Text(String(localized: "Uploading your dataset..."))
+                } else if viewModel.isUploadComplete {
+                    Text(String(localized: "Your dataset is ready! Generate visualizations to explore your data."))
+                } else {
+                    Text(String(localized: "Upload a dataset and we'll generate the best visualizations to help you understand your data."))
                 }
-                .padding(.horizontal, 20)
-            
-            Spacer()
+            }
+            .font(.system(size: 15))
+            .foregroundStyle(AppColors.Text.secondary)
+            .lineSpacing(3)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.bottom, 20)
 
-            VStack(alignment: .leading, spacing: 0) {
-                if viewModel.isUploadComplete {
+            Group {
+                if viewModel.isUploading {
+                    UploadingFileCardView(
+                        fileName: viewModel.selectedFileName ?? "",
+                        fileSize: viewModel.fileSize,
+                        progress: viewModel.uploadProgress,
+                        onCancel: { viewModel.cancelUpload() }
+                    )
+                } else if viewModel.isUploadComplete {
+                    CompletedFileCardView(
+                        fileName: viewModel.selectedFileName ?? "",
+                        fileSize: viewModel.fileSize,
+                        onDelete: { showDeleteAlert = true }
+                    )
+                } else {
+                    // Drop zone needs a min height so the dashed rectangle
+                    // stays large enough for its icon + multi-line copy.
+                    Button {
+                        isFilePickerPresented = true
+                    } label: {
+                        UploadDropZoneView()
+                    }
+                    .buttonStyle(.plain)
+                    .frame(minHeight: 160)
+                }
+            }
+            .animation(.easeInOut(duration: 0.2), value: viewModel.isUploading)
+            .animation(.easeInOut(duration: 0.2), value: viewModel.isUploadComplete)
+            .padding(.bottom, 8)
+
+            if let error = viewModel.errorMessage {
+                Text(error)
+                    .font(.system(size: 13))
+                    .foregroundStyle(AppColors.Status.red)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.bottom, 8)
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+
+    var body: some View {
+        Group {
+            if viewModel.isUploadComplete {
+                // Upload complete: keep the action button anchored at the bottom.
+                VStack(alignment: .leading, spacing: 0) {
+                    topSection
+                    Spacer()
                     GenerateVisButtonView {
                         guard let fileURL = viewModel.pickedFileURL else {
                             viewModel.errorMessage = String(localized: "Could not read the selected file.")
@@ -113,14 +122,22 @@ struct CreateVisualizationScreen: View {
                         // Stores pendingFileURL and pushes .generatingVisualizations atomically.
                         createFlowState.startGeneration(with: fileURL, coordinator: coordinator)
                     }
+                    .padding(.horizontal, 20)
                     .padding(.bottom, 43)
-                } else {
-                    ExampleTableView()
-                        .padding(.bottom, 32)
                 }
+            } else {
+                // Idle / uploading: intro + drop zone + example table flow together
+                // inside a ScrollView so longer localized strings don't overlap.
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        topSection
+                        ExampleTableView()
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 32)
+                    }
+                }
+                .scrollBounceBehavior(.basedOnSize)
             }
-            .padding(.horizontal, 20)
-        
         }
         .onChange(of: createFlowState.createFlowResetID) { _, _ in
             viewModel.resetFile()
