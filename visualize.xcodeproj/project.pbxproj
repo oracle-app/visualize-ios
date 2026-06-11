@@ -55,36 +55,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		528EAC8A2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualize" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Feed/TestMocks/MockFeedRepositories.swift,
-				Notifications/TestMocks/MockNotificationRepository.swift,
-			);
-			target = 053BEF1A2F8AEC41008A3D6B /* visualize */;
-		};
-		528EAC8B2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualizeTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Feed/TestMocks/MockFeedRepositories.swift,
-				Notifications/TestMocks/MockNotificationRepository.swift,
-			);
-			target = DD1B65E12FD3A0A00002F60E /* visualizeTests */;
-		};
-		DE36AC3F2FD7E14000FF6045 /* Exceptions for "visualizeUITests" folder in "visualize" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Profile/MockProfileUseCases.swift,
-			);
-			target = 053BEF1A2F8AEC41008A3D6B /* visualize */;
-		};
-		DE36AC402FD7E14200FF6045 /* Exceptions for "visualizeUITests" folder in "visualizeUITests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Profile/MockProfileUseCases.swift,
-			);
-			target = DD71EFEB2FD3A87100EE00C1 /* visualizeUITests */;
-		};
 		E480294E2FAAEC560043CC15 /* Exceptions for "visualize" folder in "visualize" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -105,19 +75,11 @@
 		};
 		DD1B65E32FD3A0A00002F60E /* visualizeTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				528EAC8A2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualize" target */,
-				528EAC8B2FD74233007057DB /* Exceptions for "visualizeTests" folder in "visualizeTests" target */,
-			);
 			path = visualizeTests;
 			sourceTree = "<group>";
 		};
 		DD71EFED2FD3A87100EE00C1 /* visualizeUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				DE36AC3F2FD7E14000FF6045 /* Exceptions for "visualizeUITests" folder in "visualize" target */,
-				DE36AC402FD7E14200FF6045 /* Exceptions for "visualizeUITests" folder in "visualizeUITests" target */,
-			);
 			path = visualizeUITests;
 			sourceTree = "<group>";
 		};
