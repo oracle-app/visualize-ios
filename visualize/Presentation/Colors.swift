@@ -1,4 +1,3 @@
-// swiftlint:disable orphaned_doc_comment
 // swiftlint:disable nesting
 import SwiftUI
 
@@ -109,4 +108,3 @@ enum AppColors {
 }
 
 // swiftlint:enable nesting
-// swiftlint:enable orphaned_doc_comment
