@@ -4,7 +4,6 @@
 //
 //  Created by Miguel Degollado on 26/05/26.
 
-
 import Foundation
 
 /// Abstracts current-user lookup from the Presentation layer.

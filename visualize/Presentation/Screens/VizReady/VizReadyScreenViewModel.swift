@@ -28,7 +28,7 @@ final class VizReadyScreenViewModel {
     private(set) var selectedIDs: Set<Int> = []
     
     /// Validation error message for the last title update attempt; `nil` when valid.
-    var titleValidationError: String? = nil
+    var titleValidationError: String?
 
     // MARK: - Init
     /// - Parameter suggestions: Chart suggestions to display. Pass `[]` for empty state.

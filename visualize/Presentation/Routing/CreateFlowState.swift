@@ -24,7 +24,7 @@ import Foundation
 final class CreateFlowState {
  
     /// Local URL of the dataset copied from the file importer.
-    var pendingFileURL: URL? = nil
+    var pendingFileURL: URL?
  
     /// Chart suggestions produced by `GeneratingVisualizationsScreen`.
     var pendingSuggestions: [ChartSuggestion] = []
@@ -34,7 +34,7 @@ final class CreateFlowState {
     var createFlowResetID: Int = 0
  
     /// Toast to display in `FeedScreen` after a successful create flow.
-    var pendingToast: Toast? = nil
+    var pendingToast: Toast?
  
     // MARK: - Lifecycle
  

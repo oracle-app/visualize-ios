@@ -19,12 +19,12 @@ struct ExampleTableView: View {
         String(localized: "Date"),
         String(localized: "Product"),
         String(localized: "Sales"),
-        String(localized: "Region"),
+        String(localized: "Region")
     ]
     let rows: [[String]] = [
         [String(localized: "Jan"), "A", "120", String(localized: "North")],
         [String(localized: "Feb"), "B", "95", String(localized: "South")],
-        [String(localized: "Mar"), "A", "150", String(localized: "North")],
+        [String(localized: "Mar"), "A", "150", String(localized: "North")]
     ]
 
     var body: some View {
@@ -100,8 +100,3 @@ struct ExampleTableView: View {
         }
     }
 }
-
-
-
-
-

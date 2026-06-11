@@ -25,7 +25,7 @@ final class AppCoordinator {
     // MARK: - Auth State
     
     var isAuthenticated: Bool = false
-    var currentUser: AppUser? = nil
+    var currentUser: AppUser?
     var path: [AppRoute] = []
     var root: RootRoute = .landing
     
@@ -122,7 +122,6 @@ final class AppCoordinator {
         path = newPath
     }
     
-
     // MARK: - Session
 
     func login(user: AppUser) {

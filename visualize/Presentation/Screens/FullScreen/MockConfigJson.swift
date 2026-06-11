@@ -30,3 +30,5 @@ enum MockConfigJSON {
         """
     static let error = "{}"
 }
+
+// swiftlint:enable line_length

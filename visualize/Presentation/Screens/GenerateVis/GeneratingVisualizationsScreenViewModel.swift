@@ -22,7 +22,7 @@ final class GeneratingVisualizationsScreenViewModel {
     var suggestions: [ChartSuggestion] = []
  
     /// Non-nil when `startLoading` throws; displayed inline in the view.
-    var errorMessage: String? = nil
+    var errorMessage: String?
  
     // MARK: - Dependencies
     private let analyzeRepository: any AnalyzeRepository

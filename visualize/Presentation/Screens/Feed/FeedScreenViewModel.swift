@@ -61,7 +61,7 @@ class FeedScreenViewModel {
     private var allVisualizations: [VisualizationCard] = []
     private(set) var currentUserID: String = ""
     private(set) var currentUserRole: Role = .consumer
-    var currentToast: Toast? = nil
+    var currentToast: Toast?
 
     /// Search task used for debounce — ignored by @Observable to avoid tracking issues.
     @ObservationIgnored
@@ -217,7 +217,6 @@ class FeedScreenViewModel {
         }
     }
     
-
     /// Merges a fresh list of visualizations into the local cache without a full reload.
     /// This preserves scroll position and avoids unnecessary view refreshes.
     private func applyDiff(newItems: [VisualizationCard]) {
@@ -315,7 +314,6 @@ extension FeedScreenViewModel {
         )
     }
 }
-
 
 // MARK: - UI Test Mock
 

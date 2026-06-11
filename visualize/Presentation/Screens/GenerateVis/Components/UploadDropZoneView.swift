@@ -68,5 +68,3 @@ struct UploadDropZoneView: View {
         }
     }
 }
-
-

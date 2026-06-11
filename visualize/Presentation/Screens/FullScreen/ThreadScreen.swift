@@ -28,8 +28,8 @@ struct ThreadScreen: View {
     
     @State private var viewModel: ThreadScreenViewModel
     @State private var replyText = ""
-    @State private var activeCommentID: String? = nil
-    @State private var activeCommentAuthor: String? = nil
+    @State private var activeCommentID: String?
+    @State private var activeCommentAuthor: String?
     @State private var showError = false
     @FocusState private var isInputFocused: Bool
 

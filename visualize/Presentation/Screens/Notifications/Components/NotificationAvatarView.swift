@@ -22,7 +22,7 @@ struct NotificationAvatarView: View {
                         image
                             .resizable()
                             .scaledToFill()
-                    case .failure(_):
+                    case .failure:
                         fallbackAvatar
                     @unknown default:
                         fallbackAvatar
