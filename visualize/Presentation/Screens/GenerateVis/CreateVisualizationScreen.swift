@@ -128,15 +128,21 @@ struct CreateVisualizationScreen: View {
             } else {
                 // Idle / uploading: intro + drop zone + example table flow together
                 // inside a ScrollView so longer localized strings don't overlap.
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        topSection
-                        ExampleTableView()
-                            .padding(.horizontal, 20)
-                            .padding(.bottom, 32)
+                // GeometryReader lets the Spacer push the table to the bottom when
+                // content is short, while still allowing scroll when content is tall.
+                GeometryReader { geometry in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 0) {
+                            topSection
+                            Spacer(minLength: 0)
+                            ExampleTableView()
+                                .padding(.horizontal, 20)
+                                .padding(.bottom, 32)
+                        }
+                        .frame(minHeight: geometry.size.height)
                     }
+                    .scrollBounceBehavior(.basedOnSize)
                 }
-                .scrollBounceBehavior(.basedOnSize)
             }
         }
         .onChange(of: createFlowState.createFlowResetID) { _, _ in
