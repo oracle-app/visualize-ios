@@ -202,7 +202,7 @@ struct SnipEditorScreen: View {
                     previewImage = nil
                 }
             )
-            .preventScreenShot(isActive: true)
+            .preventScreenShotSilent(isActive: true)
         }
         .accessibilityIdentifier("SnipEditorScreen")
     }
