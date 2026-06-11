@@ -25,36 +25,38 @@ struct TeamsScreen: View {
     var body: some View {
         List {
             // MARK: - My Teams
-
-            Section {
-                if viewModel.isLoading && !viewModel.hasLoadedOnce {
-                        loadingState
+            
+            if viewModel.currentUserRole != .consumer {
+                Section {
+                    if viewModel.isLoading && !viewModel.hasLoadedOnce {
+                            loadingState
                     } else if viewModel.myTeams.isEmpty {
                         emptyState("You haven't created any teams yet.")
                             .listRowBackground(Color.clear)
                             .foregroundStyle(Color.secondary)
-                } else {
-                    ForEach(viewModel.myTeams) { team in
-                        TeamSwipeRow(team: team)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button {
-                                    viewModel.deleteTeam(team)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                                .tint(.red)
+                    } else {
+                        ForEach(viewModel.myTeams) { team in
+                            TeamSwipeRow(team: team)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button {
+                                        viewModel.deleteTeam(team)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    .tint(AppColors.Status.red)
 
-                                Button {
-                                    viewModel.beginEditing(team)
-                                } label: {
-                                    Label("Edit", systemImage: "pencil")
+                                    Button {
+                                        viewModel.beginEditing(team)
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(AppColors.Brand.teal)
                                 }
-                                .tint(Color.appTeal)
-                            }
+                        }
                     }
+                } header: {
+                    sectionHeader("My teams")
                 }
-            } header: {
-                sectionHeader("My teams")
             }
 
             // MARK: - Teams I'm In
@@ -62,36 +64,56 @@ struct TeamsScreen: View {
             Section {
                 if viewModel.isLoading && !viewModel.hasLoadedOnce {
                         loadingState
-                    } else if viewModel.joinedTeams.isEmpty {
-                        emptyState("You're not part of any teams yet.")
-                            .listRowBackground(Color.clear)
-                            .foregroundStyle(Color.secondary)
+                } else if viewModel.joinedTeams.isEmpty {
+                    emptyState("You're not part of any teams yet.")
+                        .listRowBackground(Color.clear)
+                        .foregroundStyle(Color.secondary)
                 } else {
                     ForEach(viewModel.joinedTeams) { team in
-                        TeamToggleRowView(
-                            team: team,
-                            isExpanded: expandedTeamIDs.contains(team.id)
-                        ) {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                if expandedTeamIDs.contains(team.id) {
-                                    expandedTeamIDs.remove(team.id)
-                                } else {
-                                    expandedTeamIDs.insert(team.id)
+                        
+                        if viewModel.currentUserRole == .admin {
+                            TeamSwipeRow(team: team)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button {
+                                        viewModel.deleteTeam(team)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    .tint(AppColors.Status.red)
+                                    
+                                    Button {
+                                        viewModel.beginEditing(team)
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(AppColors.Brand.teal)
                                 }
-                            }
-                        }
-
-                        if expandedTeamIDs.contains(team.id) {
-                            ForEach(team.members) { member in
-                                Group {
-                                    if member.id == team.ownerID {
-                                        OwnerRowView(user: member)
+                            
+                        } else {
+                            TeamToggleRowView(
+                                team: team,
+                                isExpanded: expandedTeamIDs.contains(team.id)
+                            ) {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    if expandedTeamIDs.contains(team.id) {
+                                        expandedTeamIDs.remove(team.id)
                                     } else {
-                                        UserRowView(user: member)
+                                        expandedTeamIDs.insert(team.id)
                                     }
                                 }
-                                .listRowInsets(EdgeInsets(top: 4, leading: 32, bottom: 4, trailing: 16))
-                                .listRowBackground(Color.appMint.opacity(0.6))
+                            }
+                            if expandedTeamIDs.contains(team.id) {
+                                ForEach(team.members) { member in
+                                    Group {
+                                        if member.id == team.ownerID {
+                                            OwnerRowView(user: member)
+                                        } else {
+                                            UserRowView(user: member)
+                                        }
+                                    }
+                                    .listRowInsets(EdgeInsets(top: 4, leading: 32, bottom: 4, trailing: 16))
+                                    .listRowBackground(AppColors.Brand.mint.opacity(0.6))
+                                }
                             }
                         }
                     }
@@ -105,15 +127,17 @@ struct TeamsScreen: View {
         .navigationTitle("Teams")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    coordinator.pushTeams(.createTeam)
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 15, weight: .medium))
+            if viewModel.currentUserRole != .consumer {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        coordinator.pushTeams(.createTeam)
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 15, weight: .medium))
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(AppColors.Brand.primaryOrange)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.primaryOrange)
             }
         }
         .task {
@@ -134,6 +158,7 @@ struct TeamsScreen: View {
                     viewModel: viewModel.makeEditViewModel(for: team),
                     onConfirm: { viewModel.didFinishEditing(teamName: team.name) }
                 )
+                .preventScreenShotSilent(isActive: true)
             }
         }
         .overlay(alignment: .bottom) {
@@ -154,10 +179,10 @@ struct TeamsScreen: View {
 
     // MARK: Helpers
 
-    private func sectionHeader(_ title: String) -> some View {
+    private func sectionHeader(_ title: LocalizedStringKey) -> some View {
         Text(title)
             .font(.title3.bold())
-            .foregroundStyle(Color.primaryText)
+            .foregroundStyle(AppColors.Text.primary)
             .textCase(nil)
     }
     
@@ -168,10 +193,14 @@ struct TeamsScreen: View {
             .listRowBackground(Color.clear)
     }
 
+    /// Generates a standardized view to display when a list section is empty.
+    ///
+    /// - Parameter message: The text content explaining the empty state.
+    /// - Returns: A descriptive text view styled for empty lists.
     private func emptyState(_ message: String) -> some View {
         Text(message)
             .font(.subheadline)
-            .foregroundStyle(Color.appSubtitle)
+            .foregroundStyle(AppColors.Text.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 8)
     }

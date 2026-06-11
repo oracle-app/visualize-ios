@@ -118,7 +118,7 @@ struct EditProfilePhotoView: View {
                 scale = min(4.0, max(1.0, scale * value))
                 let maxOff = maxAllowedOffset(for: scale)
                 offset = CGSize(
-                    width:  min(max(offset.width,  -maxOff.width),  maxOff.width),
+                    width: min(max(offset.width, -maxOff.width), maxOff.width),
                     height: min(max(offset.height, -maxOff.height), maxOff.height)
                 )
             }
@@ -139,7 +139,7 @@ struct EditProfilePhotoView: View {
             ? CGSize(width: circleSize * aspect, height: circleSize)
             : CGSize(width: circleSize, height: circleSize / aspect)
         return CGSize(
-            width:  filled.width  * currentScale,
+            width: filled.width * currentScale,
             height: filled.height * currentScale
         )
     }
@@ -147,7 +147,7 @@ struct EditProfilePhotoView: View {
     private func maxAllowedOffset(for currentScale: CGFloat) -> CGSize {
         let sized = scaledImageSize(for: currentScale)
         return CGSize(
-            width:  max(0, (sized.width  - circleSize) / 2),
+            width: max(0, (sized.width - circleSize) / 2),
             height: max(0, (sized.height - circleSize) / 2)
         )
     }
@@ -157,7 +157,7 @@ struct EditProfilePhotoView: View {
         let clampedX = min(max(offset.width  + translation.width,  -maxOff.width),  maxOff.width)
         let clampedY = min(max(offset.height + translation.height, -maxOff.height), maxOff.height)
         return CGSize(
-            width:  clampedX - offset.width,
+            width: clampedX - offset.width,
             height: clampedY - offset.height
         )
     }
@@ -179,7 +179,7 @@ struct EditProfilePhotoView: View {
                 DispatchQueue.main.async {
                     let maxOff = maxAllowedOffset(for: scale)
                     offset = CGSize(
-                        width:  min(max(offset.width,  -maxOff.width),  maxOff.width),
+                        width: min(max(offset.width, -maxOff.width), maxOff.width),
                         height: min(max(offset.height, -maxOff.height), maxOff.height)
                     )
                 }
@@ -199,6 +199,7 @@ struct EditProfilePhotoView: View {
             }
             .foregroundStyle(.white)
             .font(.body)
+            .accessibilityIdentifier("SavePhotoButton")
         }
         .padding(.horizontal, 24)
     }
@@ -245,6 +246,5 @@ struct CircleCutoutOverlay: View {
                 .frame(width: geo.size.width, height: geo.size.height)
                 .position(x: geo.size.width / 2, y: geo.size.height / 2)
         }
-        .frame(width: UIScreen.main.bounds.width * 2, height: UIScreen.main.bounds.height * 2)
     }
 }

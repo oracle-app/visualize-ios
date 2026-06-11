@@ -25,29 +25,9 @@ struct FeedCardView: View {
     var onHide: () -> Void
     var onDelete: () -> Void
     var sharedWith: [AppUser]?
+    var permissions: VisualizationPermissions
     var isOwner: Bool = false
     let maxAvatars = 3
-    /// TO DO: Image Implementation that uses profilePictureURL
-    /// Asigns random color based on ID.
-    private var colors: [Color] {
-        (sharedWith ?? []).map { user in
-            Color.random(from: user.id)
-        }
-    }
-    
-    private var formattedDate: String {
-        let interval = Date().timeIntervalSince(date)
-        
-        if interval < 3600 {
-            let minutes = Int(interval / 60)
-            return minutes <= 1 ? String(localized: "Just now") : String(localized: "\(minutes) minutes ago")
-        } else if interval < 86400 {
-            let hours = Int(interval / 3600)
-            return hours == 1 ? String(localized: "1 hour ago") : String(localized: "\(hours) hours ago")
-        } else {
-            return date.formatted(date: .abbreviated, time: .omitted)
-        }
-    }
     
     var body: some View {
         VStack(spacing: 12) {
@@ -55,36 +35,41 @@ struct FeedCardView: View {
                 VStack(alignment: .leading, spacing: 5) {
                     Text(title)
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                         .lineLimit(2)
                         .minimumScaleFactor(0.6)
                     HStack(spacing: 12) {
-                        Text(String(localized: "by \(isOwner ? "me" : author)"))
+                        Text(isOwner ? String(localized: "by me") : String(localized: "by \(author)"))
                         Text("•")
-                        Text(formattedDate)
+                        Text(date.timeAgoDisplay())
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(Color.appTeal)
+                    .foregroundStyle(AppColors.Brand.teal)
                 }
                 Spacer()
                 Menu {
-                    if isOwner {
+                    if permissions.canShare {
                         Button {
                             onShare()
                         } label: {
                             Label("Share", systemImage: "person.badge.plus")
                         }
+                    }
+                    
+                    if permissions.canHide {
+                        Button(role: .destructive) {
+                            showAlert1.toggle()
+                        } label: {
+                            Label("Delete for me", systemImage: "eye.slash")
+                        }
+                    }
+                    
+                    if permissions.canDelete {
                         Button(role: .destructive) {
                             showAlert2.toggle()
                         } label: {
                             Label("Delete for everyone", systemImage: "trash")
-                        }
-                    } else {
-                        Button(role: .destructive) {
-                            showAlert1.toggle()
-                        } label: {
-                            Label("Delete for me", systemImage: "trash")
                         }
                     }
                 } label: {
@@ -129,7 +114,7 @@ struct FeedCardView: View {
             }
             ZStack {
                 if let chartData = chart {
-                    ChartRendererView(chart: chartData)
+                    ChartRendererView(chart: chartData, isFeedCard: true)
                         .allowsHitTesting(false)
                         .transition(.opacity)
                 } else {
@@ -170,31 +155,17 @@ struct FeedCardView: View {
             }
        }
        .padding(16)
-       .background(Color.appMint)
+       .background(AppColors.Brand.mint)
        .cornerRadius(10)
        .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 2)
        .padding(.horizontal, 20)
        .frame(height: 390)
        .padding(.bottom, 16)
        .contentShape(Rectangle())
-               .onTapGesture {
-                   onTap()
-               }
+       .onTapGesture {
+           onTap()
+       }
    }
-}
-/// Generates a random color based on the given string
-extension Color {
-    static func random(from string: String) -> Color {
-        var hasher = Hasher()
-        hasher.combine(string)
-        let hash = hasher.finalize()
-
-        let red = Double((hash >> 16) & 0xFF) / 255.0
-        let green = Double((hash >> 8) & 0xFF) / 255.0
-        let blue = Double(hash & 0xFF) / 255.0
-
-        return Color(red: red, green: green, blue: blue)
-    }
 }
 
 #Preview("Con usuarios compartidos") {
@@ -209,11 +180,12 @@ extension Color {
         onHide: { print("hide tapped") },
         onDelete: { print("delete tapped") },
         sharedWith: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria"),
-            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos")
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana", role: .admin),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis", role: .admin),
+            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria", role: .admin),
+            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos", role: .admin)
         ],
+        permissions: VisualizationPermissions(userRole: .admin, currentUserID: "1", authorID: "1"),
         isOwner: true
     )
 }
@@ -230,7 +202,7 @@ extension Color {
         onHide: { print("hide tapped") },
         onDelete: { print("delete tapped") },
         sharedWith: nil,
+        permissions: VisualizationPermissions(userRole: .admin, currentUserID: "1", authorID: "1"),
         isOwner: false
     )
 }
- 

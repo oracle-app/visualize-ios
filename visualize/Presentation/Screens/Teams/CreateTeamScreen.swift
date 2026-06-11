@@ -33,6 +33,9 @@ struct CreateTeamScreen: View {
     /// Controls the focus state of the email search field.
     @FocusState private var isSearchFocused: Bool
     
+    /// Controls the focus state of the team name field.
+    @FocusState private var isTeamNameFocused: Bool
+    
     // MARK: - State
     
     /// ViewModel containing all business logic and UI state.
@@ -82,55 +85,53 @@ struct CreateTeamScreen: View {
 
                     // MARK: - Team Name Input
                     
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 0) {
                         TextField(
                             "",
                             text: $vm.teamName,
                             prompt: Text("Team's name")
-                                .foregroundColor(
+                                .foregroundStyle(
                                     vm.teamNameError != nil
-                                    ? Color.appRed
-                                    : Color.primaryText.opacity(0.5)
+                                    ? AppColors.Status.red
+                                    : AppColors.Text.primary.opacity(0.5)
                                 )
                         )
-                        .font(.system(size: 15))
-                        .foregroundStyle(
-                            vm.teamNameError != nil
-                            ? Color.appRed
-                            : Color.primaryText
-                        )
+                        .focused($isTeamNameFocused)
+                        .foregroundStyle(AppColors.Text.authFieldText)
+                        .tint(vm.teamNameError != nil ? AppColors.Status.red : AppColors.Brand.teal)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 16)
                         .background(
                             vm.teamNameError != nil
-                            ? Color.white
-                            : Color("ComponentBackground")
+                            ? AppColors.UI.authErrorBackground
+                            : AppColors.UI.background
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(
                                     vm.teamNameError != nil
-                                    ? Color.appRed
-                                    : Color(
-                                        red: 79/255,
-                                        green: 125/255,
-                                        blue: 123/255
+                                    ? AppColors.Status.red
+                                    : ( isTeamNameFocused
+                                        ? AppColors.Brand.teal.opacity(0.7)
+                                        : AppColors.Brand.teal.opacity(0.15)
                                     ),
-                                    lineWidth: 1
+                                    lineWidth: isTeamNameFocused || vm.teamNameError != nil ? 1.8 : 1
                                 )
+                                .animation(.easeInOut(duration: 0.2), value: isTeamNameFocused)
+                                .animation(.easeInOut(duration: 0.2), value: vm.teamNameError != nil)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         
-                        // Validation error message.
-                        if let errorMsg = vm.teamNameError {
-                            Text(errorMsg)
-                                .font(.system(size: 12))
-                                .foregroundStyle(Color.appRed)
-                                .padding(.leading, 4)
+                        .overlay(alignment: .bottomLeading) {
+                            Text(vm.teamNameError ?? "")
+                                .font(.system(size: 13))
+                                .foregroundStyle(AppColors.Status.red)
+                                .opacity(vm.teamNameError != nil ? 1 : 0)
+                                .offset(x: 8, y: 19)
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, vm.teamNameError != nil ? 18 : 36)
+                    .padding(.bottom, 36)
 
                     // MARK: - Add People Section
                     
@@ -176,7 +177,7 @@ struct CreateTeamScreen: View {
                             
                             Text("Suggested people")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(Color.primaryText)
+                                .foregroundStyle(AppColors.Text.primary)
                                 .padding(.horizontal, 20)
 
                             HStack(alignment: .top) {
@@ -202,7 +203,7 @@ struct CreateTeamScreen: View {
                                             
                                             Text(user.username)
                                                 .font(.system(size: 12))
-                                                .foregroundStyle(Color.primaryText)
+                                                .foregroundStyle(AppColors.Text.primary)
                                                 .multilineTextAlignment(.center)
                                                 .frame(maxWidth: .infinity)
                                                 .lineLimit(2)
@@ -231,7 +232,7 @@ struct CreateTeamScreen: View {
                         // Empty state when no teammates exist.
                         Text("Search for teammates and\nadd them to the list.")
                             .font(.system(size: 17))
-                            .foregroundStyle(Color.appSubtitle)
+                            .foregroundStyle(AppColors.Text.secondary)
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity)
                             .padding(.top, 10)
@@ -246,7 +247,7 @@ struct CreateTeamScreen: View {
                         
                         Text("Member list")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(AppColors.Text.primary)
                             .padding(.horizontal, 20)
                             .padding(.bottom, 8)
 
@@ -356,7 +357,7 @@ struct CreateTeamScreen: View {
                             // Show success toast.
                             vm.showToast(
                                 Toast(
-                                    message: "Team created successfully",
+                                    message: String(localized: "Team created successfully"),
                                     type: .success
                                 )
                             )
@@ -367,7 +368,7 @@ struct CreateTeamScreen: View {
                         }
                     }
                 }
-                .tint(Color.primaryOrange)
+                .tint(AppColors.Brand.primaryOrange)
                 .disabled(
                     vm.isLoading || nonOwnerMembers.isEmpty
                 )

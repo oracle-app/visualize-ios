@@ -10,17 +10,24 @@ import SciChart
 import os.log
 
 class ChartTooltipCoordinator: NSObject {
-
-    // MARK: - Supporting Types
     
+    // MARK: - Supporting Types
     struct AreaSeriesEntry {
         let xValues: [Double]
         let yValues: [Double]
         let label: String
     }
-    
-    // MARK: - Properties
 
+    struct TooltipState: Equatable {
+        let point: CGPoint
+        let xValue: Double
+        let yValue: Double
+        let overrideYLabel: String?
+        let anchorXValue: Double
+        let anchorYValue: Double
+    }
+
+    // MARK: - Properties
     weak var surface: SCIChartSurface?
     private weak var tooltipLabel: UILabel?
     private weak var tooltipArrow: UIView?
@@ -35,16 +42,15 @@ class ChartTooltipCoordinator: NSObject {
     var isHorizontalChart: Bool = false
     var isScatterChart: Bool = false
     var isLineChart: Bool = false
+    private(set) var lastTooltipState: TooltipState?
     
     // MARK: - Init
-
     init(xLabel: String, yLabel: String) {
         self.xLabel = xLabel
         self.yLabel = yLabel
     }
 
     // MARK: - Tap Handler
-
     @objc func handleTap(_ gesture: UITapGestureRecognizer) {
         guard let surface,
               let seriesArea = surface.renderableSeriesArea as? UIView
@@ -126,7 +132,14 @@ class ChartTooltipCoordinator: NSObject {
         let pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
 
         removeTooltip()
-        showTooltip(at: pointInSurface, xValue: displayX, yValue: yValue, overrideYLabel: stackLabel)
+        showTooltip(
+            at: pointInSurface,
+            xValue: displayX,
+            yValue: yValue,
+            overrideYLabel: stackLabel,
+            anchorXValue: Double(pointIndex),
+            anchorYValue: tooltipCumulativeY
+        )
         return true
     }
 
@@ -164,7 +177,9 @@ class ChartTooltipCoordinator: NSObject {
         let pointInSurface: CGPoint
         if isHorizontalChart {
             let pixelX = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(yValue / 2))
-            let pixelY = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(Double(pointIndex)))
+            // Use the tap's Y directly because xAxis has flipCoordinates=true,
+            // so getCoordinate(pointIndex) would invert the vertical position.
+            let pixelY = location.y
             pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
         } else {
             let pixelX = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(Double(pointIndex)))
@@ -173,7 +188,13 @@ class ChartTooltipCoordinator: NSObject {
         }
 
         removeTooltip()
-        showTooltip(at: pointInSurface, xValue: displayX, yValue: yValue)
+        showTooltip(
+            at: pointInSurface,
+            xValue: displayX,
+            yValue: yValue,
+            anchorXValue: isHorizontalChart ? yValue / 2 : Double(pointIndex),
+            anchorYValue: isHorizontalChart ? Double(pointIndex) : yValue
+        )
         return true
     }
     
@@ -327,12 +348,27 @@ class ChartTooltipCoordinator: NSObject {
     }
 
     // MARK: - Tooltip
-
-    /// Builds and displays the tooltip bubble + arrow at the given surface-space point.
-    /// Exposed as internal so chart views using tapOverride can call it directly.
-    func showTooltip(at point: CGPoint, xValue: Double, yValue: Double, overrideYLabel: String? = nil) {
+    // Builds and displays the tooltip bubble + arrow at the given surface-space point.
+    // Exposed as internal so chart views using tapOverride can call it directly.
+    func showTooltip(
+        at point: CGPoint,
+        xValue: Double,
+        yValue: Double,
+        overrideYLabel: String? = nil,
+        anchorXValue: Double? = nil,
+        anchorYValue: Double? = nil
+    ) {
         removeTooltip()
         guard let surface else { return }
+
+        updateTooltipState(
+            point: point,
+            xValue: xValue,
+            yValue: yValue,
+            overrideYLabel: overrideYLabel,
+            anchorXValue: anchorXValue,
+            anchorYValue: anchorYValue
+        )
 
         let displayYLabel = overrideYLabel ?? yLabel
         let tooltipColor = UIColor(red: 0.05, green: 0.25, blue: 0.25, alpha: 0.92)
@@ -369,7 +405,13 @@ class ChartTooltipCoordinator: NSObject {
         // MARK: Layout
         // Attach to the topmost subview so the tooltip renders above the chart canvas
         let container = surface.subviews.last ?? surface
-        let containerPoint = surface.convert(point, to: container)
+        // Clamp point to surface bounds so zoomed-out-of-view tooltips don't get
+        // negative coordinates after conversion.
+        let clampedPoint = CGPoint(
+            x: max(0, min(point.x, surface.bounds.width)),
+            y: max(0, min(point.y, surface.bounds.height))
+        )
+        let containerPoint = surface.convert(clampedPoint, to: container)
 
         var labelOriginX = containerPoint.x - labelWidth / 2
         var labelOriginY = containerPoint.y - labelHeight - arrowSize.height - 8
@@ -402,17 +444,77 @@ class ChartTooltipCoordinator: NSObject {
         tooltipArrow = arrowView
     }
 
-    // MARK: - Remove
+    /// Replays a saved tooltip on the current surface by recalculating its pixel anchor
+    /// from chart data values instead of reusing a point from another surface instance.
+    func showTooltip(from state: TooltipState) {
+        guard let surface,
+              let seriesArea = surface.renderableSeriesArea as? UIView,
+              let xAxis = surface.xAxes.item(at: 0) as? SCINumericAxis,
+              let yAxis = surface.yAxes.item(at: 0) as? SCINumericAxis
+        else {
+            showTooltip(
+                at: state.point,
+                xValue: state.xValue,
+                yValue: state.yValue,
+                overrideYLabel: state.overrideYLabel,
+                anchorXValue: state.anchorXValue,
+                anchorYValue: state.anchorYValue
+            )
+            return
+        }
 
+        let pixelPoint: CGPoint
+        if isHorizontalChart {
+            pixelPoint = CGPoint(
+                x: CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(state.anchorXValue)),
+                y: CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(state.anchorYValue))
+            )
+        } else {
+            pixelPoint = CGPoint(
+                x: CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(state.anchorXValue)),
+                y: CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(state.anchorYValue))
+            )
+        }
+
+        let pointInSurface = seriesArea.convert(pixelPoint, to: surface)
+        showTooltip(
+            at: pointInSurface,
+            xValue: state.xValue,
+            yValue: state.yValue,
+            overrideYLabel: state.overrideYLabel,
+            anchorXValue: state.anchorXValue,
+            anchorYValue: state.anchorYValue
+        )
+    }
+
+    private func updateTooltipState(
+        point: CGPoint,
+        xValue: Double,
+        yValue: Double,
+        overrideYLabel: String?,
+        anchorXValue: Double?,
+        anchorYValue: Double?
+    ) {
+        lastTooltipState = TooltipState(
+            point: point,
+            xValue: xValue,
+            yValue: yValue,
+            overrideYLabel: overrideYLabel,
+            anchorXValue: anchorXValue ?? xValue,
+            anchorYValue: anchorYValue ?? yValue
+        )
+    }
+
+    // MARK: - Remove
     func removeTooltip() {
         tooltipLabel?.removeFromSuperview()
         tooltipLabel = nil
         tooltipArrow?.removeFromSuperview()
         tooltipArrow = nil
+        lastTooltipState = nil
     }
 
     // MARK: - Attach
-
     func attach(
         to surface: SCIChartSurface,
         zoomDirection: SCIDirection2D = .xyDirection,
@@ -451,7 +553,6 @@ class ChartTooltipCoordinator: NSObject {
     }
 
     // MARK: - Viewport Snapshot
-
     /// Reads the current X/Y visible ranges from the live surface.
     /// Returns nil only when surface is nil; a single-axis cast failure
     /// defaults that axis to nil while the other is still returned.
@@ -485,7 +586,6 @@ class ChartTooltipCoordinator: NSObject {
     }
 
     // MARK: - Lifecycle
-
     func cleanup() {
         removeTooltip()
     }
@@ -496,10 +596,8 @@ class ChartTooltipCoordinator: NSObject {
 }
 
 // MARK: - UIGestureRecognizerDelegate
-
 extension ChartTooltipCoordinator: UIGestureRecognizerDelegate {
-    // Allow the pan gesture to run simultaneously with SciChart's own pan modifier
-    // so drag-start detection doesn't block chart interaction
+    // Allow the pan gesture to run simultaneously with SciChart's own pan modifier so drag-start detection doesn't block chart interaction
     func gestureRecognizer(
         _ gestureRecognizer: UIGestureRecognizer,
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer

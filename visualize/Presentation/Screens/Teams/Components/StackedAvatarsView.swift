@@ -14,7 +14,7 @@ struct StackedAvatarsView: View {
     let members: [AppUser]
     var maxAvatars: Int = 3
     var avatarSize: CGFloat = 30
-
+    
     private var displayMembers: [AppUser] { Array(members.prefix(maxAvatars)) }
     private var remainingCount: Int { members.count - displayMembers.count }
 
@@ -24,19 +24,26 @@ struct StackedAvatarsView: View {
                 UserAvatarView(user: user, size: avatarSize, showBorder: true)
                     .zIndex(Double(maxAvatars - index))
             }
-
-            if remainingCount > 0 {
+            
+            if remainingCount == 1 {
+                ZStack {
+                    UserAvatarView(user: members.last!, size: avatarSize, showBorder: true)
+                        .zIndex(Double(maxAvatars - 1))
+                }
+                .zIndex(0)
+            } else if remainingCount > 1 {
                 ZStack {
                     Circle()
                         .fill(Color.appBackground)
                     Text("+\(remainingCount)")
                         .font(.system(size: avatarSize * 0.4, weight: .regular))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                 }
                 .frame(width: avatarSize, height: avatarSize)
-                .overlay(Circle().stroke(Color.appMint, lineWidth: 2))
+                .overlay(Circle().stroke(AppColors.Brand.mint, lineWidth: 2))
                 .zIndex(0)
             }
+            
         }
     }
 }

@@ -27,7 +27,7 @@ struct UploadDropZoneView: View {
                         dash: [6, 4]
                     )
                 )
-                .foregroundColor(Color(.systemGray3))
+                .foregroundStyle(Color(.systemGray3))
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(.systemBackground))
@@ -37,29 +37,30 @@ struct UploadDropZoneView: View {
 
                 Image(systemName: "document.badge.arrow.up")
                     .font(.system(size: 48))
-                    .foregroundColor(
-                        Color.appTeal
+                    .foregroundStyle(
+                        AppColors.Brand.teal
                     )
                     .padding(.bottom, 4)
 
-                HStack(spacing: 0) {
+                (
                     Text("Choose a ", comment: "from Choose a .xlsx or .csv file.")
-                    Text(".xlsx", comment: "from Choose a .xlsx or .csv file.").fontWeight(.semibold)
-                    Text(" or ", comment: "from Choose a .xlsx or .csv file.")
-                    Text(".csv", comment: "from Choose a .xlsx or .csv file.").fontWeight(.semibold)
-                    Text(" file.", comment: "from Choose a .xlsx or .csv file.")
-                }
+                    + Text(".xlsx", comment: "from Choose a .xlsx or .csv file.").fontWeight(.semibold)
+                    + Text(" or ", comment: "from Choose a .xlsx or .csv file.")
+                    + Text(".csv", comment: "from Choose a .xlsx or .csv file.").fontWeight(.semibold)
+                    + Text(" file.", comment: "from Choose a .xlsx or .csv file.")
+                )
                 .font(.system(size: 15))
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
 
                 VStack(spacing: 2) {
                     Text(String(localized: "Maximum file size: 100 MB"))
                     Text(String(localized: "Only one dataset can be uploaded."))
                 }
                 .font(.system(size: 13))
-                .foregroundColor(
-                    Color.appTeal
+                .foregroundStyle(
+                    AppColors.Brand.teal
                 )
             }
             .padding(.vertical, 36)
@@ -67,5 +68,3 @@ struct UploadDropZoneView: View {
         }
     }
 }
-
-

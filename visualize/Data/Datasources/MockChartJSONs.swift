@@ -17,13 +17,15 @@ enum MockChartJSONs {
  
     /// Pairs consumed by `MockChartSuggestionsDatasource`. Each tuple is (config, preview).
     static let allCharts: [(config: String, preview: String)] = [
-        (config: verticalBarConfig,  preview: verticalBarPreview),
-        (config: scatterConfig,   preview: scatterPreview),
-        (config: stackedBarConfig,   preview: stackedBarPreview),
-        (config: lineConfig,         preview: linePreview),
-        (config: pieConfig,          preview: piePreview),
-        (config: horizontalBarConfig,      preview: horizontalBarPreview),
-        (config: areaConfig,         preview: areaPreview)
+        (config: verticalBarConfig, preview: verticalBarPreview),
+        (config: horizontalBarConfig, preview: horizontalBarPreview),
+        (config: scatterConfig, preview: scatterPreview),
+        (config: stackedBarConfig, preview: stackedBarPreview),
+        (config: lineConfig, preview: linePreview),
+        (config: pieConfig, preview: piePreview),
+        (config: donutConfig, preview: donutPreview),
+        (config: tileConfig, preview: tilePreview),
+        (config: areaConfig, preview: areaPreview)
     ]
  
     // MARK: - Chart 0 · Vertical Bar
@@ -100,7 +102,7 @@ enum MockChartJSONs {
     /// Age Distribution vs Survival , all 88 passengers with known age (full for FullScreenView)
     static let scatterConfig: String = """
     {
-        "chartIndex": 4,
+        "chartIndex": 2,
         "chartName": "Age Distribution vs Survival",
         "chartType": "Scatter",
         "data": {
@@ -132,7 +134,7 @@ enum MockChartJSONs {
     /// Age Distribution vs Survival , 15 points (reduced for card preview)
     static let scatterPreview: String = """
     {
-        "chartIndex": 4,
+        "chartIndex": 2,
         "chartName": "Age Distribution vs Survival",
         "chartType": "Scatter",
         "data": {
@@ -197,7 +199,7 @@ enum MockChartJSONs {
     /// Average Fare by Age , 17 points every 5 years from age 5 to 85 (full for FullScreenView)
     static let lineConfig: String = """
     {
-        "chartIndex": 5,
+        "chartIndex": 4,
         "chartName": "Average Fare per Age Group",
         "chartType": "Line",
         "data": {
@@ -213,7 +215,7 @@ enum MockChartJSONs {
     /// Average Fare by Age , 8 points every 10 years (reduced for card preview)
     static let linePreview: String = """
     {
-        "chartIndex": 5,
+        "chartIndex": 4,
         "chartName": "Average Fare per Age Group",
         "chartType": "Line",
         "data": {
@@ -232,7 +234,7 @@ enum MockChartJSONs {
     /// 1st M: 94, 1st F: 122, 2nd M: 108, 2nd F: 76, 3rd M: 347, 3rd F: 144 → total 891
     static let pieConfig: String = """
     {
-        "chartIndex": 6,
+        "chartIndex": 5,
         "chartName": "Passenger Sex Distribution",
         "chartType": "Pie",
         "data": {
@@ -249,7 +251,7 @@ enum MockChartJSONs {
     /// Male: 577, Female: 314 → total 891
     static let piePreview: String = """
     {
-        "chartIndex": 6,
+        "chartIndex": 5,
         "chartName": "Passenger Sex Distribution",
         "chartType": "Pie",
         "data": { "field1": ["Male", "Female"], "field2": ["577", "314"] },
@@ -259,14 +261,14 @@ enum MockChartJSONs {
     }
     """
  
-    // MARK: - Chart 6 · Donut (not in allCharts)
+    // MARK: - Chart 6 · Donut
  
     /// Survived/Died by Embarkation Port , 6 segments (full for FullScreenView)
     /// S: 217 survived 427 died, C: 93 survived 75 died, Q: 30 survived 47 died
     /// (2 passengers with missing port excluded , total 889)
     static let donutConfig: String = """
     {
-        "chartIndex": 7,
+        "chartIndex": 6,
         "chartName": "Embarkation Port Distribution",
         "chartType": "Donut",
         "data": {
@@ -280,10 +282,10 @@ enum MockChartJSONs {
     """
  
     /// Passenger Count by Embarkation Port , 3 segments (reduced for card preview)
-    /// Southampton: 644, Cherbourg: 168, Queenstown: 77 → total 889
+    /// Southampton: 644, Cherbourg: 168, Queenstown: 77 -> total 889
     static let donutPreview: String = """
     {
-        "chartIndex": 7,
+        "chartIndex": 6,
         "chartName": "Embarkation Port Distribution",
         "chartType": "Donut",
         "data": {
@@ -296,40 +298,48 @@ enum MockChartJSONs {
     }
     """
  
-    // MARK: - Chart 7 · Tile (renderer pending)
+    // MARK: - Chart 7 · Tile
  
-    /// Total Passengers KPI , full stat for FullScreenView
+    // MARK: - Chart 7 · Tile
+
+    /// Titanic KPI overview, full stat for FullScreenView
     static let tileConfig: String = """
     {
-        "chartIndex": 8,
-        "chartName": "Total Passengers",
+        "chartIndex": 7,
+        "chartName": "Titanic KPI Overview",
         "chartType": "Tile",
-        "data": { "field1": ["891"], "field2": [] },
-        "metrics": { "field1": "Count" },
+        "data": {
+            "field1": ["Passengers", "Survivors", "Avg Fare", "Avg Age", "Classes"],
+            "field2": ["891", "342", "32.2", "29.7", "3"]
+        },
+        "metrics": { "field1": "Metric", "field2": "Value" },
         "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 1
+        "status": "COMPLETED", "totalPages": 1, "totalPoints": 5
     }
     """
- 
-    /// Total Survivors KPI , reduced for card preview
+
+    /// Titanic KPI overview, reduced for card preview
     static let tilePreview: String = """
     {
-        "chartIndex": 8,
-        "chartName": "Total Passengers",
+        "chartIndex": 7,
+        "chartName": "Titanic KPI Overview",
         "chartType": "Tile",
-        "data": { "field1": ["342"], "field2": [] },
-        "metrics": { "field1": "Survived" },
+        "data": {
+            "field1": ["Passengers", "Survivors", "Avg Fare", "Avg Age", "Classes"],
+            "field2": ["891", "342", "32.2", "29.7", "3"]
+        },
+        "metrics": { "field1": "Metric", "field2": "Value" },
         "page": 0, "pageSize": 100, "preview": true,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 1
+        "status": "COMPLETED", "totalPages": 1, "totalPoints": 5
     }
     """
-    
+
     // MARK: - Chart 8 · Area
  
     /// Survivors and Deaths by Age Group, 8 groups (full for FullScreenView)
     static let areaConfig: String = """
     {
-        "chartIndex": 9,
+        "chartIndex": 8,
         "chartName": "Survival Trend by Age",
         "chartType": "Area",
         "data": {
@@ -348,7 +358,7 @@ enum MockChartJSONs {
     /// Survivors and Deaths by Age Group, 4 groups (reduced for card preview)
     static let areaPreview: String = """
     {
-        "chartIndex": 9,
+        "chartIndex": 8,
         "chartName": "Survival Trend by Age",
         "chartType": "Area",
         "data": {

@@ -20,8 +20,8 @@ enum ToastType {
 
     var color: Color {
         switch self {
-        case .success: return .appTeal
-        case .error: return .red
+        case .success: return AppColors.Brand.teal
+        case .error: return AppColors.Status.red
         }
     }
 }
@@ -31,6 +31,8 @@ struct Toast: Equatable {
     let type: ToastType
 }
 
+/// A compact, floating notification overlay used to display transient feedback messages.
+/// Automatically styled based on the success or error state with a customized glass effect.
 struct ToastView: View {
     let toast: Toast
 
@@ -41,11 +43,14 @@ struct ToastView: View {
                 .font(.body.weight(.semibold))
             Text(toast.message)
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(AppColors.Text.primary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .glassEffect(.regular.tint(toast.type.color.opacity(0.08)), in: .capsule)
+        .accessibilityElement()
+        .accessibilityIdentifier("toastView")
+
     }
 }
 

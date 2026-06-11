@@ -7,7 +7,7 @@ import SwiftUI
 
 struct NotificationGroupCardView: View {
     let group: NotificationDisplayGroup
-    var onTap: ((String) -> Void)? = nil
+    var onTap: ((String) -> Void)?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,7 +21,7 @@ struct NotificationGroupCardView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 26)
-                .fill(Color.appMint)
+                .fill(AppColors.Brand.mint)
         )
     }
 }

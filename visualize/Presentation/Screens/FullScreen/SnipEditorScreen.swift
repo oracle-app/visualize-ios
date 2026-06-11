@@ -4,6 +4,10 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Main Snipping Tool screen. It presents the captured chart, hosts the
+//  annotation canvas and gestures, manages crop zoom, and exports the edited
+//  image when the user shares it as a new thread.
 
 import SwiftUI
 
@@ -17,18 +21,18 @@ struct SnipEditorScreen: View {
     @State private var model: SnipScreenViewModel
     @State private var openPanel: ToolPanel?
     @State private var showDiscardAlert: Bool = false
-    @State private var showPostAlert: Bool = false
+    @State private var previewImage: IdentifiableImage?
     @State private var canvasSize: CGSize = .zero
 
     @Environment(\.displayScale) private var displayScale
 
     let chartImage: UIImage
-    let onPost: (UIImage) -> Void
+    let onPost: (UIImage, String?) -> Void
     let onDismiss: () -> Void
 
     // MARK: - Init
 
-    init(chartImage: UIImage, onPost: @escaping (UIImage) -> Void, onDismiss: @escaping () -> Void) {
+    init(chartImage: UIImage, onPost: @escaping (UIImage, String?) -> Void, onDismiss: @escaping () -> Void) {
         self.chartImage = chartImage
         self.onPost = onPost
         self.onDismiss = onDismiss
@@ -80,12 +84,13 @@ struct SnipEditorScreen: View {
 
         NavigationStack {
         ZStack {
-            Color.white
+            Color.appBackground
                 .overlay {
                     ZStack {
                         Image(uiImage: chartImage)
                             .resizable()
                             .scaledToFit()
+                            .accessibilityIdentifier("SnipChartImage")
 
                         AnnotationCanvasView(model: model)
                         SnipGestureOverlayView(model: model)
@@ -131,7 +136,6 @@ struct SnipEditorScreen: View {
         }
         .animation(.spring(duration: 0.22, bounce: 0.1), value: model.isCropInProgress)
         .ignoresSafeArea()
-        .preferredColorScheme(.light)
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarBackground(.hidden, for: .bottomBar)
         .alert("Discard changes?", isPresented: $showDiscardAlert) {
@@ -139,12 +143,6 @@ struct SnipEditorScreen: View {
             Button("Continue", role: .cancel) {}
         } message: {
             Text("If you cancel, your annotations will not be saved.")
-        }
-        .alert("Share as new thread?", isPresented: $showPostAlert) {
-            Button("Share") { exportAndPost() }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This edited visualization will be shared as a new thread.")
         }
         .alert("Add text annotation", isPresented: $bindable.showTextInput) {
             TextField(String(localized: "Type something…"), text: $bindable.draftText)
@@ -170,12 +168,12 @@ struct SnipEditorScreen: View {
 
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Cancel", systemImage: "xmark") { showDiscardAlert = true }
-                    .tint(Color.appNavy)
+                    .tint(AppColors.Text.primary)
             }
 
             ToolbarItem(placement: .confirmationAction) {
-                Button("Confirm", systemImage: "checkmark") { showPostAlert = true }
-                    .tint(Color.primaryOrange)
+                Button("Confirm", systemImage: "checkmark") { exportForPreview() }
+                    .tint(AppColors.Brand.primaryOrange)
                     .disabled(model.isCropInProgress)
             }
 
@@ -193,6 +191,20 @@ struct SnipEditorScreen: View {
             }
         }
         } // NavigationStack
+        .fullScreenCover(item: $previewImage) { wrapped in
+            ThreadsPreviewScreen(
+                editedImage: wrapped.image,
+                onShare: { image, caption in
+                    onPost(image, caption)
+                    onDismiss()
+                },
+                onDismiss: {
+                    previewImage = nil
+                }
+            )
+            .preventScreenShotSilent(isActive: true)
+        }
+        .accessibilityIdentifier("SnipEditorScreen")
     }
 
     private struct FloatingControls: View {
@@ -225,6 +237,14 @@ struct SnipEditorScreen: View {
                                 .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
                         }
 
+                        if openPanel == .textStyle {
+                            SnipTextStylePanelView(model: model) {
+                                withAnimation(.easeOut(duration: 0.15)) { openPanel = nil }
+                            }
+                            .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottom)))
+                            .offset(x: SnipFloatingToolbar.panelOffset(for: .textStyle))
+                        }
+
                         if openPanel == .shapes {
                             SnipShapesPanelView(model: model) {
                                 withAnimation(.easeOut(duration: 0.15)) { openPanel = nil }
@@ -251,7 +271,7 @@ struct SnipEditorScreen: View {
 
     // MARK: - Export
 
-    private func exportAndPost() {
+    private func exportForPreview() {
         let canvas = ZStack {
             Image(uiImage: chartImage)
                 .resizable()
@@ -284,7 +304,6 @@ struct SnipEditorScreen: View {
             final = exported
         }
 
-        onPost(final)
-        onDismiss()
+        previewImage = IdentifiableImage(image: final)
     }
 }

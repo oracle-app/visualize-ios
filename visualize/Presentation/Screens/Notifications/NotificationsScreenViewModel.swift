@@ -76,7 +76,7 @@ final class NotificationsScreenViewModel {
                 case .success(let notifications):
                     let groups = group(notifications)
                     let corrected = applyPendingReads(to: groups)
-                    state = corrected.allSatisfy({ $0.items.isEmpty }) ? .empty : .loaded(corrected)
+                    state = .loaded(corrected)
                 case .failure(let error):
                     state = .error(error.localizedDescription)
                 }
@@ -115,9 +115,9 @@ final class NotificationsScreenViewModel {
     private func group(_ notifications: [Notification]) -> [NotificationDisplayGroup] {
         let calendar = Calendar.current
         let now = Date()
-        var today:     [NotificationDisplayItem] = []
+        var today: [NotificationDisplayItem] = []
         var yesterday: [NotificationDisplayItem] = []
-        var last30:    [NotificationDisplayItem] = []
+        var last30: [NotificationDisplayItem] = []
 
         for notification in notifications {
             let item = notification.toDisplayItem()

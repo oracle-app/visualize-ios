@@ -4,6 +4,10 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Firestore datasource used by the Snipping Tool publishing flow. It owns the
+//  low-level reads/writes for visualization comments, including creating the
+//  comment document that carries an uploaded snip image URL.
 
 import FirebaseFirestore
 
@@ -16,11 +20,17 @@ final class CommentDatasource {
         self.firebase = firebase
     }
     
-    func postSnipComment(visualizationID: String, authorID: String, imageURL: URL, authorName: String) async throws {
+    func postSnipComment(
+        visualizationID: String,
+        authorID: String,
+        imageURL: URL,
+        authorName: String,
+        caption: String?
+    ) async throws {
         let data: [String: Any] = [
             "authorID": authorID,
             "authorName": authorName,
-            "content": "",
+            "content": caption ?? "",
             "createdAt": Timestamp(),
             "imageURL": imageURL.absoluteString
         ]
@@ -37,6 +47,7 @@ final class CommentDatasource {
             .collection("visualizations")
             .document(visualizationID)
             .collection("comments")
+            .order(by: "createdAt", descending: false)
             .getDocuments()
         
         return snapshot.documents.compactMap {
@@ -95,6 +106,7 @@ final class CommentDatasource {
             .collection("comments")
             .document(commentID)
             .collection("threads")
+            .order(by: "createdAt", descending: false)
             .getDocuments()
         
         return snapshot.documents.compactMap {

@@ -30,7 +30,7 @@ struct ShareSheetView: View {
     // MARK: - State
 
     @State private var vm: ShareSheetViewModel
-    @State private var selectedOption: ShareMode? = nil
+    @State private var selectedOption: ShareMode?
     @State private var isConfirming: Bool = false
 
     @Binding var sheetSize: PresentationDetent
@@ -45,7 +45,7 @@ struct ShareSheetView: View {
     /// Called after the visualization is successfully created in Firestore.
     var onConfirm: ((_ isShared: Bool) -> Void)?
     
-    var onModeChange: ((Bool) -> Void)? = nil
+    var onModeChange: ((Bool) -> Void)?
 
     // MARK: - Init
 
@@ -86,7 +86,7 @@ struct ShareSheetView: View {
                 if let error = vm.confirmError {
                     Text(error)
                         .font(.caption)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(AppColors.Status.red)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                         .transition(.opacity)
@@ -115,13 +115,13 @@ struct ShareSheetView: View {
             } label: {
                 Text("Save in personal feed")
                     .font(.title3.weight(.semibold))
-                    .foregroundStyle(selectedOption == .personal ? .white : Color.appTeal)
+                    .foregroundStyle(selectedOption == .personal ? .white : AppColors.Brand.teal)
                     .frame(maxWidth: 360)
                     .frame(height: 45)
-                    .background(Color.appTeal.opacity(selectedOption == .personal ? 1 : 0))
+                    .background(AppColors.Brand.teal.opacity(selectedOption == .personal ? 1 : 0))
                     .background(AppColors.UI.screenBackground)
                     .clipShape(.capsule)
-                    .overlay(Capsule().stroke(Color.appTeal, lineWidth: 1.5))
+                    .overlay(Capsule().stroke(AppColors.Brand.teal, lineWidth: 1.5))
                     .overlay(
                         Capsule()
                             .stroke(Color.white, lineWidth: selectedOption == .personal ? 2 : 0)
@@ -129,7 +129,8 @@ struct ShareSheetView: View {
             }
 
             if selectedOption == .personal {
-                Text(String(localized: "You can share this with teammates later."))                    .font(.subheadline)
+                Text("You can share this with teammates later.")
+                    .font(.subheadline)
                     .foregroundStyle(.gray)
                     .transition(.opacity)
             }
@@ -142,12 +143,12 @@ struct ShareSheetView: View {
             } label: {
                 Text("Share with teammates")
                     .font(.title3.weight(.semibold))
-                    .foregroundStyle(Color.appTeal)
+                    .foregroundStyle(AppColors.Brand.teal)
                     .frame(maxWidth: 360)
                     .frame(height: 45)
                     .background(AppColors.UI.screenBackground)
                     .clipShape(.capsule)
-                    .overlay(Capsule().stroke(Color.appTeal, lineWidth: 1.5))
+                    .overlay(Capsule().stroke(AppColors.Brand.teal, lineWidth: 1.5))
             }
         }
         .animation(.easeInOut(duration: 0.18), value: selectedOption)
@@ -160,7 +161,7 @@ struct ShareSheetView: View {
         VStack(spacing: 16) {
             Text("Share with teammates")
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(AppColors.Text.primary)
 
             EmailSearchFieldView(
                 email: $vm.email,
@@ -274,7 +275,7 @@ struct ShareSheetView: View {
                     selectedOption = nil
                     dismiss()
                 }
-                .tint(Color.appNavy)
+                .tint(AppColors.Text.primary)
             }
 
             ToolbarItem(placement: .confirmationAction) {
@@ -294,7 +295,7 @@ struct ShareSheetView: View {
                         }
                     }
                 }
-                .tint(Color.primaryOrange)
+                .tint(AppColors.Brand.primaryOrange)
                 .disabled(selectedOption == nil || isConfirming)
             }
         }
@@ -310,10 +311,10 @@ struct ShareSheetView: View {
             }
         } label: {
             HStack {
-                Text(title).foregroundStyle(Color.primaryText)
+                Text(title).foregroundStyle(AppColors.Text.primary)
 
                 Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
             }
         }
     }
@@ -346,9 +347,13 @@ struct ShareSheetView: View {
                         teamsDatasource: teamDatasource
                     )
                 ),
-                chartTitle: "Survival Rate by Passenger Class",
-                chartConfigJSON: MockChartJSONs.verticalBarConfig,
-                chartPreviewJSON: MockChartJSONs.verticalBarPreview
+                charts: [
+                    ChartPublishItem(
+                        title: "Survival Rate by Passenger Class",
+                        configJSON: MockChartJSONs.verticalBarConfig,
+                        previewJSON: MockChartJSONs.verticalBarPreview
+                    )
+                ]
             ),
             sheetSize: .constant(.large)
         )

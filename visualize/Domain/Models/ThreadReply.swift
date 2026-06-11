@@ -14,7 +14,6 @@ struct ThreadReply: Identifiable, Codable {
     var authorAvatarURL: String?
     var createdAt: Date
     var content: String
-    var timeAgo: String = ""
 
     enum CodingKeys: String, CodingKey {
         case id, authorID, authorName, authorAvatarURL, createdAt, content

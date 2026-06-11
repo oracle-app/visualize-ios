@@ -7,11 +7,11 @@
 
 /// HTTP datasource for the analyze microservice.
 ///
-/// Three endpoints:
-/// - `POST /analyzeData` — multipart upload of the dataset file.
-/// - `GET  /results/{taskId}` — task status check (202 while processing, 200 when complete).
-/// - `GET  /results/{taskId}?chart=N&preview=true` — single chart, 100-point preview payload.
-/// - `GET  /results/{taskId}?chart=N&page=N` — single chart, 5 000-point paged payload.
+/// Four endpoints:
+/// - `POST /analyzeData`, multipart upload of the dataset file.
+/// - `GET  /results/{taskId}`, task status check (202 while processing, 200 when complete).
+/// - `GET  /results/{taskId}?chart=N&preview=true`, single chart, 100-point preview payload.
+/// - `GET  /results/{taskId}?chart=N&page=N`, single chart, 5 000-point paged payload.
 ///
 /// The base URL is injected at init time so the same service can point to
 /// Simulator, a staging host, or production without recompiling. See `AppConfig.analyzeMicroserviceURL`.
@@ -69,8 +69,8 @@ struct AnalyzeAPIService {
     /// HTTP status validation is intentionally skipped here because 202 is an expected response during processing, not an error.
     ///
     /// - Parameter taskId: The task identifier from upload.
-    /// - Returns: The status string from the response body (`"COMPLETED"`, `"PROCESSING"`,
-    ///   `"QUEUED"`), or `"PROCESSING"` if the response cannot be decoded.
+    /// - Returns: The status string from the response body (`"COMPLETED"`, `"PROCESSING"`, `"QUEUED"`).
+    /// - Throws: A decoding error if the server returns 200 with an invalid body.
     func fetchTaskStatus(taskId: String) async throws -> String {
         let endpoint = baseURL
             .appendingPathComponent("results")
@@ -85,7 +85,14 @@ struct AnalyzeAPIService {
             throw URLError(.badServerResponse)
         }
 
-        return (try? JSONDecoder().decode(TaskStatusDTO.self, from: data))?.status ?? "PROCESSING"
+        // If the task completed (200) but the body can't be decoded, something is wrong.
+        // If still processing (202), default to "PROCESSING" is safe.
+        if http.statusCode == 200 {
+            let dto = try JSONDecoder().decode(TaskStatusDTO.self, from: data)
+            return dto.status ?? "COMPLETED"
+        } else {
+            return (try? JSONDecoder().decode(TaskStatusDTO.self, from: data))?.status ?? "PROCESSING"
+        }
     }
  
     /// Fetches a single chart at preview size via `GET /results/{taskId}?chart=N&preview=true`.

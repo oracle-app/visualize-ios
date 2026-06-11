@@ -60,7 +60,7 @@ struct Login: View {
                     // Title
                     Text("Welcome")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color.appNavy)
+                        .foregroundStyle(AppColors.Text.primary)
                         .multilineTextAlignment(.center)
                         .padding(.top, 58)
                         .padding(.bottom, 58)
@@ -103,14 +103,14 @@ struct Login: View {
                         } label: {
                             Text("Forgot your password?")
                                 .font(.system(size: 13))
-                                .foregroundColor(Color(Color.appSubtitle))
+                                .foregroundStyle(AppColors.Text.secondary)
                                 .underline()
                         }
                     }
                     .padding(.bottom, 36)
 
                     // Login button
-                    AuthButton(title: "Log in") {
+                    AuthButton(title: String(localized: "Log in")) {
                         viewModel.login()
                     }
                     .padding(.bottom, 20)
@@ -119,14 +119,14 @@ struct Login: View {
                     VStack(spacing: 4) {
                         Text("Don't have an account?")
                             .font(.system(size: 14))
-                            .foregroundColor(Color(Color.appSubtitle))
+                            .foregroundStyle(AppColors.Text.secondary)
 
                         Button {
                             coordinator.push(.signUp)
                         } label: {
                             Text("Sign up")
                                 .font(.system(size: 15))
-                                .foregroundColor(Color(red: 192/255, green: 130/255, blue: 60/255))
+                                .foregroundStyle(Color(red: 192/255, green: 130/255, blue: 60/255))
                                 .underline()
                         }
                     }
@@ -135,7 +135,9 @@ struct Login: View {
                     // App version
                     Text("V 1.0.0")
                         .font(.system(size: 11))
-                        .foregroundColor(Color(red: 121/255, green: 139/255, blue: 138/255).opacity(0.6))
+                        .foregroundStyle(
+                            AppColors.Text.versionText
+                        )
                         .padding(.top, 129)
                 }
                 .scrollTargetLayout()
@@ -159,10 +161,10 @@ struct Login: View {
             }
         }
         .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
-        .background(Color(Color.appTeal))
-        .onChange(of: viewModel.isLoggedIn) { _, success in
-            if success {
-                coordinator.login()
+        .background(AppColors.Brand.teal)
+        .onChange(of: viewModel.loggedInUser) { _, user in
+            if let authenticatedUser = user {
+                coordinator.login(user: authenticatedUser)
             }
         }
         .portraitOrientationLock()
@@ -175,7 +177,8 @@ struct Login: View {
     let repo = AuthRepositoryImpl(source: AuthFirebaseDatasource())
     Login(
         viewModel: LoginViewModel(
-            loginUseCase: LoginUseCase(repository: repo)
+            loginUseCase: LoginUseCase(repository: repo),
+            userRepository: UserRepositoryImpl(userDatasource: UserDatasource())
         )
     )
     .environment(AppCoordinator())

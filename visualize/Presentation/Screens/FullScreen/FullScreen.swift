@@ -21,6 +21,7 @@ struct FullScreen: View {
     // MARK: - State
 
     @State private var viewModel: FullScreenViewModel
+    @State private var threadsViewModel: ThreadScreenViewModel
     @State private var chartLoadID = UUID()
     @State private var showThreads = true
     @State private var isSnipping = false
@@ -53,6 +54,7 @@ struct FullScreen: View {
         let userRepository = UserRepositoryImpl(
             userDatasource: userDatasource
         )
+        let commentRepository = CommentRepositoryImpl(commentDatasource: commentDatasource)
         self._viewModel = State(initialValue: FullScreenViewModel(
             teamRepository: TeamRepositoryImpl(
                 teamDatasource: teamDatasource,
@@ -72,13 +74,25 @@ struct FullScreen: View {
                 commentRepository: CommentRepositoryImpl(commentDatasource: commentDatasource)
             )
         ))
+        self._threadsViewModel = State(initialValue: ThreadScreenViewModel(
+            visualizationID: card.id,
+            visualizationOwnerID: card.authorID,
+            isPreview: false,
+            repository: commentRepository,
+            userRepository: userRepository,
+            authRepository: authRepository,
+            postCommentUseCase: PostCommentUseCase(),
+            postReplyUseCase: PostReplyUseCase(),
+            deleteCommentUseCase: DeleteCommentUseCase(),
+            deleteReplyUseCase: DeleteReplyUseCase()
+        ))
     }
 
     // MARK: - Body
 
     var body: some View {
         ZStack {
-            Color.appMint
+            AppColors.Brand.mint
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -133,6 +147,7 @@ struct FullScreen: View {
                     // Snipping tool floats over the top-trailing corner of the chart
                     Button {
                         if let chart = viewModel.parsedChart {
+                            viewModel.prepareChartForEditorCapture()
                             showThreads = false
                             isSnipping = true
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -144,7 +159,7 @@ struct FullScreen: View {
                             .font(.system(size: 28))
                             .foregroundStyle(.white)
                             .frame(width: 54, height: 54)
-                            .glassEffect(.regular.tint(Color.primaryOrange), in: Circle())
+                            .glassEffect(.regular.tint(AppColors.Brand.primaryOrange), in: Circle())
                     }
                     // Disabled when parsedChart is nil (not yet loaded / parse error),
                     // .unsupported (chart type not yet renderable), or when
@@ -167,9 +182,9 @@ struct FullScreen: View {
         .fullScreenCover(item: $viewModel.capturedChartImage) { wrapped in
             SnipEditorScreen(
                 chartImage: wrapped.image,
-                onPost: { image in
+                onPost: { image, caption in
                     Task {
-                        _ = await viewModel.uploadSnip(image, visualizationID: card.id)
+                        _ = await viewModel.uploadSnip(image, visualizationID: card.id, caption: caption)
                     }
                 },
                 onDismiss: {
@@ -178,13 +193,14 @@ struct FullScreen: View {
                     isSnipping = false
                 }
             )
+            .preventScreenShotSilent(isActive: true)
         }
         .alert("Capture failed", isPresented: $viewModel.showCaptureError) {
-            Button("OK", role: .cancel) {}
+            Button("OK", role: .cancel) {isSnipping = false} 
         } message: {
             Text("Could not capture the chart. Please try again.")
         }
-        .preventScreenShot(isActive: !isSnipping)
+        .preventScreenShotSilent(isActive: !isSnipping)
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: Binding(
@@ -193,21 +209,27 @@ struct FullScreen: View {
         )) {
             ThreadScreen(
                 visualizationID: card.id,
-                isCollapsed: selectedDetent == .fraction(0.08)
+                visualizationOwnerID: card.authorID,
+                isCollapsed: selectedDetent == .fraction(0.08),
+                viewModel: threadsViewModel
             )
-                //.frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.appBackground)
-                //.ignoresSafeArea(edges: .bottom)
                 .interactiveDismissDisabled(true)
                 .presentationDetents([.fraction(0.08), .medium, .large], selection: $selectedDetent)
                 .presentationBackgroundInteraction(.enabled(upThrough: .large))
                 .presentationCornerRadius(24)
                 .presentationDragIndicator(.visible)
+                .preventScreenShotSilent(isActive: !isSnipping)
         }
-        //.preventScreenShot(isActive: true)
         .onChange(of: isLandscape) { _, newValue in
             if !newValue {
                 showThreads = true
+            }
+        }
+        .onChange(of: viewModel.snipPosted) { _, posted in
+            if posted {
+                Task { await threadsViewModel.appendNewComments() }
+                viewModel.snipPosted = false
             }
         }
     }
@@ -218,10 +240,10 @@ struct FullScreen: View {
         VStack(spacing: 5) {
             Text(String(localized: "Couldn't load"))
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
             Text(String(localized: "Something went wrong."))
                 .font(.system(size: 17))
-                .foregroundStyle(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
                 .multilineTextAlignment(.center)
             Button("Try again") {
                 chartLoadID = UUID()
@@ -230,7 +252,7 @@ struct FullScreen: View {
             .foregroundStyle(.white)
             .padding(.horizontal, 130)
             .padding(.vertical, 15)
-            .background(Color.appTeal)
+            .background(AppColors.Brand.teal)
             .cornerRadius(296)
             .padding(.top, 200)
         }
@@ -252,14 +274,14 @@ struct FullScreen: View {
         previewJSON: testPreviewJSON,
         teamsSharedWith: [],
         usersSharedWith: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria")
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana", role: .admin),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis", role: .admin),
+            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria", role: .admin)
         ],
         allUsersSharedWith: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria")
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana", role: .admin),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis", role: .admin),
+            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria", role: .admin)
         ]
     ))
 }

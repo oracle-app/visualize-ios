@@ -1,5 +1,5 @@
 //
-//  FeedViewModel.swift
+//  FeedScreenViewModel.swift
 //  Visualize
 //
 //  Created by Jorge Flores on 13/04/26.
@@ -49,15 +49,19 @@ class FeedScreenViewModel {
 
     // MARK: - Dependencies
     var visualizationFilter: VisualizationFilter
-    let loadVisualizationsUseCase: LoadVisualizationsUseCase
-    let searchVisualizationsUseCase: SearchVisualizationsUseCase
-    let hideVisualizationUseCase: HideVisualizationUseCase
-    let deleteVisualizationUseCase: DeleteVisualizationUseCase
-    let authRepository: any AuthRepository
+    private let loadVisualizationsUseCase: LoadVisualizationsUseCase
+    private let searchVisualizationsUseCase: SearchVisualizationsUseCase
+    private let hideVisualizationUseCase: HideVisualizationUseCase
+    private let deleteVisualizationUseCase: DeleteVisualizationUseCase
+    private let authRepository: any AuthRepository
+    private let notificationRepository: any NotificationRepository
+    private let userRepository: any UserRepository
 
+    var hasUnreadNotifications: Bool = false
     private var allVisualizations: [VisualizationCard] = []
     private(set) var currentUserID: String = ""
-    var currentToast: Toast? = nil
+    private(set) var currentUserRole: Role = .consumer
+    var currentToast: Toast?
 
     /// Search task used for debounce — ignored by @Observable to avoid tracking issues.
     @ObservationIgnored
@@ -70,13 +74,17 @@ class FeedScreenViewModel {
         searchVisualizationsUseCase: SearchVisualizationsUseCase,
         hideVisualizationUseCase: HideVisualizationUseCase,
         deleteVisualizationUseCase: DeleteVisualizationUseCase,
-        authRepository: any AuthRepository
+        authRepository: any AuthRepository,
+        notificationRepository: any NotificationRepository,
+        userRepository: any UserRepository
     ) {
         self.loadVisualizationsUseCase = loadVisualizationsUseCase
         self.searchVisualizationsUseCase = searchVisualizationsUseCase
         self.hideVisualizationUseCase = hideVisualizationUseCase
         self.deleteVisualizationUseCase = deleteVisualizationUseCase
         self.authRepository = authRepository
+        self.notificationRepository = notificationRepository
+        self.userRepository = userRepository
         self.visualizationFilter = .all
         Task {
             await initializeUser()
@@ -86,9 +94,20 @@ class FeedScreenViewModel {
     private func initializeUser() async {
         do {
             self.currentUserID = try await authRepository.getCurrentUserID()
+            let currentUser = try await userRepository.getUserByID(userID: currentUserID)
+            self.currentUserRole = currentUser.role
             self.loadData(forceRefresh: false)
         } catch {
             self.state = .error
+        }
+    }
+    
+    func listenForUnreadNotifications() async {
+        guard !currentUserID.isEmpty else { return }
+            
+        let stream = notificationRepository.unreadStream(for: currentUserID)
+        for await hasUnread in stream {
+            self.hasUnreadNotifications = hasUnread
         }
     }
 
@@ -198,7 +217,6 @@ class FeedScreenViewModel {
         }
     }
     
-
     /// Merges a fresh list of visualizations into the local cache without a full reload.
     /// This preserves scroll position and avoids unnecessary view refreshes.
     private func applyDiff(newItems: [VisualizationCard]) {
@@ -245,10 +263,10 @@ class FeedScreenViewModel {
                 allVisualizations.removeAll { $0.id == visualizationID }
                 searchResults.removeAll { $0.id == visualizationID }
                 applyLocalFilter()
-                await showToast(Toast(message: String(localized: "Visualization removed from your feed"), type: .success))
+                showToast(Toast(message: String(localized: "Visualization removed from your feed"), type: .success))
             } catch {
                 print("Error hiding visualization: \(error)")
-                await showToast(Toast(message: String(localized: "Failed to remove visualization"), type: .error))
+                showToast(Toast(message: String(localized: "Failed to remove visualization"), type: .error))
             }
         }
     }
@@ -259,10 +277,10 @@ class FeedScreenViewModel {
                 allVisualizations.removeAll { $0.id == visualizationID }
                 searchResults.removeAll { $0.id == visualizationID }
                 applyLocalFilter()
-                await showToast(Toast(message: String(localized: "Visualization deleted for everyone"), type: .success))
+                showToast(Toast(message: String(localized: "Visualization deleted for everyone"), type: .success))
             } catch {
                 print("Error deleting visualization: \(error)")
-                await showToast(Toast(message: String(localized: "Failed to delete visualization"), type: .error))
+                showToast(Toast(message: String(localized: "Failed to delete visualization"), type: .error))
             }
         }
     }
@@ -275,6 +293,7 @@ extension FeedScreenViewModel {
         let userDS = UserDatasource()
         let teamDS = TeamDatasource()
         let authDS = AuthFirebaseDatasource()
+        let notiDS = NotificationDatasource()
         let visualizationDS = VisualizationDatasource(userDatasource: userDS, teamsDatasource: teamDS)
         let repo = VisualizationRepositoryImpl(
             userDatasource: userDS,
@@ -283,12 +302,65 @@ extension FeedScreenViewModel {
         )
         let userRepo = UserRepositoryImpl(userDatasource: userDS)
         let authRepo = AuthRepositoryImpl(source: authDS)
+        let notificationRepo = NotificationRepositoryImpl(datasource: notiDS)
         return FeedScreenViewModel(
             loadVisualizationsUseCase: LoadVisualizationsUseCase(visualizationRepository: repo),
             searchVisualizationsUseCase: SearchVisualizationsUseCase(visualizationRepository: repo),
             hideVisualizationUseCase: HideVisualizationUseCase(userRepository: userRepo, visualizationRepository: repo),
             deleteVisualizationUseCase: DeleteVisualizationUseCase(visualizationRepository: repo),
-            authRepository: authRepo
+            authRepository: authRepo,
+            notificationRepository: notificationRepo,
+            userRepository: userRepo
         )
     }
 }
+
+// MARK: - UI Test Mock
+
+#if DEBUG
+extension FeedScreenViewModel {
+    /// Mock ViewModel driven by launch arguments for UI testing.
+    static func uitestMock(args: [String]) -> FeedScreenViewModel {
+
+        // Stub use cases ─ no real network calls
+        let loadUC   = FeedMockLoadVisualizationsUseCase()
+        let searchUC = FeedMockSearchVisualizationsUseCase()
+        let hideUC   = FeedMockHideVisualizationUseCase()
+        let deleteUC = FeedMockDeleteVisualizationUseCase()
+        let authRepo = FeedMockAuthRepository()
+        let notiRepo = FeedMockNotificationRepository()
+        let userRepo = FeedMockUserRepository()
+
+        // Decide which state to inject based on the launch argument
+        if args.contains("loading") {
+            // Never resolves → ViewModel stays in .loading
+            loadUC.shouldBlockForever = true
+        } else if args.contains("loaded") {
+            loadUC.stubbedItems = [
+                VisualizationCard.make(id: "card-1", title: "Sales Q1", authorID: "other-user"),
+                VisualizationCard.make(id: "card-2", title: "Inventory", authorID: "user-123")
+            ]
+        }
+
+        let vm = FeedScreenViewModel(
+            loadVisualizationsUseCase: loadUC,
+            searchVisualizationsUseCase: searchUC,
+            hideVisualizationUseCase: hideUC,
+            deleteVisualizationUseCase: deleteUC,
+            authRepository: authRepo,
+            notificationRepository: notiRepo,
+            userRepository: userRepo
+        )
+
+        // FEED-013: auto-trigger hide so the toast fires without UI interaction
+        if args.contains("-triggerHide") {
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(300))
+                vm.hideVisualization(visualizationID: "card-1")
+            }
+        }
+
+        return vm
+    }
+}
+#endif

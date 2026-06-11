@@ -32,14 +32,13 @@ struct ThreadsPreviewImageContainerView: View {
         VStack(spacing: 12) {
             Text(String(localized: "Preview of the edited visualization"))
                 .font(.system(size: headerFontSize, weight: .semibold))
-                .foregroundStyle(Color.appNavy)
+                .foregroundStyle(AppColors.Text.primary)
                 .frame(maxWidth: .infinity, alignment: .center)
 
             content
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: minContainerHeight)
-                .background(Color.appBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
 
@@ -58,7 +57,7 @@ struct ThreadsPreviewImageContainerView: View {
                 // layout off-screen — the image shrinks instead.
                 .scaledToFit()
                 .padding(8)
-                .accessibilityLabel("Preview of the edited visualization")
+                .accessibilityLabel(Text("Preview of the edited visualization"))
         } else {
             failedState
         }
@@ -68,13 +67,13 @@ struct ThreadsPreviewImageContainerView: View {
         VStack(spacing: 8) {
             Image(systemName: "photo.badge.exclamationmark")
                 .font(.system(size: 30, weight: .regular))
-                .foregroundStyle(Color.appTeal)
+                .foregroundStyle(AppColors.Brand.teal)
             Text(String(localized: "Couldn't load preview"))
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(Color.appNavy)
+                .foregroundStyle(AppColors.Text.primary)
             Text(String(localized: "The edited visualization failed to load."))
                 .font(.system(size: 13))
-                .foregroundStyle(Color.appSubtitle)
+                .foregroundStyle(AppColors.Text.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
         }

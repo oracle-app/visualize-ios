@@ -16,6 +16,7 @@ struct VizReadyView: View {
     // MARK: - State
  
     @Environment(AppCoordinator.self) private var coordinator
+    @Environment(CreateFlowState.self) private var createFlowState
     /// Backing state machine for chart selection and title editing.
     @State private var viewModel: VizReadyScreenViewModel
     /// Controls presentation of the share sheet after the user taps proceed.
@@ -54,12 +55,12 @@ struct VizReadyView: View {
                     label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(Color.appNavy)
+                            .foregroundStyle(AppColors.Text.primary)
                     }
                 )
                 .alert("Discard generated visualizations?", isPresented: $showDiscardAlert) {
                     Button("Discard", role: .destructive) {
-                        coordinator.resetCreateFlow()
+                        createFlowState.resetCreateFlow(coordinator: coordinator)
                     }
                     Button("Cancel", role: .cancel) { }
                 } message: {
@@ -76,7 +77,7 @@ struct VizReadyView: View {
                     } else {
                         Text("Choose visualization")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Color.appNavy)
+                            .foregroundStyle(AppColors.Text.primary)
                     }
                 }
             }
@@ -88,7 +89,7 @@ struct VizReadyView: View {
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(
                                 viewModel.isSelectionValid
-                                    ? Color.appNavy
+                                    ? AppColors.Text.primary
                                     : Color.gray.opacity(0.35)
                             )
                     }
@@ -110,13 +111,13 @@ struct VizReadyView: View {
             VStack(spacing: 8) {
                 Text(String(localized: "Your visualizations are ready!"))
                     .font(.system(size: 25, weight: .bold))
-                    .foregroundStyle(Color.appNavy)
+                    .foregroundStyle(AppColors.Text.primary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8)
  
                 Text(String(localized: "We've generated several charts based\non your dataset."))
                     .font(.system(size: 16, weight: .regular))
-                    .foregroundStyle(Color.appSubtitle)
+                    .foregroundStyle(AppColors.Text.secondary)
                     .multilineTextAlignment(.center)
                     .tracking(-0.31)
                     .lineSpacing(7)
@@ -124,9 +125,9 @@ struct VizReadyView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
  
-            Text(String(localized: "Choose the chart that best represents the insights you want to share"))
+            Text(String(localized: "Choose the charts that best represents the insights you want to share"))
                 .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Color.appSubtitle.opacity(0.8))
+                .foregroundStyle(AppColors.Text.secondary.opacity(0.8))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
@@ -155,7 +156,7 @@ struct VizReadyView: View {
             if let error = viewModel.titleValidationError {
                 Text(error)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(.red)
+                    .foregroundStyle(AppColors.Status.red)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 24)
             }
@@ -177,10 +178,20 @@ struct VizReadyView: View {
             teamsDatasource: teamDatasource
         )
         let authDatasource = AuthFirebaseDatasource()
-        let suggestion = viewModel.selectedSuggestion
         let authRepository = AuthRepositoryImpl(
             source: authDatasource
         )
+        
+        // Build one ChartPublishItem per selected suggestion.
+        // The proceed button is always disabled when selectedIDs is empty,
+        // so this array is never empty when the sheet is presented.
+        let charts = viewModel.selectedSuggestions.map { suggestion in
+            ChartPublishItem(
+                title: viewModel.displayTitle(for: suggestion),
+                configJSON: suggestion.configJSON,
+                previewJSON: suggestion.previewJSON
+            )
+        }
  
         return NavigationStack {
             ShareSheetView(
@@ -194,22 +205,31 @@ struct VizReadyView: View {
                     createVisualizationUseCase: CreateVisualizationUseCase(
                         visualizationRepository: vizRepository
                     ),
-                    chartTitle: suggestion.map { viewModel.displayTitle(for: $0) } ?? "",
-                    chartConfigJSON: suggestion?.configJSON ?? "",
-                    chartPreviewJSON: suggestion?.previewJSON ?? ""
+                    charts: charts
                 ),
                 sheetSize: $sheetSize,
                 onConfirm: { isShared in
-                    coordinator.pendingToast = Toast(
-                        message: isShared
-                            ? "Visualization published and shared"
-                            : "Visualization published to your feed",
+                    let count = charts.count
+                    let message: String
+
+                    if isShared {
+                        message = count == 1
+                            ? String(localized: "Visualization published and shared")
+                            : String(localized: "\(count) visualizations published and shared")
+                    } else {
+                        message = count == 1
+                            ? String(localized: "Visualization published to your feed")
+                            : String(localized: "\(count) visualizations published to your feed")
+                    }
+
+                    createFlowState.pendingToast = Toast(
+                        message: message,
                         type: .success
                     )
                     Task {
                         try? await Task.sleep(for: .milliseconds(350))
                         await MainActor.run {
-                            coordinator.finishCreateFlow()
+                            createFlowState.finishCreateFlow(coordinator: coordinator)
                         }
                     }
                 },
@@ -217,6 +237,7 @@ struct VizReadyView: View {
                     isTeammatesSelected = isTeammates
                 }
             )
+            .preventScreenShotSilent(isActive: true)
         }
         .presentationDetents(
             isTeammatesSelected ? [.fraction(0.34), .large] : [.fraction(0.34)],

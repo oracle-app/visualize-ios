@@ -1,5 +1,5 @@
 //
-//  VizReadyViewModel.swift
+//  VizReadyScreenViewModel.swift
 //  visualize
 //
 //  Created by Nicolás Peralta on 15/04/26.
@@ -8,6 +8,7 @@
 import SwiftUI
 
 /// Manages state and business logic for the visualization selection flow.
+/// Supports selecting one or more charts from the generated suggestions.
 @MainActor
 @Observable
 final class VizReadyScreenViewModel {
@@ -23,11 +24,11 @@ final class VizReadyScreenViewModel {
     /// User-edited titles keyed by chart index. Falls back to `suggestion.name` when absent.
     private var editedTitles: [Int: String] = [:]
 
-    /// The ID of the currently selected chart, or `nil` if none is selected.
-    private(set) var selectedID: Int? = nil
+    /// IDs of the currently selected charts. Supports multi-selection (1 to N).
+    private(set) var selectedIDs: Set<Int> = []
     
     /// Validation error message for the last title update attempt; `nil` when valid.
-    var titleValidationError: String? = nil
+    var titleValidationError: String?
 
     // MARK: - Init
     /// - Parameter suggestions: Chart suggestions to display. Pass `[]` for empty state.
@@ -36,14 +37,13 @@ final class VizReadyScreenViewModel {
     }
 
     // MARK: - Computed
-    /// `true` when the user has selected a single chart.
-    var isSelectionValid: Bool { selectedID != nil }
+    /// `true` when the user has selected at least one chart.
+    var isSelectionValid: Bool { !selectedIDs.isEmpty }
     
-    /// The currently selected `ChartSuggestion`, or `nil` if nothing is selected.
-    /// Used by `VizReadyView` to pass chart data to `ShareSheetViewModel`.
-    var selectedSuggestion: ChartSuggestion? {
-        guard let selectedID else { return nil }
-        return suggestions.first { $0.id == selectedID }
+    /// The currently selected `ChartSuggestion` objects, in their original order.
+    /// Used by `VizReadyScreen` to pass chart data to `ShareSheetViewModel`.
+    var selectedSuggestions: [ChartSuggestion] {
+        suggestions.filter { selectedIDs.contains($0.id) }
     }
 
     /// Returns the user-edited title for a suggestion, or the original ML name.
@@ -53,13 +53,17 @@ final class VizReadyScreenViewModel {
         editedTitles[suggestion.id] ?? suggestion.name
     }
 
-    /// Returns `true` if the given index matches the current selection.
-    func isSelected(_ id: Int) -> Bool { selectedID == id }
+    /// Returns `true` if the given index is in the current selection set.
+        func isSelected(_ id: Int) -> Bool { selectedIDs.contains(id) }
 
     // MARK: - Intents
-    /// Selects the chart at `id`, or deselects it if already selected.
+    /// Toggles the chart at `id` in or out of the selection set.
     func toggleSelection(for id: Int) {
-        selectedID = (selectedID == id) ? nil : id
+        if selectedIDs.contains(id) {
+            selectedIDs.remove(id)
+        } else {
+            selectedIDs.insert(id)
+        }
     }
 
     /// Updates the user-visible title for the chart at `id`.

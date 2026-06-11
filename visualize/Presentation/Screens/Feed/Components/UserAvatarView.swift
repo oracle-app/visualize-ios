@@ -24,7 +24,7 @@ struct UserAvatarView: View {
                         image
                             .resizable()
                             .scaledToFill()
-                    case .failure(_):
+                    case .failure:
                         fallbackAvatar
                     @unknown default:
                         fallbackAvatar
@@ -39,7 +39,7 @@ struct UserAvatarView: View {
         .overlay(
             Group {
                 if showBorder {
-                    Circle().stroke(Color.appMint, lineWidth: 2)
+                    Circle().stroke(AppColors.Brand.mint, lineWidth: 2)
                 }
             }
         )
@@ -52,7 +52,7 @@ struct UserAvatarView: View {
             Text(String(user.username.prefix(1)).uppercased())
         
                 .font(.system(size: size * 0.45, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
         }
     }
 }
@@ -64,7 +64,8 @@ extension UserAvatarView {
                 id: "",
                 email: "",
                 profilePictureURL: avatarURL,
-                username: username
+                username: username,
+                role: .writer
             ),
             size: size,
             showBorder: showBorder

@@ -4,6 +4,9 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Floating Snipping Tool controls. This file contains the bottom toolbar plus
+//  the lightweight panels for selecting shapes and adjusting annotation size.
 
 import SwiftUI
 
@@ -13,6 +16,7 @@ import SwiftUI
 enum ToolPanel: Equatable {
     case shapes
     case strokeWidth
+    case textStyle
 }
 
 // MARK: - Floating toolbar
@@ -23,15 +27,15 @@ struct SnipFloatingToolbar: View {
     @Binding var currentColor: Color
     @Binding var openPanel: ToolPanel?
 
-    private let activeIconColor = Color.appTeal
-    private let activeBgColor = Color.appMint
-    private let normalIconColor = Color.appNavy
+    private let activeIconColor = AppColors.Brand.teal
+    private let activeBgColor = AppColors.Brand.mint
+    private let normalIconColor = AppColors.Text.primary
     private let toolCornerRadius: CGFloat = 10
     private let containerRadius: CGFloat = 32
 
     // Geometry shared with `SnipEditorView` for panel anchoring.
     // Buttons are 38pt wide with 2pt spacing → 40pt stride between centers.
-    // The stroke-width button (index 3 of 7) sits at the toolbar's center.
+    // The size button (index 3 of 7) sits at the toolbar's center.
     // Offsets below are signed horizontal distances from that center to the
     // owning button's center, used by floating panels to align over them.
     private static let buttonStride: CGFloat = 40
@@ -41,7 +45,8 @@ struct SnipFloatingToolbar: View {
     /// declared inside `body`.
     static func panelOffset(for panel: ToolPanel) -> CGFloat {
         switch panel {
-        case .strokeWidth: return 0          // index 3 — centered
+        case .strokeWidth: return 0                 // index 3 — centered
+        case .textStyle:   return buttonStride * 1  // index 4 — one stride right
         case .shapes:      return buttonStride * 2  // index 5 — two strides right
         }
     }
@@ -104,8 +109,9 @@ struct SnipFloatingToolbar: View {
     private var textToolButton: some View {
         let isActive = selectedTool == .text
         return Button("Text", systemImage: "textformat") {
+            let wasActive = selectedTool == .text && openPanel == .textStyle
             selectedTool = .text
-            openPanel = nil
+            openPanel = wasActive ? nil : .textStyle
         }
         .labelStyle(.iconOnly)
         .font(.system(size: 17))
@@ -144,7 +150,7 @@ struct SnipShapesPanelView: View {
 
     var body: some View {
         VStack(spacing: 4) {
-            ForEach(ShapeType.allCases, id: \.label) { shape in
+            ForEach(ShapeType.allCases, id: \.self) { shape in
                 let isSelected = model.activeShape == shape && model.activeTool == .shape
                 Button(shape.label, systemImage: shape.icon) {
                     model.activeShape = shape
@@ -153,10 +159,10 @@ struct SnipShapesPanelView: View {
                 }
                 .labelStyle(.iconOnly)
                 .font(.system(size: 18, weight: .medium))
-                .foregroundStyle(isSelected ? Color.appTeal : Color.appNavy)
+                .foregroundStyle(isSelected ? AppColors.Brand.teal : AppColors.Text.primary)
                 .frame(width: 42, height: 42)
                 .contentShape(Rectangle())
-                .background(isSelected ? Color.appMint : Color.clear)
+                .background(isSelected ? AppColors.Brand.mint : Color.clear)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .animation(.easeInOut(duration: 0.2), value: isSelected)
                 .buttonStyle(.plain)
@@ -167,20 +173,53 @@ struct SnipShapesPanelView: View {
     }
 }
 
-// MARK: - Stroke width panel
+// MARK: - Text style panel
+
+struct SnipTextStylePanelView: View {
+    var model: SnipScreenViewModel
+    let onSelect: () -> Void
+
+    var body: some View {
+        VStack(spacing: 4) {
+            ForEach(TextStyle.allCases, id: \.self) { style in
+                let isSelected = model.activeTextStyle == style && model.activeTool == .text
+                Button(style.label, systemImage: style.icon) {
+                    model.activeTextStyle = style
+                    model.activeTool = .text
+                    onSelect()
+                }
+                .labelStyle(.iconOnly)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(isSelected ? AppColors.Brand.teal : AppColors.Brand.navy)
+                .frame(width: 42, height: 42)
+                .contentShape(Rectangle())
+                .background(isSelected ? AppColors.Brand.mint : Color.clear)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .animation(.easeInOut(duration: 0.2), value: isSelected)
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(8)
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+// MARK: - Size panel
 
 struct SnipStrokeWidthPanelView: View {
     @Bindable var model: SnipScreenViewModel
 
     var body: some View {
         VStack(spacing: 8) {
-            Text("\(Int(model.pencilWidth)) px")
+            Text(model.activeAnnotationSizeLabel)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.appNavy)
+                .foregroundStyle(AppColors.Text.primary)
                 .monospacedDigit()
 
-            Slider(value: $model.pencilWidth, in: 1...30, step: 1)
-                .tint(Color.appTeal)
+            Slider(value: $model.activeAnnotationSizeValue,
+                   in: model.activeAnnotationSizeRange,
+                   step: 1)
+                .tint(AppColors.Brand.teal)
                 .frame(width: 120)
                 .rotationEffect(.degrees(-90))
                 .frame(width: 44, height: 120)
@@ -199,7 +238,7 @@ private struct SnipStrokeWidthIcon: View {
             Capsule().frame(height: 2.5)
             Capsule().frame(height: 4)
         }
-        .foregroundStyle(Color.appNavy)
+        .foregroundStyle(AppColors.Text.primary)
         .frame(width: 22)
     }
 }

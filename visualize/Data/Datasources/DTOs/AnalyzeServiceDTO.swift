@@ -5,12 +5,12 @@
 //  Created by Mariana Carrillo Holguin on 20/05/26.
 //
 
-/// `Decodable` DTOs for the two response shapes returned by the analyze microservice.
+/// Decodable DTOs for the response shapes returned by the analyze microservice.
 ///
 /// # Endpoint map
 /// ```
 /// POST /analyzeData -> AnalyzeTaskResponseDTO (contains task_id)
-/// /// GET  /results/{taskId} -> TaskStatusDTO (status check only)
+/// GET  /results/{taskId} -> TaskStatusDTO (status check only)
 /// GET  /results/{taskId}?chart=N&preview=true -> ChartResponseDTO (single chart, preview)
 /// GET  /results/{taskId}?chart=N&page=N -> ChartResponseDTO (single chart, full detail)
 /// ```
@@ -102,7 +102,7 @@ private enum JSONValue: Decodable {
  
     init(from decoder: Decoder) throws {
         let c = try decoder.singleValueContainer()
-        if c.decodeNil(){ self = .null; return }
+        if c.decodeNil() { self = .null; return }
         if let b = try? c.decode(Bool.self) { self = .bool(b); return }
         if let n = try? c.decode(Double.self) { self = .number(n); return }
         if let s = try? c.decode(String.self) { self = .string(s); return }

@@ -51,7 +51,7 @@ struct RootScreen: View {
                                             repository: AuthRepositoryImpl(
                                                 source: AuthFirebaseDatasource()
                                             )
-                                        )
+                                        ), userRepository: UserRepositoryImpl(userDatasource: UserDatasource())
                                     )
                                 )
                                 .navigationBarBackButtonHidden(true)
@@ -105,9 +105,8 @@ struct RootScreen: View {
             }
         }
         .environment(coordinator)
-        .onAppear {
-            viewModel.checkSession()
-            coordinator.isAuthenticated = viewModel.isLoggedIn
+        .task {
+            await viewModel.checkSession(coordinator: coordinator)
         }
     }
 }

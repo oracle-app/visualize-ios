@@ -23,9 +23,9 @@ struct IdentifiableImage: Identifiable {
 @MainActor
 @Observable
 final class FullScreenViewModel {
-
+    
     // MARK: - State
-
+    
     var title: String?
     var author: String?
     var createdAt: String?
@@ -57,12 +57,17 @@ final class FullScreenViewModel {
     /// Reference to the live chart's coordinator, set when the chart surface attaches.
     /// Used to read the current zoom/pan viewport at capture time.
     var tooltipCoordinator: ChartTooltipCoordinator?
+    /// Viewport captured before Snipping mode changes the FullScreen view tree.
+    private var pendingViewport: ChartViewport?
+    /// Tooltip state captured before Snipping mode changes the FullScreen view tree.
+    private var pendingTooltipState: ChartTooltipCoordinator.TooltipState?
 
     // MARK: - Upload State
 
     var isUploading: Bool = false
     var uploadError: String?
     var userName: String?
+    var snipPosted: Bool = false
 
     // MARK: - Dependencies
 
@@ -101,7 +106,7 @@ final class FullScreenViewModel {
         do {
             self.userID = try await authRepository.getCurrentUserID()
         } catch {
-            self.error = "Could not load user session."
+            self.error = String(localized: "Could not load user session.")
         }
     }
 
@@ -196,9 +201,29 @@ final class FullScreenViewModel {
     /// SciChart's Metal-backed `UIViewRepresentable`, whose first frame is
     /// presented asynchronously via the GPU pipeline. A synchronous
     /// `drawHierarchy` would capture a blank `CALayer`.
+    func prepareChartForEditorCapture() {
+        pendingViewport = tooltipCoordinator?.currentViewport()
+        pendingTooltipState = tooltipCoordinator?.lastTooltipState
+    }
+
     func captureChartForEditor(_ chart: ChartData) async {
-        let viewport = tooltipCoordinator?.currentViewport()
-        let view = ChartRendererView(chart: chart, viewport: viewport)
+        let viewport = pendingViewport ?? tooltipCoordinator?.currentViewport()
+        let tooltipState = pendingTooltipState ?? tooltipCoordinator?.lastTooltipState
+        pendingViewport = nil
+        pendingTooltipState = nil
+
+        let view = ChartRendererView(
+            chart: chart,
+            viewport: viewport,
+            onCoordinatorReady: { coordinator in
+                guard let tooltipState else { return }
+                // Ensure the viewport override has been applied before positioning the tooltip.
+                DispatchQueue.main.async {
+                    coordinator.showTooltip(from: tooltipState)
+                }
+            }
+        )
+
         guard let image = await ViewSnapshot.capture(view, size: chartCaptureSize) else {
             showCaptureError = true
             return
@@ -217,8 +242,9 @@ final class FullScreenViewModel {
     /// - Parameters:
     ///   - image: The annotated snip image from `SnipEditorView`.
     ///   - visualizationID: The ID of the current visualization.
+    ///   - caption: Optional comment text typed in the Threads preview screen.
     /// - Returns: The download URL on success, `nil` on failure.
-    func uploadSnip(_ image: UIImage, visualizationID: String) async -> URL? {
+    func uploadSnip(_ image: UIImage, visualizationID: String, caption: String?) async -> URL? {
         isUploading = true
         uploadError = nil
         do {
@@ -234,10 +260,12 @@ final class FullScreenViewModel {
                 visualizationID: visualizationID,
                 authorID: userID,
                 imageURL: url,
-                authorName: name
+                authorName: name,
+                caption: caption
             )
             isUploading = false
             dismissEditor()
+            snipPosted = true
             return url
         } catch {
             uploadError = error.localizedDescription

@@ -32,10 +32,10 @@ struct EditTeamScreen: View {
                 VStack(spacing: 5) {
                     Image(systemName: "person.2")
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                     Text("Edit your team")
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                 }
                 loadedView()
                 Spacer()
@@ -87,7 +87,7 @@ struct EditTeamScreen: View {
                         }
                     }
                 }
-                .tint(Color.primaryOrange)
+                .tint(AppColors.Brand.primaryOrange)
             }
         }
         .portraitOrientationLock()
@@ -134,7 +134,7 @@ struct EditTeamScreen: View {
                     }
                 } header: {
                     Text("Members")
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                 }
             }
             .listStyle(.insetGrouped)
@@ -151,8 +151,8 @@ struct EditTeamScreen: View {
 private final class PreviewUserRepository: UserRepository {
 
     private let sampleUsers: [AppUser] = [
-        AppUser(id: "u5", email: "sofia@example.com", profilePictureURL: nil, username: "Sofía Torres"),
-        AppUser(id: "u6", email: "diego@example.com", profilePictureURL: nil, username: "Diego Mora")
+        AppUser(id: "u5", email: "sofia@example.com", profilePictureURL: nil, username: "Sofía Torres", role: .writer),
+        AppUser(id: "u6", email: "diego@example.com", profilePictureURL: nil, username: "Diego Mora", role: .writer)
     ]
 
     func getUserByID(userID: String) async throws -> AppUser {
@@ -175,17 +175,17 @@ private final class PreviewUserRepository: UserRepository {
         URL(string: "https://example.com/profile.jpg")!
     }
 
-    func deleteProfileImage(userID: String) async throws {}
+    func deleteProfileImage(byURL url: URL) async throws {}
 }
 
 #Preview {
     let members = [
-        AppUser(id: "u1", email: "ana@example.com", profilePictureURL: nil, username: "Ana García"),
-        AppUser(id: "u2", email: "luis@example.com", profilePictureURL: nil, username: "Luis Pérez"),
-        AppUser(id: "u3", email: "maria@example.com", profilePictureURL: nil, username: "María López")
+        AppUser(id: "u1", email: "ana@example.com", profilePictureURL: nil, username: "Ana García", role: .writer),
+        AppUser(id: "u2", email: "luis@example.com", profilePictureURL: nil, username: "Luis Pérez", role: .writer),
+        AppUser(id: "u3", email: "maria@example.com", profilePictureURL: nil, username: "María López", role: .writer)
     ]
 
-    return NavigationStack {
+    NavigationStack {
         EditTeamScreen(
             viewModel: EditTeamScreenViewModel(
                 teamRepository: MockTeamRepository(),

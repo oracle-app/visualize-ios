@@ -9,6 +9,19 @@ import SwiftUI
 import Observation
 import Foundation
 
+// MARK: - Chart Publish Item
+ 
+/// Lightweight container for the data needed to persist a single visualization to Firestore.
+/// Used to pass one or more selected charts from VizReady into `ShareSheetViewModel`.
+struct ChartPublishItem {
+    /// User-facing title, potentially edited in VizReady.
+    let title: String
+    /// Full JSON string saved as `configJSON` in Firestore for FullScreenView.
+    let configJSON: String
+    /// Reduced JSON string saved as `previewJSON` in Firestore for feed card previews.
+    let previewJSON: String
+}
+
 // MARK: - Share Sheet ViewModel
 
 /// ViewModel responsible for managing the state and business interaction
@@ -19,7 +32,7 @@ import Foundation
 /// - Manages selected users and teams for sharing.
 /// - Loads teams owned by and joined by the current user.
 /// - Coordinates search, selection, and confirm-share actions.
-///
+/// - Supports publishing one or more charts in a single share action.
 
 @MainActor
 @Observable
@@ -36,12 +49,8 @@ final class ShareSheetViewModel {
     
     // MARK: - Chart Data
  
-    /// Title of the selected chart suggestion, potentially edited by the user in VizReady.
-    let chartTitle: String
-    /// Full JSON string saved as `configJSON` in Firestore for use in `FullScreenView`.
-    let chartConfigJSON: String
-    /// Reduced JSON string saved as `previewJSON` in Firestore for use in feed card previews.
-    let chartPreviewJSON: String
+    /// Charts to publish when the user confirms. Supports batch publish (1 to N).
+        let charts: [ChartPublishItem]
 
     // MARK: - Input State
 
@@ -63,7 +72,7 @@ final class ShareSheetViewModel {
     var isLoading = false
     var error: String?
     /// Non-nil when `confirmShare` fails. Displayed in `ShareSheet` so the user knows the save failed.
-    var confirmError: String? = nil
+    var confirmError: String?
 
     // MARK: - Private State
 
@@ -76,26 +85,22 @@ final class ShareSheetViewModel {
     /// - Parameters:
     ///   - teamRepository: Repository used to fetch teams.
     ///   - userRepository: Repository used to search users by email.
+    ///   - authRepository: Repository used to resolve the current user session.
     ///   - createVisualizationUseCase: Use case that persists the visualization on confirmation.
-    ///   - chartTitle: Title of the chart the user selected in VizReady.
-    ///   - chartConfigJSON: Full chart JSON to save as `configJSON` in Firestore.
-    ///   - chartPreviewJSON: Reduced chart JSON to save as `previewJSON` in Firestore.
+    ///   - charts: One or more charts to publish. Supports batch publish.
+    
     init(
         teamRepository: any TeamRepository,
         userRepository: any UserRepository,
         authRepository: any AuthRepository,
         createVisualizationUseCase: CreateVisualizationUseCase,
-        chartTitle: String,
-        chartConfigJSON: String,
-        chartPreviewJSON: String
+        charts: [ChartPublishItem]
     ) {
         self.teamRepository = teamRepository
         self.userRepository = userRepository
         self.authRepository = authRepository
         self.createVisualizationUseCase = createVisualizationUseCase
-        self.chartTitle = chartTitle
-        self.chartConfigJSON = chartConfigJSON
-        self.chartPreviewJSON = chartPreviewJSON
+        self.charts = charts
         Task {
             await initializeUser()
         }
@@ -179,14 +184,17 @@ final class ShareSheetViewModel {
         }
         
         confirmError = nil
-        try await createVisualizationUseCase.execute(
-            title: chartTitle,
-            authorID: userID,
-            configJSON: chartConfigJSON,
-            previewJSON: chartPreviewJSON,
-            users: selectedUsers,
-            teamIDs: Array(selectedTeamIDs)
-        )
+        
+        for chart in charts {
+            try await createVisualizationUseCase.execute(
+                title: chart.title,
+                authorID: userID,
+                configJSON: chart.configJSON,
+                previewJSON: chart.previewJSON,
+                users: selectedUsers,
+                teamIDs: Array(selectedTeamIDs)
+            )
+        }
     }
 
     // MARK: - Search Logic

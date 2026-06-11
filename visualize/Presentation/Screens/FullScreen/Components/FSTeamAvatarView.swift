@@ -33,7 +33,7 @@ struct TeamAvatarsView: View {
                     Circle().fill(.white)
                     Text("+\(members.count - 3)")
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                 }
                 .frame(width: diameter, height: diameter)
                 .overlay(Circle().stroke(borderColor, lineWidth: 2))
@@ -70,7 +70,7 @@ struct TeamAvatarsView: View {
     /// Renders a colored circle with the first letter of the username.
     private func initialsView(for member: AppUser) -> some View {
         ZStack {
-            Circle().fill(Color.appTeal)
+            Circle().fill(AppColors.Brand.teal)
             Text(member.username.prefix(1).uppercased())
                 .font(.system(size: diameter * 0.4, weight: .medium))
                 .foregroundStyle(.white)
@@ -83,14 +83,14 @@ struct TeamAvatarsView: View {
 #Preview {
     TeamAvatarsView(
         members: [
-            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana"),
-            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis"),
-            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria"),
-            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos")
+            AppUser(id: "1", email: "ana@mail.com", profilePictureURL: nil, username: "Ana", role: .admin),
+            AppUser(id: "2", email: "luis@mail.com", profilePictureURL: nil, username: "Luis", role: .admin),
+            AppUser(id: "3", email: "maria@mail.com", profilePictureURL: nil, username: "Maria", role: .admin),
+            AppUser(id: "4", email: "carlos@mail.com", profilePictureURL: nil, username: "Carlos", role: .admin)
         ],
-        borderColor: Color.appMint,
+        borderColor: AppColors.Brand.mint,
         diameter: 29
     )
     .padding()
-    .background(Color.appTeal)
+    .background(AppColors.Brand.teal)
 }

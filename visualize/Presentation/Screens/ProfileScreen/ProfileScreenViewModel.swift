@@ -26,7 +26,7 @@ final class ProfileScreenViewModel {
     var aboutItems: [AboutItem] {
         [
             .info(String(localized: "Version 1.0.0")),
-            .info(String(localized: "Developed by DreamTeam Corp.")),
+            .info(String(localized: "Developed by VisTeam.")),
             .action(String(localized: "Terms of Service")) { [weak self] in
                 self?.openTermsOfService()
             },
@@ -82,7 +82,7 @@ final class ProfileScreenViewModel {
     /// Uploads a new profile image for the current user.
     func uploadProfileImage(image: UIImage) {
         guard let imageData = image.jpegData(compressionQuality: 0.6) else {
-            profileError = "Could not process image"
+            profileError = String(localized: "Could not process image")
             return
         }
         isUploadingPhoto = true

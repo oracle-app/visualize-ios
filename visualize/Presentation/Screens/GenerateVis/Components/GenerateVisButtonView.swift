@@ -43,9 +43,9 @@ struct GenerateVisButtonView: View {
                 .offset(x: shimmerOffset)
                 .blendMode(.screen)
                 
-                Text(String(localized:"Generate visualizations"))
+                Text(String(localized: "Generate visualizations"))
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 44)
@@ -54,7 +54,7 @@ struct GenerateVisButtonView: View {
 //            .shadow(color: Color(red: 52/255, green: 121/255, blue: 124/255).opacity(0.5), radius: 8, x: 0, y: 0)
 //            .shadow(color: Color(red: 180/255, green: 140/255, blue: 80/255).opacity(0.3), radius: 16, x: 0, y: 0)
 //            .shadow(color: Color(red: 52/255, green: 121/255, blue: 124/255).opacity(0.15), radius: 28, x: 0, y: 0)
-            .shadow(color: Color(red: 123/255, green: 212/255, blue: 208/255).opacity(1), radius: 4, x:1, y:1)
+            .shadow(color: Color(red: 123/255, green: 212/255, blue: 208/255).opacity(1), radius: 4, x: 1, y: 1)
         }
         .onAppear {
             withAnimation(
@@ -66,4 +66,3 @@ struct GenerateVisButtonView: View {
         }
     }
 }
-

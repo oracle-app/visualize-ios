@@ -16,7 +16,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     
     func application(
         _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
       ) -> Bool {
           if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
               FirebaseApp.configure()
@@ -48,14 +48,94 @@ struct VisualizeApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            RootScreen(
-                viewModel: RootViewModel(
-                    authRepository: AuthRepositoryImpl(
-                        source: AuthFirebaseDatasource()
-                    )
-                ),
-                coordinator: AppCoordinator()
-            )
+            rootView
         }
     }
+
+    @ViewBuilder
+    private var rootView: some View {
+        #if DEBUG
+        let args = CommandLine.arguments
+        if args.contains("-uitest-snip-editor") {
+            SnipEditorScreen(
+                chartImage: UIImage(systemName: "chart.bar.fill") ?? UIImage(),
+                onPost: { _, _ in },
+                onDismiss: {}
+            )
+        } else if args.contains("-uitest-snip-comment") {
+            SnipCommentSampleView()
+
+        } else if args.contains("-feedState") {
+                feedUITestRoot(args: args)
+
+        } else if args.contains("-uitest-teams-list") {
+            NavigationStack {
+                TeamsScreen(
+                    viewModel: TeamsScreenViewModel(
+                        teamRepository: MockTeamRepository(),
+                        authRepository: MockAuthRepository(),
+                        userRepository: MockUserRepository()
+                    )
+                )
+                .environment(AppCoordinator())
+            }
+        } else if args.contains("-uitest-profile") {
+            NavigationStack {
+                ProfileScreen(
+                    logoutUseCase: MockLogoutUseCase(),
+                    getCurrentUserProfileUseCase: MockGetCurrentUserProfileUseCase(),
+                    uploadProfilePhotoUseCase: MockUploadProfilePhotoUseCase(),
+                    deleteProfilePhotoUseCase: MockDeleteProfilePhotoUseCase()
+                )
+                .environment(AppCoordinator())
+            }
+        } else if args.contains("-uitest-notifications-loaded") {
+            NavigationStack {
+                NotificationsScreen(
+                    viewModel: NotificationsScreenViewModel(
+                        authRepository: MockAuthRepository(),
+                        notificationRepository: NotificationsMockNotificationRepository()
+                    )
+                )
+            }
+        } else if args.contains("-uitest-notifications-empty") {
+            NotificationsEmptyView()
+        } else {
+            defaultRoot
+        }
+        #else
+        defaultRoot
+        #endif
+    }
+
+    private var defaultRoot: some View {
+        RootScreen(
+            viewModel: RootViewModel(
+                authRepository: AuthRepositoryImpl(
+                    source: AuthFirebaseDatasource()
+                ),
+                userRepository: UserRepositoryImpl(userDatasource: UserDatasource())
+            ),
+            coordinator: AppCoordinator()
+        )
+    }
+    
+    // MARK: - Feed UI Test Root
+    #if DEBUG
+    /// Builds a standalone FeedScreen with a mock ViewModel for UI testing.
+    /// Controlled entirely by launch arguments — no Firebase, no network calls.
+    @ViewBuilder
+    private func feedUITestRoot(args: [String]) -> some View {
+        let vm = FeedScreenViewModel.uitestMock(args: args)
+
+        let coordinator = AppCoordinator()
+        let createFlowState = CreateFlowState()
+
+        NavigationStack {
+            FeedScreen(viewModel: vm, shouldLoad: false)
+                .environment(coordinator)
+                .environment(createFlowState)
+        }
+    }
+    #endif
 }

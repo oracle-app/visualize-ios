@@ -214,6 +214,7 @@ struct ChartConfigParser {
  
         let field1Strings = dto.data?.field1?.asStrings ?? []
         let field1Doubles = dto.data?.field1?.asDoubles ?? []
+        let field2Strings = dto.data?.field2?.asStrings ?? []
         let field2Doubles = dto.data?.field2?.asDoubles ?? []
  
         // Chart Type Routing
@@ -253,8 +254,15 @@ struct ChartConfigParser {
             return .area(title: chartName, data: areaData, stackNames: field1Strings)
  
         case .tile:
-            let value = field1Doubles.first ?? 0
-            return .tile(title: chartName, value: value, label: field1Label)
+            let itemCount = min(field1Strings.count, field2Strings.count)
+            let labels = Array(field1Strings.prefix(itemCount))
+            let values = Array(field2Strings.prefix(itemCount))
+
+            guard !labels.isEmpty, !values.isEmpty else {
+                return .unsupported(type: dto.chartType)
+            }
+
+            return .tile(title: chartName, values: values, labels: labels)
         }
     }
 }

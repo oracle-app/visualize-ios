@@ -24,6 +24,7 @@ import Foundation
 struct FeedScreen: View {
 
     @Environment(AppCoordinator.self) private var coordinator
+    @Environment(CreateFlowState.self) private var createFlowState
 
     // MARK: - States
 
@@ -34,7 +35,7 @@ struct FeedScreen: View {
     @State var safeArea: EdgeInsets = .init()
     @State private var sharePayload: SharePayload?
     @State private var usersToShare: [AppUser] = []
-    @State private var selectedCard: VisualizationCard? = nil
+    @State private var selectedCard: VisualizationCard?
     @State private var isScrolledPastHeader: Bool = false
     @State private var isScrollDisabled: Bool = false
     @State private var scrollPosition: ScrollPosition = .init(idType: String.self)
@@ -91,7 +92,6 @@ struct FeedScreen: View {
                 .transition(.move(edge: .leading).combined(with: .opacity))
             } else {
                 Button {
-                    
                     if isScrolledPastHeader {
                         searchPressed = true
                         isScrollDisabled = true
@@ -124,9 +124,21 @@ struct FeedScreen: View {
             }
         } trailing: {
             HStack(spacing: 15) {
-                Button("Notifications", systemImage: "bell") {
+                Button {
                     coordinator.push(.notifications)
+                } label: {
+                    Image(systemName: "bell")
+                        .overlay(alignment: .topTrailing) {
+                            if viewModel.hasUnreadNotifications {
+                                Circle()
+                                    .fill(AppColors.Status.red)
+                                    .frame(width: 8, height: 8)
+                                    .offset(x: 2, y: -2)
+                            }
+                        }
                 }
+                .accessibilityLabel(String(localized: "Notifications"))
+                .accessibilityValue(viewModel.hasUnreadNotifications ? String(localized: "Unread items") : "")
             }
         } principal: {
             if let title {
@@ -153,6 +165,9 @@ struct FeedScreen: View {
             if shouldLoad {
                 viewModel.loadData()
             }
+        }
+        .task(id: viewModel.currentUserID) {
+            await viewModel.listenForUnreadNotifications()
         }
         .portraitOrientationLock()
         .scrollDisabled(isScrollDisabled)
@@ -199,6 +214,7 @@ struct FeedScreen: View {
                     }
                 )
                 .presentationDetents([.medium, .large])
+                .preventScreenShotSilent(isActive: true)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -216,11 +232,11 @@ struct FeedScreen: View {
             }
         }
         .animation(.spring(response: 0.45, dampingFraction: 0.75), value: viewModel.currentToast)
-        .onChange(of: coordinator.pendingToast) { _, toast in
+        .onChange(of: createFlowState.pendingToast) { _, toast in
             guard let toast else { return }
             viewModel.showToast(toast)
             viewModel.loadData(forceRefresh: true)
-            coordinator.pendingToast = nil
+            createFlowState.pendingToast = nil
         }
         .onGeometryChange(for: EdgeInsets.self) {
             $0.safeAreaInsets
@@ -259,7 +275,7 @@ struct FeedScreen: View {
                 HStack(spacing: 10) {
                     Text(selectedFeed.title)
                         .font(.title.bold())
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                         .onGeometryChange(for: Bool.self) {
                             let height = $0.size.height
                             let offset = $0.frame(in: .named("scroll")).minY
@@ -272,7 +288,7 @@ struct FeedScreen: View {
                         }
                     Image(systemName: "control")
                         .font(.body.bold())
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                         .rotationEffect(.degrees(180))
                         .padding(.trailing, 10)
                 }
@@ -302,7 +318,7 @@ struct FeedScreen: View {
                     VStack {
                         Text(String(localized: "No results for \"\(viewModel.searchQuery)\""))
                             .font(.body.bold())
-                            .foregroundStyle(Color.appTeal)
+                            .foregroundStyle(AppColors.Brand.teal)
                         Text(String(localized: "Try a different search term"))                            .foregroundStyle(.gray)
                     }
                     .hCenter()
@@ -321,7 +337,8 @@ struct FeedScreen: View {
                         onTap: { card in selectedCard = card },
                         onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
                         onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
-                        currentUserID: viewModel.currentUserID
+                        currentUserID: viewModel.currentUserID,
+                        currentUserRole: viewModel.currentUserRole
                     )
                 }
             } else {
@@ -338,7 +355,8 @@ struct FeedScreen: View {
                     onTap: { card in selectedCard = card },
                     onHide: { visualizationID in viewModel.hideVisualization(visualizationID: visualizationID) },
                     onDelete: { visualizationID in viewModel.deleteVisualization(visualizationID: visualizationID) },
-                    currentUserID: viewModel.currentUserID
+                    currentUserID: viewModel.currentUserID,
+                    currentUserRole: viewModel.currentUserRole
                 )
             }
         }
@@ -370,7 +388,7 @@ struct SharePayload: Identifiable {
 // MARK: - Preview
 
 #Preview {
-    NavigationStack{
+    NavigationStack {
         FeedScreen(
             viewModel: .preview,
             shouldLoad: true

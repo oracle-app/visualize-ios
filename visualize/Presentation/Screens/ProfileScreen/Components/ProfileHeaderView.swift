@@ -45,7 +45,8 @@ struct ProfileHeaderView: View {
     var body: some View {
         ZStack(alignment: .top) {
             headerBackground
-            
+                .accessibilityIdentifier("ProfileHeaderBackground")
+
             profileAvatar
                 .padding(.top, Metrics.avatarTopPadding)
         }
@@ -106,18 +107,19 @@ struct ProfileHeaderView: View {
     
     private var fallbackAvatar: some View {
         ZStack {
-            Color.appGray
+            AppColors.UI.gray
             Text(String(username.prefix(1)).uppercased())
                 .font(.system(size: Metrics.avatarIconSize * 1, weight: .semibold))
                 .foregroundStyle(.white)
         }
+        .accessibilityIdentifier("ProfileAvatarFallback")
     }
     
     private var profileAvatar: some View {
         ZStack(alignment: .bottomTrailing) {
             ZStack {
                 if isUploading {
-                    Color.appGray
+                    AppColors.UI.gray
                     ProgressView()
                         .progressViewStyle(.circular)
                         .tint(.white)
@@ -126,7 +128,7 @@ struct ProfileHeaderView: View {
                     AsyncImage(url: url) { phase in
                         switch phase {
                         case .success(let image):
-                            image.resizable().scaledToFill()
+                            image.resizable().scaledToFill().accessibilityIdentifier("ProfileAvatarLoaded")
                         case .failure:
                             fallbackAvatar
                         case .empty:
@@ -140,7 +142,7 @@ struct ProfileHeaderView: View {
                 }
             }
             .frame(width: Metrics.avatarSize, height: Metrics.avatarSize)
-            .background(Color.appGray)
+            .background(AppColors.UI.gray)
             .clipShape(.circle)
             .overlay {
                 Circle()
@@ -156,12 +158,13 @@ struct ProfileHeaderView: View {
             .bold()
             .foregroundStyle(.white)
             .frame(width: Metrics.editButtonSize, height: Metrics.editButtonSize)
-            .background(Color.appTeal)
+            .background(AppColors.Brand.teal)
             .clipShape(.circle)
             .overlay {
                 Circle()
-                    .strokeBorder(.white, lineWidth: Metrics.editButtonBorderWidth)
+                    .strokeBorder(.white, lineWidth: Metrics.avatarBorderWidth)
             }
+            .accessibilityIdentifier("ProfileEditPhotoButton")
             .confirmationDialog(
                 "Profile Photo",
                 isPresented: $isShowingPhotoOptions

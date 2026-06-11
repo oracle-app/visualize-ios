@@ -11,7 +11,7 @@ struct ScatterPoint: Hashable, Equatable {
 }
 
 /// Typed chart model used for both card previews in VizReady and full-screen rendering.
-/// Parsed from a JSON string by `ChartConfigParserxs`.
+/// Parsed from a JSON string by `ChartConfigParser`.
 enum ChartData: Hashable, Equatable {
     case verticalBar(title: String, data: [String: Double], fieldNames: [String])
     case horizontalBar(title: String, data: [String: Double], fieldNames: [String])
@@ -21,6 +21,6 @@ enum ChartData: Hashable, Equatable {
     case donut(title: String, data: [Double], fieldNames: [String])
     case scatter(title: String, data: [ScatterPoint], fieldNames: [String])
     case area(title: String, data: [String: [Double]], stackNames: [String])
-    case tile(title: String, value: Double, label: String)
+    case tile(title: String, values: [String], labels: [String])
     case unsupported(type: String)
 }

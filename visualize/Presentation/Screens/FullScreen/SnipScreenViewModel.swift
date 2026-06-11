@@ -4,6 +4,9 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//  State coordinator for the Snipping Tool editor. It owns annotation arrays,
+//  active tool selection, crop state, eraser behavior, and undo/redo snapshots
+//  while keeping rendering details in the SwiftUI canvas layer.
 
 import SwiftUI
 import Observation
@@ -25,9 +28,54 @@ final class SnipScreenViewModel {
 
     var activeTool: DrawingTool = .pencil
     var activeShape: ShapeType = .rectangle
-    var pencilColor: Color = .primaryOrange
-    var pencilWidth: CGFloat = 3
+    static let annotationSizePercentRange: ClosedRange<CGFloat> = 0...100
+
+    var activeTextStyle: TextStyle = .normal
+    var pencilColor: Color = AppColors.Brand.primaryOrange
+    var annotationSizePercent: CGFloat = defaultAnnotationSizePercent
     var eraserRadius: CGFloat = 18
+    var eraserWidth: CGFloat {
+        get { eraserRadius * 2 }
+        set { eraserRadius = max(1, newValue / 2) }
+    }
+
+    /// Size value bound to the toolbar slider.
+    ///
+    /// Eraser keeps its pixel-based diameter control, while pencil, shape, and
+    /// text share the annotation-size percentage introduced by the text tools.
+    var activeAnnotationSizeValue: CGFloat {
+        get { activeTool == .eraser ? eraserWidth : annotationSizePercent }
+        set {
+            if activeTool == .eraser {
+                eraserWidth = newValue
+            } else {
+                annotationSizePercent = newValue
+            }
+        }
+    }
+
+    /// Valid range for the toolbar size slider based on the active tool.
+    /// Eraser minimum is 6 px (intentional — finer values aren't useful for erasing).
+    var activeAnnotationSizeRange: ClosedRange<CGFloat> {
+        activeTool == .eraser ? 6...60 : Self.annotationSizePercentRange
+    }
+
+    var activeAnnotationSizeLabel: String {
+        let formatted = Double(activeAnnotationSizeValue)
+            .formatted(.number.precision(.fractionLength(0)))
+        if activeTool == .eraser {
+            return "\(formatted) px"
+        }
+        return "\(formatted)%"
+    }
+
+    var annotationLineWidth: CGFloat {
+        Self.mappedSize(for: annotationSizePercent, in: Self.strokeWidthRange)
+    }
+
+    var annotationFontSize: CGFloat {
+        Self.mappedSize(for: annotationSizePercent, in: Self.textFontSizeRange)
+    }
 
     var pendingTextPosition: CGPoint?
     var showTextInput: Bool = false
@@ -50,15 +98,47 @@ final class SnipScreenViewModel {
         var cropRect: CGRect?
     }
 
+    /// Maximum number of undo snapshots retained to bound memory growth.
+    private let maxUndoSnapshots: Int = 50
+
     private var undoStack: [Snapshot] = []
     private var redoStack: [Snapshot] = []
     private var cropStart: CGPoint?
+    /// Maximum spacing, in canvas points, allowed between consecutive pencil samples.
+    /// This is intentionally local and easy to tune once the final UX distance is chosen.
+    private static let strokeWidthRange: ClosedRange<CGFloat> = 1...30
+    private static let textFontSizeRange: ClosedRange<CGFloat> = 14...42
+    private static let defaultAnnotationLineWidth: CGFloat = 3
+    private static let defaultAnnotationSizePercent: CGFloat = {
+        let range = strokeWidthRange.upperBound - strokeWidthRange.lowerBound
+        return (defaultAnnotationLineWidth - strokeWidthRange.lowerBound) / range * annotationSizePercentRange.upperBound
+    }()
+
+    private let maxStrokePointDistance: CGFloat = 8
+
+    // MARK: - Size mapping
+
+    /// Maps the normalized annotation size percentage into a concrete rendering range.
+    ///
+    /// - Parameters:
+    ///   - percent: The current shared size percentage selected by the user.
+    ///   - range: The concrete rendering range for the active annotation type.
+    /// - Returns: A clamped value within `range` derived from `percent`.
+    private static func mappedSize(for percent: CGFloat, in range: ClosedRange<CGFloat>) -> CGFloat {
+        let clampedPercent = min(max(percent, annotationSizePercentRange.lowerBound), annotationSizePercentRange.upperBound)
+        let percentSpan = annotationSizePercentRange.upperBound - annotationSizePercentRange.lowerBound
+        let progress = (clampedPercent - annotationSizePercentRange.lowerBound) / percentSpan
+        return range.lowerBound + progress * (range.upperBound - range.lowerBound)
+    }
 
     // MARK: - Undo / Redo
 
     private func saveSnapshot() {
         undoStack.append(Snapshot(strokes: strokes, annotations: textAnnotations,
                                   shapes: shapeAnnotations, cropRect: cropRect))
+        if undoStack.count > maxUndoSnapshots {
+            undoStack.removeFirst()
+        }
         redoStack.removeAll()
         canUndo = true
         canRedo = false
@@ -72,6 +152,9 @@ final class SnipScreenViewModel {
         guard let snap = undoStack.popLast() else { return }
         redoStack.append(Snapshot(strokes: strokes, annotations: textAnnotations,
                                   shapes: shapeAnnotations, cropRect: cropRect))
+        if redoStack.count > maxUndoSnapshots {
+            redoStack.removeFirst()
+        }
         apply(snap)
         canUndo = !undoStack.isEmpty
         canRedo = true
@@ -104,14 +187,55 @@ final class SnipScreenViewModel {
     /// - Parameters:
     ///   - point: The canvas coordinate where the stroke begins.
     func beginStroke(at point: CGPoint) {
-        liveStroke = DrawingStroke(points: [point], color: pencilColor, lineWidth: pencilWidth)
+        liveStroke = DrawingStroke(points: [point], color: pencilColor.snipColor, lineWidth: annotationLineWidth)
     }
 
-    /// Appends a point to the in-progress stroke.
+    /// Appends a point to the in-progress stroke, inserting interpolated samples
+    /// when the drag event jumps farther than `maxStrokePointDistance`.
     ///
     /// - Parameters:
     ///   - point: The next canvas coordinate along the stroke path.
-    func continueStroke(at point: CGPoint) { liveStroke?.points.append(point) }
+    func continueStroke(at point: CGPoint) {
+        guard var stroke = liveStroke else { return }
+        guard let lastPoint = stroke.points.last else {
+            stroke.points = [point]
+            liveStroke = stroke
+            return
+        }
+
+        stroke.points.append(contentsOf: resampledPoints(from: lastPoint, to: point))
+        liveStroke = stroke
+    }
+
+    /// Returns the points needed to travel from `start` to `end` without any
+    /// consecutive samples exceeding `maxStrokePointDistance`.
+    ///
+    /// The returned array always includes `end` and excludes `start`, so callers
+    /// can append it directly to an existing stroke without duplicating points.
+    private func resampledPoints(from start: CGPoint, to end: CGPoint) -> [CGPoint] {
+        let deltaX = end.x - start.x
+        let deltaY = end.y - start.y
+        let distance = hypot(deltaX, deltaY)
+
+        guard maxStrokePointDistance > 0, distance > maxStrokePointDistance else {
+            return [end]
+        }
+
+        var points: [CGPoint] = []
+        var travelled = maxStrokePointDistance
+
+        while travelled < distance {
+            let progress = travelled / distance
+            points.append(CGPoint(
+                x: start.x + deltaX * progress,
+                y: start.y + deltaY * progress
+            ))
+            travelled += maxStrokePointDistance
+        }
+
+        points.append(end)
+        return points
+    }
 
     /// Finalises the in-progress stroke and commits it to the canvas.
     ///
@@ -130,13 +254,13 @@ final class SnipScreenViewModel {
     func beginErase() { saveSnapshot() }
 
     /// Removes the portions of strokes within the eraser radius and clears any
-    /// shapes or text annotations whose anchor falls inside the erase area.
+    /// text annotations whose anchor falls inside the erase area.
     ///
     /// For strokes, the eraser performs a segment-level erase: each stroke is
     /// scanned point-by-point and split into one or more sub-strokes around the
-    /// erased region, preserving the unaffected segments. Shapes and text are
-    /// still removed as a whole when hit (see follow-up changes for parametric
-    /// shape splitting).
+    /// erased region, preserving the unaffected segments. Supported shapes are
+    /// first sampled into stroke-like paths so line and rectangle annotations can
+    /// be partially erased instead of removed as whole objects.
     ///
     /// - Parameters:
     ///   - point: The canvas coordinate used as the centre of the erase radius.
@@ -144,13 +268,28 @@ final class SnipScreenViewModel {
         strokes = strokes.flatMap { stroke -> [DrawingStroke] in
             splitStroke(stroke, erasingAround: point, radius: eraserRadius)
         }
-        shapeAnnotations.removeAll {
-            let mid = CGPoint(x: ($0.startPoint.x + $0.endPoint.x) / 2,
-                              y: ($0.startPoint.y + $0.endPoint.y) / 2)
-            let deltaX = mid.x - point.x
-            let deltaY = mid.y - point.y
-            return deltaX * deltaX + deltaY * deltaY <= eraserRadius * eraserRadius * 4
+
+        var convertedShapeStrokes: [DrawingStroke] = []
+        shapeAnnotations = shapeAnnotations.compactMap { shape in
+            let shapeStrokes = sampledStrokes(for: shape)
+
+            guard !shapeStrokes.isEmpty else {
+                return shouldEraseWholeShape(shape, around: point) ? nil : shape
+            }
+
+            let survivingStrokes = shapeStrokes.flatMap { stroke in
+                splitStroke(stroke, erasingAround: point, radius: eraserRadius)
+            }
+
+            if strokesAreUnchanged(before: shapeStrokes, after: survivingStrokes) {
+                return shape
+            }
+
+            convertedShapeStrokes.append(contentsOf: survivingStrokes)
+            return nil
         }
+        strokes.append(contentsOf: convertedShapeStrokes)
+
         textAnnotations.removeAll {
             let deltaX = $0.position.x - point.x
             let deltaY = $0.position.y - point.y
@@ -243,6 +382,105 @@ final class SnipScreenViewModel {
         return result
     }
 
+    /// Converts the supported closed/open shape variants into sampled stroke paths.
+    private func sampledStrokes(for shape: ShapeAnnotation) -> [DrawingStroke] {
+        let start = shape.startPoint
+        let end = shape.endPoint
+        let rect = CGRect(x: min(start.x, end.x), y: min(start.y, end.y),
+                          width: abs(end.x - start.x), height: abs(end.y - start.y))
+        guard rect.width > 0 || rect.height > 0 else { return [] }
+
+        let paths: [[CGPoint]]
+        switch shape.type {
+        case .line:
+            paths = [sampledPolyline([start, end])]
+        case .rectangle:
+            paths = [sampledPolyline([
+                CGPoint(x: rect.minX, y: rect.minY),
+                CGPoint(x: rect.maxX, y: rect.minY),
+                CGPoint(x: rect.maxX, y: rect.maxY),
+                CGPoint(x: rect.minX, y: rect.maxY),
+                CGPoint(x: rect.minX, y: rect.minY)
+            ])]
+        case .triangle:
+            paths = [sampledPolyline([
+                CGPoint(x: rect.midX, y: rect.minY),
+                CGPoint(x: rect.maxX, y: rect.maxY),
+                CGPoint(x: rect.minX, y: rect.maxY),
+                CGPoint(x: rect.midX, y: rect.minY)
+            ])]
+        case .arrow:
+            let angle = atan2(end.y - start.y, end.x - start.x)
+            let length: CGFloat = max(12, shape.lineWidth * 4)
+            let spread: CGFloat = .pi / 6
+            let firstHeadPoint = CGPoint(x: end.x - length * cos(angle - spread),
+                                         y: end.y - length * sin(angle - spread))
+            let secondHeadPoint = CGPoint(x: end.x - length * cos(angle + spread),
+                                          y: end.y - length * sin(angle + spread))
+            paths = [
+                sampledPolyline([start, end]),
+                sampledPolyline([end, firstHeadPoint]),
+                sampledPolyline([end, secondHeadPoint])
+            ]
+        case .circle:
+            paths = [sampledEllipse(in: rect)]
+        }
+
+        return paths
+            .filter { $0.count > 1 }
+            .map { DrawingStroke(points: $0, color: shape.color, lineWidth: shape.lineWidth) }
+    }
+
+    /// Preserves the previous whole-shape erase behavior for shape types that
+    /// have not been converted to sampled paths yet.
+    private func shouldEraseWholeShape(_ shape: ShapeAnnotation, around point: CGPoint) -> Bool {
+        let mid = CGPoint(x: (shape.startPoint.x + shape.endPoint.x) / 2,
+                          y: (shape.startPoint.y + shape.endPoint.y) / 2)
+        let deltaX = mid.x - point.x
+        let deltaY = mid.y - point.y
+        return deltaX * deltaX + deltaY * deltaY <= eraserRadius * eraserRadius * 4
+    }
+
+    /// Returns true when an erase pass did not split or remove any sampled shape
+    /// stroke, allowing the original shape annotation to keep its semantic type.
+    private func strokesAreUnchanged(before original: [DrawingStroke],
+                                     after erased: [DrawingStroke]) -> Bool {
+        guard original.count == erased.count else { return false }
+
+        return zip(original, erased).allSatisfy { originalStroke, erasedStroke in
+            originalStroke.points == erasedStroke.points
+        }
+    }
+
+    /// Samples connected line segments so neighbouring points stay close enough
+    /// for future shape eraser hit-testing to split paths cleanly.
+    private func sampledPolyline(_ vertices: [CGPoint]) -> [CGPoint] {
+        guard let first = vertices.first else { return [] }
+
+        var points: [CGPoint] = [first]
+        for vertex in vertices.dropFirst() {
+            guard let last = points.last else { continue }
+            points.append(contentsOf: resampledPoints(from: last, to: vertex))
+        }
+        return points
+    }
+
+    /// Samples an ellipse perimeter. The first sample is the right-most point of
+    /// the ellipse and the last sample returns to that same point, giving closed
+    /// shapes an explicit seam for stroke splitting.
+    private func sampledEllipse(in rect: CGRect) -> [CGPoint] {
+        let radiusX = rect.width / 2
+        let radiusY = rect.height / 2
+        let circumferenceEstimate = 2 * .pi * sqrt((radiusX * radiusX + radiusY * radiusY) / 2)
+        let sampleCount = max(24, Int(ceil(circumferenceEstimate / maxStrokePointDistance)))
+
+        return (0...sampleCount).map { index in
+            let angle = CGFloat(index) / CGFloat(sampleCount) * 2 * .pi
+            return CGPoint(x: rect.midX + cos(angle) * radiusX,
+                           y: rect.midY + sin(angle) * radiusY)
+        }
+    }
+
     // MARK: - Shape
 
     /// Starts drawing a shape annotation from the given point.
@@ -251,7 +489,7 @@ final class SnipScreenViewModel {
     ///   - point: The canvas coordinate where the shape originates.
     func beginShape(at point: CGPoint) {
         liveShape = ShapeAnnotation(type: activeShape, startPoint: point, endPoint: point,
-                                    color: pencilColor, lineWidth: pencilWidth)
+                                    color: pencilColor.snipColor, lineWidth: annotationLineWidth)
     }
 
     /// Updates the end point of the in-progress shape as the user drags.
@@ -291,7 +529,8 @@ final class SnipScreenViewModel {
         }
         saveSnapshot()
         textAnnotations.append(TextAnnotation(text: draftText, position: pos,
-                                              color: pencilColor, fontSize: 16))
+                                              color: pencilColor.snipColor, fontSize: annotationFontSize,
+                                              isItalic: activeTextStyle == .italic))
         pendingTextPosition = nil
         draftText = ""
     }

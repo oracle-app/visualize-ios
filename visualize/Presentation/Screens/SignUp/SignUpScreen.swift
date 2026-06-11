@@ -64,7 +64,7 @@ struct SignUpScreen: View {
                     
                     Text("Create your account")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color.appNavy)
+                        .foregroundStyle(AppColors.Text.primary)
                         .multilineTextAlignment(.center)
                         .padding(.top, 58)
                         .padding(.bottom, 58)
@@ -122,7 +122,7 @@ struct SignUpScreen: View {
 
                     // MARK: Sign Up Button
                     
-                    AuthButton(title: "Sign up") {
+                    AuthButton(title: String(localized: "Sign up")) {
                         viewModel.signUp()
                     }
                     .padding(.bottom, 20)
@@ -132,14 +132,14 @@ struct SignUpScreen: View {
                     VStack(spacing: 4) {
                         Text("Already have an account?")
                             .font(.system(size: 14))
-                            .foregroundColor(Color(Color.appSubtitle))
+                            .foregroundStyle(AppColors.Text.secondary)
 
                         Button {
                             coordinator.replace(path: [.login])
                         } label: {
                             Text("Log in")
                                 .font(.system(size: 15))
-                                .foregroundColor(
+                                .foregroundStyle(
                                     Color(
                                         red: 192/255,
                                         green: 130/255,
@@ -155,13 +155,8 @@ struct SignUpScreen: View {
                     
                     Text("V 1.0.0")
                         .font(.system(size: 11))
-                        .foregroundColor(
-                            Color(
-                                red: 121/255,
-                                green: 139/255,
-                                blue: 138/255
-                            )
-                            .opacity(0.6)
+                        .foregroundStyle(
+                            AppColors.Text.versionText
                         )
                         .padding(.bottom, 40)
                 }
@@ -178,7 +173,7 @@ struct SignUpScreen: View {
             }
         }
         .background(
-            Color(Color.appTeal)
+            (AppColors.Brand.teal)
                 .ignoresSafeArea()
         )
         

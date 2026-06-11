@@ -3,7 +3,6 @@
 //  visualize
 //
 
-
 import SwiftUI
 
 @MainActor
@@ -22,7 +21,7 @@ struct NotificationsScreen: View {
         .navigationTitle("Notifications")
         .navigationBarTitleDisplayMode(.large)
         .navigationBarBackButtonHidden(false)
-        .tint(Color.appNavy)
+        .tint(AppColors.Text.primary)
         .onAppear {
             NotificationCenter.default.post(name: .notificationsScreenDidAppear, object: nil)
             viewModel.loadNotifications()
@@ -58,10 +57,10 @@ struct NotificationsScreen: View {
             VStack(spacing: 16) {
                 Image(systemName: "exclamationmark.triangle")
                     .font(.system(size: 40))
-                    .foregroundStyle(Color.appTeal)
+                    .foregroundStyle(AppColors.Brand.teal)
                 Text(message)
                     .font(.system(size: 16))
-                    .foregroundStyle(Color.appSubtitle)
+                    .foregroundStyle(AppColors.Text.secondary)
                     .multilineTextAlignment(.center)
             }
             .frame(maxWidth: .infinity)
@@ -75,36 +74,33 @@ struct NotificationsScreen: View {
     private func loadedView(groups: [NotificationDisplayGroup]) -> some View {
         VStack(alignment: .leading, spacing: 20) {
             ForEach(groups) { group in
-                
-                if !group.items.isEmpty || group.id == "Today" || group.id == "Yesterday" {
-                    
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(group.title)
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(Color.appNavy)
-                            .padding(.horizontal, 24)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(group.title)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(AppColors.Text.primary)
+                        .padding(.horizontal, 24)
 
-                        if group.items.isEmpty {
-                            Text("No notifications yet.")
-                                .font(.system(size: 16))
-                                .foregroundStyle(Color.appSubtitle)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.bottom, 8)
-                        } else {
-                            NotificationGroupCardView(
-                                group: group,
-                                onTap: { id in viewModel.markAsRead(id: id) }
-                            )
-                            .padding(.horizontal, 24)
-                        }
+                    if group.items.isEmpty {
+                        Text("No notifications yet.")
+                            .font(.system(size: 16))
+                            .foregroundStyle(AppColors.Text.secondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.bottom, 8)
+                    } else {
+                        NotificationGroupCardView(
+                            group: group,
+                            onTap: { id in viewModel.markAsRead(id: id) }
+                        )
+                        .padding(.horizontal, 24)
                     }
                 }
             }
+            
             if case .loaded(let groups) = viewModel.state,
                groups.flatMap(\.items).count > 0 {
                 Text("No more notifications.")
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Color.appSubtitle)
+                    .foregroundStyle(AppColors.Text.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.top, 8)
             }

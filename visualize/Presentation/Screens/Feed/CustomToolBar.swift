@@ -16,12 +16,11 @@
 //  and allows dynamic title handling for contextual UI updates.
 //
 
-
 import SwiftUI
 
-extension View  {
+extension View {
     @ViewBuilder
-    func customToolBar <Leading: View, Trailing: View, Principal: View, PrimaryAction: View> (
+    func customToolBar<Leading: View, Trailing: View, Principal: View, PrimaryAction: View>(
         isPrimaryActionVisible: Bool,
         title: String?,
         
@@ -44,7 +43,7 @@ extension View  {
     }
 }
 
-fileprivate struct  CustomToolBarModifier<Leading: View, Trailing: View, Principal: View, PrimaryAction: View>: ViewModifier {
+private struct  CustomToolBarModifier<Leading: View, Trailing: View, Principal: View, PrimaryAction: View>: ViewModifier {
     
     var isPrimaryActionVisible: Bool
     var title: String?
@@ -56,11 +55,11 @@ fileprivate struct  CustomToolBarModifier<Leading: View, Trailing: View, Princip
     func body(content: Content) -> some View {
         content
             .toolbar {
-                ToolbarItem(placement: .topBarLeading){
+                ToolbarItem(placement: .topBarLeading) {
                     leading
                 }
                 
-                ToolbarItem(placement: .principal){
+                ToolbarItem(placement: .principal) {
                     principal
                 }
                 

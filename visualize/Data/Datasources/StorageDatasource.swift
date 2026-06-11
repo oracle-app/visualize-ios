@@ -4,6 +4,10 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//
+//  Thin Firebase Storage wrapper shared across features. The Snipping Tool uses
+//  it to upload the exported edited image and obtain a download URL for the
+//  Firestore comment payload.
 
 /// Firebase Storage wrapper — the sole Firebase import for Storage operations.
 import FirebaseStorage

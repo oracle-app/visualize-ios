@@ -4,8 +4,12 @@
 //
 //  Created by Nicolas Peralta on 15/05/26.
 //
+//  Domain models for Snipping Tool annotations. These lightweight value types
+//  describe tools, strokes, text labels, and shapes independently from the
+//  SwiftUI views that render or edit them.
 
-import SwiftUI
+import Foundation
+import CoreGraphics
 
 // MARK: - Drawing tool
 
@@ -29,10 +33,34 @@ enum DrawingTool: String, CaseIterable {
     }
 }
 
+// MARK: - Text style
+
+/// The typographic style applied to a text annotation.
+enum TextStyle: CaseIterable, Hashable {
+    case normal
+    case italic
+
+    /// SF Symbol name representing this style in the UI.
+    var icon: String {
+        switch self {
+        case .normal: return "textformat"
+        case .italic: return "italic"
+        }
+    }
+
+    /// Human-readable label used for accessibility and button titles.
+    var label: String {
+        switch self {
+        case .normal: return "Normal"
+        case .italic: return "Italic"
+        }
+    }
+}
+
 // MARK: - Shape type
 
 /// The geometric shape used when drawing a shape annotation.
-enum ShapeType: CaseIterable {
+enum ShapeType: CaseIterable, Hashable {
     case arrow, line, triangle, rectangle, circle
 
     /// SF Symbol name representing this shape in the UI.
@@ -58,6 +86,16 @@ enum ShapeType: CaseIterable {
     }
 }
 
+// MARK: - Snip color
+
+/// UI-independent RGBA colour value used by snip annotations.
+struct SnipColor: Equatable {
+    var red: CGFloat
+    var green: CGFloat
+    var blue: CGFloat
+    var opacity: CGFloat
+}
+
 // MARK: - Drawing stroke
 
 /// A freehand pencil or eraser stroke recorded as an ordered sequence of canvas points.
@@ -66,7 +104,7 @@ struct DrawingStroke: Identifiable {
     /// Ordered canvas coordinates that define the stroke path.
     var points: [CGPoint]
     /// Stroke colour.
-    var color: Color
+    var color: SnipColor
     /// Stroke width in points.
     var lineWidth: CGFloat
 }
@@ -83,7 +121,7 @@ struct ShapeAnnotation: Identifiable {
     /// The point where the user finished drawing.
     var endPoint: CGPoint
     /// Stroke colour.
-    var color: Color
+    var color: SnipColor
     /// Stroke width in points.
     var lineWidth: CGFloat
 }
@@ -98,7 +136,9 @@ struct TextAnnotation: Identifiable {
     /// The centre position of the label on the canvas.
     var position: CGPoint
     /// Text colour.
-    var color: Color
+    var color: SnipColor
     /// Font size in points.
     var fontSize: CGFloat
+    /// Whether the annotation renders in italic style.
+    var isItalic: Bool = false
 }

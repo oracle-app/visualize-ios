@@ -1,5 +1,5 @@
 //
-//  CreateVisualizationViewModel.swift
+//  CreateVisualizationScreenViewModel.swift
 //  VisualizeApp
 //
 //  Created by Libia Fv on 14/04/26.
@@ -20,16 +20,28 @@ import SwiftUI
 @Observable
 class CreateVisualizationScreenViewModel {
  
-    var selectedFileName: String? = nil
-    var errorMessage: String? = nil
+    var selectedFileName: String?
+    var errorMessage: String?
  
     var isUploading: Bool = false
     var uploadProgress: Double = 0.0
     var isUploadComplete: Bool = false
     
-    var fileSize: String = "0 MB"
-    var pickedFileURL: URL? = nil
- 
+    var fileSizeBytes: Int = 0
+    var pickedFileURL: URL?
+    
+    /// Formatted file size for display in the UI.
+    /// Bytes are kept in `fileSizeBytes`; formatting happens only at the view boundary.
+    var fileSize: String {
+        let kb = Double(fileSizeBytes) / 1024
+        let mb = kb / 1024
+
+        if mb >= 1 {
+            return "\(mb.formatted(.number.precision(.fractionLength(1)))) MB"
+        } else {
+            return "\(kb.formatted(.number.precision(.fractionLength(0)))) KB"
+        }
+    }
     private var timer: Timer?
  
     private let validateFileUseCase: ValidateFileUseCase
@@ -74,15 +86,8 @@ class CreateVisualizationScreenViewModel {
             return
         }
 
-        let kb = Double(size) / 1024
-        let mb = kb / 1024
-
-        if mb >= 1 {
-            fileSize = String(format: "%.1f MB", mb)
-        } else {
-            fileSize = String(format: "%.0f KB", kb)
-        }
-
+        fileSizeBytes = size
+ 
         selectedFileName = url.lastPathComponent
         pickedFileURL = dest
         errorMessage = nil
@@ -93,17 +98,25 @@ class CreateVisualizationScreenViewModel {
         isUploading = true
         isUploadComplete = false
         uploadProgress = 0.0
- 
+
+        timer?.invalidate()
         timer = Timer.scheduledTimer(
             withTimeInterval: 0.05,
             repeats: true
         ) { timer in
-            if self.uploadProgress < 1.0 {
-                self.uploadProgress += 0.02
+            if self.uploadProgress < 0.98 {
+                self.uploadProgress = min(self.uploadProgress + 0.04, 1.0)
             } else {
+                // Pin to exactly 1.0 so the bar and text both show 100%.
+                self.uploadProgress = 1.0
                 timer.invalidate()
-                self.isUploading = false
-                self.isUploadComplete = true
+                self.timer = nil
+
+                Task {
+                    try? await Task.sleep(for: .milliseconds(250))
+                    self.isUploading = false
+                    self.isUploadComplete = true
+                }
             }
         }
     }
@@ -124,7 +137,7 @@ class CreateVisualizationScreenViewModel {
         isUploading = false
         selectedFileName = nil
         uploadProgress = 0.0
-        fileSize = "0 MB"
+        fileSizeBytes = 0
         removeTempFile()
         pickedFileURL = nil
     }

@@ -18,8 +18,10 @@ struct ShareTeammatesScreen: View {
     @State private var isSharingExpanded = true
     @State private var isMyTeamsExpanded = true
     @State private var isJoinedTeamsExpanded = true
+    
     /// Called after a successful share confirmation.
     var onConfirm: () -> Void
+    
     /// - Parameters:
     ///   - viewModel: The view model managing search and selection state.
     ///   - onConfirm: Closure executed after the share is persisted successfully.
@@ -27,16 +29,17 @@ struct ShareTeammatesScreen: View {
         _vm = State(initialValue: viewModel)
         self.onConfirm = onConfirm
     }
+    
     var body: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 16) {
                 VStack(spacing: 5) {
                     Image(systemName: "person.2")
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                     Text("Share to more teammates")
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(AppColors.Text.primary)
                 }
                 contentView
             }
@@ -70,14 +73,16 @@ struct ShareTeammatesScreen: View {
                         dismiss()
                     }
                 }
-                .tint(Color.primaryOrange)
+                .tint(AppColors.Brand.primaryOrange)
             }
         }
     }
+    
     @ViewBuilder
     private var contentView: some View {
         loadedView()
     }
+    
     private func loadedView() -> some View {
         VStack(spacing: 16) {
             ZStack(alignment: .top) {
@@ -195,9 +200,9 @@ struct ShareTeammatesScreen: View {
             withAnimation { isExpanded.wrappedValue.toggle() }
         } label: {
             HStack {
-                Text(title).foregroundStyle(Color.primaryText)
+                Text(title).foregroundStyle(AppColors.Text.primary)
                 Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(AppColors.Text.primary)
             }
         }
     }

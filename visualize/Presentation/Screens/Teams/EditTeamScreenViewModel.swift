@@ -5,16 +5,13 @@
 //  Created by Diana Escalante on 26/05/26.
 //
 
-//
-/// ViewModel for the Edit Team sheet.
-/// Handles searching users by email, adding and removing members,
-/// and persisting the updated members list to the team.
-//
- 
 import SwiftUI
 import Observation
 import Foundation
  
+/// ViewModel for the Edit Team sheet.
+/// Handles searching users by email, adding and removing members,
+/// and persisting the updated members list to the team.
 @MainActor
 @Observable
 final class EditTeamScreenViewModel {
@@ -115,7 +112,7 @@ final class EditTeamScreenViewModel {
                 !members.contains(where: { $0.id == candidate.id })
             }
         } catch {
-            showToast("Failed to search users", type: .error)
+            showToast(String(localized: "Failed to search users"), type: .error)
         }
     }
     
@@ -169,7 +166,7 @@ final class EditTeamScreenViewModel {
             let membersIDs = nonOwnerMembers.map { $0.id }
             try await teamRepository.updateTeamMembers(teamID: teamID, membersIDs: membersIDs)
         } catch {
-            showToast("Failed to update team", type: .error)
+            showToast(String(localized: "Failed to update team"), type: .error)
             throw error
         }
     }
