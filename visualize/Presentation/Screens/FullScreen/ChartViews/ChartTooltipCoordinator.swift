@@ -177,7 +177,9 @@ class ChartTooltipCoordinator: NSObject {
         let pointInSurface: CGPoint
         if isHorizontalChart {
             let pixelX = CGFloat(yAxis.currentCoordinateCalculator.getCoordinate(yValue / 2))
-            let pixelY = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(Double(pointIndex)))
+            // Use the tap's Y directly because xAxis has flipCoordinates=true,
+            // so getCoordinate(pointIndex) would invert the vertical position.
+            let pixelY = location.y
             pointInSurface = seriesArea.convert(CGPoint(x: pixelX, y: pixelY), to: surface)
         } else {
             let pixelX = CGFloat(xAxis.currentCoordinateCalculator.getCoordinate(Double(pointIndex)))
@@ -403,7 +405,13 @@ class ChartTooltipCoordinator: NSObject {
         // MARK: Layout
         // Attach to the topmost subview so the tooltip renders above the chart canvas
         let container = surface.subviews.last ?? surface
-        let containerPoint = surface.convert(point, to: container)
+        // Clamp point to surface bounds so zoomed-out-of-view tooltips don't get
+        // negative coordinates after conversion.
+        let clampedPoint = CGPoint(
+            x: max(0, min(point.x, surface.bounds.width)),
+            y: max(0, min(point.y, surface.bounds.height))
+        )
+        let containerPoint = surface.convert(clampedPoint, to: container)
 
         var labelOriginX = containerPoint.x - labelWidth / 2
         var labelOriginY = containerPoint.y - labelHeight - arrowSize.height - 8
