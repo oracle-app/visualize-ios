@@ -5,7 +5,7 @@
 //  Created by Maria Regina Orduño Lopez on 06/06/26.
 //
 //  Unit tests for the Chart Views rendering module.
-//  Covers FSRT-001 through FSRT-010 from the Chart Views Test Plan.
+//  Covers FSRT-001 through FSRT-011 from the Chart Views Test Plan.
 //
 //  Strategy: ChartRendererView is a UIViewRepresentable that wraps SciChart —
 //  it cannot be unit-tested directly without a live surface. Instead, these
@@ -274,7 +274,7 @@ final class ChartViewsTests: XCTestCase {
         XCTAssertEqual(values.count, labels.count, "values and labels must have the same count")
     }
 
-    func test_FSRT011_tile_emptyData_producesEmptyValues() throws {
+    func test_FSRT011_tile_emptyData_returnsUnsupported() throws {
         let json = """
         {
             "chartType": "Tile",
@@ -284,10 +284,9 @@ final class ChartViewsTests: XCTestCase {
         }
         """
         let chart = try XCTUnwrap(ChartConfigParser.parse(from: json))
-        guard case .tile(_, let values, _) = chart else {
-            return XCTFail("Expected .tile")
-        }
-        XCTAssertTrue(values.isEmpty, "Empty field1 should produce empty values array")
+            guard case .unsupported = chart else {
+                return XCTFail("Expected .unsupported for empty tile data")
+            }
     }
 
     func test_FSRT011_tile_singleValue_parsesCorrectly() throws {
@@ -304,7 +303,7 @@ final class ChartViewsTests: XCTestCase {
             return XCTFail("Expected .tile")
         }
         XCTAssertEqual(title, "Total")
-        XCTAssertEqual(values.first ?? 0, 891.0, accuracy: 0.001)
+        XCTAssertEqual(values.first, "891")
         XCTAssertEqual(labels.first, "Passengers")
     }
 
