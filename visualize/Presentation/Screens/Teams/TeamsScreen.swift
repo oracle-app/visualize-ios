@@ -158,6 +158,7 @@ struct TeamsScreen: View {
                     viewModel: viewModel.makeEditViewModel(for: team),
                     onConfirm: { viewModel.didFinishEditing(teamName: team.name) }
                 )
+                .preventScreenShotSilent(isActive: true)
             }
         }
         .overlay(alignment: .bottom) {

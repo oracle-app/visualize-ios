@@ -193,6 +193,7 @@ struct FullScreen: View {
                     isSnipping = false
                 }
             )
+            .preventScreenShot(isActive: true)
         }
         .alert("Capture failed", isPresented: $viewModel.showCaptureError) {
             Button("OK", role: .cancel) {isSnipping = false} 

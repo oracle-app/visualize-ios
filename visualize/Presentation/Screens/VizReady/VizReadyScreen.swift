@@ -237,6 +237,7 @@ struct VizReadyView: View {
                     isTeammatesSelected = isTeammates
                 }
             )
+            .preventScreenShotSilent(isActive: true)
         }
         .presentationDetents(
             isTeammatesSelected ? [.fraction(0.34), .large] : [.fraction(0.34)],

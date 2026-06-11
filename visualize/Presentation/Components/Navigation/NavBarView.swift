@@ -177,6 +177,7 @@ struct NavBarView: View {
             .tag(Tabs.profile)
         }
         .environment(createFlowState)
+        .preventScreenShotSilent(isActive: true)
     }
 }
 
