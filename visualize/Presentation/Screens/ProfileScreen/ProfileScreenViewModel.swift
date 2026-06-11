@@ -26,7 +26,7 @@ final class ProfileScreenViewModel {
     var aboutItems: [AboutItem] {
         [
             .info(String(localized: "Version 1.0.0")),
-            .info(String(localized: "Developed by DreamTeam Corp.")),
+            .info(String(localized: "Developed by VisTeam.")),
             .action(String(localized: "Terms of Service")) { [weak self] in
                 self?.openTermsOfService()
             },
