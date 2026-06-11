@@ -7,7 +7,7 @@ import SwiftUI
 
 struct NotificationGroupCardView: View {
     let group: NotificationDisplayGroup
-    var onTap: ((String) -> Void)? = nil
+    var onTap: ((String) -> Void)?
 
     var body: some View {
         VStack(spacing: 0) {

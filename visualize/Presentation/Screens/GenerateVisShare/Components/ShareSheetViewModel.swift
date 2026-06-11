@@ -72,7 +72,7 @@ final class ShareSheetViewModel {
     var isLoading = false
     var error: String?
     /// Non-nil when `confirmShare` fails. Displayed in `ShareSheet` so the user knows the save failed.
-    var confirmError: String? = nil
+    var confirmError: String?
 
     // MARK: - Private State
 

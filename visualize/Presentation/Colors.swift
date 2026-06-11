@@ -1,3 +1,5 @@
+// swiftlint:disable orphaned_doc_comment
+// swiftlint:disable nesting
 import SwiftUI
 
 // MARK: Background Modifier
@@ -71,7 +73,6 @@ enum AppColors {
     }
 
     // MARK: Palettes
-    // swiftlint:disable nesting
     enum Palette {
         enum Lagoon {
             static let c1 = Color(red: 0/255, green: 191/255, blue: 216/255)
@@ -106,3 +107,6 @@ enum AppColors {
         }
     }
 }
+
+// swiftlint:enable nesting
+// swiftlint:enable orphaned_doc_comment

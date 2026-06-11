@@ -5,7 +5,6 @@
 //  Created by Miguel Degollado on 20/05/26.
 //
 
-
 import Foundation
 
 final class NotificationRepositoryImpl: NotificationRepository {

@@ -115,9 +115,9 @@ final class NotificationsScreenViewModel {
     private func group(_ notifications: [Notification]) -> [NotificationDisplayGroup] {
         let calendar = Calendar.current
         let now = Date()
-        var today:     [NotificationDisplayItem] = []
+        var today: [NotificationDisplayItem] = []
         var yesterday: [NotificationDisplayItem] = []
-        var last30:    [NotificationDisplayItem] = []
+        var last30: [NotificationDisplayItem] = []
 
         for notification in notifications {
             let item = notification.toDisplayItem()

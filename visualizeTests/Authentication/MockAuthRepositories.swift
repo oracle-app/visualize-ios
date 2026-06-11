@@ -50,7 +50,7 @@ final class MockAuthRepository: AuthRepository {
 
     // MARK: Misc
 
-    var currentUser: AuthUser? = nil
+    var currentUser: AuthUser?
     func getCurrentUser() -> AuthUser? { currentUser }
 
     var deleteCurrentUserCalled = false

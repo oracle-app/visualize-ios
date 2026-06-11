@@ -35,7 +35,7 @@ struct FeedScreen: View {
     @State var safeArea: EdgeInsets = .init()
     @State private var sharePayload: SharePayload?
     @State private var usersToShare: [AppUser] = []
-    @State private var selectedCard: VisualizationCard? = nil
+    @State private var selectedCard: VisualizationCard?
     @State private var isScrolledPastHeader: Bool = false
     @State private var isScrollDisabled: Bool = false
     @State private var scrollPosition: ScrollPosition = .init(idType: String.self)
@@ -387,7 +387,7 @@ struct SharePayload: Identifiable {
 // MARK: - Preview
 
 #Preview {
-    NavigationStack{
+    NavigationStack {
         FeedScreen(
             viewModel: .preview,
             shouldLoad: true

@@ -47,7 +47,7 @@ class LoginViewModel {
     var passwordError: String?
     var isLoading: Bool = false
     var isLoggedIn: Bool = false
-    var loggedInUser: AppUser? = nil
+    var loggedInUser: AppUser?
     
     // Toast
     var currentToast: Toast?

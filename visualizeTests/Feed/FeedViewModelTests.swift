@@ -11,7 +11,6 @@
 import XCTest
 @testable import visualize
 
-
 // MARK: - Test Suite
 
 @MainActor

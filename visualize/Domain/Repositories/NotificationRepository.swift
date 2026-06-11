@@ -4,7 +4,6 @@
 //
 // created by Miguel Degollado
 
-
 protocol NotificationRepository {
     func notificationsStream(for userID: String) -> AsyncStream<Result<[Notification], Error>>
     func unreadStream(for userID: String) -> AsyncStream<Bool>

@@ -14,7 +14,5 @@ struct NotificationDisplayItem: Identifiable, Equatable {
     let isRead: Bool
     let avatarInitials: String
     let avatarColor: Color
-    var avatarURL: String? = nil
+    var avatarURL: String?
 }
-
-
