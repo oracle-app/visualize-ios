@@ -3,7 +3,6 @@
 //
 //  created by Miguel Degollado on 26/05/2026
 
-
 import Foundation
 import FirebaseFirestore
 

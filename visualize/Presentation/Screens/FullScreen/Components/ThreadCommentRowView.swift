@@ -22,7 +22,7 @@ struct ThreadCommentRowView: View {
     var comment: Comment
     var currentUserID: String?
     var canDelete: (String) -> Bool
-    var image: UIImage? = nil
+    var image: UIImage?
 
     @Binding var activeCommentID: String?
     @Binding var activeCommentAuthor: String?

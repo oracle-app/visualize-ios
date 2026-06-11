@@ -30,7 +30,7 @@ struct ShareSheetView: View {
     // MARK: - State
 
     @State private var vm: ShareSheetViewModel
-    @State private var selectedOption: ShareMode? = nil
+    @State private var selectedOption: ShareMode?
     @State private var isConfirming: Bool = false
 
     @Binding var sheetSize: PresentationDetent
@@ -45,7 +45,7 @@ struct ShareSheetView: View {
     /// Called after the visualization is successfully created in Firestore.
     var onConfirm: ((_ isShared: Bool) -> Void)?
     
-    var onModeChange: ((Bool) -> Void)? = nil
+    var onModeChange: ((Bool) -> Void)?
 
     // MARK: - Init
 
@@ -270,7 +270,7 @@ struct ShareSheetView: View {
     private var toolbar: some ToolbarContent {
         Group {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel", systemImage: "xmark")  {
+                Button("Cancel", systemImage: "xmark") {
                     sheetSize = .fraction(0.28)
                     selectedOption = nil
                     dismiss()

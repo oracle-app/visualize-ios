@@ -14,10 +14,10 @@ struct RecommendedChartCardView: View {
     let title: String
     /// Parsed chart model to render as a non-interactive preview inside the card.
     /// Falls back to a white placeholder when `nil`.
-    var chart: ChartData? = nil
+    var chart: ChartData?
     var isSelected: Bool = false
-    var onTap: (() -> Void)? = nil
-    var onTitleChange: ((String) -> Void)? = nil
+    var onTap: (() -> Void)?
+    var onTitleChange: ((String) -> Void)?
     
     // MARK: - Edit state
     @State private var isEditAlertPresented = false

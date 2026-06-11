@@ -12,7 +12,6 @@
 ///  - Validates interactive text length parameters to animate the presentation of the submission trigger.
 ///  - Styles the background layer using an ultra-thin capsule material complete with a custom stroke ring overlay.
 
-
 import SwiftUI
 
 struct ReplyFieldView: View {
@@ -58,7 +57,7 @@ struct ReplyFieldView: View {
 
     /// Capsule-shaped text field with a microphone button on the trailing side.
     private var textInput: some View {
-        HStack (alignment: .bottom){
+        HStack(alignment: .bottom) {
             TextField(placeholder, text: $text, axis: .vertical)
                 .focused($focused)
                 .font(.system(size: 17))

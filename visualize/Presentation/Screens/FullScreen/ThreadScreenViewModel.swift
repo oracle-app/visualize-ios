@@ -18,7 +18,6 @@
 ///  This ViewModel delegates all data operations to injected Use Cases and
 ///  Repositories, keeping it free of Firebase or infrastructure dependencies.
 
-
 import Foundation
 import Observation
 

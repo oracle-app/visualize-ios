@@ -16,7 +16,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     
     func application(
         _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
       ) -> Bool {
           if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
               FirebaseApp.configure()
@@ -119,7 +119,6 @@ struct VisualizeApp: App {
             coordinator: AppCoordinator()
         )
     }
-    
     
     // MARK: - Feed UI Test Root
     #if DEBUG

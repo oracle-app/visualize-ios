@@ -20,15 +20,15 @@ import SwiftUI
 @Observable
 class CreateVisualizationScreenViewModel {
  
-    var selectedFileName: String? = nil
-    var errorMessage: String? = nil
+    var selectedFileName: String?
+    var errorMessage: String?
  
     var isUploading: Bool = false
     var uploadProgress: Double = 0.0
     var isUploadComplete: Bool = false
     
     var fileSizeBytes: Int = 0
-    var pickedFileURL: URL? = nil
+    var pickedFileURL: URL?
     
     /// Formatted file size for display in the UI.
     /// Bytes are kept in `fileSizeBytes`; formatting happens only at the view boundary.

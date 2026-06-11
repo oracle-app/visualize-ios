@@ -8,7 +8,7 @@ import SwiftUI
 struct NotificationRowView: View {
     let item: NotificationDisplayItem
     let showSeparator: Bool
-    var onTap: ((String) -> Void)? = nil
+    var onTap: ((String) -> Void)?
 
     var body: some View {
         VStack(spacing: 0) {
