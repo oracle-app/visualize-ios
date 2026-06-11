@@ -193,13 +193,14 @@ struct FullScreen: View {
                     isSnipping = false
                 }
             )
+            .preventScreenShotSilent(isActive: true)
         }
         .alert("Capture failed", isPresented: $viewModel.showCaptureError) {
             Button("OK", role: .cancel) {isSnipping = false} 
         } message: {
             Text("Could not capture the chart. Please try again.")
         }
-        .preventScreenShot(isActive: !isSnipping)
+        .preventScreenShotSilent(isActive: !isSnipping)
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: Binding(

@@ -214,6 +214,7 @@ struct FeedScreen: View {
                     }
                 )
                 .presentationDetents([.medium, .large])
+                .preventScreenShotSilent(isActive: true)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
