@@ -13,7 +13,7 @@ struct MockChartSuggestionsDatasource {
     /// - Returns: Suggestions sorted ascending by chart index.
     /// - Throws: `CancellationError` if the enclosing Task is cancelled.
     func fetchSuggestions() async throws -> [ChartSuggestion] {
-        try await Task.sleep(for: .seconds(2))
+        try await Task.sleep(for: .seconds(55))
         return MockChartJSONs.allCharts
             .compactMap { pair in
                 ChartConfigParser.parseSuggestion(configJSON: pair.config, previewJSON: pair.preview)

@@ -10,367 +10,729 @@
 /// - `config`, full data for `FullScreenView` (all data points)
 /// - `preview`, reduced data for card previews and the feed (fewer points, faster render)
 ///
-/// All examples use the Titanic dataset.
+
 enum MockChartJSONs {
- 
-    // MARK: - Active suggestions
- 
-    /// Pairs consumed by `MockChartSuggestionsDatasource`. Each tuple is (config, preview).
+
     static let allCharts: [(config: String, preview: String)] = [
         (config: verticalBarConfig, preview: verticalBarPreview),
-        (config: horizontalBarConfig, preview: horizontalBarPreview),
         (config: scatterConfig, preview: scatterPreview),
-        (config: stackedBarConfig, preview: stackedBarPreview),
         (config: lineConfig, preview: linePreview),
         (config: pieConfig, preview: piePreview),
-        (config: donutConfig, preview: donutPreview),
-        (config: tileConfig, preview: tilePreview),
-        (config: areaConfig, preview: areaPreview)
+        (config: tileConfig, preview: tilePreview)
     ]
- 
-    // MARK: - Chart 0 · Vertical Bar
- 
-    /// Survivors by Age Decade , 8 categories (full for FullScreenView)
+
+    // MARK: - verticalBar
     static let verticalBarConfig: String = """
     {
-        "chartIndex": 0,
-        "chartName": "Survival Rate by Passenger Class",
-        "chartType": "Vertical Bar Chart",
-        "data": {
-            "field1": ["0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70+"],
-            "field2": ["38", "26", "77", "87", "47", "28", "14", "2"]
-        },
-        "metrics": { "field1": "Age Group", "field2": "Survived" },
-        "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 8
+    "chartIndex": 0,
+    "chartName": "Revenue Drop by Region",
+    "chartType": "Vertical Bar Chart",
+    "data": {
+        "field1": [
+            "Northwest",
+            "Northeast",
+            "Bajio",
+            "West",
+            "Central",
+            "South"
+        ],
+        "field2": [
+            "-12.8",
+            "-5.4",
+            "3.1",
+            "-2.6",
+            "4.8",
+            "-9.7"
+        ]
+    },
+    "metrics": {
+        "field1": "Region",
+        "field2": "Revenue Change %"
+    },
+    "page": 0,
+    "pageSize": 5000,
+    "preview": false,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 6
     }
     """
- 
-    /// Survivors by Passenger Class , 3 categories (reduced for card preview)
-    /// Pclass 1: 136 survived, Pclass 2: 87 survived, Pclass 3: 119 survived
+
     static let verticalBarPreview: String = """
     {
-        "chartIndex": 0,
-        "chartName": "Survival Rate by Passenger Class",
-        "chartType": "Vertical Bar Chart",
-        "data": {
-            "field1": ["1", "2", "3"],
-            "field2": ["136", "87", "119"]
-        },
-        "metrics": { "field1": "Pclass", "field2": "Survived" },
-        "page": 0, "pageSize": 100, "preview": true,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 3
+    "chartIndex": 0,
+    "chartName": "Revenue Drop by Region",
+    "chartType": "Vertical Bar Chart",
+    "data": {
+        "field1": [
+            "Northwest",
+            "Northeast",
+            "Central",
+            "South"
+        ],
+        "field2": [
+            "-12.8",
+            "-5.4",
+            "4.8",
+            "-9.7"
+        ]
+    },
+    "metrics": {
+        "field1": "Region",
+        "field2": "Revenue Change %"
+    },
+    "page": 0,
+    "pageSize": 100,
+    "preview": true,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 4
     }
     """
- 
-    // MARK: - Chart 1 · Horizontal Bar
- 
-    /// Average Fare by Passenger Class
-    static let horizontalBarPreview: String = """
-    {
-        "chartIndex": 1,
-        "chartName": "Average Fare by Passenger Class",
-        "chartType": "Horizontal Bar Chart",
-        "data": {
-            "field1": ["1", "2", "3"],
-            "field2": ["84.15", "20.66", "13.68"]
-        },
-        "metrics": { "field1": "Pclass", "field2": "Avg Fare" },
-        "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 3
-    }
-    """
-    
-    /// Average Fare and Survival Rate by Embarkation Port, 8 categories (full for FullScreenView)
+
+    // MARK: - horizontalBar
     static let horizontalBarConfig: String = """
     {
-        "chartIndex": 1,
-        "chartName": "Average Fare by Age Group",
-        "chartType": "Horizontal Bar Chart",
-        "data": {
-            "field1": ["0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70+"],
-            "field2": ["31.25", "22.18", "28.64", "45.92", "52.37", "61.84", "38.45", "24.11"]
-        },
-        "metrics": { "field1": "Age Group", "field2": "Avg Fare" },
-        "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 8
+    "chartIndex": 1,
+    "chartName": "Delayed Routes by Distribution Center",
+    "chartType": "Horizontal Bar Chart",
+    "data": {
+        "field1": [
+            "Hermosillo DC",
+            "Monterrey DC",
+            "Guadalajara DC",
+            "Queretaro DC",
+            "Merida DC",
+            "Puebla DC",
+            "Tijuana DC"
+        ],
+        "field2": [
+            "48",
+            "31",
+            "27",
+            "18",
+            "24",
+            "16",
+            "39"
+        ]
+    },
+    "metrics": {
+        "field1": "Distribution Center",
+        "field2": "Delayed Routes"
+    },
+    "page": 0,
+    "pageSize": 5000,
+    "preview": false,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 7
     }
     """
- 
-    // MARK: - Chart 2 · Scatter Age
- 
-    /// Age Distribution vs Survival , all 88 passengers with known age (full for FullScreenView)
+
+    static let horizontalBarPreview: String = """
+    {
+    "chartIndex": 1,
+    "chartName": "Delayed Routes by Distribution Center",
+    "chartType": "Horizontal Bar Chart",
+    "data": {
+        "field1": [
+            "Hermosillo DC",
+            "Tijuana DC",
+            "Monterrey DC",
+            "Guadalajara DC"
+        ],
+        "field2": [
+            "48",
+            "39",
+            "31",
+            "27"
+        ]
+    },
+    "metrics": {
+        "field1": "Distribution Center",
+        "field2": "Delayed Routes"
+    },
+    "page": 0,
+    "pageSize": 100,
+    "preview": true,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 4
+    }
+    """
+
+    // MARK: - scatter
     static let scatterConfig: String = """
     {
-        "chartIndex": 2,
-        "chartName": "Age Distribution vs Survival",
-        "chartType": "Scatter",
-        "data": {
-            "field1": ["34.5","47.0","62.0","27.0","22.0","14.0","30.0","26.0","18.0","21.0",
-                       "46.0","23.0","63.0","47.0","24.0","35.0","21.0","27.0","45.0","55.0",
-                       "9.0","21.0","48.0","50.0","22.0","22.5","41.0","50.0","24.0","33.0",
-                       "30.0","18.5","21.0","25.0","39.0","41.0","30.0","45.0","25.0","45.0",
-                       "60.0","36.0","24.0","27.0","20.0","28.0","10.0","35.0","25.0","36.0",
-                       "17.0","32.0","18.0","22.0","13.0","18.0","47.0","31.0","60.0","24.0",
-                       "21.0","29.0","28.5","35.0","32.5","55.0","30.0","24.0","6.0","67.0",
-                       "49.0","27.0","18.0","2.0","22.0","27.0","25.0","25.0","76.0","29.0",
-                       "20.0","33.0","43.0","27.0","26.0","16.0","28.0","21.0"],
-            "field2": ["0","1","0","0","1","0","1","0","1","0",
-                       "0","1","0","1","1","0","0","1","1","0",
-                       "0","0","1","0","1","0","0","0","0","1",
-                       "0","0","1","0","0","0","1","1","0","0",
-                       "1","1","0","0","1","1","0","0","0","1",
-                       "0","0","0","1","0","1","0","0","1","1",
-                       "0","1","0","1","0","1","0","1","0","0",
-                       "0","1","1","0","1","1","0","0","1","0",
-                       "1","0","1","0","0","1","0","0"]
-        },
-        "metrics": { "field1": "Age", "field2": "Survived" },
-        "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 88
+    "chartIndex": 2,
+    "chartName": "Promotion Spend vs Sales Lift",
+    "chartType": "Scatter",
+    "data": {
+        "field1": [
+            "12",
+            "18",
+            "22",
+            "25",
+            "30",
+            "34",
+            "38",
+            "42",
+            "45",
+            "49",
+            "53",
+            "58",
+            "62",
+            "67",
+            "72"
+        ],
+        "field2": [
+            "3.2",
+            "4.5",
+            "4.8",
+            "5.1",
+            "6.2",
+            "6.9",
+            "7.1",
+            "7.4",
+            "7.9",
+            "8.0",
+            "8.2",
+            "8.5",
+            "8.6",
+            "8.7",
+            "8.8"
+        ]
+    },
+    "metrics": {
+        "field1": "Promotion Spend K",
+        "field2": "Sales Lift %"
+    },
+    "page": 0,
+    "pageSize": 5000,
+    "preview": false,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 15
     }
     """
- 
-    /// Age Distribution vs Survival , 15 points (reduced for card preview)
+
     static let scatterPreview: String = """
     {
-        "chartIndex": 2,
-        "chartName": "Age Distribution vs Survival",
-        "chartType": "Scatter",
-        "data": {
-            "field1": ["34.5","47.0","62.0","27.0","22.0","14.0","30.0","26.0","18.0","21.0",
-                       "46.0","23.0","63.0","47.0","24.0"],
-            "field2": ["0","1","0","0","1","0","1","0","1","0","0","1","0","1","1"]
-        },
-        "metrics": { "field1": "Age", "field2": "Survived" },
-        "page": 0, "pageSize": 100, "preview": true,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 15
+    "chartIndex": 2,
+    "chartName": "Promotion Spend vs Sales Lift",
+    "chartType": "Scatter",
+    "data": {
+        "field1": [
+            "12",
+            "25",
+            "38",
+            "49",
+            "62",
+            "72"
+        ],
+        "field2": [
+            "3.2",
+            "5.1",
+            "7.1",
+            "8.0",
+            "8.6",
+            "8.8"
+        ]
+    },
+    "metrics": {
+        "field1": "Promotion Spend K",
+        "field2": "Sales Lift %"
+    },
+    "page": 0,
+    "pageSize": 100,
+    "preview": true,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 6
     }
     """
- 
-    // MARK: - Chart 3 · Stacked Bar
- 
-    /// Survived/Died by Parch , 7 categories (full for FullScreenView)
-    /// Parch 0: 678 total (233 survived, 445 died)
-    /// Parch 1: 118 total (65 survived, 53 died)
-    /// Parch 2: 80 total (40 survived, 40 died)
-    /// Parch 3-6: small groups
+
+    // MARK: - stackedBar
     static let stackedBarConfig: String = """
     {
-        "chartIndex": 3,
-        "chartName": "Survival Rate by Family Size",
-        "chartType": "Stacked Bar Chart",
-        "data": {
-            "field1": ["0", "1", "2", "3", "4", "5", "6"],
-            "field2": {
-                "0": [445, 53, 40, 2, 4, 4, 1],
-                "1": [233, 65, 40, 3, 0, 1, 0]
-            }
-        },
-        "metrics": { "field1": "Parch", "field2": "Survived", "field3": "Pclass" },
-        "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 7
+    "chartIndex": 3,
+    "chartName": "Returned Units by Cause",
+    "chartType": "Stacked Bar Chart",
+    "data": {
+        "field1": [
+            "White Bread",
+            "Tortillas",
+            "Sweet Rolls",
+            "Snack Cakes",
+            "Buns"
+        ],
+        "field2": {
+            "Expired": [
+                "120",
+                "94",
+                "76",
+                "88",
+                "42"
+            ],
+            "Damaged": [
+                "65",
+                "41",
+                "52",
+                "39",
+                "28"
+            ],
+            "Late Delivery": [
+                "82",
+                "59",
+                "44",
+                "71",
+                "35"
+            ]
+        }
+    },
+    "metrics": {
+        "field1": "Product",
+        "field2": "Returned Units",
+        "field3": "Cause"
+    },
+    "page": 0,
+    "pageSize": 5000,
+    "preview": false,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 5
     }
     """
- 
-    /// Survived/Died by SibSp , 7 categories (reduced for card preview)
-    /// SibSp 0: 608 total (210 survived, 398 died)
-    /// SibSp 1: 209 total (112 survived, 97 died)
+
     static let stackedBarPreview: String = """
     {
-        "chartIndex": 3,
-        "chartName": "Survival Rate by Family Size",
-        "chartType": "Stacked Bar Chart",
-        "data": {
-            "field1": ["0", "1", "2", "3", "4", "5", "8"],
-            "field2": {
-                "0": [398, 97, 15, 12, 15, 5, 7],
-                "1": [210, 112, 13, 4, 3, 0, 0]
-            }
-        },
-        "metrics": { "field1": "SibSp", "field2": "Survived", "field3": "Pclass" },
-        "page": 0, "pageSize": 100, "preview": true,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 7
+    "chartIndex": 3,
+    "chartName": "Returned Units by Cause",
+    "chartType": "Stacked Bar Chart",
+    "data": {
+        "field1": [
+            "White Bread",
+            "Tortillas",
+            "Snack Cakes",
+            "Buns"
+        ],
+        "field2": {
+            "Expired": [
+                "120",
+                "94",
+                "88",
+                "42"
+            ],
+            "Damaged": [
+                "65",
+                "41",
+                "39",
+                "28"
+            ],
+            "Late Delivery": [
+                "82",
+                "59",
+                "71",
+                "35"
+            ]
+        }
+    },
+    "metrics": {
+        "field1": "Product",
+        "field2": "Returned Units",
+        "field3": "Cause"
+    },
+    "page": 0,
+    "pageSize": 100,
+    "preview": true,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 4
     }
     """
- 
-    // MARK: - Chart 4 · Line
- 
-    /// Average Fare by Age , 17 points every 5 years from age 5 to 85 (full for FullScreenView)
+
+    // MARK: - line
     static let lineConfig: String = """
     {
-        "chartIndex": 4,
-        "chartName": "Average Fare per Age Group",
-        "chartType": "Line",
-        "data": {
-            "field1": ["5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85"],
-            "field2": ["27.4","19.8","24.6","26.3","31.2","40.5","52.1","65.8","58.3","49.7","41.2","55.6","38.9","32.4","21.1","15.3","9.8"]
-        },
-        "metrics": { "field1": "Age", "field2": "Avg Fare" },
-        "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 17
+    "chartIndex": 4,
+    "chartName": "Hourly Order Volume",
+    "chartType": "Line",
+    "data": {
+        "field1": [
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18"
+        ],
+        "field2": [
+            "420",
+            "610",
+            "870",
+            "980",
+            "1040",
+            "1180",
+            "1290",
+            "1225",
+            "1160",
+            "1085",
+            "970",
+            "860",
+            "690"
+        ]
+    },
+    "metrics": {
+        "field1": "Hour",
+        "field2": "Orders"
+    },
+    "page": 0,
+    "pageSize": 5000,
+    "preview": false,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 13
     }
     """
- 
-    /// Average Fare by Age , 8 points every 10 years (reduced for card preview)
+
     static let linePreview: String = """
     {
-        "chartIndex": 4,
-        "chartName": "Average Fare per Age Group",
-        "chartType": "Line",
-        "data": {
-            "field1": ["10","20","30","40","50","60","70","80"],
-            "field2": ["19.8","26.3","40.5","65.8","49.7","55.6","32.4","15.3"]
-        },
-        "metrics": { "field1": "Age", "field2": "Avg Fare" },
-        "page": 0, "pageSize": 100, "preview": true,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 8
+    "chartIndex": 4,
+    "chartName": "Hourly Order Volume",
+    "chartType": "Line",
+    "data": {
+        "field1": [
+            "6",
+            "8",
+            "10",
+            "12",
+            "14",
+            "16",
+            "18"
+        ],
+        "field2": [
+            "420",
+            "870",
+            "1040",
+            "1290",
+            "1160",
+            "970",
+            "690"
+        ]
+    },
+    "metrics": {
+        "field1": "Hour",
+        "field2": "Orders"
+    },
+    "page": 0,
+    "pageSize": 100,
+    "preview": true,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 7
     }
     """
- 
-    // MARK: - Chart 5 · Pie
- 
-    /// Passenger Count by Class and Sex , 6 segments (full for FullScreenView)
-    /// 1st M: 94, 1st F: 122, 2nd M: 108, 2nd F: 76, 3rd M: 347, 3rd F: 144 → total 891
+
+    // MARK: - pie
     static let pieConfig: String = """
     {
-        "chartIndex": 5,
-        "chartName": "Passenger Sex Distribution",
-        "chartType": "Pie",
-        "data": {
-            "field1": ["1st-Male", "1st-Female", "2nd-Male", "2nd-Female", "3rd-Male", "3rd-Female"],
-            "field2": ["94", "122", "108", "76", "347", "144"]
-        },
-        "metrics": { "field1": "Class & Sex", "field2": "Count" },
-        "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 6
+    "chartIndex": 5,
+    "chartName": "Issue Share by Category",
+    "chartType": "Pie",
+    "data": {
+        "field1": [
+            "Late Delivery",
+            "Inventory Gap",
+            "Expired Product",
+            "Damaged Package",
+            "Order Error"
+        ],
+        "field2": [
+            "34",
+            "22",
+            "18",
+            "15",
+            "11"
+        ]
+    },
+    "metrics": {
+        "field1": "Issue Category",
+        "field2": "Share %"
+    },
+    "page": 0,
+    "pageSize": 5000,
+    "preview": false,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 5
     }
     """
- 
-    /// Passenger Count by Sex , 2 segments (reduced for card preview)
-    /// Male: 577, Female: 314 → total 891
+
     static let piePreview: String = """
     {
-        "chartIndex": 5,
-        "chartName": "Passenger Sex Distribution",
-        "chartType": "Pie",
-        "data": { "field1": ["Male", "Female"], "field2": ["577", "314"] },
-        "metrics": { "field1": "Sex", "field2": "Count" },
-        "page": 0, "pageSize": 100, "preview": true,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 2
+    "chartIndex": 5,
+    "chartName": "Issue Share by Category",
+    "chartType": "Pie",
+    "data": {
+        "field1": [
+            "Late Delivery",
+            "Inventory Gap",
+            "Expired Product",
+            "Other"
+        ],
+        "field2": [
+            "34",
+            "22",
+            "18",
+            "26"
+        ]
+    },
+    "metrics": {
+        "field1": "Issue Category",
+        "field2": "Share %"
+    },
+    "page": 0,
+    "pageSize": 100,
+    "preview": true,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 4
     }
     """
- 
-    // MARK: - Chart 6 · Donut
- 
-    /// Survived/Died by Embarkation Port , 6 segments (full for FullScreenView)
-    /// S: 217 survived 427 died, C: 93 survived 75 died, Q: 30 survived 47 died
-    /// (2 passengers with missing port excluded , total 889)
+
+    // MARK: - donut
     static let donutConfig: String = """
     {
-        "chartIndex": 6,
-        "chartName": "Embarkation Port Distribution",
-        "chartType": "Donut",
-        "data": {
-            "field1": ["S-Survived", "S-Died", "C-Survived", "C-Died", "Q-Survived", "Q-Died"],
-            "field2": ["217", "427", "93", "75", "30", "47"]
-        },
-        "metrics": { "field1": "Port & Outcome", "field2": "Count" },
-        "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 6
+    "chartIndex": 6,
+    "chartName": "Customer Segment Mix",
+    "chartType": "Donut",
+    "data": {
+        "field1": [
+            "Small Retailers",
+            "Convenience Chains",
+            "Supermarkets",
+            "Wholesale",
+            "Online"
+        ],
+        "field2": [
+            "31",
+            "28",
+            "24",
+            "12",
+            "5"
+        ]
+    },
+    "metrics": {
+        "field1": "Customer Segment",
+        "field2": "Share %"
+    },
+    "page": 0,
+    "pageSize": 5000,
+    "preview": false,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 5
     }
     """
- 
-    /// Passenger Count by Embarkation Port , 3 segments (reduced for card preview)
-    /// Southampton: 644, Cherbourg: 168, Queenstown: 77 -> total 889
+
     static let donutPreview: String = """
     {
-        "chartIndex": 6,
-        "chartName": "Embarkation Port Distribution",
-        "chartType": "Donut",
-        "data": {
-            "field1": ["Southampton", "Cherbourg", "Queenstown"],
-            "field2": ["644", "168", "77"]
-        },
-        "metrics": { "field1": "Embarked", "field2": "Count" },
-        "page": 0, "pageSize": 100, "preview": true,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 3
+    "chartIndex": 6,
+    "chartName": "Customer Segment Mix",
+    "chartType": "Donut",
+    "data": {
+        "field1": [
+            "Small Retailers",
+            "Convenience",
+            "Supermarkets",
+            "Other"
+        ],
+        "field2": [
+            "31",
+            "28",
+            "24",
+            "17"
+        ]
+    },
+    "metrics": {
+        "field1": "Customer Segment",
+        "field2": "Share %"
+    },
+    "page": 0,
+    "pageSize": 100,
+    "preview": true,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 4
     }
     """
- 
-    // MARK: - Chart 7 · Tile
- 
-    // MARK: - Chart 7 · Tile
 
-    /// Titanic KPI overview, full stat for FullScreenView
+    // MARK: - tile
     static let tileConfig: String = """
     {
-        "chartIndex": 7,
-        "chartName": "Titanic KPI Overview",
-        "chartType": "Tile",
-        "data": {
-            "field1": ["Passengers", "Survivors", "Avg Fare", "Avg Age", "Classes"],
-            "field2": ["891", "342", "32.2", "29.7", "3"]
-        },
-        "metrics": { "field1": "Metric", "field2": "Value" },
-        "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 5
+    "chartIndex": 7,
+    "chartName": "Incident Snapshot",
+    "chartType": "Tile",
+    "data": {
+        "field1": [
+            "Revenue Change",
+            "Delayed Routes",
+            "Return Rate",
+            "At-Risk SKUs",
+            "Top Issue",
+            "Priority"
+        ],
+        "field2": [
+            "-12.8%",
+            "48",
+            "8.7%",
+            "14",
+            "Late Delivery",
+            "High"
+        ]
+    },
+    "metrics": {
+        "field1": "Metric",
+        "field2": "Value"
+    },
+    "page": 0,
+    "pageSize": 5000,
+    "preview": false,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 6
     }
     """
 
-    /// Titanic KPI overview, reduced for card preview
     static let tilePreview: String = """
     {
-        "chartIndex": 7,
-        "chartName": "Titanic KPI Overview",
-        "chartType": "Tile",
-        "data": {
-            "field1": ["Passengers", "Survivors", "Avg Fare", "Avg Age", "Classes"],
-            "field2": ["891", "342", "32.2", "29.7", "3"]
-        },
-        "metrics": { "field1": "Metric", "field2": "Value" },
-        "page": 0, "pageSize": 100, "preview": true,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 5
+    "chartIndex": 7,
+    "chartName": "Incident Snapshot",
+    "chartType": "Tile",
+    "data": {
+        "field1": [
+            "Revenue Change",
+            "Delayed Routes",
+            "Return Rate",
+            "Priority"
+        ],
+        "field2": [
+            "-12.8%",
+            "48",
+            "8.7%",
+            "High"
+        ]
+    },
+    "metrics": {
+        "field1": "Metric",
+        "field2": "Value"
+    },
+    "page": 0,
+    "pageSize": 100,
+    "preview": true,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 4
     }
     """
 
-    // MARK: - Chart 8 · Area
- 
-    /// Survivors and Deaths by Age Group, 8 groups (full for FullScreenView)
+    // MARK: - area
     static let areaConfig: String = """
     {
-        "chartIndex": 8,
-        "chartName": "Survival Trend by Age",
-        "chartType": "Area",
-        "data": {
-            "field1": ["0-9","10-19","20-29","30-39","40-49","50-59","60-69","70+"],
-            "field2": {
-                "Survived": ["38","26","77","87","47","28","14","2"],
-                "Died":     ["24","45","108","61","42","24","18","12"]
-            }
-        },
-        "metrics": { "field1": "Age Group", "field2": "Count", "field3": "Outcome" },
-        "page": 0, "pageSize": 5000, "preview": false,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 8
+    "chartIndex": 8,
+    "chartName": "Demand vs Available Stock",
+    "chartType": "Area",
+    "data": {
+        "field1": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun"
+        ],
+        "field2": {
+            "Demand": [
+                "6800",
+                "7200",
+                "7650",
+                "8100",
+                "8950",
+                "9300",
+                "8800"
+            ],
+            "Available Stock": [
+                "7100",
+                "7350",
+                "7200",
+                "7600",
+                "7900",
+                "8050",
+                "7700"
+            ]
+        }
+    },
+    "metrics": {
+        "field1": "Day",
+        "field2": "Units",
+        "field3": "Series"
+    },
+    "page": 0,
+    "pageSize": 5000,
+    "preview": false,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 7
     }
     """
- 
-    /// Survivors and Deaths by Age Group, 4 groups (reduced for card preview)
+
     static let areaPreview: String = """
     {
-        "chartIndex": 8,
-        "chartName": "Survival Trend by Age",
-        "chartType": "Area",
-        "data": {
-            "field1": ["0-19","20-39","40-59","60+"],
-            "field2": {
-                "Survived": ["64","164","75","16"],
-                "Died":     ["69","169","66","30"]
-            }
-        },
-        "metrics": { "field1": "Age Group", "field2": "Count", "field3": "Outcome" },
-        "page": 0, "pageSize": 100, "preview": true,
-        "status": "COMPLETED", "totalPages": 1, "totalPoints": 4
+    "chartIndex": 8,
+    "chartName": "Demand vs Available Stock",
+    "chartType": "Area",
+    "data": {
+        "field1": [
+            "Mon",
+            "Wed",
+            "Fri",
+            "Sun"
+        ],
+        "field2": {
+            "Demand": [
+                "6800",
+                "7650",
+                "8950",
+                "8800"
+            ],
+            "Available Stock": [
+                "7100",
+                "7200",
+                "7900",
+                "7700"
+            ]
+        }
+    },
+    "metrics": {
+        "field1": "Day",
+        "field2": "Units",
+        "field3": "Series"
+    },
+    "page": 0,
+    "pageSize": 100,
+    "preview": true,
+    "status": "COMPLETED",
+    "totalPages": 1,
+    "totalPoints": 4
     }
     """
+
 }

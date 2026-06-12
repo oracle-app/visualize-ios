@@ -30,8 +30,8 @@ final class GeneratingVisualizationsScreenViewModel {
  
     // MARK: - Init
     init(
-        analyzeRepository: any AnalyzeRepository = AnalyzeRepositoryImpl(),
-        chartSuggestionsRepository: any ChartSuggestionsRepository = APIChartSuggestionsRepositoryImpl()
+        analyzeRepository: any AnalyzeRepository = MockAnalyzeRepositoryImpl(),
+        chartSuggestionsRepository: any ChartSuggestionsRepository = MockChartSuggestionsRepositoryImpl()
     ) {
         self.analyzeRepository = analyzeRepository
         self.chartSuggestionsRepository = chartSuggestionsRepository
